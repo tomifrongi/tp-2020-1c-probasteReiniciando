@@ -47,7 +47,6 @@ int init_server(int port){
 	if (listen(socket, MAX_CLIENTS)< 0) {
 		return EXIT_FAILURE;
 	}
-
 	return socket;
 
 }
