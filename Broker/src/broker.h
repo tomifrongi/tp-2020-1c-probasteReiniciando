@@ -22,11 +22,14 @@
 #include <commons/collections/list.h>
 #include <sys/mman.h>
 #include <pthread.h>
+#include <commons/collections/queue.h>
+#include "colasDeMensajes.h"
 
 //Parametros a recibir desde el config
 int TAMANIO_MEMORIA; //Tamaño de la memoria total
 int PUERTO; //Puerto del socket
-
+int ID_INICIAL;
+pthread_mutex_t mut_listaProgramas; //mutex de la lista de programas actuales, podria ser uno por cola?
 int listener_socket;
 t_log* logger;
 
