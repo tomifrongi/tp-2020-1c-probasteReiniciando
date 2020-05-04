@@ -5,15 +5,18 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../src/broker.c \
-../src/colasDeMensajes.c 
+../src/colasDeMensajes.c \
+../src/funcionesEnvio.c 
 
 OBJS += \
 ./src/broker.o \
-./src/colasDeMensajes.o 
+./src/colasDeMensajes.o \
+./src/funcionesEnvio.o 
 
 C_DEPS += \
 ./src/broker.d \
-./src/colasDeMensajes.d 
+./src/colasDeMensajes.d \
+./src/funcionesEnvio.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
