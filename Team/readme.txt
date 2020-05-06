@@ -1,1 +1,0 @@
-pikachu yo te elijo
