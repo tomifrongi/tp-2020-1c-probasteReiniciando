@@ -1,17 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "team.h"
 
-
-typedef struct{
-	char* especie;
-	struct t_pokemon* sgte;
-}t_pokemon;
-
- typedef struct {
-	char* nombre;
-	t_pokemon* pokemonesBuscados;
-}t_entrenador;
 
 
 void agregar_pokemon(t_entrenador* entrenador,t_pokemon* pokemon){
