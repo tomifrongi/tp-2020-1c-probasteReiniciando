@@ -26742,3 +26742,4 @@
 [ERROR] 19:47:58:396 broker/(22999:22999): Error aceptando conexiones: Socket operation on non-socket
 [ERROR] 19:47:58:396 broker/(22999:22999): Error aceptando conexiones: Socket operation on non-socket
 [INFO] 20:06:32:494 broker/(4522:4522): Servidor levantado! Escuchando en 8080
+[INFO] 15:59:42:327 broker/(6865:6865): Servidor levantado! Escuchando en 8080

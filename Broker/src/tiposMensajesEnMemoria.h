@@ -26,7 +26,7 @@ typedef struct {
 //-------PAR 1-------------------
 typedef struct {
 	uint32_t sizeNombre;
-	char* nombrePokemon; //no estoy seguro si se almacena asi el string
+	char* nombrePokemon;
 	uint32_t cantidad;
 	coordenada posicion;
 }new_pokemon;
@@ -49,7 +49,7 @@ typedef struct {
 
 typedef struct {
 	uint32_t sizeNombre;
-	char* nombrePokemon; //no estoy seguro si se almacena asi el string
+	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones
 	t_list posiciones;
 }localized_pokemon; //RESPUESTA A get_pokemon
