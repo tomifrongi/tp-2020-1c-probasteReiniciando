@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "team.h"
-
+#include  "entrenadores.h"
 
 
 void agregar_pokemon(t_entrenador* entrenador,t_pokemon* pokemon){
@@ -26,15 +26,7 @@ void mostrar_pokemones(t_entrenador* entrenador){
 		p=p->sgte;
 	}
 }
-/*
-int necesita_pokemon(t_entrenador* entrenador,t_pokemon* pokemon){
-	char* pokemones = entrenador->pokemonesBuscados;
-	for(int i=0;i<strlen(pokemones);i++){
-		if(strcmp(pokemones[i],pokemon->nombre))
-			return 1;
-	}
-	return 0;
-}*/
+
 
 
 int main(void) {

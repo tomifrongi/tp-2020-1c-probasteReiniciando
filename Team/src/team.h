@@ -18,9 +18,16 @@ typedef struct{
 	t_pokemon* objetivoGlobal;
 }t_team;
 
+typedef struct{
+	t_pokemon pokemon;
+	int cantidad;
+}t_objetivo;
+
 void agregar_pokemon(t_entrenador* ,t_pokemon* );
 void mostrar_pokemones(t_entrenador* );
-t_pokemon* objetivo_global(t_team*);
-//int necesita_pokemon(t_entrenador* ,t_pokemon*);
+t_objetivo* objetivo_global(t_team*);
+int cantidad_por_especie(t_team*);
+void crear_hilo(t_entrenador*);
+
 
 #endif /* TEAM_H_ */
