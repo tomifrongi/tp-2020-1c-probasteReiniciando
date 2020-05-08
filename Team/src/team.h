@@ -7,10 +7,6 @@ typedef struct{
 	struct t_pokemon* sgte;
 }t_pokemon;
 
- typedef struct {
-	char* nombre;
-	t_pokemon* pokemonesBuscados;
-}t_entrenador;
 
 typedef struct{
 	char* nombre;
@@ -21,12 +17,13 @@ typedef struct{
 typedef struct{
 	t_pokemon pokemon;
 	int cantidad;
+	struct t_objetivo* sgte;
 }t_objetivo;
 
 void agregar_pokemon(t_entrenador* ,t_pokemon* );
 void mostrar_pokemones(t_entrenador* );
 t_objetivo* objetivo_global(t_team*);
-int cantidad_por_especie(t_team*);
+int cantidad_por_especie(t_team*,t_pokemon*);
 void crear_hilo(t_entrenador*);
 
 
