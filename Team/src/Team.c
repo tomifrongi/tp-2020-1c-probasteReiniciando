@@ -7,11 +7,13 @@
 
 void agregar_pokemon(t_entrenador* entrenador,t_pokemon* pokemon){
 	t_pokemon* p = entrenador->pokemonesBuscados;
-	if(p == NULL)
-		p = pokemon;
+	if(p == NULL){
+		entrenador->pokemonesBuscados = pokemon;
+	}
 	else{
-		while(p->sgte != NULL)
+		while(p->sgte != NULL){
 			p = p->sgte;
+		}
 		p->sgte = pokemon;
 	}
 
@@ -19,7 +21,7 @@ void agregar_pokemon(t_entrenador* entrenador,t_pokemon* pokemon){
 
 void mostrar_pokemones(t_entrenador* entrenador){
 	t_pokemon* p=entrenador->pokemonesBuscados;
-	while(p->sgte != NULL){
+	while(p != NULL){
 		printf("%s",p->especie);
 		p=p->sgte;
 	}

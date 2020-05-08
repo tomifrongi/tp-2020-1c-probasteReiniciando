@@ -12,8 +12,15 @@ typedef struct{
 	t_pokemon* pokemonesBuscados;
 }t_entrenador;
 
-void agregar_pokemon(t_entrenador* entrenador,t_pokemon* pokemon);
-void mostrar_pokemones(t_entrenador* entrenador);
-//int necesita_pokemon(t_entrenador* entrenador,t_pokemon* pokemon);
+typedef struct{
+	char* nombre;
+	t_entrenador* entrenadores;
+	t_pokemon* objetivoGlobal;
+}t_team;
+
+void agregar_pokemon(t_entrenador* ,t_pokemon* );
+void mostrar_pokemones(t_entrenador* );
+t_pokemon* objetivo_global(t_team*);
+//int necesita_pokemon(t_entrenador* ,t_pokemon*);
 
 #endif /* TEAM_H_ */
