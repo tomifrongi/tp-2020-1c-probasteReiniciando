@@ -4,6 +4,7 @@
 //Funciones de sockets ,logger y config
 
 #include "funcionesEnvio.h"
+#include "ProtocoloDeMensajes.h"
 
 
 void inicializarLogger(char* path){

@@ -3,15 +3,12 @@
 
  * */
 
-
-
 #ifndef COLASDEMENSAJES_H_
 #define COLASDEMENSAJES_H_
 
 //INCLUDES
-#include "tiposMensajesEnMemoria.h"
+#include "ProtocoloDeMensajes.h"
 #include <commons/collections/queue.h>
-#include "broker.h"
 
 //ESTRUCTURAS
 

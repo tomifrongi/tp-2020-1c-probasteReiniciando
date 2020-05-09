@@ -14,6 +14,34 @@
 #include <stdlib.h>
 #include "commons/collections/list.h"
 
+//HEADERS--------------------------------------------------------------
+
+typedef enum{
+	NEW_POKEMON,
+	APPEARED_POKEMON,
+	CATCH_POKEMON,
+	CAUGHT_POKEMON,
+	GET_POKEMON,
+	LOCALIZED_POKEMON,
+	CONFIRMACION,
+	SUSCRIPCION,
+	ERROR,
+	NO_CONNECTION = 100,
+	ERROR_RECV = 101,
+	HI_PLEASE_BE_MY_FRIEND = 102,
+	ERROR_MESSAGE = 103
+}t_header;
+
+//---------------------------------------------------------------------
+
+//ESTRUCTURA MENSAJE---------------------------------------------------
+
+typedef struct{
+	t_header head;
+	size_t size; //indica el tamaño del content
+	void* content;
+}t_message;
+//---------------------------------------------------------------------
 
 //MENSAJES-------------------------------------------------------------
 //DESCRIPCION: Seria lo que va en content del t_message;
@@ -35,13 +63,8 @@ typedef struct {
 } suscripcion;
 //t_header = SUSCRIPCION
 
-typedef struct {
-	uint32_t id_mensaje;
-}id_mensaje;
-//t_header = CONFIRMACION
 
-//--------------------------------------------------------------------------------------------------------------------------------------
-//MENSAJE: new_pokemon
+//MENSAJE: new_pokemon----------------
 
 //Publisher envia:
 typedef struct {
@@ -53,6 +76,12 @@ typedef struct {
 }new_pokemon;
 //t_header = NEW_POKEMON
 
+//Publisher recibe:
+typedef struct {
+	uint32_t id_mensaje;
+}id_mensaje;
+//t_header = CONFIRMACION
+
 
 //Subscriber recibe:
 typedef struct {
@@ -62,11 +91,19 @@ typedef struct {
 	uint32_t cantidad;
 	uint32_t posicionEjeX;
 	uint32_t posicionEjeY;
-}new_pokemon_enviar;
+}new_pokemon;
 //t_header = NEW_POKEMON
 
-//--------------------------------------------------------------------------------------------------------------------------------------
-//MENSAJE: appeared_pokemon
+//Subscriber recibe
+typedef struct {
+	uint32_t id_mensaje; //Devuelve el mismo id que recibe en new_pokemon para confirmar
+						//que recibio el mensaje
+}id_mensaje;
+//t_header = CONFIRMACION
+
+//------------------------------------
+
+//MENSAJE: appeared_pokemon-----------
 
 //Publisher envia:
 typedef struct {
@@ -77,6 +114,12 @@ typedef struct {
 }appeared_pokemon;
 //t_header = APPEARED_POKEMON
 
+//Publisher recibe:
+typedef struct {
+	uint32_t id_mensaje;
+}id_mensaje;
+//t_header = CONFIRMACION
+
 
 //Subscriber recibe:
 typedef struct {
@@ -85,11 +128,19 @@ typedef struct {
 	char* nombrePokemon;
 	uint32_t posicionEjeX;
 	uint32_t posicionEjeY;
-}appeared_pokemon_enviar;
+}appeared_pokemon;
 //t_header = APPEARED_POKEMON
 
-//--------------------------------------------------------------------------------------------------------------------------------------
-//MENSAJE: get_pokemon;
+//Subscriber recibe
+typedef struct {
+	uint32_t id_mensaje; //Devuelve el mismo id que recibe en appeared_pokemon para confirmar
+						//que recibio el mensaje
+}id_mensaje;
+//t_header = CONFIRMACION
+
+//------------------------------------
+
+//MENSAJE: get_pokemon;---------------
 
 //Publisher envia:
 typedef struct {
@@ -98,18 +149,31 @@ typedef struct {
 }get_pokemon;
 //t_header = GET_POKEMON
 
+//Publisher recibe:
+typedef struct {
+	uint32_t id_mensaje;
+}id_mensaje;
+//t_header = CONFIRMACION
+
 
 //Subscriber recibe:
 typedef struct {
 	uint32_t id_mensaje;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
-}get_pokemon_enviar;
+}get_pokemon;
 //t_header = GET_POKEMON
 
+//Subscriber envia:
+typedef struct {
+	uint32_t id_mensaje; //Devuelve el mismo id que recibe en get_pokemon para confirmar
+						//que recibio el mensaje
+}id_mensaje;
+//t_header = CONFIRMACION
 
-//--------------------------------------------------------------------------------------------------------------------------------------
-//MENSAJE: localized_pokemon
+//------------------------------------
+
+//MENSAJE: localized_pokemon----------
 
 //Publisher envia:
 typedef struct {
@@ -124,18 +188,32 @@ typedef struct {
 }localized_pokemon;
 //t_header = LOCALIZED_POKEMON
 
+//Publisher recibe:
+typedef struct {
+	uint32_t id_mensaje;
+}id_mensaje;
+//t_header = CONFIRMACION
+
+
 //Subscriber recibe:
 typedef struct {
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones
 	t_list posiciones;
-}localized_pokemon_enviar;
+}localized_pokemon;
 //t_header = LOCALIZED_POKEMON
 
+//Subscriber envia:
+typedef struct {
+	uint32_t id_mensaje;
+}id_mensaje;
+//t_header = CONFIRMACION
 
-//--------------------------------------------------------------------------------------------------------------------------------------
-//MENSAJE: catch_pokemon
+//------------------------------------
+
+//MENSAJE: catch_pokemon--------------
+
 //Publisher envia:
 typedef struct {
 	uint32_t sizeNombre;
@@ -145,6 +223,12 @@ typedef struct {
 }catch_pokemon;
 //t_header = CATCH_POKEMON
 
+//Publisher recibe:
+typedef struct {
+	uint32_t id_mensaje;
+}id_mensaje;
+//t_header = CONFIRMACION
+
 
 //Subscriber recibe:
 typedef struct {
@@ -153,12 +237,19 @@ typedef struct {
 	char* nombrePokemon;
 	uint32_t posicionEjeX;
 	uint32_t posicionEjeY;
-}catch_pokemon_enviar;
+}catch_pokemon;
 //t_header = CATCH_POKEMON
 
+//Subscriber envia:
+typedef struct {
+	uint32_t id_mensaje; //Devuelve el mismo id que recibe en catch_pokemon para confirmar
+						//que recibio el mensaje
+}id_mensaje;
+//t_header = CONFIRMACION
 
-//--------------------------------------------------------------------------------------------------------------------------------------
-//MENSAJE: caught_pokemon
+//------------------------------------
+
+//MENSAJE: caught_pokemon-------------
 
 //Publisher envia:
 typedef struct {
@@ -167,15 +258,29 @@ typedef struct {
 }caught_pokemon;
 //t_header = CAUGHT_POKEMON
 
+//Publisher recibe:
+typedef struct {
+	uint32_t id_mensaje;
+}id_mensaje;
+//t_header = CONFIRMACION
+
 
 //Subscriber recibe:
 typedef struct {
 	uint32_t id_mensaje;
 	uint32_t idCorrelativo;
 	uint32_t pokemonAtrapado;
-}caught_pokemon_enviar;
+}caught_pokemon;
 //t_header = CAUGHT_POKEMON
 
+//Subscriber recibe
+typedef struct {
+	uint32_t id_mensaje; //Devuelve el mismo id que recibe en caught_pokemon para confirmar
+						//que recibio el mensaje
+}id_mensaje;
+//t_header = CONFIRMACION
 
-//--------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------
+
+//---------------------------------------------------------------------
 #endif /* PROTOCOLODEMENSAJES_H_ */

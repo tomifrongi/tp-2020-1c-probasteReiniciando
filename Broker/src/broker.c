@@ -10,21 +10,6 @@
 
 #include "broker.h"
 
-/* COSAS A IR VIENDO
- *
- * Manejo de semaforos para los hilos, que se dara en el handler de clientes
- * Entender bien como carajo funciona pthread
- * Hacer una prueba de la funcion init_broker_server, corriendo un cliente basico
- * Revisar los header necesarios, se dejan en el .h los actuales, pero pueden cambiar
- * Que hacer dentro de cada caso para el manejo de las colas
- * Probar levantar los datos usando el config que ya se creo
- * Manejo del listado de procesos que se encuentran actualmente conectados
- * Revisar el codigo en general? Eso se puede? Alguien me puede reportar?
- *
- * MERCADOLIBRE ME PIDE QUE PONGA MAS CARACTERES LA VERDAD BUENISMO EL TP NO ENTIENDO MUCHO PERO GENIAL EL MONOPATIN SOLAR
- *
- */
-
 int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
 	PUERTO = 8080;
@@ -70,9 +55,9 @@ void* handler_clients(void* socket){
 				aux += mensaje.contenidoMensaje.sizeNombre;
 				memcpy(&mensaje.contenidoMensaje.cantidad,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.contenidoMensaje.posicion.ejeX,aux,sizeof(uint32_t));
+				memcpy(&mensaje.contenidoMensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.contenidoMensaje.posicion.ejeY,aux,sizeof(uint32_t));
+				memcpy(&mensaje.contenidoMensaje.posicionEjeY,aux,sizeof(uint32_t));
 				mensaje.id = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(new_pokemon_queue, &mensaje);
@@ -86,9 +71,9 @@ void* handler_clients(void* socket){
 				aux += sizeof(uint32_t);
 				memcpy(mensaje.contenidoMensaje.nombrePokemon,aux,mensaje.contenidoMensaje.sizeNombre);
 				aux += mensaje.contenidoMensaje.sizeNombre;
-				memcpy(&mensaje.contenidoMensaje.posicion.ejeX,aux,sizeof(uint32_t));
+				memcpy(&mensaje.contenidoMensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.contenidoMensaje.posicion.ejeY,aux,sizeof(uint32_t));
+				memcpy(&mensaje.contenidoMensaje.posicionEjeY,aux,sizeof(uint32_t));
 				mensaje.id = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(appeared_pokemon_queue, &mensaje);
@@ -103,9 +88,9 @@ void* handler_clients(void* socket){
 				aux += sizeof(uint32_t);
 				memcpy(mensaje.contenidoMensaje.nombrePokemon,aux,mensaje.contenidoMensaje.sizeNombre);
 				aux += mensaje.contenidoMensaje.sizeNombre;
-				memcpy(&mensaje.contenidoMensaje.posicion.ejeX,aux,sizeof(uint32_t));
+				memcpy(&mensaje.contenidoMensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.contenidoMensaje.posicion.ejeY,aux,sizeof(uint32_t));
+				memcpy(&mensaje.contenidoMensaje.posicionEjeY,aux,sizeof(uint32_t));
 				mensaje.id = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(catch_pokemon_queue, &mensaje);
@@ -141,17 +126,24 @@ void* handler_clients(void* socket){
 				log_info(logger, "LOCALIZED POKEMON RECIBIDO");
 				void *aux = message->content;
 				localized_pokemon_message mensaje;
+				uint32_t largoLista;
+				uint32_t *posicion;
 				memcpy(&mensaje.contenidoMensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(mensaje.contenidoMensaje.nombrePokemon,aux,mensaje.contenidoMensaje.sizeNombre);
 				aux += mensaje.contenidoMensaje.sizeNombre;
 				memcpy(&mensaje.contenidoMensaje.cantidadPosiciones,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-
-				//TODO -  Faltaria ver de como guardar la lista de cordenadas que mandamos en el t_list
-
+				memcpy(&largoLista,aux,sizeof(uint32_t)); //primero nos mandan el largo de la lista
+				aux += sizeof(uint32_t);
+				for(int i=0;i < largoLista;i++){
+					memcpy(posicion,aux,sizeof(uint32_t));
+					aux += sizeof(uint32_t);
+					list_add(*mensaje.contenidoMensaje.posiciones, posicion);
+				}
 				mensaje.id = ID_INICIAL;
 				ID_INICIAL ++;
+				queue_push(localized_pokemon_queue, &mensaje);
 				break;
 			}
 			case NO_CONNECTION:

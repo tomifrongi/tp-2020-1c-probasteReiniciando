@@ -22,7 +22,7 @@
 #include <commons/log.h>
 #include <commons/collections/list.h>
 
-#define MAX_CLIENTS 128 //Queda por definir
+//HEADERS--------------------------------------------------------------
 
 typedef enum{
 	NEW_POKEMON,
@@ -31,6 +31,8 @@ typedef enum{
 	CAUGHT_POKEMON,
 	GET_POKEMON,
 	LOCALIZED_POKEMON,
+	CONFIRMACION,
+	SUSCRIPCION,
 	ERROR,
 	NO_CONNECTION = 100,
 	ERROR_RECV = 101,
@@ -38,11 +40,17 @@ typedef enum{
 	ERROR_MESSAGE = 103
 }t_header;
 
+//---------------------------------------------------------------------
+
+//ESTRUCTURA MENSAJE---------------------------------------------------
+
 typedef struct{
 	t_header head;
-	size_t size;
+	size_t size; //indica el tamaño del content
 	void* content;
 }t_message;
+#define MAX_CLIENTS 128 //Queda por definir
+
 
 t_log* logger;
 int TAMANIO_MEMORIA; //Tamaño de la memoria total
@@ -61,8 +69,6 @@ t_message* create_t_message(t_header head, size_t size,const void* content);
 t_message* error(int res);
 int send_status(int sock,t_header head, int status);
 int get_status(t_message* message);
-
-
 
 
 #endif /* FUNCIONESENVIO_H_ */
