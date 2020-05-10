@@ -61,6 +61,8 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(new_pokemon_queue, &mensaje);
+				enviarConfirmacion(ID_INICIAL,broker_sock);
+
 				break;
 			}
 			case APPEARED_POKEMON:{
@@ -77,6 +79,7 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(appeared_pokemon_queue, &mensaje);
+				enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
 			}
@@ -94,6 +97,7 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(catch_pokemon_queue, &mensaje);
+				enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
 			}
@@ -107,6 +111,8 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(caught_pokemon_queue, &mensaje);
+				enviarConfirmacion(ID_INICIAL,broker_sock);
+
 				break;
 			}
 			case GET_POKEMON:{
@@ -119,6 +125,7 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(get_pokemon_queue, &mensaje);
+				enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
 			}
@@ -144,6 +151,8 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(localized_pokemon_queue, &mensaje);
+				enviarConfirmacion(ID_INICIAL,broker_sock);
+
 				break;
 			}
 			case NO_CONNECTION:
@@ -167,5 +176,11 @@ void* handler_clients(void* socket){
 }
 
 
+void enviarConfirmacion(uint32_t id, int broker_sock){
 
+	id_mensaje mensaje;
+	size_t size = sizeof(uint32_t);
+	memcpy(&mensaje.id_mensaje,id,sizeof(uint32_t));
+	send_message(listener_socket, CONFIRMACION,mensaje,size);
+}
 

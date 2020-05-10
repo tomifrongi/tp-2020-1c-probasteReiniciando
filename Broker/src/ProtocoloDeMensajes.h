@@ -35,10 +35,12 @@ typedef struct {
 } suscripcion;
 //t_header = SUSCRIPCION
 
+//MENSAJE: confirmacion----------
 typedef struct {
 	uint32_t id_mensaje;
 }id_mensaje;
 //t_header = CONFIRMACION
+//-------------------------------
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 //MENSAJE: new_pokemon

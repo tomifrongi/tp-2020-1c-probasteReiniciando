@@ -29,12 +29,12 @@
 #include "ProtocoloDeMensajes.h"
 
 //Parametros a recibir desde el config
-int ID_INICIAL;
+uint32_t ID_INICIAL;
 pthread_mutex_t mut_listaProgramas; //mutex de la lista de programas actuales, podria ser uno por cola?
 int listener_socket;
 
 void* handler_clients(void* socket);
 void init_broker_server();
 
-
+void enviarConfirmacion(uint32_t id, int listener_socket);
 #endif
