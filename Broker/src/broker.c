@@ -156,14 +156,12 @@ void* handler_clients(void* socket){
 				break;
 			}
 			case SUSCRIPCION:{
-				log_info(logger, "LOCALIZED POKEMON RECIBIDO");
 				uint32_t id_cola;
 				void *aux = message->content;
 				memcpy(&id_cola,aux,sizeof(uint32_t));
 				agregarSuscripcion(id_cola,broker_sock);
 				break;
 			}
-
 
 			case NO_CONNECTION:
 				log_info(logger, "CLIENTE DESCONECTADO");
