@@ -126,6 +126,7 @@ typedef struct {
 
 //Subscriber recibe:
 typedef struct {
+	uint32_t id_mensaje;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones

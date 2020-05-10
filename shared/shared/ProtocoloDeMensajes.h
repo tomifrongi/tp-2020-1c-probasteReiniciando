@@ -94,7 +94,7 @@ typedef struct {
 }new_pokemon;
 //t_header = NEW_POKEMON
 
-//Subscriber recibe
+//Subscriber envia
 typedef struct {
 	uint32_t id_mensaje; //Devuelve el mismo id que recibe en new_pokemon para confirmar
 						//que recibio el mensaje
@@ -131,7 +131,7 @@ typedef struct {
 }appeared_pokemon;
 //t_header = APPEARED_POKEMON
 
-//Subscriber recibe
+//Subscriber envia
 typedef struct {
 	uint32_t id_mensaje; //Devuelve el mismo id que recibe en appeared_pokemon para confirmar
 						//que recibio el mensaje
@@ -177,6 +177,7 @@ typedef struct {
 
 //Publisher envia:
 typedef struct {
+	uint32_t id_mensaje;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones.
@@ -273,7 +274,7 @@ typedef struct {
 }caught_pokemon;
 //t_header = CAUGHT_POKEMON
 
-//Subscriber recibe
+//Subscriber envia
 typedef struct {
 	uint32_t id_mensaje; //Devuelve el mismo id que recibe en caught_pokemon para confirmar
 						//que recibio el mensaje

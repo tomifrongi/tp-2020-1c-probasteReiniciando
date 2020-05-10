@@ -48,17 +48,17 @@ void* handler_clients(void* socket){
 			case NEW_POKEMON:{
 				log_info(logger, "NEW POKEMON RECIBIDO");
 				void*aux=message->content;
-				new_pokemon_message mensaje;
-				memcpy(&mensaje.contenidoMensaje.sizeNombre,aux,sizeof(uint32_t));
+				new_pokemon_enviar mensaje;
+				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.contenidoMensaje.nombrePokemon,aux,mensaje.contenidoMensaje.sizeNombre);
-				aux += mensaje.contenidoMensaje.sizeNombre;
-				memcpy(&mensaje.contenidoMensaje.cantidad,aux,sizeof(uint32_t));
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				aux += mensaje.sizeNombre;
+				memcpy(&mensaje.cantidad,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.contenidoMensaje.posicionEjeX,aux,sizeof(uint32_t));
+				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.contenidoMensaje.posicionEjeY,aux,sizeof(uint32_t));
-				mensaje.id = ID_INICIAL;
+				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
+				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(new_pokemon_queue, &mensaje);
 				break;
@@ -66,15 +66,15 @@ void* handler_clients(void* socket){
 			case APPEARED_POKEMON:{
 				log_info(logger, "APPEARED POKEMON RECIBIDO");
 				void *aux = message->content;
-				appeared_pokemon_message mensaje;
-				memcpy(&mensaje.contenidoMensaje.sizeNombre,aux,sizeof(uint32_t));
+				appeared_pokemon_enviar mensaje;
+				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.contenidoMensaje.nombrePokemon,aux,mensaje.contenidoMensaje.sizeNombre);
-				aux += mensaje.contenidoMensaje.sizeNombre;
-				memcpy(&mensaje.contenidoMensaje.posicionEjeX,aux,sizeof(uint32_t));
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				aux += mensaje.sizeNombre;
+				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.contenidoMensaje.posicionEjeY,aux,sizeof(uint32_t));
-				mensaje.id = ID_INICIAL;
+				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
+				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(appeared_pokemon_queue, &mensaje);
 
@@ -83,15 +83,15 @@ void* handler_clients(void* socket){
 			case CATCH_POKEMON:{
 				log_info(logger, "CATCH POKEMON RECIBIDO");
 				void *aux = message->content;
-				catch_pokemon_message mensaje;
-				memcpy(&mensaje.contenidoMensaje.sizeNombre,aux,sizeof(uint32_t));
+				catch_pokemon_enviar mensaje;
+				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.contenidoMensaje.nombrePokemon,aux,mensaje.contenidoMensaje.sizeNombre);
-				aux += mensaje.contenidoMensaje.sizeNombre;
-				memcpy(&mensaje.contenidoMensaje.posicionEjeX,aux,sizeof(uint32_t));
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				aux += mensaje.sizeNombre;
+				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.contenidoMensaje.posicionEjeY,aux,sizeof(uint32_t));
-				mensaje.id = ID_INICIAL;
+				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
+				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(catch_pokemon_queue, &mensaje);
 
@@ -100,11 +100,11 @@ void* handler_clients(void* socket){
 			case CAUGHT_POKEMON:{
 				log_info(logger, "CAUGHT POKEMON RECIBIDO");
 				void *aux = message->content;
-				caught_pokemon_message mensaje;
+				caught_pokemon_enviar mensaje;
 				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.contenidoMensaje.pokemonAtrapado,aux,sizeof(uint32_t));
-				mensaje.id = ID_INICIAL;
+				memcpy(&mensaje.pokemonAtrapado,aux,sizeof(uint32_t));
+				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(caught_pokemon_queue, &mensaje);
 				break;
@@ -112,11 +112,11 @@ void* handler_clients(void* socket){
 			case GET_POKEMON:{
 				log_info(logger, "GET POKEMON RECIBIDO");
 				void *aux = message->content;
-				get_pokemon_message mensaje;
-				memcpy(&mensaje.contenidoMensaje.sizeNombre,aux,sizeof(uint32_t));
+				get_pokemon_enviar mensaje;
+				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.contenidoMensaje.nombrePokemon,aux,mensaje.contenidoMensaje.sizeNombre);
-				mensaje.id = ID_INICIAL;
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(get_pokemon_queue, &mensaje);
 
@@ -125,23 +125,23 @@ void* handler_clients(void* socket){
 			case LOCALIZED_POKEMON:{
 				log_info(logger, "LOCALIZED POKEMON RECIBIDO");
 				void *aux = message->content;
-				localized_pokemon_message mensaje;
+				localized_pokemon_enviar mensaje;
 				uint32_t largoLista;
 				uint32_t *posicion;
-				memcpy(&mensaje.contenidoMensaje.sizeNombre,aux,sizeof(uint32_t));
+				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.contenidoMensaje.nombrePokemon,aux,mensaje.contenidoMensaje.sizeNombre);
-				aux += mensaje.contenidoMensaje.sizeNombre;
-				memcpy(&mensaje.contenidoMensaje.cantidadPosiciones,aux,sizeof(uint32_t));
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				aux += mensaje.sizeNombre;
+				memcpy(&mensaje.cantidadPosiciones,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&largoLista,aux,sizeof(uint32_t)); //primero nos mandan el largo de la lista
 				aux += sizeof(uint32_t);
 				for(int i=0;i < largoLista;i++){
 					memcpy(posicion,aux,sizeof(uint32_t));
 					aux += sizeof(uint32_t);
-					list_add(*mensaje.contenidoMensaje.posiciones, posicion);
+					list_add(*mensaje.posiciones, posicion);
 				}
-				mensaje.id = ID_INICIAL;
+				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(localized_pokemon_queue, &mensaje);
 				break;
