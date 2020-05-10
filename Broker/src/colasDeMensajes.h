@@ -12,20 +12,21 @@
 
 //ESTRUCTURAS
 
-//-----------------------PAR DE MENSAJES 1-------
 
-t_queue* get_pokemon_queue;
-t_queue* localized_pokemon_queue;
+typedef struct {
+	t_queue* queue;
+	t_list* suscriptores;
+}estructuraAdministrativa;
 
-//-----------------------PAR DE MENSAJES 2-------
+estructuraAdministrativa get_admin;
+estructuraAdministrativa localized_admin;
+estructuraAdministrativa catch_admin;
+estructuraAdministrativa caught_admin;
+estructuraAdministrativa new_admin;
+estructuraAdministrativa appeared_admin;
 
-t_queue* catch_pokemon_queue;
-t_queue* caught_pokemon_queue;
+//------------
 
-//-----------------------PAR DE MENSAJES 3-------
-
-t_queue* new_pokemon_queue;
-t_queue* appeared_pokemon_queue;
 
 //FUNCIONES
 uint32_t generarID();

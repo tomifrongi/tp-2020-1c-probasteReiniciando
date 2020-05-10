@@ -14,7 +14,7 @@ int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
 	PUERTO = 8080;
 	ID_INICIAL = 0;
-	crearColas();
+	crearEstructurasAdministrativas();
 	init_broker_server();
 	return EXIT_SUCCESS;
 }
@@ -60,7 +60,7 @@ void* handler_clients(void* socket){
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
-				queue_push(new_pokemon_queue, &mensaje);
+				queue_push(new_admin.queue, &mensaje);
 				enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
@@ -78,7 +78,7 @@ void* handler_clients(void* socket){
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
-				queue_push(appeared_pokemon_queue, &mensaje);
+				queue_push(appeared_admin.queue, &mensaje);
 				enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
@@ -96,7 +96,7 @@ void* handler_clients(void* socket){
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
-				queue_push(catch_pokemon_queue, &mensaje);
+				queue_push(catch_admin.queue, &mensaje);
 				enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
@@ -110,7 +110,7 @@ void* handler_clients(void* socket){
 				memcpy(&mensaje.pokemonAtrapado,aux,sizeof(uint32_t));
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
-				queue_push(caught_pokemon_queue, &mensaje);
+				queue_push(caught_admin.queue, &mensaje);
 				enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
@@ -124,7 +124,7 @@ void* handler_clients(void* socket){
 				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
-				queue_push(get_pokemon_queue, &mensaje);
+				queue_push(get_admin.queue, &mensaje);
 				enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
@@ -150,11 +150,21 @@ void* handler_clients(void* socket){
 				}
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
-				queue_push(localized_pokemon_queue, &mensaje);
+				queue_push(localized_admin.queue, &mensaje);
 				enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
 			}
+			case SUSCRIPCION:{
+				log_info(logger, "LOCALIZED POKEMON RECIBIDO");
+				uint32_t id_cola;
+				void *aux = message->content;
+				memcpy(&id_cola,aux,sizeof(uint32_t));
+				agregarSuscripcion(id_cola,broker_sock);
+				break;
+			}
+
+
 			case NO_CONNECTION:
 				log_info(logger, "CLIENTE DESCONECTADO");
 				free_t_message(message);
@@ -182,5 +192,37 @@ void enviarConfirmacion(uint32_t id, int broker_sock){
 	size_t size = sizeof(uint32_t);
 	memcpy(&mensaje.id_mensaje,id,sizeof(uint32_t));
 	send_message(listener_socket, CONFIRMACION,mensaje,size);
+}
+
+void agregarSuscripcion (uint32_t id_cola, int broker_sock){
+	switch(id_cola){
+	case NEW:
+		list_add(new_admin.suscriptores,broker_sock);
+		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		break;
+	case APPEARED:
+		list_add(appeared_admin.suscriptores,broker_sock);
+		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA APPEARED",broker_sock);
+		break;
+	case GET:
+		list_add(get_admin.suscriptores,broker_sock);
+		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA GET",broker_sock);
+		break;
+	case LOCALIZED:
+		list_add(localized_admin.suscriptores,broker_sock);
+		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA LOCALIZED",broker_sock);
+		break;
+	case CATCH:
+		list_add(catch_admin.suscriptores,broker_sock);
+		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA CATCH",broker_sock);
+		break;
+	case CAUGHT:
+		list_add(caught_admin.suscriptores,broker_sock);
+		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA CAUGHT",broker_sock);
+		break;
+	default:
+		break;
+
+	}
 }
 

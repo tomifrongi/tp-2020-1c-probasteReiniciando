@@ -36,5 +36,6 @@ int listener_socket;
 void* handler_clients(void* socket);
 void init_broker_server();
 
-void enviarConfirmacion(uint32_t id, int listener_socket);
+void enviarConfirmacion(uint32_t id, int broker_sock);
+void agregarSuscripcion(uint32_t id_cola,int broker_sock);
 #endif
