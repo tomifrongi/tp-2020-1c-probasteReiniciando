@@ -8,6 +8,5 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-
-
+void separa_valores(char*string_valores, t_list * ptr_valores) ;
 #endif /* CONFIG_H_ */

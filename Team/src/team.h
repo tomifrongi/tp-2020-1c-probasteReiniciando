@@ -1,11 +1,29 @@
 
+
 #ifndef TEAM_H_
 #define TEAM_H_
+
+typedef enum{
+	NEW,
+	READY,
+	EXEC,
+	BLOCK,
+	EXIT
+}t_state;
 
 typedef struct{
 	char* especie;
 	struct t_pokemon* sgte;
 }t_pokemon;
+
+ typedef struct {
+	char* nombre;
+	int id;
+	t_pokemon* pokemonesBuscados;
+	int estado;
+}t_entrenador;
+
+
 
 
 typedef struct{

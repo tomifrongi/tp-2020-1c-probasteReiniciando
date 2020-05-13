@@ -7,6 +7,7 @@
 
 int cambiar_estado(t_entrenador* entrenador,int estado){
 	entrenador->estado = estado;
+	return 0;
 }
 
 void bloquear_entrenador(t_entrenador entrenador){
@@ -42,16 +43,16 @@ int necesita_pokemon(t_entrenador* entrenador,t_pokemon pokemon){
 	}
 	return 0;
 }
-
+/*
 void capturarPokemon(t_entrenador* entrenador,t_pokemon* pokemon){
 	t_pokemon* p = entrenador->pokemonesBuscados;
 	t_pokemon* q = NULL;
 	while(pokemon != p->sgte)
 		p=p->sgte;
-	q = p->sgte
+	q = p->sgte;
 	p->sgte = p->sgte->sgte;
 	free(q);
-}
+}*/
 
 
 

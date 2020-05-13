@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "team.h"
-#include  "entrenadores.h"
 
 
 void agregar_pokemon(t_entrenador* entrenador,t_pokemon* pokemon){
