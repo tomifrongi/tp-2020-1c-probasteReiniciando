@@ -2,22 +2,16 @@
 #ifndef GAMEBOY_H_
 #define GAMEBOY_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <string.h>
-#include "commons/string.h";
+#include "Cliente.h"
+#include "commons/config.h"
+#include "Impresora.h"
+#include "MensajesBroker.h"
+#include "protocol.h"
+#include "Scanner.h"
 #define MAX_CLIENTS 128
 
 
-
-int connect_to_server(char* host, int port, void*(*callback)());
-int create_socket();
+t_message obtenerMensajeBroker(int opcionMensaje);
+t_message obtenerMensajeTeam();
 
 #endif /* GAMEBOY_H_ */

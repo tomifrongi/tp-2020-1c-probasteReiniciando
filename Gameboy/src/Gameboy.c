@@ -1,26 +1,47 @@
 #include "Gameboy.h"
+
+
 int main(void) {
-	printf("Escriba el numero del  proceso:\n");
-	printf("1. BROKER\n");
-	printf("2. TEAM\n");
-	printf("3. GAMECARD\n");
+
+
+	//TODO config
+//	t_config * config = config_create("Gameboy");
+	//TODO log
+
+	imprimirOpcionesProcesos();
 	int opcionProceso;
 	scanf("%d",&opcionProceso);
+
 	switch(opcionProceso){
-	case 1:
-		printf("Escriba el numero de mensaje:\n");
-		printf("1. NEW_POKEMON\n");
-		printf("2. APPEARED_POKEMON\n");
-		printf("3. CATCH_POKEMON\n");
-		printf("4. CAUGHT_POKEMON\n");
-		printf("5. GET_POKEMON\n");
+	case 1:{
+//		int socketGame = connect_to_server(char* host, 8080, NULL);
+		imprimirOpcionesMensajeBroker();
+		int opcionMensaje;
+		scanf("%d",&opcionMensaje);
+		t_message mensajeBroker = obtenerMensajeBroker(opcionMensaje);
+//		if(mensajeBroker.head != ERROR_MESSAGE)
+//		send_message(socketGame, mensajeBroker.head,mensajeBroker.content, mensajeBroker.size);
 		break;
-	case 2:
-		printf("Proceso elegido: TEAM\n");
+	}
+
+	case 2:{
+//		int socketGame = connect_to_server(char* host, 8080, NULL);
+		t_message mensajeTeam = obtenerMensajeTeam();
+//		if(mensajeTeam.head != ERROR_MESSAGE)
+//		send_message(socketGame, mensajeTeam.head,mensajeTeam.content, mensajeTeam.size);
 		break;
-	case 3:
-		printf("Proceso elegido: GAMECARD\n");
+	}
+
+	case 3:{
+//		int socketGame = connect_to_server(char* host, 8080, NULL);
+		imprimirOpcionesMensajeGamecard();
+		int opcionMensaje;
+		scanf("%d",&opcionMensaje);
+		t_message mensajeGamecard = obtenerMensajeGamecard(opcionMensaje);
+//		if(mensajeGamecard.head != ERROR_MESSAGE)
+//		send_message(socketGame, mensajeGamecard.head,mensajeGamecard.content, mensajeGamecard.size);
 		break;
+			}
 	default:
 		printf("%d no es una opcion valida\n",opcionProceso);
 	}
@@ -28,31 +49,72 @@ int main(void) {
 
 //		printf("Escriba el numero de mensaje:\n");
 	return 0;
+
+
 }
 
-
-int connect_to_server(char* host,int port, void*(*callback)()) {
-
-	int sock;
-
-	struct sockaddr_in server_addr;
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = inet_addr(host);
-	server_addr.sin_port = htons(port);
-
-	sock = create_socket();
-
-	if(connect(sock,(struct sockaddr *)&server_addr, sizeof(server_addr))< 0){
-		perror("ERROR CONECTAR SERVIDOR");
-		return -errno;
+t_message obtenerMensajeBroker(int opcionMensaje){
+	t_message mensaje;
+	switch (opcionMensaje){
+	case 1:{
+		new_pokemon_broker parametros;
+		parametros = obtenerParametrosNewBroker();
+		mensaje.content = serializarNewContentBroker(parametros);
+		mensaje.head = NEW_POKEMON;
+		mensaje.size = sizeof(new_pokemon_broker);
+		break;
 	}
+	case 2:{
+		appeared_pokemon_broker parametros;
+		parametros = obtenerParametrosAppearedBroker();
+		mensaje.content = serializarAppearedContentBroker(parametros);
+		mensaje.head = APPEARED_POKEMON;
+		mensaje.size = sizeof(appeared_pokemon_broker);
+		break;
+	}
+	case 3:{
+		catch_pokemon_broker parametros;
+		parametros = obtenerParametrosCatchBroker();
+		mensaje.content = serializarCatchContentBroker(parametros);
+		mensaje.head = CATCH_POKEMON;
+		mensaje.size = sizeof(catch_pokemon_broker);
+		break;
+	}
+	case 4:{
+		caught_pokemon_broker parametros;
+		parametros = obtenerParametrosCaughtBroker();
+		mensaje.content = serializarCaughtContentBroker(parametros);
+		mensaje.head = CAUGHT_POKEMON;
+		mensaje.size = sizeof(caught_pokemon_broker);
+		break;
+	}
+	case 5:{
+		get_pokemon_broker parametros;
+		parametros = obtenerParametrosGetBroker();
+		mensaje.content = serializarGetContentBroker(parametros);
+		mensaje.head = GET_POKEMON;
+		mensaje.size = sizeof(get_pokemon_broker);
+		break;
+	}
+	default:
+		mensaje.head = ERROR_MESSAGE;
+		printf("%d no es una opcion valida\n",opcionMensaje);
+		break;
+	}
+	return mensaje;
 
-	if(callback != NULL)
-		callback();
-
-	return sock;
 }
 
-int create_socket(){
-	return socket(AF_INET, SOCK_STREAM, 0);
+t_message obtenerMensajeTeam(){
+	t_message mensaje;
+	appeared_pokemon_team parametros;
+	parametros = obtenerParametrosAppearedTeam();
+	mensaje.content = serializarAppearedContentTeam(parametros);
+	mensaje.head = APPEARED_POKEMON;
+	mensaje.size = sizeof(appeared_pokemon_team);
+
+
 }
+
+
+
