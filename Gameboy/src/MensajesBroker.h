@@ -1,9 +1,3 @@
-/*
- * MensajesBroker.h
- *
- *  Created on: 23 may. 2020
- *      Author: utnso
- */
 
 #include <stdint.h>
 #include <stddef.h>

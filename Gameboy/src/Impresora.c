@@ -1,23 +1,25 @@
-/*
- * Impresora.c
- *
- *  Created on: 23 may. 2020
- *      Author: utnso
- */
+#include "Impresora.h"
 
-
-void imprimirOpcionesProcesos(){
-	printf("Escriba el numero del  proceso:\n");
-	printf("1. BROKER\n");
-	printf("2. TEAM\n");
-	printf("3. GAMECARD\n");
+void imprimirOpciones(){
+	printf("Elige la opcion y escribe el numero:\n");
+	printf("1. Enviar mensaje al BROKER\n");
+	printf("2. Enviar mensaje al TEAM\n");
+	printf("3. Enviar mensaje al GAMECARD\n");
+	printf("4. Modo suscriptor");
 }
 
 void imprimirOpcionesMensajeBroker(){
-	printf("Escriba el numero de mensaje:\n");
+	printf("Escribe el numero de mensaje:\n");
 	printf("1. NEW_POKEMON\n");
 	printf("2. APPEARED_POKEMON\n");
 	printf("3. CATCH_POKEMON\n");
 	printf("4. CAUGHT_POKEMON\n");
 	printf("5. GET_POKEMON\n");
+}
+
+void imprimirOpcionesMensajeGamecard(){
+	printf("Escribe el numero de mensaje:\n");
+	printf("1. NEW_POKEMON\n");
+	printf("2. CATCH_POKEMON\n");
+	printf("3. GET_POKEMON\n");
 }

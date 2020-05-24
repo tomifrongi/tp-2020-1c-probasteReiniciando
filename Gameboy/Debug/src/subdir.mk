@@ -8,6 +8,7 @@ C_SRCS += \
 ../src/Gameboy.c \
 ../src/Impresora.c \
 ../src/MensajesBroker.c \
+../src/MensajesGamecard.c \
 ../src/Scanner.c \
 ../src/protocol.c 
 
@@ -16,6 +17,7 @@ OBJS += \
 ./src/Gameboy.o \
 ./src/Impresora.o \
 ./src/MensajesBroker.o \
+./src/MensajesGamecard.o \
 ./src/Scanner.o \
 ./src/protocol.o 
 
@@ -24,6 +26,7 @@ C_DEPS += \
 ./src/Gameboy.d \
 ./src/Impresora.d \
 ./src/MensajesBroker.d \
+./src/MensajesGamecard.d \
 ./src/Scanner.d \
 ./src/protocol.d 
 

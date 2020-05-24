@@ -8,7 +8,9 @@
 #ifndef IMPRESORA_H_
 #define IMPRESORA_H_
 
-void imprimirOpcionesProcesos();
+void imprimirOpciones();
 void imprimirOpcionesMensajeBroker();
+void imprimirOpcionesMensajeGamecard();
+void imprimirOpcionesColas();
 
 #endif /* IMPRESORA_H_ */

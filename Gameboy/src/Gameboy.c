@@ -8,7 +8,7 @@ int main(void) {
 //	t_config * config = config_create("Gameboy");
 	//TODO log
 
-	imprimirOpcionesProcesos();
+	imprimirOpciones();
 	int opcionProceso;
 	scanf("%d",&opcionProceso);
 
@@ -26,8 +26,7 @@ int main(void) {
 
 	case 2:{
 //		int socketGame = connect_to_server(char* host, 8080, NULL);
-		t_message mensajeTeam = obtenerMensajeTeam();
-//		if(mensajeTeam.head != ERROR_MESSAGE)
+//		t_message mensajeTeam = obtenerMensajeTeam();
 //		send_message(socketGame, mensajeTeam.head,mensajeTeam.content, mensajeTeam.size);
 		break;
 	}
@@ -42,6 +41,23 @@ int main(void) {
 //		send_message(socketGame, mensajeGamecard.head,mensajeGamecard.content, mensajeGamecard.size);
 		break;
 			}
+//TODO modoSuscriptor
+	case 4: {
+		imprimirOpcionesColas();
+		int opcionCola;
+		scanf("%d",&opcionCola);
+		imprimirOpcionTiempo();
+		int tiempo;
+		scanf("%d",&tiempo);
+		t_message mensajeSuscripcion = obtenerMensajeGamecard(opcionCola);
+//		int socketGame = connect_to_server(char* host, 8080, NULL);
+//		send_message(socketGame, mensajeGamecard.head,mensajeGamecard.content, mensajeGamecard.size);
+		//escuchar()
+		//terminar()
+
+		break;
+	}
+
 	default:
 		printf("%d no es una opcion valida\n",opcionProceso);
 	}
@@ -104,7 +120,8 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 	return mensaje;
 
 }
-
+//TODO obtenermensajeteam
+/*
 t_message obtenerMensajeTeam(){
 	t_message mensaje;
 	appeared_pokemon_team parametros;
@@ -112,9 +129,45 @@ t_message obtenerMensajeTeam(){
 	mensaje.content = serializarAppearedContentTeam(parametros);
 	mensaje.head = APPEARED_POKEMON;
 	mensaje.size = sizeof(appeared_pokemon_team);
-
+	return mensaje;
 
 }
+*/
+t_message obtenerMensajeGamecard(int opcionMensaje){
+	t_message mensaje;
+	switch(opcionMensaje){
+	case 1:{
+		new_pokemon_gamecard parametros;
+		parametros = obtenerParametrosNewGamecard();
+		mensaje.content = serializarNewContentGamecard(parametros);
+		mensaje.head = NEW_POKEMON;
+		mensaje.size = sizeof(new_pokemon_gamecard);
+		break;
+	}
+	case 2:{
+		catch_pokemon_gamecard parametros;
+		parametros = obtenerParametrosCatchGamecard();
+		mensaje.content = serializarCatchContentGamecard(parametros);
+		mensaje.head = CATCH_POKEMON;
+		mensaje.size = sizeof(catch_pokemon_gamecard);
+		break;
 
+	}
+	case 3:{
+		get_pokemon_gamecard parametros;
+		parametros = obtenerParametrosGetGamecard();
+		mensaje.content = serializarGetContentGamecard(parametros);
+		mensaje.head = GET_POKEMON;
+		mensaje.size = sizeof(get_pokemon_gamecard);
+		break;
+	}
+	default:{
+		mensaje.head = ERROR_MESSAGE;
+		printf("%d no es una opcion valida\n",opcionMensaje);
+		break;
+	}
 
+	}
+	return mensaje;
+}
 

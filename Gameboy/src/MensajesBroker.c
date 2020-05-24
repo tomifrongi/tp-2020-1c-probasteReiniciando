@@ -7,45 +7,79 @@
 #include "MensajesBroker.h"
 
 void* serializarNewContentBroker (new_pokemon_broker parametros){
+	int bytes_escritos = 0;
+	void* content = malloc(sizeof(new_pokemon_broker));
 
-		int bytes_escritos = 0;
-		void* content = malloc(sizeof(new_pokemon_broker));
-		uint32_t longitudNombre = strlen(parametros.nombrePokemon)+1;
-		memcpy (content + bytes_escritos, &longitudNombre, sizeof(uint32_t));
-		bytes_escritos += sizeof (uint32_t);
-		memcpy (content + bytes_escritos, &parametros.nombrePokemon, longitudNombre);
-		bytes_escritos += longitudNombre;
-		memcpy (content + bytes_escritos, &parametros.posicionEjeX, sizeof(uint32_t));
-		bytes_escritos += sizeof (uint32_t);
-		memcpy (content + bytes_escritos, &parametros.posicionEjeY, sizeof(uint32_t));
-		bytes_escritos += sizeof (uint32_t);
-		memcpy (content + bytes_escritos, &parametros.cantidad, sizeof(uint32_t));
-		bytes_escritos += sizeof (uint32_t);
-		return content;
+	memcpy (content + bytes_escritos, &parametros.sizeNombre, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, parametros.nombrePokemon, parametros.sizeNombre);
+	bytes_escritos += parametros.sizeNombre;
+	memcpy (content + bytes_escritos, &parametros.cantidad, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, &parametros.posicionEjeX, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, &parametros.posicionEjeY, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
 
-	return 0;
+
+	return content;
+
 }
 
-//TODO
 void* serializarAppearedContentBroker (appeared_pokemon_broker parametros){
-	void* content;
+	int bytes_escritos = 0;
+	void* content = malloc(sizeof(appeared_pokemon_broker));
+
+	memcpy (content + bytes_escritos, &parametros.idCorrelativo, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, &parametros.sizeNombre, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, parametros.nombrePokemon, parametros.sizeNombre);
+	bytes_escritos += parametros.sizeNombre;
+	memcpy (content + bytes_escritos, &parametros.posicionEjeX, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, &parametros.posicionEjeY, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+
 	return content;
 }
 
-//TODO
 void* serializarCatchContentBroker (catch_pokemon_broker parametros){
-	void* content;
+	int bytes_escritos = 0;
+	void* content = malloc(sizeof(catch_pokemon_broker));
+
+	memcpy (content + bytes_escritos, &parametros.sizeNombre, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, parametros.nombrePokemon, parametros.sizeNombre);
+	bytes_escritos += parametros.sizeNombre;
+	memcpy (content + bytes_escritos, &parametros.posicionEjeX, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, &parametros.posicionEjeY, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+
 	return content;
 }
 
-//TODO
 void* serializarCaughtContentBroker (caught_pokemon_broker parametros){
-	void* content;
+	int bytes_escritos = 0;
+	void* content = malloc(sizeof(caught_pokemon_broker));
+
+	memcpy (content + bytes_escritos, &parametros.idCorrelativo, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, &parametros.pokemonAtrapado, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+
 	return content;
 }
 
-//TODO
 void* serializarGetContentBroker (get_pokemon_broker parametros){
-	void* content;
+	int bytes_escritos = 0;
+	void* content = malloc(sizeof(get_pokemon_broker));
+
+	memcpy (content + bytes_escritos, &parametros.sizeNombre, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, parametros.nombrePokemon, parametros.sizeNombre);
+	bytes_escritos += parametros.sizeNombre;
+
 	return content;
 }
