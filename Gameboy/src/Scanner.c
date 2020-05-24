@@ -145,3 +145,19 @@ get_pokemon_gamecard obtenerParametrosGetGamecard(){
 
 	return parametros;
 }
+
+id_cola obtenerID(){
+	printf("Escriba el numero de cola:\n");
+	printf("1. NEW\n");
+	printf("2. APPEARED\n");
+	printf("3. GET\n");
+	printf("4. LOCALIZED\n");
+	printf("5. CATCH\n");
+	printf("6. CAUGHT\n");
+
+	id_cola id;
+	scanf("%d",&id);
+	id--;
+
+	return id;
+}

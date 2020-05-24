@@ -11,6 +11,5 @@
 void imprimirOpciones();
 void imprimirOpcionesMensajeBroker();
 void imprimirOpcionesMensajeGamecard();
-void imprimirOpcionesColas();
 
 #endif /* IMPRESORA_H_ */

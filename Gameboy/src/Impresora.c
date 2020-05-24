@@ -5,7 +5,7 @@ void imprimirOpciones(){
 	printf("1. Enviar mensaje al BROKER\n");
 	printf("2. Enviar mensaje al TEAM\n");
 	printf("3. Enviar mensaje al GAMECARD\n");
-	printf("4. Modo suscriptor");
+	printf("4. Modo suscriptor\n");
 }
 
 void imprimirOpcionesMensajeBroker(){

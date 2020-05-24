@@ -1,12 +1,15 @@
 #include "Gameboy.h"
 
 
-int main(void) {
+
+ int main(void) {
+
+	t_config * config = config_create("Gameboy.config");
+	t_log* log =  log_create("Gameboy.log", "Gameboy", 1, LOG_LEVEL_INFO);
+
+//	TODO Llegada de un nuevo mensaje a una cola de mensajes.
 
 
-	//TODO config
-//	t_config * config = config_create("Gameboy");
-	//TODO log
 
 	imprimirOpciones();
 	int opcionProceso;
@@ -14,47 +17,63 @@ int main(void) {
 
 	switch(opcionProceso){
 	case 1:{
-//		int socketGame = connect_to_server(char* host, 8080, NULL);
+		char* ipBroker = config_get_string_value(config, "IP_BROKER");
+		int puertoBroker = config_get_int_value(config, "PUERTO_BROKER");;
+		int socketGame = connect_to_server(ipBroker, puertoBroker, NULL);
+		if(socketGame != -errno)
+			log_info(log, "CONEXION EXITOSA CON EL BROKER");
 		imprimirOpcionesMensajeBroker();
 		int opcionMensaje;
 		scanf("%d",&opcionMensaje);
 		t_message mensajeBroker = obtenerMensajeBroker(opcionMensaje);
-//		if(mensajeBroker.head != ERROR_MESSAGE)
-//		send_message(socketGame, mensajeBroker.head,mensajeBroker.content, mensajeBroker.size);
+		if(mensajeBroker.head != ERROR_MESSAGE)
+		send_message(socketGame, mensajeBroker.head,mensajeBroker.content, mensajeBroker.size);
 		break;
 	}
 
-	case 2:{
-//		int socketGame = connect_to_server(char* host, 8080, NULL);
-//		t_message mensajeTeam = obtenerMensajeTeam();
-//		send_message(socketGame, mensajeTeam.head,mensajeTeam.content, mensajeTeam.size);
+/*	case 2:{
+		char* ipTeam = config_get_string_value(config, "IP_TEAM");
+		int puertoTeam = config_get_int_value(config, "PUERTO_TEAM");;
+		int socketGame = connect_to_server(ipTeam, puertoTeam, NULL);
+		if(socketGame != -errno)
+			log_info(log, "CONEXION EXITOSA CON EL PROCESO TEAM");
+		t_message mensajeTeam = obtenerMensajeTeam();
+		send_message(socketGame, mensajeTeam.head,mensajeTeam.content, mensajeTeam.size);
 		break;
-	}
+	}*/
 
 	case 3:{
-//		int socketGame = connect_to_server(char* host, 8080, NULL);
+		char* ipGamecard = config_get_string_value(config, "IP_GAMECARD");
+		int puertoGamecard = config_get_int_value(config, "PUERTO_GAMECARD");;
+		int socketGame = connect_to_server(ipGamecard, puertoGamecard, NULL);
+		if(socketGame != -errno)
+			log_info(log, "CONEXION EXITOSA CON EL PROCESO GAMECARD");
 		imprimirOpcionesMensajeGamecard();
 		int opcionMensaje;
 		scanf("%d",&opcionMensaje);
 		t_message mensajeGamecard = obtenerMensajeGamecard(opcionMensaje);
-//		if(mensajeGamecard.head != ERROR_MESSAGE)
-//		send_message(socketGame, mensajeGamecard.head,mensajeGamecard.content, mensajeGamecard.size);
+		if(mensajeGamecard.head != ERROR_MESSAGE)
+		send_message(socketGame, mensajeGamecard.head,mensajeGamecard.content, mensajeGamecard.size);
 		break;
-			}
+	}
 //TODO modoSuscriptor
 	case 4: {
-		imprimirOpcionesColas();
-		int opcionCola;
-		scanf("%d",&opcionCola);
-		imprimirOpcionTiempo();
-		int tiempo;
-		scanf("%d",&tiempo);
-		t_message mensajeSuscripcion = obtenerMensajeGamecard(opcionCola);
-//		int socketGame = connect_to_server(char* host, 8080, NULL);
-//		send_message(socketGame, mensajeGamecard.head,mensajeGamecard.content, mensajeGamecard.size);
-		//escuchar()
-		//terminar()
-
+		char* ipBroker = config_get_string_value(config, "IP_BROKER");
+		int puertoBroker = config_get_int_value(config, "PUERTO_BROKER");;
+		int socketGame = connect_to_server(ipBroker, puertoBroker, NULL);
+		if(socketGame != -errno)
+			log_info(log, "CONEXION EXITOSA CON EL BROKER");
+		id_cola id = obtenerID();
+		t_message mensajeSuscripcion = obtenerMensajeSuscripcion(id);
+		int tiempo = obtenerTiempo();
+		send_message(socketGame, mensajeSuscripcion.head,mensajeSuscripcion.content, mensajeSuscripcion.size);
+		char* nombreCola= obtenerNombreCola(id);
+		log_info(log, "SUSCRIPCION EXITOSA A LA COLA %s\n",nombreCola);
+/*		while(noSeTermineElTiempo())
+			escuchar()
+			if(llegoAlgo())
+				logearMensaje()
+*/
 		break;
 	}
 
@@ -62,8 +81,6 @@ int main(void) {
 		printf("%d no es una opcion valida\n",opcionProceso);
 	}
 
-
-//		printf("Escriba el numero de mensaje:\n");
 	return 0;
 
 
@@ -171,3 +188,21 @@ t_message obtenerMensajeGamecard(int opcionMensaje){
 	return mensaje;
 }
 
+t_message obtenerMensajeSuscripcion(id_cola id){
+
+	t_message mensaje;
+	mensaje.content = serializarSuscripcionContent(id);
+	mensaje.head = CONFIRMACION;
+	mensaje.size = sizeof(suscripcion);
+
+	return mensaje;
+
+}
+
+int obtenerTiempo(){
+	printf("Escriba el tiempo:\n");
+	int tiempo;
+	scanf("%d",&tiempo);
+
+	return tiempo;
+}

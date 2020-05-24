@@ -9,6 +9,7 @@ C_SRCS += \
 ../src/Impresora.c \
 ../src/MensajesBroker.c \
 ../src/MensajesGamecard.c \
+../src/MensajesSuscripcion.c \
 ../src/Scanner.c \
 ../src/protocol.c 
 
@@ -18,6 +19,7 @@ OBJS += \
 ./src/Impresora.o \
 ./src/MensajesBroker.o \
 ./src/MensajesGamecard.o \
+./src/MensajesSuscripcion.o \
 ./src/Scanner.o \
 ./src/protocol.o 
 
@@ -27,6 +29,7 @@ C_DEPS += \
 ./src/Impresora.d \
 ./src/MensajesBroker.d \
 ./src/MensajesGamecard.d \
+./src/MensajesSuscripcion.d \
 ./src/Scanner.d \
 ./src/protocol.d 
 
