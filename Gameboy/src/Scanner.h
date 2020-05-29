@@ -4,6 +4,7 @@
 #include "MensajesBroker.h"
 #include "MensajesGamecard.h"
 #include "MensajesSuscripcion.h"
+#include "MensajesTeam.h"
 
 new_pokemon_broker obtenerParametrosNewBroker();
 appeared_pokemon_broker obtenerParametrosAppearedBroker();
@@ -14,6 +15,8 @@ get_pokemon_broker obtenerParametrosGetBroker();
 new_pokemon_gamecard obtenerParametrosNewGamecard();
 catch_pokemon_gamecard obtenerParametrosCatchGamecard();
 get_pokemon_gamecard obtenerParametrosGetGamecard();
+
+appeared_pokemon_team obtenerParametrosAppearedTeam();
 
 id_cola obtenerID();
 #endif /* SCANNER_H_ */

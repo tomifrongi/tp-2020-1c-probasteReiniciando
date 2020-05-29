@@ -31,7 +31,7 @@
 		break;
 	}
 
-/*	case 2:{
+	case 2:{
 		char* ipTeam = config_get_string_value(config, "IP_TEAM");
 		int puertoTeam = config_get_int_value(config, "PUERTO_TEAM");;
 		int socketGame = connect_to_server(ipTeam, puertoTeam, NULL);
@@ -40,7 +40,7 @@
 		t_message mensajeTeam = obtenerMensajeTeam();
 		send_message(socketGame, mensajeTeam.head,mensajeTeam.content, mensajeTeam.size);
 		break;
-	}*/
+	}
 
 	case 3:{
 		char* ipGamecard = config_get_string_value(config, "IP_GAMECARD");
@@ -137,8 +137,7 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 	return mensaje;
 
 }
-//TODO obtenermensajeteam
-/*
+
 t_message obtenerMensajeTeam(){
 	t_message mensaje;
 	appeared_pokemon_team parametros;
@@ -149,7 +148,7 @@ t_message obtenerMensajeTeam(){
 	return mensaje;
 
 }
-*/
+
 t_message obtenerMensajeGamecard(int opcionMensaje){
 	t_message mensaje;
 	switch(opcionMensaje){

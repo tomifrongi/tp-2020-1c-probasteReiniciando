@@ -161,3 +161,24 @@ id_cola obtenerID(){
 
 	return id;
 }
+
+appeared_pokemon_team obtenerParametrosAppearedTeam(){
+	appeared_pokemon_team parametros;
+	parametros.id_mensaje = 10100;
+	parametros.idCorrelativo = 0;
+
+	printf("Ingrese el nombre del pokemon:\n");
+	char nombrePokemon[30];
+	scanf("%s", nombrePokemon);
+	parametros.nombrePokemon = nombrePokemon;
+	parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
+
+	printf("Ingrese la posicion X:\n");
+	scanf("%d",&parametros.posicionEjeX);
+
+	printf("Ingrese la posicion Y:\n");
+	scanf("%d",&parametros.posicionEjeY);
+
+	return parametros;
+
+}

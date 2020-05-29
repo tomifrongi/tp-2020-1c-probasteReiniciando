@@ -10,6 +10,7 @@ C_SRCS += \
 ../src/MensajesBroker.c \
 ../src/MensajesGamecard.c \
 ../src/MensajesSuscripcion.c \
+../src/MensajesTeam.c \
 ../src/Scanner.c \
 ../src/protocol.c 
 
@@ -20,6 +21,7 @@ OBJS += \
 ./src/MensajesBroker.o \
 ./src/MensajesGamecard.o \
 ./src/MensajesSuscripcion.o \
+./src/MensajesTeam.o \
 ./src/Scanner.o \
 ./src/protocol.o 
 
@@ -30,6 +32,7 @@ C_DEPS += \
 ./src/MensajesBroker.d \
 ./src/MensajesGamecard.d \
 ./src/MensajesSuscripcion.d \
+./src/MensajesTeam.d \
 ./src/Scanner.d \
 ./src/protocol.d 
 
