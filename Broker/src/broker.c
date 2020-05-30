@@ -51,7 +51,7 @@ void* handler_clients(void* socket){
 				new_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.cantidad,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
@@ -61,7 +61,11 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(new_admin.queue, &mensaje);
-				enviarConfirmacion(ID_INICIAL,broker_sock);
+				printf("%s", &mensaje.nombrePokemon);
+
+				//enviarConfirmacion(ID_INICIAL,broker_sock);
+
+
 
 				break;
 			}
@@ -71,15 +75,17 @@ void* handler_clients(void* socket){
 				appeared_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
+				aux += sizeof(uint32_t);
+				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(appeared_admin.queue, &mensaje);
-				enviarConfirmacion(ID_INICIAL,broker_sock);
+				//enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
 			}
@@ -89,7 +95,7 @@ void* handler_clients(void* socket){
 				catch_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
@@ -97,7 +103,7 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(catch_admin.queue, &mensaje);
-				enviarConfirmacion(ID_INICIAL,broker_sock);
+				//enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
 			}
@@ -108,10 +114,12 @@ void* handler_clients(void* socket){
 				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.pokemonAtrapado,aux,sizeof(uint32_t));
+				aux += sizeof(uint32_t);
+				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(caught_admin.queue, &mensaje);
-				enviarConfirmacion(ID_INICIAL,broker_sock);
+				//enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
 			}
@@ -125,7 +133,7 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(get_admin.queue, &mensaje);
-				enviarConfirmacion(ID_INICIAL,broker_sock);
+				//enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
 			}
@@ -137,7 +145,7 @@ void* handler_clients(void* socket){
 				uint32_t *posicion;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.cantidadPosiciones,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
@@ -146,12 +154,14 @@ void* handler_clients(void* socket){
 				for(int i=0;i < largoLista;i++){
 					memcpy(posicion,aux,sizeof(uint32_t));
 					aux += sizeof(uint32_t);
-					list_add(*mensaje.posiciones, posicion);
+					list_add(&mensaje.posiciones, posicion);
 				}
+				aux += sizeof(uint32_t);
+				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				queue_push(localized_admin.queue, &mensaje);
-				enviarConfirmacion(ID_INICIAL,broker_sock);
+				//enviarConfirmacion(ID_INICIAL,broker_sock);
 
 				break;
 			}
@@ -186,10 +196,10 @@ void* handler_clients(void* socket){
 
 void enviarConfirmacion(uint32_t id, int broker_sock){
 
-	id_mensaje mensaje;
+	//id_mensaje * mensaje;
 	size_t size = sizeof(uint32_t);
-	memcpy(&mensaje.id_mensaje,id,sizeof(uint32_t));
-	send_message(listener_socket, CONFIRMACION,mensaje,size);
+	//memcpy(&mensaje.id_mensaje,id,sizeof(uint32_t));
+	send_message(listener_socket, CONFIRMACION,&id,size);
 }
 
 void agregarSuscripcion (uint32_t id_cola, int broker_sock){

@@ -49,6 +49,7 @@ typedef struct{
 	size_t size; //indica el tamaño del content
 	void* content;
 }t_message;
+
 #define MAX_CLIENTS 128 //Queda por definir
 
 

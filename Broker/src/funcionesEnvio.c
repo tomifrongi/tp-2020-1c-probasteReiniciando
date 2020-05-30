@@ -55,6 +55,7 @@ int init_server(int port){
 	servaddr.sin_addr.s_addr =INADDR_ANY;
 	servaddr.sin_port = htons(port);
 
+
 	socket = create_socket();
 	if (socket < 0) {
 		char* error = strerror(errno);
