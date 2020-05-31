@@ -29,8 +29,7 @@ estructuraAdministrativa appeared_admin;
 
 
 //FUNCIONES
-uint32_t generarID();
-void crearColas();
-void destruirColas();
+void crearEstructurasAdministrativas ();
+void destruirEstructurasAdministrativas();
 
 #endif /* COLASDEMENSAJES_H_ */

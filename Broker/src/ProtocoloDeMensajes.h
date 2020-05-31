@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "commons/collections/list.h"
+#include "funcionesEnvio.h"
 
 
 //MENSAJES-------------------------------------------------------------
@@ -72,6 +73,7 @@ typedef struct {
 
 //Publisher envia:
 typedef struct {
+	uint32_t idCorrelativo;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t posicionEjeX;
@@ -83,6 +85,7 @@ typedef struct {
 //Subscriber recibe:
 typedef struct {
 	uint32_t id_mensaje;
+	uint32_t idCorrelativo;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t posicionEjeX;
@@ -116,6 +119,7 @@ typedef struct {
 //Publisher envia:
 typedef struct {
 	uint32_t sizeNombre;
+	uint32_t idCorrelativo;
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones.
 								//Este dato sirve para poder desserialzar el mensaje
@@ -129,6 +133,7 @@ typedef struct {
 //Subscriber recibe:
 typedef struct {
 	uint32_t id_mensaje;
+	uint32_t idCorrelativo;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones

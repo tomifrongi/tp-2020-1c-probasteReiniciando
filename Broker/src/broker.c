@@ -10,11 +10,16 @@
 
 #include "broker.h"
 
+pthread_mutex_t mutexId;
+pthread_mutex_t mutexLogger;
+
 int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
 	PUERTO = 8080;
 	ID_INICIAL = 0;
 	crearEstructurasAdministrativas();
+	pthread_mutex_init(&mutexId,NULL);
+	pthread_mutex_init(&mutexLogger,NULL);
 	init_broker_server();
 	return EXIT_SUCCESS;
 }
@@ -46,98 +51,157 @@ void* handler_clients(void* socket){
 		t_message* message = recv_message(broker_sock);
 		switch(message->head){
 			case NEW_POKEMON:{
+
+				pthread_mutex_lock(&mutexLogger);
 				log_info(logger, "NEW POKEMON RECIBIDO");
+				pthread_mutex_unlock(&mutexLogger);
+
 				void*aux=message->content;
 				new_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.cantidad,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
+
+				pthread_mutex_lock(&mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
+				pthread_mutex_unlock(&mutexId);
+
+				log_info(logger,"%s", &mensaje.nombrePokemon);
+
 				queue_push(new_admin.queue, &mensaje);
-				enviarConfirmacion(ID_INICIAL,broker_sock);
+
+
+
+				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
+
+
 
 				break;
 			}
 			case APPEARED_POKEMON:{
+				pthread_mutex_lock(&mutexLogger);
 				log_info(logger, "APPEARED POKEMON RECIBIDO");
+				pthread_mutex_unlock(&mutexLogger);
+
 				void *aux = message->content;
 				appeared_pokemon_enviar mensaje;
+
+				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
+				aux += sizeof(uint32_t);
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
+				aux += sizeof(uint32_t);
+
+				pthread_mutex_lock(&mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
+				pthread_mutex_unlock(&mutexId);
+
+				log_info(logger,"%s", &mensaje.nombrePokemon);
+				log_info(logger,"%d", mensaje.sizeNombre);
+
 				queue_push(appeared_admin.queue, &mensaje);
-				enviarConfirmacion(ID_INICIAL,broker_sock);
+				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
 			}
 			case CATCH_POKEMON:{
+
+				pthread_mutex_lock(&mutexLogger);
 				log_info(logger, "CATCH POKEMON RECIBIDO");
+				pthread_mutex_unlock(&mutexLogger);
+
 				void *aux = message->content;
 				catch_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
+
+				pthread_mutex_lock(&mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
+				pthread_mutex_unlock(&mutexId);
+
 				queue_push(catch_admin.queue, &mensaje);
-				enviarConfirmacion(ID_INICIAL,broker_sock);
+				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
 			}
 			case CAUGHT_POKEMON:{
+
+				pthread_mutex_lock(&mutexLogger);
 				log_info(logger, "CAUGHT POKEMON RECIBIDO");
+				pthread_mutex_unlock(&mutexLogger);
+
 				void *aux = message->content;
 				caught_pokemon_enviar mensaje;
 				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.pokemonAtrapado,aux,sizeof(uint32_t));
+				aux += sizeof(uint32_t);
+				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
+
+				pthread_mutex_lock(&mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
+				pthread_mutex_unlock(&mutexId);
+
 				queue_push(caught_admin.queue, &mensaje);
-				enviarConfirmacion(ID_INICIAL,broker_sock);
+				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
 			}
 			case GET_POKEMON:{
+
+				pthread_mutex_lock(&mutexLogger);
 				log_info(logger, "GET POKEMON RECIBIDO");
+				pthread_mutex_unlock(&mutexLogger);
+
 				void *aux = message->content;
 				get_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+
+				pthread_mutex_lock(&mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
+				pthread_mutex_unlock(&mutexId);
+
 				queue_push(get_admin.queue, &mensaje);
-				enviarConfirmacion(ID_INICIAL,broker_sock);
+				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
 			}
 			case LOCALIZED_POKEMON:{
+
+				pthread_mutex_lock(&mutexLogger);
 				log_info(logger, "LOCALIZED POKEMON RECIBIDO");
+				pthread_mutex_unlock(&mutexLogger);
+
 				void *aux = message->content;
 				localized_pokemon_enviar mensaje;
 				uint32_t largoLista;
 				uint32_t *posicion;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.cantidadPosiciones,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
@@ -146,12 +210,18 @@ void* handler_clients(void* socket){
 				for(int i=0;i < largoLista;i++){
 					memcpy(posicion,aux,sizeof(uint32_t));
 					aux += sizeof(uint32_t);
-					list_add(*mensaje.posiciones, posicion);
+					list_add(&mensaje.posiciones, posicion);
 				}
+				aux += sizeof(uint32_t);
+				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
+
+				pthread_mutex_lock(&mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
+				pthread_mutex_unlock(&mutexId);
+
 				queue_push(localized_admin.queue, &mensaje);
-				enviarConfirmacion(ID_INICIAL,broker_sock);
+				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
 			}
@@ -171,7 +241,7 @@ void* handler_clients(void* socket){
 				break;
 			case ERROR_RECV:
 				free_t_message(message);
-				log_info(logger, "ERROR COMUNIACIÓN");
+				log_info(logger, "ERROR COMUNICACIÓN");
 				pthread_exit(NULL);
 				return NULL;
 				break;
@@ -186,36 +256,36 @@ void* handler_clients(void* socket){
 
 void enviarConfirmacion(uint32_t id, int broker_sock){
 
-	id_mensaje mensaje;
+	void* content = malloc(sizeof(id_mensaje));
 	size_t size = sizeof(uint32_t);
-	memcpy(&mensaje.id_mensaje,id,sizeof(uint32_t));
-	send_message(listener_socket, CONFIRMACION,mensaje,size);
+	memcpy(content,&id,sizeof(uint32_t));
+	send_message(broker_sock, CONFIRMACION,content,size);
 }
 
 void agregarSuscripcion (uint32_t id_cola, int broker_sock){
 	switch(id_cola){
 	case NEW:
-		list_add(new_admin.suscriptores,broker_sock);
+		list_add(new_admin.suscriptores,&broker_sock);
 		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
 		break;
 	case APPEARED:
-		list_add(appeared_admin.suscriptores,broker_sock);
+		list_add(appeared_admin.suscriptores,&broker_sock);
 		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA APPEARED",broker_sock);
 		break;
 	case GET:
-		list_add(get_admin.suscriptores,broker_sock);
+		list_add(get_admin.suscriptores,&broker_sock);
 		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA GET",broker_sock);
 		break;
 	case LOCALIZED:
-		list_add(localized_admin.suscriptores,broker_sock);
+		list_add(localized_admin.suscriptores,&broker_sock);
 		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA LOCALIZED",broker_sock);
 		break;
 	case CATCH:
-		list_add(catch_admin.suscriptores,broker_sock);
+		list_add(catch_admin.suscriptores,&broker_sock);
 		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA CATCH",broker_sock);
 		break;
 	case CAUGHT:
-		list_add(caught_admin.suscriptores,broker_sock);
+		list_add(caught_admin.suscriptores,&broker_sock);
 		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA CAUGHT",broker_sock);
 		break;
 	default:

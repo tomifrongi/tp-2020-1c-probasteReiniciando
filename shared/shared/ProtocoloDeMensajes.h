@@ -1,8 +1,18 @@
 /*
  * ProtocoloDeMensajes.h
- *
- *  Created on: 7 may. 2020
- *      Author: utnso
+
+ALGUNAS ACLARACIONES
+1. Notificación de recepción: Toodo mensaje entregado debe ser confirmado
+por cada Suscriptor para marcarlo y no enviarse nuevamente al mismo.
+Esto explica porque cada vez que recibe un mensaje el suscriptor debe responder
+con el mensaje "id_mensaje"
+
+2. Toodo mensaje debe tener un identificador unívoco generado por el Broker
+que debe ser informado al módulo que generó el mismo.
+Esto explica porque el publisher despues de enviar un mensaje a una cola debe
+esperar al mensaje "id_mensaje"
+
+3. Respetar el orden de las estructuras, de lo contrario se deserializara mal
  */
 
 #ifndef PROTOCOLODEMENSAJES_H_
@@ -107,6 +117,7 @@ typedef struct {
 
 //Publisher envia:
 typedef struct {
+	uint32_t idCorrelativo;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t posicionEjeX;
@@ -124,6 +135,7 @@ typedef struct {
 //Subscriber recibe:
 typedef struct {
 	uint32_t id_mensaje;
+	uint32_t idCorrelativo;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t posicionEjeX;
@@ -177,7 +189,7 @@ typedef struct {
 
 //Publisher envia:
 typedef struct {
-	uint32_t id_mensaje;
+	uint32_t idCorrelativo;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones.
@@ -198,6 +210,8 @@ typedef struct {
 
 //Subscriber recibe:
 typedef struct {
+	uint32_t id_mensaje;
+	uint32_t idCorrelativo;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones
