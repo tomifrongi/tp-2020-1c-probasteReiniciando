@@ -2,7 +2,7 @@
 
 void* serializarNewContentGamecard(new_pokemon_gamecard parametros){
 	int bytes_escritos = 0;
-	void* content = malloc(sizeof(new_pokemon_gamecard));
+	void* content = malloc(sizeof(uint32_t)*5+parametros.sizeNombre);
 
 	memcpy (content + bytes_escritos, &parametros.id_mensaje, sizeof(uint32_t));
 	bytes_escritos += sizeof (uint32_t);
@@ -22,7 +22,7 @@ void* serializarNewContentGamecard(new_pokemon_gamecard parametros){
 
 void* serializarCatchContentGamecard(catch_pokemon_gamecard parametros){
 	int bytes_escritos = 0;
-	void* content = malloc(sizeof(catch_pokemon_gamecard));
+	void* content = malloc(sizeof(uint32_t)*4+parametros.sizeNombre);
 
 	memcpy (content + bytes_escritos, &parametros.id_mensaje, sizeof(uint32_t));
 	bytes_escritos += sizeof (uint32_t);
@@ -40,7 +40,7 @@ void* serializarCatchContentGamecard(catch_pokemon_gamecard parametros){
 
 void* serializarGetContentGamecard(get_pokemon_gamecard parametros){
 	int bytes_escritos = 0;
-	void* content = malloc(sizeof(get_pokemon_gamecard));
+	void* content = malloc(sizeof(uint32_t)*2+parametros.sizeNombre);
 
 	memcpy (content + bytes_escritos, &parametros.id_mensaje, sizeof(uint32_t));
 	bytes_escritos += sizeof (uint32_t);
