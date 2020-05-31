@@ -9,7 +9,7 @@
 
 //	TODO Llegada de un nuevo mensaje a una cola de mensajes.
 
-
+// TODO tira error en free message en content
 
 	imprimirOpciones();
 	int opcionProceso;
@@ -22,12 +22,14 @@
 		int socketGame = connect_to_server(ipBroker, puertoBroker, NULL);
 		if(socketGame != -errno)
 			log_info(log, "CONEXION EXITOSA CON EL BROKER");
+		while(1){
 		imprimirOpcionesMensajeBroker();
 		int opcionMensaje;
 		scanf("%d",&opcionMensaje);
 		t_message mensajeBroker = obtenerMensajeBroker(opcionMensaje);
 		if(mensajeBroker.head != ERROR_MESSAGE)
 		send_message(socketGame, mensajeBroker.head,mensajeBroker.content, mensajeBroker.size);
+		}
 		break;
 	}
 
