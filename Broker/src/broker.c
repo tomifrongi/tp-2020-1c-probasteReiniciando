@@ -18,8 +18,8 @@ int main(void) {
 	PUERTO = 8080;
 	ID_INICIAL = 0;
 	crearEstructurasAdministrativas();
-	pthread_mutex_init(&mutexId,NULL);
-	pthread_mutex_init(&mutexLogger,NULL);
+	iniciarMutexs();
+	iniciarListasIds();
 	init_broker_server();
 	return EXIT_SUCCESS;
 }
@@ -75,13 +75,10 @@ void* handler_clients(void* socket){
 
 				log_info(logger,"%s", &mensaje.nombrePokemon);
 
+				pthread_mutex_lock(&mutexQueueNew);
 				queue_push(new_admin.queue, &mensaje);
-
-
-
+				pthread_mutex_unlock(&mutexQueueNew);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
-
-
 
 				break;
 			}
@@ -112,7 +109,15 @@ void* handler_clients(void* socket){
 				log_info(logger,"%s", &mensaje.nombrePokemon);
 				log_info(logger,"%d", mensaje.sizeNombre);
 
-				queue_push(appeared_admin.queue, &mensaje);
+				pthread_mutex_lock(&mutexQueueAppeared);
+				if(list_contain(idsCorrelativosAppeared,&mensaje.idCorrelativo)==NULL){
+					queue_push(appeared_admin.queue, &mensaje);
+					list_add(idsCorrelativosAppeared,&mensaje.idCorrelativo);
+					log_info(logger,"mensaje agregado a la cola");
+				}
+				pthread_mutex_unlock(&mutexQueueAppeared);
+
+
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
@@ -138,7 +143,9 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
+				pthread_mutex_lock(&mutexQueueCatch);
 				queue_push(catch_admin.queue, &mensaje);
+				pthread_mutex_unlock(&mutexQueueCatch);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
@@ -162,7 +169,12 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
-				queue_push(caught_admin.queue, &mensaje);
+				pthread_mutex_lock(&mutexQueueCaught);
+				if(list_contain(&idsCorrelativosCaught,&mensaje.idCorrelativo)==NULL){
+					queue_push(caught_admin.queue, &mensaje);
+					list_add(idsCorrelativosCaught,&mensaje.idCorrelativo);
+				}
+				pthread_mutex_unlock(&mutexQueueCaught);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
@@ -184,7 +196,9 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
+				pthread_mutex_lock(&mutexQueueGet);
 				queue_push(get_admin.queue, &mensaje);
+				pthread_mutex_unlock(&mutexQueueGet);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
@@ -220,7 +234,13 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
-				queue_push(localized_admin.queue, &mensaje);
+				pthread_mutex_lock(&mutexQueueLocalized);
+				if(list_contain(&idsCorrelativosLocalized,&mensaje.idCorrelativo)==NULL){
+					queue_push(localized_admin.queue, &mensaje);
+					list_add(idsCorrelativosLocalized,&mensaje.idCorrelativo);
+				}
+				pthread_mutex_unlock(&mutexQueueLocalized);
+
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
@@ -294,3 +314,20 @@ void agregarSuscripcion (uint32_t id_cola, int broker_sock){
 	}
 }
 
+void iniciarMutexs(){
+	pthread_mutex_init(&mutexId,NULL);
+	pthread_mutex_init(&mutexLogger,NULL);
+	pthread_mutex_init(&mutexQueueNew,NULL);
+	pthread_mutex_init(&mutexQueueAppeared,NULL);
+	pthread_mutex_init(&mutexQueueGet,NULL);
+	pthread_mutex_init(&mutexQueueLocalized,NULL);
+	pthread_mutex_init(&mutexQueueCatch,NULL);
+	pthread_mutex_init(&mutexQueueCaught,NULL);
+	pthread_mutex_unlock(&mutexQueueLocalized);
+
+}
+void iniciarListasIds(){
+	idsCorrelativosAppeared = list_create();
+	idsCorrelativosLocalized = list_create();
+	idsCorrelativosCaught = list_create();
+}
