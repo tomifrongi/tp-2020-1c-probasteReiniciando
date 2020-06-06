@@ -54,4 +54,5 @@ void agregarSuscripcion(uint32_t id_cola,int broker_sock);
 
 void iniciarMutexs();
 void iniciarListasIds();
+void* buscarIdCorrelativo(t_list* lista,uint32_t idCorrelativo);
 #endif

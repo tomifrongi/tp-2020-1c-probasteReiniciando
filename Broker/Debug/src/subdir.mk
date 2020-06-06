@@ -4,16 +4,19 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../src/ParticionesDinamicas.c \
 ../src/broker.c \
 ../src/colasDeMensajes.c \
 ../src/funcionesEnvio.c 
 
 OBJS += \
+./src/ParticionesDinamicas.o \
 ./src/broker.o \
 ./src/colasDeMensajes.o \
 ./src/funcionesEnvio.o 
 
 C_DEPS += \
+./src/ParticionesDinamicas.d \
 ./src/broker.d \
 ./src/colasDeMensajes.d \
 ./src/funcionesEnvio.d 
