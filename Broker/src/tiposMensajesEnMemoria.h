@@ -28,14 +28,16 @@ typedef struct {
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidad;
-	coordenada posicion;
+	uint32_t posicionEjeX;
+	uint32_t posicionEjeY;
 }new_pokemon;
 
 typedef struct {
 
 	uint32_t sizeNombre;
 	char* nombrePokemon;
-	coordenada posicion;
+	uint32_t posicionEjeX;
+	uint32_t posicionEjeY;
 }appeared_pokemon;
 //------------------------------
 
@@ -60,7 +62,8 @@ typedef struct {
 typedef struct {
 	uint32_t sizeNombre;
 	char* nombrePokemon;
-	coordenada posicion;
+	uint32_t posicionEjeX;
+	uint32_t posicionEjeY;
 }catch_pokemon;
 
 
