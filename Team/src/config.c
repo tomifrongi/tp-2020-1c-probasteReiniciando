@@ -1,51 +1,72 @@
-#include<commons/config.h>
-#include<commons/collections/list.h>
-#include<commons/collections/queue.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include<commons/string.h>
 #include "config.h"
 #include "entrenadores.h"
 
-void separar_valores(char*string_valores, t_queue * cola_valores) { //divide los valores de un arreglo del config
-	int long_string = string_length(string_valores);
-	int i = 0;
-	char*str = "";
-	char c;
-	while (i != long_string) {
 
-		while (c != '|') {
-			c = string_valores[i];
-			string_append(str, c); //a la palabra currente le sigo metiendo letras// ver que lo haga bien
-			string_valores++;
-		}
-		queue_push(cola_valores, str);
-		str = "";
+/*
+ * Por ahora la idea es que el config devuelva los arreglos
+de datos para luego procesarlos en otras funciones
+*/
+char** separar_valores_de_string(char*string_valores) { //divide los pokemones de un string campo del arreglo del config y lo pone en un array
 
-		i++;
+	char**arreglo_palabras = string_split(string_valores, "|");
+	return arreglo_palabras;
+
+}
+int largo_array(char**array) {
+	int largo = 0;
+	while (array[largo] != NULL) {
+		largo++;
 	}
+	return largo;
 }
 
-void cargar_objetivos(t_entrenador* entrenador) {
-	t_config * config = config_create("a.config");
+
+t_config * leer_config(t_team* team) {
+
+	t_config * config = config_create(
+			"/home/utnso/git/tp-2020-1c-probasteReiniciando/Team/src/a.config"); //deberia leerse automatico para cada team o si es uno solo global ver de dividir en teams
 	if (config == NULL) {
 		printf("no se pudo leer el archivo de configuracion \n");
 		exit(1);
 	}
+	//printf("archivo leido\n");
 
-	char**array_objetivos = config_get_array_value(config,
-			"OBJETIVOS_ENTRENADORES");
-	//t_list * list_valores = list_create();
-	t_queue * valores_pokemones =queue_create();
-	separar_valores(&array_objetivos,valores_pokemones);
-	while (queue_is_empty(valores_pokemones)==0){
-		entrenador->pokemonesBuscados->especie = queue_pop(valores_pokemones);
-		entrenador->pokemonesBuscados=entrenador->pokemonesBuscados->sgte;
-	}
-	config_destroy(config);
-
+	return config;
 }
-int separar_array(char**array) {
-	return 0;
+
+char** leer_pokemones(t_team* team, int tipo) { //todos los del config tipo 0 para los que tiene 1 para los objetivos
+	t_config *config = leer_config(team);
+	char**array_pokemones;
+	switch (tipo) {
+	case 0:
+		array_pokemones = config_get_array_value(config,
+				"POKEMON_ENTRENADORES");
+		break;
+	case 1:
+		array_pokemones = config_get_array_value(config,
+				"OBJETIVOS_ENTRENADORES");
+		break;
+	default:
+		printf("tipo de lectura erroneo"), exit(1);
+	}
+
+	return array_pokemones;
+}
+char** leer_posicion(t_team* team, int num_entrenador) {
+	t_config *config = leer_config(team);
+	char**array_posiciones = config_get_array_value(config,
+			"POSICIONES_ENTRENADORES");
+
+	char**posicion = separar_valores_de_string(
+			array_posiciones[num_entrenador]); // separa el "1|2" en posicion[1,2]
+
+	return posicion;
+}
+
+int cantidad_entrenadores(t_team*team) { //al.h
+	t_config *config = leer_config(team);
+		char**array_posiciones = config_get_array_value(config,
+				"POSICIONES_ENTRENADORES");
+	return largo_array(array_posiciones);
 }
 
