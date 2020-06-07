@@ -29,31 +29,30 @@
  * 5) Volver al paso 1)
  */
 
-void cachearMensaje(int mensaje){ //no es un int pero pongo algo para que funque y creo que tambien iria memoria como parametro
-	void* memoria = malloc(1024); //aca no seria el malloc
-	int busquedasFallidas = 0;
+//TODO tener en cuenta TAMANO_MINIMO_PARTICION
 
-	int frecuenciaCompactacion; //Cantidad de búsquedas fallidas previa compactación
-	bool busqueda = buscarParticionLibre(memoria);
+void cachearMensaje(int mensaje){ //no es un int pero pongo algo para que funque y creo que tambien iria memoria como parametro
+	int busquedasFallidas = 0;
+	bool busqueda = buscarParticionLibre();
 
 	while(1)
 	{
-		busqueda = buscarParticionLibre(memoria);
+		busqueda = buscarParticionLibre();
 		if(busqueda)
 		{
-			almacenarMensaje(mensaje,memoria); //uno por cada mensaje o podre inferir cual es?
+			almacenarMensaje(mensaje); //uno por cada mensaje o podre inferir cual es?
 			break;
 		}
 		else
 		{
-			if(busquedasFallidas<frecuenciaCompactacion)
+			if(busquedasFallidas<FRECUENCIA_COMPACTACION)
 			{
-				eliminarParticion(memoria);
+				eliminarParticion();
 				actualizarBusquedasFallidas(&busquedasFallidas);
 			}
 			else
 			{
-				compactarMemoria(memoria);
+				compactarMemoria();
 			}
 		}
 	}
@@ -63,19 +62,103 @@ void actualizarBusquedasFallidas(int* busquedasFallidas){
 	busquedasFallidas++;
 }
 
-bool buscarParticionLibre(void* memoria){
-	return true;
+bool buscarParticionLibre(){
+	return true; //para que compile nomas
 }
 
-void almacenarMensaje(int mensaje,void* memoriamemoria){
+void almacenarMensajeNew(new_pokemon_memoria mensaje){
+	uint32_t tamanioMensaje = sizeof(uint32_t)*4 + mensaje.sizeNombre;
+	void* mensajeSerializado = serializarMensajeNew(mensaje);
+	void* particion;
+	uint32_t tamanioHeapYMensaje = sizeof(heapDinamico)+tamanioMensaje;
+
+	if(string_equals_ignore_case(ALGORITMO_PARTICION_LIBRE,"FF"))
+		particion = buscarPrimerParticionLibre(tamanioHeapYMensaje);
+	if(string_equals_ignore_case(ALGORITMO_PARTICION_LIBRE,"BF"))
+		particion = buscarMejorParticionLibre(tamanioHeapYMensaje);
+
+	heapDinamico heapParticion;
+	heapParticion.libre = 0;
+	heapParticion.tamanio = tamanioMensaje;
+	int bytesEscritos = 0;
+	memcpy(particion+bytesEscritos,&heapParticion.libre,sizeof(heapParticion.libre));
+	bytesEscritos+=sizeof(heapParticion.libre);
+	memcpy(particion+bytesEscritos,&heapParticion.tamanio,sizeof(heapParticion.tamanio));
+	bytesEscritos+=sizeof(heapParticion.tamanio);
+	memcpy(particion+bytesEscritos,mensajeSerializado,tamanioMensaje);
+	bytesEscritos+=tamanioMensaje;
+	agregarHeapAlFinalDeParticion(particion,bytesEscritos); //nose si poner esta funcion
 
 }
 
-void eliminarParticion(void* memoriamemoria){
+void eliminarParticion(){
 
 }
 
-void compactarMemoria(void* memoriamemoria){
+void* inicializarMemoria(){
+	TAMANO_MEMORIA = config_get_int_value(config,"TAMANO_MEMORIA");
+	principioMemoria = malloc(TAMANO_MEMORIA);
+	heapDinamico heapInicial;
+	heapInicial.libre = 1;
+	heapInicial.tamanio = TAMANO_MEMORIA-sizeof(heapInicial.libre)-sizeof(heapInicial.tamanio);
+	return principioMemoria;
+}
+
+void compactarMemoria(){
 
 }
 
+void* buscarPrimerParticionLibre(uint32_t tamanioHeapYMensaje){
+	int recorrido = 0;
+	int recorridoAuxiliar;
+	while(recorrido<TAMANO_MEMORIA)
+	{
+		heapDinamico heap;
+		memcpy(&heap.libre,principioMemoria+recorrido,sizeof(heap.libre));
+		recorrido+=sizeof(heap.libre);
+		memcpy(&heap.tamanio,principioMemoria+recorrido,sizeof(heap.tamanio));
+		recorrido+=sizeof(heap.tamanio);
+		if ((heap.libre == 1) && (tamanioHeapYMensaje<=heap.tamanio))
+		{
+			void* particion = principioMemoria + recorridoAuxiliar;
+			return particion;
+		}
+		recorrido+=heap.tamanio;
+		recorridoAuxiliar = recorrido;
+	}
+	return NULL;
+}
+
+void* buscarMejorParticionLibre(uint32_t tamanioHeapYMensaje){
+	int recorrido = 0;
+	int recorridoAuxiliar;
+	t_list* particiones = list_create();
+
+	while(recorrido<TAMANO_MEMORIA)
+	{
+		heapDinamico heap;
+		memcpy(&heap.libre,principioMemoria+recorrido,sizeof(heap.libre));
+		recorrido+=sizeof(heap.libre);
+		memcpy(&heap.tamanio,principioMemoria+recorrido,sizeof(heap.tamanio));
+		recorrido+=sizeof(heap.tamanio);
+		if ((heap.libre == 1)&&(tamanioHeapYMensaje<=heap.tamanio))
+		{
+			particionLibre particion;
+			particion.posicionParticion = principioMemoria+recorridoAuxiliar;
+			particion.tamanio = heap.tamanio;
+			list_add(particiones,&particion);
+		}
+		recorrido+=heap.tamanio;
+		recorridoAuxiliar = recorrido;
+
+	}
+
+	bool comparadorParticionesLibres(particionLibre* particion1,particionLibre* particion2){
+		return (particion1->tamanio)<(particion2->tamanio);
+	}
+	list_sort(particiones, (void*) comparadorParticionesLibres);
+
+	particionLibre* mejorParticion = list_get(particiones,0);
+
+	return (mejorParticion->posicionParticion);
+}
