@@ -15,7 +15,7 @@ pthread_mutex_t mutexLogger;
 
 int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
-	PUERTO = 8080;
+	PUERTO_BROKER = 8080;
 	ID_INICIAL = 0;
 	crearEstructurasAdministrativas();
 	iniciarMutexs();
@@ -25,8 +25,8 @@ int main(void) {
 }
 
 void init_broker_server() {
-	listener_socket = init_server(PUERTO);
-	log_info(logger, "Servidor levantado! Escuchando en %i",PUERTO);
+	listener_socket = init_server(PUERTO_BROKER);
+	log_info(logger, "Servidor levantado! Escuchando en %i",PUERTO_BROKER);
 	struct sockaddr broker_cli;
 	socklen_t len = sizeof(broker_cli);
 	do {
@@ -76,7 +76,7 @@ void* handler_clients(void* socket){
 				log_info(logger,"%s", &mensaje.nombrePokemon);
 
 				pthread_mutex_lock(&mutexQueueNew);
-				queue_push(&new_admin.queue, &mensaje);
+				queue_push(new_admin.queue, &mensaje);
 				pthread_mutex_unlock(&mutexQueueNew);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
@@ -110,8 +110,8 @@ void* handler_clients(void* socket){
 				log_info(logger,"%d", mensaje.sizeNombre);
 				pthread_mutex_lock(&mutexQueueAppeared);
 				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
-					queue_push(&appeared_admin.queue, &mensaje);
-					list_add(&idsCorrelativosAppeared,&mensaje.idCorrelativo);
+					queue_push(appeared_admin.queue, &mensaje);
+					list_add(idsCorrelativosAppeared,&mensaje.idCorrelativo);
 					log_info(logger,"mensaje agregado a la cola");
 				}
 				pthread_mutex_unlock(&mutexQueueAppeared);
@@ -143,7 +143,7 @@ void* handler_clients(void* socket){
 				pthread_mutex_unlock(&mutexId);
 
 				pthread_mutex_lock(&mutexQueueCatch);
-				queue_push(&catch_admin.queue, &mensaje);
+				queue_push(catch_admin.queue, &mensaje);
 				pthread_mutex_unlock(&mutexQueueCatch);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
@@ -170,8 +170,8 @@ void* handler_clients(void* socket){
 
 				pthread_mutex_lock(&mutexQueueCaught);
 				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
-					queue_push(&caught_admin.queue, &mensaje);
-					list_add(&idsCorrelativosCaught,&mensaje.idCorrelativo);
+					queue_push(caught_admin.queue, &mensaje);
+					list_add(idsCorrelativosCaught,&mensaje.idCorrelativo);
 				}
 				pthread_mutex_unlock(&mutexQueueCaught);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
@@ -196,7 +196,7 @@ void* handler_clients(void* socket){
 				pthread_mutex_unlock(&mutexId);
 
 				pthread_mutex_lock(&mutexQueueGet);
-				queue_push(&get_admin.queue, &mensaje);
+				queue_push(get_admin.queue, &mensaje);
 				pthread_mutex_unlock(&mutexQueueGet);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
@@ -223,7 +223,7 @@ void* handler_clients(void* socket){
 				for(int i=0;i < largoLista;i++){
 					memcpy(posicion,aux,sizeof(uint32_t));
 					aux += sizeof(uint32_t);
-					list_add(&mensaje.posiciones, posicion);
+					list_add(&mensaje.posiciones, &posicion);
 				}
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
@@ -235,8 +235,8 @@ void* handler_clients(void* socket){
 
 				pthread_mutex_lock(&mutexQueueLocalized);
 				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
-					queue_push(&localized_admin.queue, &mensaje);
-					list_add(&idsCorrelativosLocalized,&mensaje.idCorrelativo);
+					queue_push(localized_admin.queue, &mensaje);
+					list_add(idsCorrelativosLocalized,&mensaje.idCorrelativo);
 				}
 				pthread_mutex_unlock(&mutexQueueLocalized);
 
@@ -332,8 +332,8 @@ void iniciarListasIds(){
 }
 
 void* buscarIdCorrelativo(t_list* lista,uint32_t idCorrelativo){
-	bool compararMensajesPorId(void* idLista){
-		return idLista == idCorrelativo;
+	bool compararMensajesPorId(int* idLista){
+		return *idLista == idCorrelativo;
 	}
 	return list_find(lista,(void*) compararMensajesPorId);
 }

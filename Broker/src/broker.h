@@ -27,6 +27,7 @@
 #include "colasDeMensajes.h"
 #include "funcionesEnvio.h"
 #include "ProtocoloDeMensajes.h"
+#include "Configuracion.h"
 
 //Parametros a recibir desde el config
 uint32_t ID_INICIAL;
