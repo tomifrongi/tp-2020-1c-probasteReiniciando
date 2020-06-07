@@ -54,10 +54,7 @@ typedef struct{
 
 
 t_log* logger;
-int TAMANIO_MEMORIA; //Tamaño de la memoria total
-int PUERTO; //Puerto del socket
 
-void cargarConfiguracion();
 void inicializarLogger(char* path);
 
 int connect_to_server(char* host,int port, void*(*callback)());
