@@ -6,7 +6,7 @@ void* serializarSuscripcionContent(id_cola id){
 	int bytes_escritos = 0;
 	void* content = malloc(sizeof(suscripcion));
 
-	memcpy (content + bytes_escritos, &id, sizeof(uint32_t));
+	memcpy (content + bytes_escritos, &id, sizeof(id_cola));
 	bytes_escritos += sizeof (uint32_t);
 
 	return content;

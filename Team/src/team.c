@@ -1,75 +1,41 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "team.h"
+#include <stdbool.h>
+#include <commons/string.h>
 
-
-void agregar_pokemon(t_entrenador* entrenador,t_pokemon* pokemon){
-	t_pokemon* p = entrenador->pokemonesBuscados;
-	if(p == NULL){
-		entrenador->pokemonesBuscados = pokemon;
-	}
-	else{
-		while(p->sgte != NULL){
-			p = p->sgte;
-		}
-		p->sgte = pokemon;
-	}
-
+t_list * objetivo_global(t_team*team) {
+t_list *objetivo = list_create();
+void foo(t_entrenador*entrenador) {
+	list_add_all(objetivo, objetivo_personal(entrenador));
+}
+list_iterate(team->entrenadores, foo);
+return objetivo;
 }
 
-void mostrar_pokemones(t_entrenador* entrenador){
-	t_pokemon* p=entrenador->pokemonesBuscados;
-	while(p != NULL){
-		printf("%s",p->especie);
-		p=p->sgte;
-	}
+void cargar_objetivo_global(t_team*team) {
+team->objetivo_global = objetivo_global(team);
 }
 
-int cantidad_por_especie(t_team* team,t_pokemon* pokemon){
-	int i=0;
-	t_entrenador* entrenador = team->entrenadores;
-	while(entrenador != NULL){
-		i += cantidad_pokemones_especie(entrenador,pokemon);
-	}
-	return i;
+t_list*mapa [MAP_SIZE][MAP_SIZE];//mapa bidimencional de listas
+
+/*
+t_list*pokemones_sueltos(t_list*mapa[][]){ //por si termino iterando todoo el mapa
+	t_list*sueltos=list_create();
+
+	return sueltos;
+}*/
+t_list *pokemones_sueltos=list_create();
+// es una lista pero seran pocos  lugares,por que  que si sirve se lo captura y que si no sirve se borra
+//deberia tener la logica de ser mas una cola para el tema de las prioridades
+
+bool pokemon_suelto(void *mapa[][]){
+	return list_size(pokemones_sueltos)>0;
+}
+bool cumplio_objetivo_global(t_team*team){
+	return( pokemon_suelto(team->mapa)==false && list_is_empty(objetivo_global(team))==true);//no se que onda el bool
 }
 
-t_objetivo* objetivo_global(t_team* team){
-	t_objetivo* objetivo = malloc(sizeof(t_objetivo));
-	t_objetivo* aux = malloc(sizeof(t_objetivo));
-	t_entrenador* entrenador = malloc(sizeof(t_entrenador));
-	t_pokemon* pokemon = malloc(sizeof(t_pokemon));
-	objetivo->pokemon = entrenador->pokemonesBuscados;
-	objetivo->cantidad = cantidad_por_especie(team,objetivo->pokemon);
-	objetivo->sgte = aux;
- 	while(entrenador != NULL){
- 		pokemon = entrenador->pokemonesBuscados;
- 		while(pokemon != NULL){
- 			aux->pokemon=pokemon;
- 			aux->cantidad=cantidad_por_especie(team,aux->pokemon);
- 			pokemon = pokemon->sgte;
- 			aux = aux->sgte;
- 		}
- 	}
+/*
+bool estado_deadlock(t_team*team){
+	return ( pokemon_suelto(team->mapa)==false && list_is_empty(objetivo_global(team))==true&&)
 
-	return objetivo;
-}
-
-
-int main(void) {
-	t_entrenador* ash = malloc(sizeof(t_entrenador));
-	t_pokemon* pikachu = malloc(sizeof(t_pokemon));
-	t_pokemon* squirtle = malloc(sizeof(t_pokemon));
-	ash->nombre="Ash";
-	ash->estado=NEW;
-	ash->id = 0;
-	pikachu->especie = "pikachu";
-	squirtle->especie = "squirtle";
-	agregar_pokemon(ash,pikachu);
-	agregar_pokemon(ash,squirtle);
-	mostrar_pokemones(ash);
-	//printf("%s",pikachu->especie);
-	//t_entrenador* mapa[5][5];
-	return 0;
-}
+}*/ //no es tan facil como parece

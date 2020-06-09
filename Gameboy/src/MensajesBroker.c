@@ -8,7 +8,7 @@
 
 void* serializarNewContentBroker (new_pokemon_broker parametros){
 	int bytes_escritos = 0;
-	void* content = malloc(sizeof(new_pokemon_broker));
+	void* content = malloc(sizeof(uint32_t)*4+parametros.sizeNombre);
 
 	memcpy (content + bytes_escritos, &parametros.sizeNombre, sizeof(uint32_t));
 	bytes_escritos += sizeof (uint32_t);
@@ -28,7 +28,7 @@ void* serializarNewContentBroker (new_pokemon_broker parametros){
 
 void* serializarAppearedContentBroker (appeared_pokemon_broker parametros){
 	int bytes_escritos = 0;
-	void* content = malloc(sizeof(appeared_pokemon_broker));
+	void* content = malloc(sizeof(uint32_t)*4+parametros.sizeNombre);
 
 	memcpy (content + bytes_escritos, &parametros.idCorrelativo, sizeof(uint32_t));
 	bytes_escritos += sizeof (uint32_t);
@@ -46,7 +46,7 @@ void* serializarAppearedContentBroker (appeared_pokemon_broker parametros){
 
 void* serializarCatchContentBroker (catch_pokemon_broker parametros){
 	int bytes_escritos = 0;
-	void* content = malloc(sizeof(catch_pokemon_broker));
+	void* content = malloc(sizeof(uint32_t)*3+parametros.sizeNombre);
 
 	memcpy (content + bytes_escritos, &parametros.sizeNombre, sizeof(uint32_t));
 	bytes_escritos += sizeof (uint32_t);
@@ -62,7 +62,7 @@ void* serializarCatchContentBroker (catch_pokemon_broker parametros){
 
 void* serializarCaughtContentBroker (caught_pokemon_broker parametros){
 	int bytes_escritos = 0;
-	void* content = malloc(sizeof(caught_pokemon_broker));
+	void* content = malloc(sizeof(uint32_t)*2);
 
 	memcpy (content + bytes_escritos, &parametros.idCorrelativo, sizeof(uint32_t));
 	bytes_escritos += sizeof (uint32_t);
@@ -74,7 +74,7 @@ void* serializarCaughtContentBroker (caught_pokemon_broker parametros){
 
 void* serializarGetContentBroker (get_pokemon_broker parametros){
 	int bytes_escritos = 0;
-	void* content = malloc(sizeof(get_pokemon_broker));
+	void* content = malloc(sizeof(uint32_t)+parametros.sizeNombre);
 
 	memcpy (content + bytes_escritos, &parametros.sizeNombre, sizeof(uint32_t));
 	bytes_escritos += sizeof (uint32_t);

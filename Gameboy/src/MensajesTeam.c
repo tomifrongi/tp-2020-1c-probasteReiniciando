@@ -3,7 +3,7 @@
 
 void* serializarAppearedContentTeam (appeared_pokemon_team parametros){
 	int bytes_escritos = 0;
-	void* content = malloc(sizeof(appeared_pokemon_team));
+	void* content = malloc(sizeof(uint32_t)*5+parametros.sizeNombre);
 
 	memcpy (content + bytes_escritos, &parametros.id_mensaje, sizeof(uint32_t));
 	bytes_escritos += sizeof (uint32_t);

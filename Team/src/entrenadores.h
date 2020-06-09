@@ -14,7 +14,6 @@ void capturar_pokemon(t_entrenador*,t_pokemon*);
 
 int cant_pokemones_especie(t_entrenador*,t_pokemon*);
 
-
 int cantidad_objetivos(t_entrenador*);
 
 int puede_atrapar(t_entrenador*,t_pokemon*);
