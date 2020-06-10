@@ -30,14 +30,19 @@
  */
 
 //TODO tener en cuenta TAMANO_MINIMO_PARTICION
-
 void cachearMensaje(int mensaje){ //no es un int pero pongo algo para que funque y creo que tambien iria memoria como parametro
-	int busquedasFallidas = 0;
-	bool busqueda = buscarParticionLibre();
 
+	if(FRECUENCIA_COMPACTACION == -1)
+		ejecutarCicloAlternativo(mensaje);
+	else
+		ejecutarCicloNormal(mensaje);
+}
+
+void ejecutarCicloNormal(int mensaje){
 	while(1)
 	{
-		busqueda = buscarParticionLibre();
+		int busquedasFallidas = 0;
+		bool busqueda = buscarParticionLibre();
 		if(busqueda)
 		{
 			almacenarMensaje(mensaje); //uno por cada mensaje o podre inferir cual es?
@@ -51,13 +56,46 @@ void cachearMensaje(int mensaje){ //no es un int pero pongo algo para que funque
 				actualizarBusquedasFallidas(&busquedasFallidas);
 			}
 			else
-			{
 				compactarMemoria();
-			}
 		}
 	}
 }
 
+void ejecutarCicloAlternativo(int mensaje){
+	while(particionesOcupadas())
+	{
+		int busquedasFallidas = 0;
+		bool busqueda = buscarParticionLibre();
+		if(busqueda)
+		{
+			almacenarMensaje(mensaje); //uno por cada mensaje o podre inferir cual es?
+			break;
+		}
+		else
+			eliminarParticion();
+	}
+	compactarMemoria();
+	almacenarMensaje();
+
+}
+
+bool particionesOcupadas(){
+
+	heapDinamico heap;
+
+	int recorrido = 0;
+	while(recorrido<TAMANO_MEMORIA){
+
+		memcpy(&heap.libre,principioMemoria+recorrido,sizeof(heap.libre));
+		if(heap.libre == 0)
+			return true;
+		recorrido+=sizeof(heap.libre);
+		memcpy(&heap.tamanio,principioMemoria+recorrido,sizeof(heap.tamanio));
+		recorrido+=sizeof(heap.tamanio)+heap.tamanio;
+
+	}
+	return false;
+}
 void actualizarBusquedasFallidas(int* busquedasFallidas){
 	busquedasFallidas++;
 }
@@ -77,22 +115,42 @@ void almacenarMensajeNew(new_pokemon_memoria mensaje){
 	if(string_equals_ignore_case(ALGORITMO_PARTICION_LIBRE,"BF"))
 		particion = buscarMejorParticionLibre(tamanioHeapYMensaje);
 
+	uint32_t tamanioParticionAntigua;
+	int desplazamiento = sizeof(uint32_t);
+	memcpy(&tamanioParticionAntigua,particion+desplazamiento,sizeof(uint32_t));
+
 	heapDinamico heapParticion;
 	heapParticion.libre = 0;
 	heapParticion.tamanio = tamanioMensaje;
 	int bytesEscritos = 0;
+
 	memcpy(particion+bytesEscritos,&heapParticion.libre,sizeof(heapParticion.libre));
 	bytesEscritos+=sizeof(heapParticion.libre);
 	memcpy(particion+bytesEscritos,&heapParticion.tamanio,sizeof(heapParticion.tamanio));
 	bytesEscritos+=sizeof(heapParticion.tamanio);
 	memcpy(particion+bytesEscritos,mensajeSerializado,tamanioMensaje);
 	bytesEscritos+=tamanioMensaje;
-	agregarHeapAlFinalDeParticion(particion,bytesEscritos); //nose si poner esta funcion
+	free(mensajeSerializado);
+	queue_push(colaMensajesMemoria,particion);
+	void* particionContigua = particion+bytesEscritos;
+	agregarHeapAlFinalDeParticion(particionContigua,tamanioParticionAntigua,tamanioMensaje); //nose si poner esta funcion
 
 }
 
 void eliminarParticion(){
-
+	if(string_equals_ignore_case(ALGORITMO_REEMPLAZO,"FIFO"))
+	{
+		void* particion = queue_pop(colaMensajesMemoria);
+		uint32_t libre = 1;
+		memcpy(particion,&libre,sizeof(libre));
+	}
+	if(string_equals_ignore_case(ALGORITMO_REEMPLAZO,"LRU"))
+	{
+		int posicionUltimoElemeneto= list_size(ultimasReferencias)-1;
+		void* particion = list_remove(ultimasReferencias,posicionUltimoElemeneto);
+		uint32_t libre = 1;
+		memcpy(particion,&libre,sizeof(libre));
+	}
 }
 
 void* inicializarMemoria(){
@@ -162,3 +220,29 @@ void* buscarMejorParticionLibre(uint32_t tamanioHeapYMensaje){
 
 	return (mejorParticion->posicionParticion);
 }
+
+void agregarHeapAlFinalDeParticion(void* particionNueva,uint32_t tamanioParticionAntigua,uint32_t tamanioMensaje){
+	heapDinamico heapParticionContigua;
+	heapParticionContigua.libre = 1;
+	heapParticionContigua.tamanio = tamanioParticionAntigua-tamanioMensaje-sizeof(heapDinamico);
+
+	int bytesEscritos = 0;
+	memcpy(particionNueva+bytesEscritos,&heapParticionContigua.libre,sizeof(heapParticionContigua.libre));
+	bytesEscritos+=sizeof(heapParticionContigua.libre);
+	memcpy(particionNueva+bytesEscritos,&heapParticionContigua.tamanio,sizeof(heapParticionContigua.tamanio));
+	bytesEscritos+=sizeof(heapParticionContigua.tamanio);
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
