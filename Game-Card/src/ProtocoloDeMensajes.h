@@ -83,6 +83,7 @@ typedef struct {
 	uint32_t cantidad;
 	uint32_t posicionEjeX;
 	uint32_t posicionEjeY;
+	//unit32_t posicion[2];
 }new_pokemon;
 //t_header = NEW_POKEMON
 
