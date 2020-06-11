@@ -29,7 +29,7 @@ void decrementar_cantidad(FILE* archivo_pokemon,catch_pokemon pokemon_atrapado);
 void eliminarLinea(FILE* archivo_pokemon,t_linea linea_a_borrar);
 t_list* obtener_posiciones_y_cantidades(FILE* archivo_pokemon);
 
-// otro  comentario
+// otro  comentario.
 
 
 #endif /* GAMECARD_H_ */

@@ -57,7 +57,7 @@ typedef struct{
 //DESCRIPCION: Seria lo que va en content del t_message;
 
 //MENSAJE: suscripcion----------------
-//DESCRIPCION: informar al broker a cual cola se quiere suscrbir el modulo.
+//DESCRIPCION: informar al broker a cual cola se quiere suscrbir el modulo
 
 typedef enum {
 	NEW,

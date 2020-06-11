@@ -82,7 +82,7 @@ void eliminarLinea(FILE* archivo_pokemon,t_linea linea_a_borrar){
 	}
 }
 
-// funciones get_pokemon
+// funciones get_pokemon.
 
 t_list* obtener_posiciones_y_cantidades(FILE* archivo_pokemon){
 	t_linea linea = malloc(sizeof(t_linea));
