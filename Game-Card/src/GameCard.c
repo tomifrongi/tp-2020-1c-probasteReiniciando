@@ -95,7 +95,7 @@ t_list* obtener_posiciones_y_cantidades(FILE* archivo_pokemon){
 	 return lista;
 }
 
-
+// soy un comentario
 
 
 
