@@ -15,6 +15,7 @@ Y al que no le gusta que se joda
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <commons/collections/list.h>
 
 //MENSAJES
@@ -72,5 +73,7 @@ typedef struct {
 }caught_pokemon_memoria;
 //------------------------------
 
+
+void* serializarMensajeNew(new_pokemon_memoria mensaje);
 
 #endif /* TIPOSMENSAJESENMEMORIA_H_ */
