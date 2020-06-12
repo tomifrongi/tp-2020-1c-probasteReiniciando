@@ -12,7 +12,7 @@
 
 pthread_mutex_t mutexId;
 pthread_mutex_t mutexLogger;
-
+/*
 int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
 	PUERTO_BROKER = 8080;
@@ -23,7 +23,7 @@ int main(void) {
 	init_broker_server();
 	return EXIT_SUCCESS;
 }
-
+*/
 void init_broker_server() {
 	listener_socket = init_server(PUERTO_BROKER);
 	log_info(logger, "Servidor levantado! Escuchando en %i",PUERTO_BROKER);

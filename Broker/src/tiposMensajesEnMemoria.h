@@ -1,10 +1,3 @@
-/*
-
-Porque este nombre? Porque asi esta en el anexo 2
-
-Y al que no le gusta que se joda
-
- */
 
 #ifndef TIPOSMENSAJESENMEMORIA_H_
 #define TIPOSMENSAJESENMEMORIA_H_
@@ -34,7 +27,6 @@ typedef struct {
 }new_pokemon_memoria;
 
 typedef struct {
-
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t posicionEjeX;
@@ -75,5 +67,10 @@ typedef struct {
 
 
 void* serializarMensajeNew(new_pokemon_memoria mensaje);
+void* serializarMensajeAppeared(appeared_pokemon_memoria mensaje);
+void* serializarMensajeGet(get_pokemon_memoria mensaje);
+void* serializarMensajeLocalized(localized_pokemon_memoria mensaje); //TODO serializarLocalized
+void* serializarMensajeCatch(catch_pokemon_memoria mensaje);
+void* serializarMensajeCaught(caught_pokemon_memoria mensaje);
 
 #endif /* TIPOSMENSAJESENMEMORIA_H_ */
