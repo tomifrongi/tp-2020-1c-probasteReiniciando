@@ -11,6 +11,10 @@ C_SRCS += \
 ../src/MensajesGamecard.c \
 ../src/MensajesSuscripcion.c \
 ../src/MensajesTeam.c \
+../src/ModoBroker.c \
+../src/ModoGamecard.c \
+../src/ModoSuscriptor.c \
+../src/ModoTeam.c \
 ../src/Scanner.c \
 ../src/protocol.c 
 
@@ -22,6 +26,10 @@ OBJS += \
 ./src/MensajesGamecard.o \
 ./src/MensajesSuscripcion.o \
 ./src/MensajesTeam.o \
+./src/ModoBroker.o \
+./src/ModoGamecard.o \
+./src/ModoSuscriptor.o \
+./src/ModoTeam.o \
 ./src/Scanner.o \
 ./src/protocol.o 
 
@@ -33,6 +41,10 @@ C_DEPS += \
 ./src/MensajesGamecard.d \
 ./src/MensajesSuscripcion.d \
 ./src/MensajesTeam.d \
+./src/ModoBroker.d \
+./src/ModoGamecard.d \
+./src/ModoSuscriptor.d \
+./src/ModoTeam.d \
 ./src/Scanner.d \
 ./src/protocol.d 
 
