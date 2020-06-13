@@ -1,4 +1,81 @@
-#include "protocol.h"
+//FUNCIONES SOCKETS
+//BIBLIOTECA NET
+
+//Funciones de sockets ,logger y config
+
+#include "funcionesEnvio.h"
+#include "ProtocoloDeMensajes.h"
+
+
+void inicializarLogger(char* path){
+	char* nombre = string_new();
+	string_append(&nombre,path);
+	string_append(&nombre,".log");
+	logger = log_create(nombre,"broker",1,LOG_LEVEL_TRACE);
+	free(nombre);
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+int connect_to_server(char* host,int port, void*(*callback)()) {
+	int sock;
+
+	struct sockaddr_in server_addr;
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_addr.s_addr = inet_addr(host);
+	server_addr.sin_port = htons(port);
+
+	sock = create_socket();
+
+	if(connect(sock,(struct sockaddr *)&server_addr, sizeof(server_addr))< 0){
+		perror("ERROR CONECTAR SERVIDOR");
+		return -errno;
+	}
+
+	if(callback != NULL)
+		callback();
+
+	return sock;
+}
+int init_server(int port){
+	int  socket, val = 1;
+	struct sockaddr_in servaddr;
+
+	servaddr.sin_family = AF_INET;
+	servaddr.sin_addr.s_addr =INADDR_ANY;
+	servaddr.sin_port = htons(port);
+
+
+	socket = create_socket();
+	if (socket < 0) {
+		char* error = strerror(errno);
+		perror(error);
+		free(error);
+		return EXIT_FAILURE;
+	}
+
+	setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+
+	if (bind(socket,(struct sockaddr*) &servaddr, sizeof(servaddr)) < 0) {
+		return EXIT_FAILURE;
+	}
+
+	if (listen(socket, MAX_CLIENTS)< 0) {
+		return EXIT_FAILURE;
+	}
+
+	return socket;
+
+}
+int create_socket(){
+	return socket(AF_INET, SOCK_STREAM, 0);
+}
+
+//BIBLIOTECA PROTOCOL
 
 int send_message(int socket, t_header head,const void* content, size_t size){
 	t_message* message = create_t_message(head,size,content);
@@ -23,7 +100,6 @@ int send_message(int socket, t_header head,const void* content, size_t size){
 	return res;
 
 }
-
 void free_t_message(t_message* message){
 	if(message != NULL){
 		if(message->content != NULL){
@@ -32,7 +108,6 @@ void free_t_message(t_message* message){
 		free(message);
 	}
 }
-
 t_message* recv_message(int socket){
 	t_message * message = malloc(sizeof(t_message));
 
@@ -62,8 +137,6 @@ t_message* recv_message(int socket){
 	free(buffer);
 	return message;
 }
-
-
 t_message* create_t_message(t_header head, size_t size,const void* content){
 	t_message* message = (t_message*)malloc(sizeof(t_message));
 	message->head = head;
@@ -75,17 +148,14 @@ t_message* create_t_message(t_header head, size_t size,const void* content){
 
 	return message;
 }
-
 t_message* error(int res){
 	t_header header = res == 0? NO_CONNECTION : ERROR_RECV;
 	int32_t err = -errno;
 	return create_t_message(header,sizeof(err),&err);
 }
-
 int send_status(int sock,t_header head, int status){
 	return send_message(sock,status,&status,sizeof(int32_t));
 }
-
 int get_status(t_message* message){
 	return *((int*)message->content);
 }

@@ -15,12 +15,6 @@ void inicializarLogger(char* path){
 	free(nombre);
 }
 
-void cargarConfiguracion(){ //Funcion para cargar el config que nos pasen, por ahora le mande solo un puerto y tamanio de memoria general
-	t_config* config = config_create("./broker.config"); //calculo que se llamara broker.config xd
-	PUERTO = config_get_int_value(config, "LISTEN_PORT");
-	TAMANIO_MEMORIA = config_get_int_value(config, "MEMORY_SIZE");
-}
-
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------------------------
