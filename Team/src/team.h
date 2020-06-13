@@ -1,52 +1,56 @@
+
+#ifndef TEAM_H_
+#define TEAM_H_
+#define MAP_SIZE 10
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <commons/collections/list.h>
-#define MAP_SIZE 10
+#include <stdbool.h>
+#include <commons/string.h>
+#include <math.h>
+ #include "entrenadores.h"
 
 
-#ifndef TEAM_H_
-#define TEAM_H_
-
-
-typedef enum {
-	NEW,
-	READY,
-	EXEC,
-	BLOCK,
-	EXIT
-}t_state;
 
 typedef struct{
 	char* especie;
 	//cambio de planes tenemos mapa again,pero mantenemos posicion para algunos calculos
-	int posicion[2];//todos arrancan en el bolsillo del entrenador
+	int posicion_x;
+	int posicion_y;//todos arrancan en el bolsillo del entrenador
+
 }t_pokemon;
 
  typedef struct {
 	//char* nombre;
 	int id;
-	int posicion [2];//[x,y]
+	int team;//team al que pertenece
+	int posicion_x;
+	int posicion_y;
 	t_list* pokemones_capturados;
 	t_list* pokemones_buscados;
-	t_state estado ;//no se puede inicializar en este.h parece
+	 t_state estado ;//no se puede inicializar en este.h parece
 }t_entrenador;
 
 
 typedef struct{
-	//char* nombre;
+	int id;
 	t_list * entrenadores;
 	t_list* objetivo_global;
-	t_list*mapa [MAP_SIZE][MAP_SIZE];
+	//t_list*mapa [MAP_SIZE][MAP_SIZE];
+	t_list*pokemones_sueltos;
 }t_team;
 
-/*//creo que va a ser una funcion que llama al entrenador
-typedef struct{
-	t_pokemon pokemon;
-	int cantidad;
-	//struct t_objetivo* sgte;
-}t_objetivo;*/
 
+
+ typedef struct{
+	int cantidad_ciclos_cpu;
+	int cantidad_deadlocks;
+	int cantidad_deadlocks_detectados;
+	int cantidad_deadlocks_solucionados;
+
+}planificador;
 
 int cantidad_entrenadores(t_team*);
 void agregar_pokemon(t_entrenador* ,t_pokemon* );

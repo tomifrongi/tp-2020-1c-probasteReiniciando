@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include<commons/string.h>
-
+#include "entrenadores.h"
 #ifndef CONFIG_H_
 #define CONFIG_H_
 

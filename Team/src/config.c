@@ -1,11 +1,17 @@
 #include "config.h"
-#include "entrenadores.h"
 
 
+#define cantidad_claves_por_team 11
 /*
  * Por ahora la idea es que el config devuelva los arreglos
 de datos para luego procesarlos en otras funciones
 */
+//infiero la cantidad de procesos team en base a que
+int cantidad_teams(t_config*config){
+	return  config_keys_amount(config)/cantidad_claves_por_team;
+}
+
+
 char** separar_valores_de_string(char*string_valores) { //divide los pokemones de un string campo del arreglo del config y lo pone en un array
 
 	char**arreglo_palabras = string_split(string_valores, "|");
@@ -21,16 +27,15 @@ int largo_array(char**array) {
 }
 
 
-t_config * leer_config(t_team* team) {
+t_config * leer_config() {//sasco el parametro team
 
-	t_config * config = config_create(
-			"/home/utnso/git/tp-2020-1c-probasteReiniciando/Team/src/a.config"); //deberia leerse automatico para cada team o si es uno solo global ver de dividir en teams
+	t_config * config = config_create("/home/utnso/git/tp-2020-1c-probasteReiniciando/Team/src/a.config");
+	//t_config * config = config_create("a.config"); //ver de que funcione asi //todo
+
 	if (config == NULL) {
 		printf("no se pudo leer el archivo de configuracion \n");
 		exit(1);
 	}
-	//printf("archivo leido\n");
-
 	return config;
 }
 

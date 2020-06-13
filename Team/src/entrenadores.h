@@ -1,10 +1,25 @@
 
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+//#include "team.h"
+#include "config.h"
+#include "pokemones.h"
+
 #ifndef ENTRENADORES_H_
 #define ENTRENADORES_H_
 
-#include "team.h"
+typedef enum {
+	NEW,
+	READY,
+	EXEC,
+	BLOCK,
+	EXIT
+}t_state;
 
-
+bool esta_disponible(t_entrenador*);
 
 void cambiar_estado(t_entrenador*,t_state);
 

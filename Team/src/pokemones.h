@@ -4,11 +4,18 @@
  *  Created on: 4 jun. 2020
  *      Author: utnso
  */
-#include "team.h"
-
-
 #ifndef POKEMONES_H_
 #define POKEMONES_H_
+
+#include<commons/config.h>
+#include<commons/string.h>
+#include<commons/collections/list.h>
+#include "config.h"
+#include "team.h"
+#include "entrenadores.h"
+#include <stdbool.h>
+
+
 
 t_list *pokemones_capturados(t_team*team,int index);
 t_list *pokemones_buscados(t_team*team,int index);

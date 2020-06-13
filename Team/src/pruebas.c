@@ -38,31 +38,8 @@ return buscados;
 }
 
 int main() {
-/*
-	t_list*pokes1=list_create();
-	t_list*pokes2=list_create();
-	t_pokemon*poke1=malloc(sizeof(t_pokemon));
-	t_pokemon*poke2=malloc(sizeof(t_pokemon));
-	t_pokemon*poke3=malloc(sizeof(t_pokemon));
-	t_pokemon*poke4=malloc(sizeof(t_pokemon));
-
-	poke1->especie="pelotudo";
-	poke2->especie="cornudo";
-	poke3->especie="cornudo";
-	poke4->especie="mas cornudo";
-	list_add(pokes1,poke1);
-	list_add(pokes1,poke2);
-
-	list_add(pokes2,poke3);
-
-	list_add(pokes2,poke4);
-	t_entrenador*entrenador=malloc(sizeof(t_entrenador));
-	entrenador->pokemones_buscados=pokes1;
-	entrenador->pokemones_capturados=pokes2;
-
-	mostrar_pokemones(pokemones_sobrantes(entrenador));*/
-
-
+	t_config *config=leer_config();
+	printf("cantidad teams:%d\n",cantidad_teams(config));
 
 return 0;
 
