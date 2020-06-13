@@ -44,7 +44,7 @@ void existen_posiciones_pokemon_nuevo(FILE* archivo_pokemon,new_pokemon pokemon_
 // funciones catch_pokemon
 
 void existen_posiciones_pokemon_atrapado(FILE* archivo_pokemon,catch_pokemon pokemon_atrapado){
-	t_linea linea=malloc(sizeof(t_linea));;
+	t_linea linea = malloc(sizeof(t_linea));
 	while(archivo_pokemon){
 		fscanf(archivo_pokemon,"%d%c%d%c%d%\n",&linea.cord_x,linea.guion,&linea.cord_y,linea.igual,&linea.cantidad);
 		if(linea.cord_x == pokemon_atrapado.posicionEjeX && linea.cord_y == pokemon_atrapado.posicionEjeY)
@@ -55,7 +55,7 @@ void existen_posiciones_pokemon_atrapado(FILE* archivo_pokemon,catch_pokemon pok
 }
 
 void decrementar_cantidad(FILE* archivo_pokemon,catch_pokemon pokemon_atrapado){
-	t_linea linea=malloc(sizeof(t_linea));;
+	t_linea linea=malloc(sizeof(t_linea));
 	while(archivo_pokemon){
 		fscanf(archivo_pokemon,"%d%c%d%c%d%\n",&linea.cord_x,linea.guion,&linea.cord_y,linea.igual,&linea.cantidad);
 		if(linea.cord_x == pokemon_atrapado.posicionEjeX && linea.cord_y == pokemon_atrapado.posicionEjeY){
@@ -112,9 +112,9 @@ int main(void) {
 		log_info(log, "CONEXION EXITOSA CON EL BROKER");
 		t_message mensajeBroker;
 		void* content = malloc(sizeof(uint32_t));
-		uint32_t numero = 1; // es el new pero no se por que no funciona
+		uint32_t numero = NEW; // es el new pero no se por que no funciona
 		memcpy (content, &numero, sizeof(uint32_t));
-		mensajeBroker.head = 7; // esto es lo mismo pero para suscripcion no se por que funciona mal eso
+		mensajeBroker.head = SUSCRIPCION; // esto es lo mismo pero para suscripcion no se por que funciona mal eso
 		mensajeBroker.content = content;
 		mensajeBroker.size = sizeof(uint32_t);
 		send_message(socketGame, mensajeBroker.head,mensajeBroker.content, mensajeBroker.size);

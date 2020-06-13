@@ -1,12 +1,11 @@
 #ifndef GAMECARD_H__
 #define GAMECARD_H__
 
-#include "Cliente.h"
 #include "commons/config.h"
 #include "commons/log.h"
 #include <commons/collections/list.h>
-#include "protocol.h"
-#include "MensajesGamecard.h"
+#include "ProtocoloDeMensajes.h"
+#include "funcionesEnvio.h"
 #include "time.h"
 
 #define MAX_CLIENTS 128
