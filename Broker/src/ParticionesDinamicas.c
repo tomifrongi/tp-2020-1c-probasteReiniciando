@@ -51,30 +51,58 @@ int main(){
 	ALGORITMO_REEMPLAZO = "FIFO";
 	ALGORITMO_PARTICION_LIBRE = "FF";
 	FRECUENCIA_COMPACTACION = 3;
-
-	inicializarMemoria();
 	colaMensajesMemoria = queue_create();
 	ultimasReferencias = list_create();
 
-	new_pokemon_memoria menNew;
-	menNew.sizeNombre = 9;
-	menNew.nombrePokemon = "federico";
-	menNew.cantidad = 4;
-	menNew.posicionEjeX = 25;
-	menNew.posicionEjeY = 56;
 
+	principioMemoria = malloc(TAMANO_MEMORIA);
+	particion_dinamica_memoria particionInicial;
+	particionInicial.posicionParticion = 0;
+	particionInicial.libre = 1;
+	particionInicial.tamanio = TAMANO_MEMORIA;
+	particionInicial.cola = -1;
+	particionInicial.idCorrelativo = -1;
+	particionInicial.idMensaje = -1;
+	particionInicial.tamanioMensaje = -1;
+
+	particionesEnMemoria = list_create();
+	list_add(particionesEnMemoria,&particionInicial);
+
+
+
+
+	particion_dinamica_memoria* p =list_get(particionesEnMemoria,0);
+	int libre = p->libre;
+	int tamanio = p->tamanio;
+	printf("libre: %d \n",libre);
+	printf("tamanio: %d \n",tamanio);
+	bool busqueda = buscarParticionLibre(23);
+	printf("busqueda: %d \n",busqueda);
+//	new_pokemon_memoria menNew;
+//	menNew.sizeNombre = 9;
+//	menNew.nombrePokemon = "federico";
+//	menNew.cantidad = 4;
+//	menNew.posicionEjeX = 25;
+//	menNew.posicionEjeY = 56;
+//	cachearMensaje(&menNew,NEW);
+//	printf("Finalizado particiones\n");
 }
 
 
 void inicializarMemoria(){
 	principioMemoria = malloc(TAMANO_MEMORIA);
 	particion_dinamica_memoria particionInicial;
-	particionInicial.posicionParticion = principioMemoria;
-	particionInicial.libre = true;
+	particionInicial.posicionParticion = 0;
+	particionInicial.libre = 1;
 	particionInicial.tamanio = TAMANO_MEMORIA;
+	particionInicial.cola = -1;
+	particionInicial.idCorrelativo = -1;
+	particionInicial.idMensaje = -1;
+	particionInicial.tamanioMensaje = -1;
 
 	particionesEnMemoria = list_create();
 	list_add(particionesEnMemoria,&particionInicial);
+
 }
 
 void cachearMensaje(void* mensaje,id_cola id){
@@ -87,9 +115,10 @@ void cachearMensaje(void* mensaje,id_cola id){
 
 void ejecutarCicloNormal(void* mensaje,id_cola id){
 	uint32_t tamanioMensaje = obtenerTamanioMensaje(mensaje,id);
+	int busquedasFallidas = 0;
 	while(1)
 	{
-		int busquedasFallidas = 0;
+
 		bool busqueda = buscarParticionLibre(tamanioMensaje);
 		if(busqueda)
 		{
@@ -105,6 +134,7 @@ void ejecutarCicloNormal(void* mensaje,id_cola id){
 			}
 			else
 				compactarMemoria();
+				busquedasFallidas = 0;
 		}
 	}
 }
@@ -134,26 +164,10 @@ bool particionesOcupadas(){
 		return !(particionCasteada->libre);
 	}
 	return list_any_satisfy(particionesEnMemoria,particionOcupada);
-
-
-//	heapDinamico heap;
-//
-//	int recorrido = 0;
-//	while(recorrido<TAMANO_MEMORIA){
-//
-//		memcpy(&heap.libre,principioMemoria+recorrido,sizeof(heap.libre));
-//		if(heap.libre == 0)
-//			return true;
-//		recorrido+=sizeof(heap.libre);
-//		memcpy(&heap.tamanio,principioMemoria+recorrido,sizeof(heap.tamanio));
-//		recorrido+=sizeof(heap.tamanio)+heap.tamanio;
-//
-//	}
-//	return false;
 }
 
 void actualizarBusquedasFallidas(int* busquedasFallidas){
-	busquedasFallidas++;
+	(*busquedasFallidas)++;
 }
 
 void almacenarMensaje(void* mensaje,id_cola id){
@@ -167,7 +181,7 @@ void almacenarMensaje(void* mensaje,id_cola id){
 	if(string_equals_ignore_case(ALGORITMO_PARTICION_LIBRE,"BF"))
 		particion = buscarMejorParticionLibre(tamanioMensaje);
 
-	void* posicionParticion = particion->posicionParticion;
+	int posicionParticion = particion->posicionParticion;
 	uint32_t tamanioParticionAntigua = particion->tamanio;
 	particion = cargarDatosParticion(particion,mensaje,id);
 	list_add(particionesEnMemoria,particion);
@@ -180,33 +194,8 @@ void almacenarMensaje(void* mensaje,id_cola id){
 	if(string_equals_ignore_case(ALGORITMO_REEMPLAZO,"LRU"))
 		list_add_in_index(ultimasReferencias,0,particion->posicionParticion);
 
-	memcpy(posicionParticion,mensajeSerializado,tamanioMensaje);
+	memcpy(principioMemoria+posicionParticion,mensajeSerializado,tamanioMensaje);
 	free(mensajeSerializado);
-
-//
-//
-//
-//
-//	uint32_t tamanioParticionAntigua;
-//	int desplazamiento = sizeof(uint32_t);
-//	memcpy(&tamanioParticionAntigua,particion+desplazamiento,sizeof(uint32_t));
-//
-//	heapDinamico heapParticion;
-//	heapParticion.libre = 0;
-//	heapParticion.tamanio = tamanioMensaje;
-//	int bytesEscritos = 0;
-//
-//	memcpy(particion+bytesEscritos,&heapParticion.libre,sizeof(heapParticion.libre));
-//	bytesEscritos+=sizeof(heapParticion.libre);
-//	memcpy(particion+bytesEscritos,&heapParticion.tamanio,sizeof(heapParticion.tamanio));
-//	bytesEscritos+=sizeof(heapParticion.tamanio);
-//	memcpy(particion+bytesEscritos,mensajeSerializado,tamanioMensaje);
-//	bytesEscritos+=tamanioMensaje;
-//	free(mensajeSerializado);
-//	queue_push(colaMensajesMemoria,particion);
-//	void* particionContigua = particion+bytesEscritos;
-//	if(tamanioParticionAntigua != tamanioMensaje)
-//		agregarHeapAlFinalDeParticion(particionContigua,tamanioParticionAntigua,tamanioMensaje); //nose si poner esta funcion
 
 }
 
@@ -238,19 +227,6 @@ void eliminarParticion(){
 		list_iterate(particionesEnMemoria, cambiarALibre);
 	}
 
-//	if(string_equals_ignore_case(ALGORITMO_REEMPLAZO,"FIFO"))
-//	{
-//		void* particion = queue_pop(colaMensajesMemoria);
-//		uint32_t libre = 1;
-//		memcpy(particion,&libre,sizeof(libre));
-//	}
-//	if(string_equals_ignore_case(ALGORITMO_REEMPLAZO,"LRU"))
-//	{
-//		int posicionUltimoElemeneto= list_size(ultimasReferencias)-1;
-//		void* particion = list_remove(ultimasReferencias,posicionUltimoElemeneto);
-//		uint32_t libre = 1;
-//		memcpy(particion,&libre,sizeof(libre));
-//	}
 }
 
 
@@ -260,33 +236,15 @@ void compactarMemoria(){
 }
 
 bool buscarParticionLibre(uint32_t tamanioMensaje){
-	bool particionLibre(void* particion){
-		particion_dinamica_memoria* particionCasteada = particion;
+	bool particionLibre(particion_dinamica_memoria* particion){
 		if(tamanioMensaje<TAMANO_MINIMO_PARTICION)
-			return (TAMANO_MINIMO_PARTICION<=(particionCasteada->tamanio) && particionCasteada->libre);
+			return (TAMANO_MINIMO_PARTICION<=(particion->tamanio) && particion->libre);
 		else
-			return (tamanioMensaje<=(particionCasteada->tamanio) && particionCasteada->libre);
+			return ((tamanioMensaje<=(particion->tamanio)) && particion->libre);
 	}
-	return list_any_satisfy(particionesEnMemoria,particionLibre);
+	return list_any_satisfy(particionesEnMemoria,(void*)particionLibre);
 
-//	int recorrido = 0;
-//	int recorridoAuxiliar = 0;
-//	uint32_t tamanioHeapYMensaje = tamanioMensaje + sizeof(heapDinamico);
-//	while(recorrido<TAMANO_MEMORIA)
-//	{
-//		heapDinamico heap;
-//		memcpy(&heap.libre,principioMemoria+recorrido,sizeof(heap.libre));
-//		recorrido+=sizeof(heap.libre);
-//		memcpy(&heap.tamanio,principioMemoria+recorrido,sizeof(heap.tamanio));
-//		recorrido+=sizeof(heap.tamanio);
-//		if ((heap.libre == 1) && (tamanioMensaje==heap.tamanio))
-//			return true;
-//		if ((heap.libre == 1) && (tamanioHeapYMensaje<=heap.tamanio))
-//			return true;
-//		recorrido+=heap.tamanio;
-//		recorridoAuxiliar = recorrido;
-//	}
-//	return false;
+
 }
 
 particion_dinamica_memoria* buscarPrimerParticionLibre(uint32_t tamanioMensaje){
@@ -300,30 +258,7 @@ particion_dinamica_memoria* buscarPrimerParticionLibre(uint32_t tamanioMensaje){
 	}
 	return list_find(particionesEnMemoria,particionLibre);
 
-//	int recorrido = 0;
-//	int recorridoAuxiliar = 0;
-//	uint32_t tamanioHeapYMensaje = tamanioMensaje + sizeof(heapDinamico);
-//	while(recorrido<TAMANO_MEMORIA)
-//	{
-//		heapDinamico heap;
-//		memcpy(&heap.libre,principioMemoria+recorrido,sizeof(heap.libre));
-//		recorrido+=sizeof(heap.libre);
-//		memcpy(&heap.tamanio,principioMemoria+recorrido,sizeof(heap.tamanio));
-//		recorrido+=sizeof(heap.tamanio);
-//		if ((heap.libre == 1) && (tamanioMensaje==heap.tamanio))
-//		{
-//			void* particion = principioMemoria + recorridoAuxiliar;
-//			return particion;
-//		}
-//		if ((heap.libre == 1) && (tamanioHeapYMensaje<=heap.tamanio))
-//		{
-//			void* particion = principioMemoria + recorridoAuxiliar;
-//			return particion;
-//		}
-//		recorrido+=heap.tamanio;
-//		recorridoAuxiliar = recorrido;
-//	}
-//	return NULL;
+
 }
 
 particion_dinamica_memoria* buscarMejorParticionLibre(uint32_t tamanioMensaje){
@@ -348,46 +283,7 @@ particion_dinamica_memoria* buscarMejorParticionLibre(uint32_t tamanioMensaje){
 	list_destroy(particionesLibres);
 	return mejorParticion;
 
-//
-//	int recorrido = 0;
-//	int recorridoAuxiliar = 0;
-//	t_list* particiones = list_create();
-//	uint32_t tamanioHeapYMensaje = tamanioMensaje+sizeof(heapDinamico);
-//
-//	while(recorrido<TAMANO_MEMORIA)
-//	{
-//		heapDinamico heap;
-//		memcpy(&heap.libre,principioMemoria+recorrido,sizeof(heap.libre));
-//		recorrido+=sizeof(heap.libre);
-//		memcpy(&heap.tamanio,principioMemoria+recorrido,sizeof(heap.tamanio));
-//		recorrido+=sizeof(heap.tamanio);
-//
-//		if ((heap.libre == 1)&&(tamanioMensaje==heap.tamanio))
-//		{
-//			void* particionMasPequenia = principioMemoria + recorridoAuxiliar;
-//			return particionMasPequenia;
-//		}
-//
-//		if ((heap.libre == 1)&&(tamanioHeapYMensaje<=heap.tamanio))
-//		{
-//			particionLibre particion;
-//			particion.posicionParticion = principioMemoria+recorridoAuxiliar;
-//			particion.tamanio = heap.tamanio;
-//			list_add(particiones,&particion);
-//		}
-//		recorrido+=heap.tamanio;
-//		recorridoAuxiliar = recorrido;
-//
-//	}
-//
-//	bool comparadorParticionesLibres(particionLibre* particion1,particionLibre* particion2){
-//		return (particion1->tamanio)<(particion2->tamanio);
-//	}
-//	list_sort(particiones, (void*) comparadorParticionesLibres);
-//
-//	particionLibre* mejorParticion = list_get(particiones,0);
-//	list_destroy(particiones);
-//	return (mejorParticion->posicionParticion);
+
 }
 
 void agregarParticionContigua(particion_dinamica_memoria* particion,uint32_t tamanioParticionAntigua){
@@ -403,16 +299,6 @@ void agregarParticionContigua(particion_dinamica_memoria* particion,uint32_t tam
 
 	list_add(particionesEnMemoria,&particionContigua);
 
-//
-//	heapDinamico heapParticionContigua;
-//	heapParticionContigua.libre = 1;
-//	heapParticionContigua.tamanio = tamanioParticionAntigua-tamanioMensaje-sizeof(heapDinamico);
-//
-//	int bytesEscritos = 0;
-//	memcpy(particionNueva+bytesEscritos,&heapParticionContigua.libre,sizeof(heapParticionContigua.libre));
-//	bytesEscritos+=sizeof(heapParticionContigua.libre);
-//	memcpy(particionNueva+bytesEscritos,&heapParticionContigua.tamanio,sizeof(heapParticionContigua.tamanio));
-//	bytesEscritos+=sizeof(heapParticionContigua.tamanio);
 
 
 }

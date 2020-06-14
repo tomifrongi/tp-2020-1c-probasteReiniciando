@@ -14,40 +14,31 @@
 #include "tiposMensajesEnMemoria.h"
 #include "Configuracion.h"
 
+//TODO falta agregar suscriptores a la particion.
+//Los suscriptores a los cuales ya se envió el mensaje.
+//Los suscriptores que retornaron el ACK del mismo.
+
 typedef struct {
-	void* posicionParticion;
+	//TODO actualizar posicionParticion en la implementacion
+	int posicionParticion; //es como el bytes escritos de serializacion. la primer posicion es 0. la ultima posicion es TAMANO_PARTICION - 1
 	bool libre; //1 si esta libre, 0 si no.
 	int tamanio;
 	int tamanioMensaje;
-	uint32_t idMensaje;
-	uint32_t idCorrelativo;
-	uint32_t cola;
+	int idMensaje;
+	int idCorrelativo;
+	int cola;
 	}particion_dinamica_memoria;
 
 t_list* particionesEnMemoria;
 
 void* principioMemoria;
 
-
-typedef struct {
-	uint32_t libre; //1 si esta libre, 0 si no.
-	uint32_t tamanio;
-}heapDinamico;
-
-typedef struct {
-	heapDinamico heap;
-	void* datos;
-}particionDinamica;
-
-typedef struct {
-	void* posicionParticion;
-	uint32_t tamanio;
-}particionLibre;
-
-
-
 t_queue* colaMensajesMemoria;
 t_list* ultimasReferencias; // la ultima particion usada se agrega al principio de la lista, la menos usada esta al final.
+
+//TODO crear y borrar particion dinamica
+particion_dinamica_memoria* crear_particion_dinamica_memoria(particion_dinamica_memoria particion);
+void borrar_particion_dinamica_memoria(particion_dinamica_memoria* particion);
 
 void inicializarMemoria();
 
