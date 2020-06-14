@@ -11,7 +11,7 @@
 #include <commons/config.h>
 
 t_config* config;
-
+//OJO AL PIOJO QUE SON RECURSOS READ ONLY
 int TAMANO_MEMORIA;
 int TAMANO_MINIMO_PARTICION;
 char* ALGORITMO_MEMORIA;

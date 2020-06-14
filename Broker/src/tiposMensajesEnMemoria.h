@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <commons/collections/list.h>
+#include "ProtocoloDeMensajes.h"
 
 //MENSAJES
 typedef struct {
@@ -46,7 +47,7 @@ typedef struct {
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones
-	t_list posiciones;
+	void* posiciones;
 }localized_pokemon_memoria; //RESPUESTA A get_pokemon
 //------------------------------
 
@@ -66,11 +67,14 @@ typedef struct {
 //------------------------------
 
 
-void* serializarMensajeNew(new_pokemon_memoria mensaje);
-void* serializarMensajeAppeared(appeared_pokemon_memoria mensaje);
-void* serializarMensajeGet(get_pokemon_memoria mensaje);
-void* serializarMensajeLocalized(localized_pokemon_memoria mensaje); //TODO serializarLocalized
-void* serializarMensajeCatch(catch_pokemon_memoria mensaje);
-void* serializarMensajeCaught(caught_pokemon_memoria mensaje);
+void* serializarMensajeNew(new_pokemon_memoria* mensaje);
+void* serializarMensajeAppeared(appeared_pokemon_memoria* mensaje);
+void* serializarMensajeGet(get_pokemon_memoria* mensaje);
+void* serializarMensajeLocalized(localized_pokemon_memoria* mensaje);
+void* serializarMensajeCatch(catch_pokemon_memoria* mensaje);
+void* serializarMensajeCaught(caught_pokemon_memoria* mensaje);
+
+uint32_t obtenerTamanioMensaje(void* mensaje,id_cola id);
+void* serializarMensaje(void* mensaje,id_cola id);
 
 #endif /* TIPOSMENSAJESENMEMORIA_H_ */
