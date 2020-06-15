@@ -194,10 +194,7 @@ typedef struct {
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones.
 								//Este dato sirve para poder desserialzar el mensaje
-	t_list posiciones; // lista de uint32_t, la longitud es siempre par ya que
-					   // es una lista de numeros y no una lista de duplas(estructura dupla).
-					   // supongo que si es una lista de numeros es mas facil serializar
-					  // ejemplo: [5,2,4,8,4,9] posiciones: (5,2);(4,8);(4,9)
+	void* posiciones; // lista de uint32_t enlazados.
 }localized_pokemon;
 //t_header = LOCALIZED_POKEMON
 
@@ -215,7 +212,7 @@ typedef struct {
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones
-	t_list posiciones;
+	void* posiciones;
 }localized_pokemon;
 //t_header = LOCALIZED_POKEMON
 

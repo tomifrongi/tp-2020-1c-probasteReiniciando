@@ -73,6 +73,8 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
+				//POSICION MENSAJE = CACHEAR MENSAJE
+				//QUEUE PUSH (POSICION MENSAJE)
 				log_info(logger,"%s", &mensaje.nombrePokemon);
 
 				pthread_mutex_lock(&mutexQueueNew);

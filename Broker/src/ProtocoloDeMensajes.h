@@ -35,6 +35,7 @@ typedef struct {
 	id_cola idCola;
 } suscripcion;
 //t_header = SUSCRIPCION
+//-------------------------------
 
 //MENSAJE: confirmacion----------
 typedef struct {
