@@ -7,6 +7,7 @@
 #include "ProtocoloDeMensajes.h"
 #include "funcionesEnvio.h"
 #include "time.h"
+#include <unistd.h>
 
 #define MAX_CLIENTS 128
 
@@ -18,9 +19,16 @@ typedef struct{
 	int cantidad;
 }t_linea;
 
+t_log* log;
+int tiempoReintentoConexion;
+int tiempoReintentoOperacion;
+int tiempoRetardoOperacion;
+char* puntoMontaje;
+char* ipBroker;
+int puertoBroker;
 
-
-int obtenerTiempo();
+void* handler_suscripciones(uint32_t cola);
+void initConfigLogger();
 int cantidad_pokemones(FILE* archivo_pokemon);
 void existen_posiciones_pokemon_nuevo(FILE* archivo_pokemon,new_pokemon pokemon_nuevo);
 void existen_posiciones_pokemon_atrapado(FILE* archivo_pokemon,catch_pokemon pokemon_atrapado);

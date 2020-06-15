@@ -10,6 +10,152 @@
 
 #include "GameCard.h"
 
+pthread_mutex_t mutexLogger;
+
+int main(void) {
+
+
+	//Inicio de logger y traer valores del config.
+
+	initConfigLogger();
+
+	//Crear hilos para el manejo de las suscripciones.
+
+	pthread_t cola_new_thread;
+	pthread_t cola_catch_thread;
+	pthread_t cola_get_thread;
+	pthread_create(&cola_new_thread, NULL, handler_suscripciones, (uint32_t) (NEW));
+	pthread_create(&cola_catch_thread, NULL, handler_suscripciones, (uint32_t) (CATCH));
+	pthread_create(&cola_get_thread, NULL, handler_suscripciones, (uint32_t) (GET));
+	pthread_detach(cola_new_thread);
+	pthread_detach(cola_catch_thread);
+	pthread_detach(cola_get_thread);
+
+	FILE* archivo_pokemon = fopen("patch","wb+");//TODO
+
+}
+
+
+void initConfigLogger(){
+	log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
+	t_config * config = config_create("GameCard.config");
+	tiempoReintentoConexion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
+	tiempoReintentoOperacion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_OPERACION");
+	tiempoRetardoOperacion = config_get_string_value(config, "TIEMPO_RETARDO_OPERACION");
+	puntoMontaje = config_get_string_value(config, "PUNTO_MONTAJE_TALLGRASS");
+	ipBroker = config_get_string_value(config, "IP_BROKER");
+	puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
+}
+
+void* handler_suscripciones(uint32_t cola){
+	int socketBroker = connect_to_server(ipBroker, puertoBroker, NULL);
+	t_message* message;
+	int salida = 0;
+	while(1){
+		if(socketBroker != -errno){
+			pthread_mutex_lock(&mutexLogger);
+			log_info(log, "CONEXION EXITOSA CON EL BROKER");
+			pthread_mutex_unlock(&mutexLogger);
+			switch(cola){
+				case NEW:
+					void* content = malloc(sizeof(uint32_t));
+					uint32_t numero = NEW;
+					memcpy (content, &numero, sizeof(uint32_t));
+					send_message(socketBroker, SUSCRIPCION, content, sizeof(uint32_t));
+					free(content);
+					do{
+						message = recv_message(socketBroker);
+						if(message == -1 || message == 0){
+							salida = 1;
+						}else{
+							void*aux=message->content;
+							new_pokemon_enviar mensaje;
+							memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+							aux += mensaje.sizeNombre;
+							memcpy(&mensaje.cantidad,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
+
+							//Envio de ACK hay que agregarselo al broker
+							send_message(socketBroker, ACK, NULL, 0);
+
+							//Empezar revision de archivos en FS
+
+						}
+					}while(salida != 1);
+					salida = 0;
+					free_t_message(message);
+					break;
+				case CATCH:
+					void* content = malloc(sizeof(uint32_t));
+					uint32_t numero = CATCH;
+					memcpy (content, &numero, sizeof(uint32_t));
+					send_message(socketBroker, SUSCRIPCION, content, sizeof(uint32_t));
+					free(content);
+					do{
+						message = recv_message(socketBroker);
+						if(message == -1 || message == 0){
+							salida = 1;
+						}else{
+							void *aux = message->content;
+							catch_pokemon_enviar mensaje;
+							memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+							aux += mensaje.sizeNombre;
+							memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
+
+							//Envio de ACK hay que agregarselo al broker
+							send_message(socketBroker, ACK, NULL, 0);
+
+							//Empezar revision de archivos en FS
+
+						}
+					}while(salida != 1);
+					salida = 0;
+					free_t_message(message);
+					break;
+				case GET:
+					void* content = malloc(sizeof(uint32_t));
+					uint32_t numero = GET;
+					memcpy (content, &numero, sizeof(uint32_t));
+					send_message(socketBroker, SUSCRIPCION, content, sizeof(uint32_t));
+					free(content);
+					do{
+						message = recv_message(socketBroker);
+						if(message == -1 || message == 0){
+							salida = 1;
+						}else{
+							void *aux = message->content;
+							get_pokemon_enviar mensaje;
+							memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+
+							//Envio de ACK hay que agregarselo al broker
+							send_message(socketBroker, ACK, NULL, 0);
+
+							//Empezar revision de archivos en FS
+
+						}
+					}while(salida != 1);
+					salida = 0;
+					free_t_message(message);
+					break;
+			}
+		}
+		socketBroker = connect_to_server(ipBroker, puertoBroker, NULL);
+	}
+	return NULL;
+}
+/* TODO te comento tu codigo para poder debugear xddddd
+
 int cantidad_pokemones(FILE* archivo_pokemon){
 	int cantidad=0;
 	t_linea linea;
@@ -95,30 +241,6 @@ t_list* obtener_posiciones_y_cantidades(FILE* archivo_pokemon){
 	 return lista;
 }
 
-// soy un comentario
+*/
 
 
-
-int main(void) {
-
-	t_config * config = config_create("GameCard.config");
-	t_log* log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
-
-	//primero hay que intentar asociarnos a las colas de mensajes del broker
-	char* ipBroker = config_get_string_value(config, "IP_BROKER");
-	int puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
-	int socketGame = connect_to_server(ipBroker, puertoBroker, NULL);
-	if(socketGame != -errno){
-		log_info(log, "CONEXION EXITOSA CON EL BROKER");
-		t_message mensajeBroker;
-		void* content = malloc(sizeof(uint32_t));
-		uint32_t numero = NEW; // es el new pero no se por que no funciona
-		memcpy (content, &numero, sizeof(uint32_t));
-		mensajeBroker.head = SUSCRIPCION; // esto es lo mismo pero para suscripcion no se por que funciona mal eso
-		mensajeBroker.content = content;
-		mensajeBroker.size = sizeof(uint32_t);
-		send_message(socketGame, mensajeBroker.head,mensajeBroker.content, mensajeBroker.size);
-	}
-	FILE* archivo_pokemon = fopen("patch","wb+");//TODO
-
-}
