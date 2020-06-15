@@ -5,6 +5,7 @@
 #include "commons/log.h"
 #include <commons/collections/list.h>
 #include "ProtocoloDeMensajes.h"
+#include <pthread.h>
 #include "funcionesEnvio.h"
 #include "time.h"
 #include <unistd.h>

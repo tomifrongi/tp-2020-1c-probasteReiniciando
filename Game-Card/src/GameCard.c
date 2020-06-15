@@ -50,6 +50,7 @@ void initConfigLogger(){
 void* handler_suscripciones(uint32_t cola){
 	int socketBroker = connect_to_server(ipBroker, puertoBroker, NULL);
 	t_message* message;
+	void* content;
 	int salida = 0;
 	while(1){
 		if(socketBroker != -errno){
@@ -57,8 +58,8 @@ void* handler_suscripciones(uint32_t cola){
 			log_info(log, "CONEXION EXITOSA CON EL BROKER");
 			pthread_mutex_unlock(&mutexLogger);
 			switch(cola){
-				case NEW:
-					void* content = malloc(sizeof(uint32_t));
+				case NEW:{
+					content = malloc(sizeof(uint32_t));
 					uint32_t numero = NEW;
 					memcpy (content, &numero, sizeof(uint32_t));
 					send_message(socketBroker, SUSCRIPCION, content, sizeof(uint32_t));
@@ -81,7 +82,7 @@ void* handler_suscripciones(uint32_t cola){
 							memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
 
 							//Envio de ACK hay que agregarselo al broker
-							send_message(socketBroker, ACK, NULL, 0);
+							send_message(socketBroker, CONFIRMACION, NULL, 0);
 
 							//Empezar revision de archivos en FS
 
@@ -90,8 +91,9 @@ void* handler_suscripciones(uint32_t cola){
 					salida = 0;
 					free_t_message(message);
 					break;
-				case CATCH:
-					void* content = malloc(sizeof(uint32_t));
+				}
+				case CATCH:{
+					content = malloc(sizeof(uint32_t));
 					uint32_t numero = CATCH;
 					memcpy (content, &numero, sizeof(uint32_t));
 					send_message(socketBroker, SUSCRIPCION, content, sizeof(uint32_t));
@@ -112,7 +114,7 @@ void* handler_suscripciones(uint32_t cola){
 							memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
 
 							//Envio de ACK hay que agregarselo al broker
-							send_message(socketBroker, ACK, NULL, 0);
+							send_message(socketBroker, CONFIRMACION, NULL, 0);
 
 							//Empezar revision de archivos en FS
 
@@ -121,8 +123,9 @@ void* handler_suscripciones(uint32_t cola){
 					salida = 0;
 					free_t_message(message);
 					break;
-				case GET:
-					void* content = malloc(sizeof(uint32_t));
+				}
+				case GET:{
+					content = malloc(sizeof(uint32_t));
 					uint32_t numero = GET;
 					memcpy (content, &numero, sizeof(uint32_t));
 					send_message(socketBroker, SUSCRIPCION, content, sizeof(uint32_t));
@@ -139,7 +142,7 @@ void* handler_suscripciones(uint32_t cola){
 							memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 
 							//Envio de ACK hay que agregarselo al broker
-							send_message(socketBroker, ACK, NULL, 0);
+							send_message(socketBroker, CONFIRMACION, NULL, 0);
 
 							//Empezar revision de archivos en FS
 
@@ -148,6 +151,7 @@ void* handler_suscripciones(uint32_t cola){
 					salida = 0;
 					free_t_message(message);
 					break;
+				}
 			}
 		}
 		socketBroker = connect_to_server(ipBroker, puertoBroker, NULL);
