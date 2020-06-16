@@ -36,15 +36,17 @@ typedef struct{
 
 typedef struct{
 	int id;
+	char* path_config;
 	t_list * entrenadores;
 	t_list* objetivo_global;
 	//t_list*mapa [MAP_SIZE][MAP_SIZE];
 	t_list*pokemones_sueltos;
 }t_team;
 
-
+t_list*lista_teams=list_create();
 
  typedef struct{
+
 	int cantidad_ciclos_cpu;
 	int cantidad_deadlocks;
 	int cantidad_deadlocks_detectados;

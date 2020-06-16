@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include<commons/string.h>
 #include "entrenadores.h"
+#include "team.h"
+
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
