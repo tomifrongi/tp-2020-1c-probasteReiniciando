@@ -67,12 +67,12 @@ typedef struct {
 //------------------------------
 
 
-void* serializarMensajeNew(new_pokemon_memoria* mensaje);
-void* serializarMensajeAppeared(appeared_pokemon_memoria* mensaje);
-void* serializarMensajeGet(get_pokemon_memoria* mensaje);
-void* serializarMensajeLocalized(localized_pokemon_memoria* mensaje);
-void* serializarMensajeCatch(catch_pokemon_memoria* mensaje);
-void* serializarMensajeCaught(caught_pokemon_memoria* mensaje);
+void* serializarMensajeNew(new_pokemon_enviar* mensaje);
+void* serializarMensajeAppeared(appeared_pokemon_enviar* mensaje);
+void* serializarMensajeGet(get_pokemon_enviar* mensaje);
+void* serializarMensajeLocalized(localized_pokemon_enviar* mensaje);
+void* serializarMensajeCatch(catch_pokemon_enviar* mensaje);
+void* serializarMensajeCaught(caught_pokemon_enviar* mensaje);
 
 uint32_t obtenerTamanioMensaje(void* mensaje,id_cola id);
 void* serializarMensaje(void* mensaje,id_cola id);

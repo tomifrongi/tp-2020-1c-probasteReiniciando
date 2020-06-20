@@ -14,12 +14,9 @@
 #include "tiposMensajesEnMemoria.h"
 #include "Configuracion.h"
 
-//TODO falta agregar suscriptores a la particion.
-//Los suscriptores a los cuales ya se envió el mensaje.
-//Los suscriptores que retornaron el ACK del mismo.
+
 
 typedef struct {
-	//TODO actualizar posicionParticion en la implementacion
 	int posicionParticion; //es como el bytes escritos de serializacion. la primer posicion es 0. la ultima posicion es TAMANO_PARTICION - 1
 	bool libre; //1 si esta libre, 0 si no.
 	int tamanio;
@@ -27,16 +24,17 @@ typedef struct {
 	int idMensaje;
 	int idCorrelativo;
 	int cola;
+	int contadorLRU; //arranca en 1 y se actualiza cada vez que se hace referencia.
+	t_list* suscriptoresMensajeEnviado;
+	t_list* suscriptoresACK;
 	}particion_dinamica_memoria;
 
 t_list* particionesEnMemoria;
-
 void* principioMemoria;
-
 t_queue* colaMensajesMemoria;
-t_list* ultimasReferencias; // la ultima particion usada se agrega al principio de la lista, la menos usada esta al final.
 
-//TODO crear y borrar particion dinamica
+
+
 particion_dinamica_memoria* crear_particion_dinamica_memoria(particion_dinamica_memoria particion);
 void borrar_particion_dinamica_memoria(particion_dinamica_memoria* particion);
 
@@ -48,6 +46,9 @@ void eliminarParticion();
 void actualizarBusquedasFallidas(int* busquedasFallidas);
 //TODO compactarMemoria
 void compactarMemoria();
+//TODO consolidarMemoria
+void consolidarMemoria();
+
 particion_dinamica_memoria* buscarPrimerParticionLibre(uint32_t tamanioMensaje);
 particion_dinamica_memoria* buscarMejorParticionLibre(uint32_t tamanioMensaje);
 
@@ -60,5 +61,9 @@ bool particionesOcupadas();
 void cachearMensaje(void* mensaje,id_cola id);
 
 particion_dinamica_memoria* cargarDatosParticion(particion_dinamica_memoria* particion,void* mensaje,id_cola id);
+
+int* crear_elemento_colaMensajesMemoria(int idMensaje);
+
+void borrar_elemento_colaMensajesMemoria(int* idMensaje);
 
 #endif /* PARTICIONESDINAMICAS_H_ */

@@ -1,7 +1,7 @@
 #include "tiposMensajesEnMemoria.h"
 
 
-void* serializarMensajeNew(new_pokemon_memoria* mensaje){
+void* serializarMensajeNew(new_pokemon_enviar* mensaje){
 	int bytes_escritos = 0;
 	void* content = malloc(sizeof(uint32_t)*4+mensaje->sizeNombre);
 
@@ -19,7 +19,7 @@ void* serializarMensajeNew(new_pokemon_memoria* mensaje){
 	return content;
 }
 
-void* serializarMensajeAppeared(appeared_pokemon_memoria* mensaje){
+void* serializarMensajeAppeared(appeared_pokemon_enviar* mensaje){
 	int bytes_escritos = 0;
 	void* content = malloc(sizeof(uint32_t)*3+mensaje->sizeNombre);
 
@@ -36,7 +36,7 @@ void* serializarMensajeAppeared(appeared_pokemon_memoria* mensaje){
 
 }
 
-void* serializarMensajeGet(get_pokemon_memoria* mensaje){
+void* serializarMensajeGet(get_pokemon_enviar* mensaje){
 	int bytes_escritos = 0;
 	void* content = malloc(sizeof(uint32_t)+mensaje->sizeNombre);
 
@@ -49,7 +49,7 @@ void* serializarMensajeGet(get_pokemon_memoria* mensaje){
 
 }
 
-void* serializarMensajeLocalized(localized_pokemon_memoria* mensaje){
+void* serializarMensajeLocalized(localized_pokemon_enviar* mensaje){
 	int bytes_escritos = 0;
 	void* content = malloc(sizeof(uint32_t) *2 + mensaje->sizeNombre + sizeof(uint32_t)*(mensaje->cantidadPosiciones)*2);
 
@@ -65,7 +65,7 @@ void* serializarMensajeLocalized(localized_pokemon_memoria* mensaje){
 	return content;
 }
 
-void* serializarMensajeCatch(catch_pokemon_memoria* mensaje){
+void* serializarMensajeCatch(catch_pokemon_enviar* mensaje){
 	int bytes_escritos = 0;
 	void* content = malloc(sizeof(uint32_t)*3+mensaje->sizeNombre);
 
@@ -81,7 +81,7 @@ void* serializarMensajeCatch(catch_pokemon_memoria* mensaje){
 	return content;
 }
 
-void* serializarMensajeCaught(caught_pokemon_memoria* mensaje){
+void* serializarMensajeCaught(caught_pokemon_enviar* mensaje){
 	int bytes_escritos = 0;
 	void* content = malloc(sizeof(uint32_t));
 
@@ -95,27 +95,27 @@ uint32_t obtenerTamanioMensaje(void* mensaje,id_cola id){
 
 	switch(id){
 	case NEW: {
-		new_pokemon_memoria* np = mensaje;
+		new_pokemon_enviar* np = mensaje;
 		tamanio = sizeof(uint32_t)*4 + np->sizeNombre;
 		break;
 	}
 	case APPEARED: {
-		appeared_pokemon_memoria* ap = mensaje;
+		appeared_pokemon_enviar* ap = mensaje;
 		tamanio = sizeof(uint32_t)*3 + ap->sizeNombre;
 		break;
 	}
 	case GET: {
-		get_pokemon_memoria* gp = mensaje;
+		get_pokemon_enviar* gp = mensaje;
 		tamanio = sizeof(uint32_t) + gp->sizeNombre;
 		break;
 	}
 	case LOCALIZED: {
-		localized_pokemon_memoria* lp = mensaje;
+		localized_pokemon_enviar* lp = mensaje;
 		tamanio = sizeof(uint32_t) *2 + lp->sizeNombre + sizeof(uint32_t)*(lp->cantidadPosiciones)*2;
 		break;
 	}
 	case CATCH:{
-		catch_pokemon_memoria* catchp = mensaje;
+		catch_pokemon_enviar* catchp = mensaje;
 		tamanio = sizeof(uint32_t)*3 + catchp->sizeNombre;
 		break;
 	}

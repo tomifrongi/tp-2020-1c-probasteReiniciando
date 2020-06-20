@@ -138,7 +138,7 @@ typedef struct {
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones
-	t_list posiciones;
+	void* posiciones;
 }localized_pokemon_enviar;
 //t_header = LOCALIZED_POKEMON
 
