@@ -24,7 +24,7 @@ typedef struct {
 	int idMensaje;
 	int idCorrelativo;
 	int cola;
-	int contadorLRU; //arranca en 1 y se actualiza cada vez que se hace referencia.
+	int contadorLRU; //Se actualiza cuando lo agregas a memoria y cuando lo envias
 	t_list* suscriptoresMensajeEnviado;
 	t_list* suscriptoresACK;
 	}particion_dinamica_memoria;
@@ -32,9 +32,13 @@ typedef struct {
 t_list* particionesEnMemoria;
 void* principioMemoria;
 t_queue* colaMensajesMemoria;
+int CONTADORLRU;
 
-
-
+void ejecutarPruebaBaseBroker();
+void ejecutarPruebaBaseBroker2();
+void ejecutarPruebaConsolidacionBroker();
+void ejecutarPruebaConsolidacionBroker2();
+void ejecutarPruebaCompactacionMio();
 particion_dinamica_memoria* crear_particion_dinamica_memoria(particion_dinamica_memoria particion);
 void borrar_particion_dinamica_memoria(particion_dinamica_memoria* particion);
 
@@ -44,11 +48,9 @@ bool buscarParticionLibre(uint32_t tamanioMensaje);
 void almacenarMensaje(void* mensaje,id_cola id);
 void eliminarParticion();
 void actualizarBusquedasFallidas(int* busquedasFallidas);
-//TODO compactarMemoria
 void compactarMemoria();
-//TODO consolidarMemoria
 void consolidarMemoria();
-
+void ordenarParticionesPorPosicion();
 particion_dinamica_memoria* buscarPrimerParticionLibre(uint32_t tamanioMensaje);
 particion_dinamica_memoria* buscarMejorParticionLibre(uint32_t tamanioMensaje);
 
@@ -63,7 +65,7 @@ void cachearMensaje(void* mensaje,id_cola id);
 particion_dinamica_memoria* cargarDatosParticion(particion_dinamica_memoria* particion,void* mensaje,id_cola id);
 
 int* crear_elemento_colaMensajesMemoria(int idMensaje);
-
+particion_dinamica_memoria* removerPorPosicion(int posicion);
 void borrar_elemento_colaMensajesMemoria(int* idMensaje);
 
 #endif /* PARTICIONESDINAMICAS_H_ */
