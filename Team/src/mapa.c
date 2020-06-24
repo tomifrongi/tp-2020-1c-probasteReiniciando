@@ -16,3 +16,16 @@ bool mapa_hay_pokemon_suelto(void *mapa[][]) {
 bool mapa_hay_pokemon_suelto(t_team*team) {
 	return list_size(team->pokemones_sueltos) > 0;
 }
+
+t_entrenador*entrenador_mas_cercano(t_list*entrenadores,t_pokemon*pokemon){
+
+	list_filter(entrenadores,)
+	 t_entrenador*entrenador_cercano=list_get(entrenadores,0);
+	 for (int i=1;i<list_size(entrenadores);i++){
+		 if (distancia_entrenador_pokemon(list_get(entrenadores,i),pokemon)<distancia_entrenador_pokemon(entrenador_cercano,pokemon)){
+			 entrenador_cercano=list_get(entrenadores,i);
+		 }
+	 }
+
+return entrenador_cercano;
+}
