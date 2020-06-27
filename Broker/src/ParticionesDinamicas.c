@@ -30,10 +30,17 @@
  */
 
 //TODO crear estructura suscriptor y sus funciones
+//TODO que pasa si el mensaje es mas grande que la memoria
+//TODO antes de tomar un mensaje en memoria deberia buscar si esta en memoria (talvez lo borraron)
+//TODO cuando elimino un mensaje solo cambio el bit de libre, quiza deberia borrar toodo (podria buscar un mensaje, encontrarlo pero esta marcado como libre. Nose si puede darse esta situacion)
+//TODO sacar barra cero o caracter nulo. No se guarda en memoria
+
 void borrar_suscriptor(void* algo){}
+
 int main(){
 	ejecutarPruebaCompactacionMio();
 }
+
 void ejecutarPruebaBaseBroker(){
 
 	printf("Corriendo particiones dinamicas\n");
