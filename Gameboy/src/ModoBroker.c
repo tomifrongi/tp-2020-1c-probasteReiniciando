@@ -14,6 +14,7 @@ void ejecutarModoBroker(){
 		t_message mensajeBroker = obtenerMensajeBroker(opcionMensaje);
 		if(mensajeBroker.head != ERROR_MESSAGE)
 			send_message(socketGame, mensajeBroker.head,mensajeBroker.content, mensajeBroker.size);
+		free(mensajeBroker.content);
 	}
 }
 

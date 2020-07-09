@@ -35,8 +35,7 @@ int CONTADORLRU;
 
 
 void cachearMensajeBuddy(void* mensaje,id_cola id);
-bool buscarParticionLibreBuddy(uint32_t tamanioMensaje);
-void almacenarMensajeBuddy(void* mensaje,id_cola id);
+bool almacenarMensajeBuddy(void* mensaje,id_cola id);
 particion_buddy_memoria* buscarPrimerParticionLibreBuddy(uint32_t tamanioMensaje);
 particion_buddy_memoria* buscarMejorParticionLibreBuddy(uint32_t tamanioMensaje);
 void agregarBuddy(particion_buddy_memoria* particion);
@@ -44,5 +43,16 @@ particion_buddy_memoria* cargarDatosParticionBuddy(particion_buddy_memoria* part
 int buscarPotenciaDeDosMasCercana(uint32_t tamanio);
 void eliminarParticionBuddy();
 void consolidarMemoriaBuddy();
+t_list* sacarParticionesLibresBuddy();
+
+particion_buddy_memoria* crear_particion_buddy_memoria(particion_buddy_memoria particion);
+void borrar_particion_buddy_memoria(particion_buddy_memoria* particion);
+
+int* crear_elemento_colaMensajesMemoriaBuddy(int idMensaje);
+void borrar_elemento_colaMensajesMemoriaBuddy(int* idMensaje);
+
+void ordenarParticionesPorPosicionBuddy();
+particion_buddy_memoria* removerPorPosicionBuddy(int posicion);
+void sacarBarraCeroBuddy(void* mensaje,id_cola id);
 
 #endif /* BUDDYSYSTEM_H_ */
