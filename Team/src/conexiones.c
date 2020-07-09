@@ -24,8 +24,23 @@ int aceptar_cliente(struct socktadrr_in servidor){
 	return 0;
 }
 
-int enviar(struct socktadrr_in cliente,t_message mensaje){
+int enviar_mensaje(struct socktadrr_in cliente,t_message mensaje){
 	aceptar_cliente(cliente);
 	send(cliente,mensaje.content, mensaje.size,0);
 	return 0;
+}
+
+int recibir_mensaje(struct socktadrr_in cliente){
+	unsigned int tamaño_paquete;
+	char* buffer = malloc(tamaño_paquete);
+
+	int bytes_recibidos = recv(cliente,buffer,tamaño_paquete,0);
+
+	if(bytes_recibidos < 0){
+		perror("El cliente  se ha desconectado");
+		return 1;
+	}
+	t_message mensaje;
+	mensaje.content = buffer;
+	return  0;
 }

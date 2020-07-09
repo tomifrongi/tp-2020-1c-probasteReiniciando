@@ -29,4 +29,5 @@ typedef enum{
 
 int crear_servidor(int);
 int aceptar_cliente(struct socktadrr_in);
-int enviar_mensaje(struct socktadrr_in cliente,t_message);		//Son funciones provisorias que luego seran adptadas a los requisitos del tp.
+int enviar_mensaje(struct socktadrr_in ,t_message);		//Son funciones provisorias que luego seran adptadas a los requisitos del tp.
+int recibir_mensaje(struct socktadrr_in);
