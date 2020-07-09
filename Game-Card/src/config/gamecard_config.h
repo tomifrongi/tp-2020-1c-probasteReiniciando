@@ -1,0 +1,27 @@
+#ifndef CONFIG_gamecard_CONFIG_H_
+#define CONFIG_gamecard_CONFIG_H_
+
+#include <stdlib.h>
+#include <commons/config.h>
+#include <commons/string.h>
+#include "../funcionesEnvio.h"
+
+#define CONFIG_FILE_PATH "GameCard.config"
+
+typedef struct
+{
+	int tiempo_de_reintento_conexion;
+	int tiempo_de_reintento_operacion;
+	char* punto_montaje_tallgrass;
+	char* ip_broker;
+	int puerto_broker;
+	char* ip_game_card;
+	int puerto_game_card;
+} t_gamecard_config;
+
+t_gamecard_config* gamecard_config;
+
+int gamecard_config_load();
+void gamecard_config_free();
+
+#endif /* CONFIG_gamecard_CONFIG_H_ */
