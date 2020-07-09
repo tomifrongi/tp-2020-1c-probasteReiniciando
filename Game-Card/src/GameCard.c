@@ -9,6 +9,7 @@
  */
 
 #include "GameCard.h"
+#include "./src/file_system/gamecard_config.h"//isnt working
 
 pthread_mutex_t mutexLogger;
 
@@ -19,8 +20,8 @@ int main(void) {
 	//Inicio de logger y traer valores del config.
 
 	initConfigLogger();
-
-	char* root_directory = puntoMontaje; //config_get_string_value(config, "PUNTO_MONTAJE_TALLGRASS"); hace lo mismo que puntoMontaje
+//Cambiar el puntoMontaje por config_get_...
+	char* root_directory = punto_montaje_tallgrass; //config_get_string_value(config, "PUNTO_MONTAJE_TALLGRASS"); hace lo mismo que puntoMontaje
 
 	chequear_metadata(root_directory);
 	leer_metadata(root_directory);
@@ -46,7 +47,7 @@ int main(void) {
 
 //-------Init of Connections------//
 
-void initConfigLogger(){
+/*void initConfigLogger(){
 	log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
 	t_config * config = config_create("GameCard.config");
 	tiempoReintentoConexion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
@@ -55,7 +56,7 @@ void initConfigLogger(){
 	puntoMontaje = config_get_string_value(config, "PUNTO_MONTAJE_TALLGRASS");
 	ipBroker = config_get_string_value(config, "IP_BROKER");
 	puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
-}
+}*/
 
 void* handler_suscripciones(uint32_t cola){
 	int socketBroker = connect_to_server(ipBroker, puertoBroker, NULL);
@@ -164,7 +165,7 @@ void* handler_suscripciones(uint32_t cola){
 				}
 			}
 		}
-		socketBroker = connect_to_server(ipBroker, puertoBroker, NULL);
+		socketBroker = connect_to_server(ip_broker, puerto_broker, NULL);
 	}
 	return NULL;
 }
