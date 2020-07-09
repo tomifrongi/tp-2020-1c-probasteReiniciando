@@ -20,12 +20,11 @@
 #include <errno.h>
 #include <stdint.h>
 #include <fcntl.h>
-
+#include "./gamecard_config.h"
 
 #define MAX_CLIENTS 128
 
 t_log* log;
-
 typedef struct{
 	int cord_x;
 	char guion;
@@ -42,12 +41,12 @@ typedef struct{
 }t_header;
 
 
-int tiempoReintentoConexion;
+/*int tiempoReintentoConexion;
 int tiempoReintentoOperacion;
 int tiempoRetardoOperacion;
 char* puntoMontaje;
 char* ipBroker;
-int puertoBroker;
+int puertoBroker;*/
 
 void* handler_suscripciones(uint32_t cola);
 void initConfigLogger();

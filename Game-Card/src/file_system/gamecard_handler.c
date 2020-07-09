@@ -68,8 +68,8 @@ int _mkpath(char* file_path, mode_t mode)
 
 
 char* obtenerPathDelNumeroDeBloque(int numeroDeBloque){
-	char* path_del_bloque = malloc(strlen(game_card_config->punto_montaje_tallgrass)+strlen("/Bloques")+20);
-	sprintf(path_del_bloque,"%sBloques/%d.bin",game_card_config->punto_montaje_tallgrass, numeroDeBloque);
+	char* path_del_bloque = malloc(strlen(gamecard_config->punto_montaje_tallgrass)+strlen("/Bloques")+20);
+	sprintf(path_del_bloque,"%sBloques/%d.bin",gamecard_config->punto_montaje_tallgrass, numeroDeBloque);
 	return path_del_bloque;
 }
 

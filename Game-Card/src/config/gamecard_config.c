@@ -29,6 +29,17 @@ void read_config(t_config* config_file)
 	gamecard_config->puerto_game_card = config_get_int_value(config_file, "PUERTO_GAME_CARD");
 
 }
+/*
+ void initConfigLogger(){
+	log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
+	t_config * config = config_create("GameCard.config");
+	tiempoReintentoConexion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
+	tiempoReintentoOperacion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_OPERACION");
+	tiempoRetardoOperacion = config_get_string_value(config, "TIEMPO_RETARDO_OPERACION");
+	puntoMontaje = config_get_string_value(config, "PUNTO_MONTAJE_TALLGRASS");
+	ipBroker = config_get_string_value(config, "IP_BROKER");
+	puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
+}*/
 
 void print_config()
 {
