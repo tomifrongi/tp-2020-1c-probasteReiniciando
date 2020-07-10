@@ -1,5 +1,8 @@
-#ifndef GAMECARD_H__
-#define GAMECARD_H__
+#ifndef GAMECARD_H_
+#define GAMECARD_H_
+
+#define LOCAL_IP "127.0.0.1"
+#define LOCAL_PORT 5001
 
 #include "commons/config.h"
 #include "commons/log.h"
@@ -20,11 +23,15 @@
 #include <errno.h>
 #include <stdint.h>
 #include <fcntl.h>
-#include "./gamecard_config.h"
+#include <stdbool.h>
+#include "config/gamecard_config.h"
+#include "logger/gamecard_logger.h"
+#include "file_system/gamecard_fs.h"
+//#include "../../shared-common/common/sockets.h"
+//#include "../../shared-common/common/utils.h"
 
 #define MAX_CLIENTS 128
 
-t_log* log;
 typedef struct{
 	int cord_x;
 	char guion;
@@ -33,23 +40,16 @@ typedef struct{
 	int cantidad;
 }t_linea;
 
-
 typedef struct{
 	uint32_t block_size;
 	uint32_t blocks;
 	char* magic_number;
-}t_header;
+} t_header;
 
-
-/*int tiempoReintentoConexion;
-int tiempoReintentoOperacion;
-int tiempoRetardoOperacion;
-char* puntoMontaje;
-char* ipBroker;
-int puertoBroker;*/
-
+int game_card_fd;
+bool is_connected;
+//////////////////////////////////////////////
 void* handler_suscripciones(uint32_t cola);
-void initConfigLogger();
 int cantidad_pokemones(FILE* archivo_pokemon);
 void existen_posiciones_pokemon_nuevo(FILE* archivo_pokemon,new_pokemon pokemon_nuevo);
 void existen_posiciones_pokemon_atrapado(FILE* archivo_pokemon,catch_pokemon pokemon_atrapado);
@@ -69,7 +69,19 @@ void corroborar_existencia(void* resultado);
 char* metadata_key_string(char* memoria, int size_memoria, char* key);
 uint32_t metadata_key_int(char* memoria, int size_memoria, char* key);
 
-
+//////////////////////////////////////////////////////
+int game_card_load();
+void game_card_init();
+void game_card_retry_connect(void* arg);
+void game_card_init_as_server();
+void *recv_game_card(int fd, int send_to);
+void game_card_exit();
+void subscribe_to(void *arg);
+static void *handle_connection(void *arg);
+void send_ack(void* arg);
+void process_new_and_send_appeared(void* arg);
+void process_get_and_send_localized(void* arg);
+void process_catch_and_send_caught(void* arg);
 
 #endif
 /* GAMECARD_H_ */

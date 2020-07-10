@@ -7,11 +7,9 @@
 #include <commons/config.h>
 #include <commons/bitarray.h>
 #include <commons/collections/list.h>
-
-
-#include "../logger/game_card_logger.h"
-#include "../config/game_card_config.h"
-#include "../shared-common/common/utils.h"
+#include "../logger/gamecard_logger.h"
+#include "../config/gamecard_config.h"
+//#include "../shared-common/common/utils.h"
 #include "./bitmap.h"
 
 typedef enum {

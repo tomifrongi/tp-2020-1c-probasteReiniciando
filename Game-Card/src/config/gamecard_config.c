@@ -1,12 +1,14 @@
 #include "gamecard_config.h"
 
-void read_config(t_config* config_file);
-void print_config();
-
-int gamecard_config_load()
+void init_log()
 {
-	gamecard_logger_info("Se establecerá la configuración");
-	return config_load(gamecard_log_get(), CONFIG_FILE_PATH, read_config, print_config);
+	log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
+}
+
+void init_config()
+{
+	read_config(gamecard_config);
+	print_config(gamecard_config);
 }
 
 void gamecard_config_free()
@@ -21,6 +23,7 @@ void read_config(t_config* config_file)
 	gamecard_config = malloc(sizeof(t_gamecard_config));
 	gamecard_config->tiempo_de_reintento_conexion = config_get_int_value(config_file, "TIEMPO_DE_REINTENTO_CONEXION");
 	gamecard_config->tiempo_de_reintento_operacion = config_get_int_value(config_file, "TIEMPO_DE_REINTENTO_OPERACION");
+	gamecard_config->tiempo_retardo_operacion = config_get_string_value(config_file, "TIEMPO_RETARDO_OPERACION"); //¿?
 	gamecard_config->punto_montaje_tallgrass = malloc(sizeof(char*));
 	gamecard_config->punto_montaje_tallgrass = string_duplicate(config_get_string_value(config_file, "PUNTO_MONTAJE_TALLGRASS"));
 	gamecard_config->ip_broker = string_duplicate(config_get_string_value(config_file, "IP_BROKER"));
@@ -29,22 +32,13 @@ void read_config(t_config* config_file)
 	gamecard_config->puerto_game_card = config_get_int_value(config_file, "PUERTO_GAME_CARD");
 
 }
-/*
- void initConfigLogger(){
-	log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
-	t_config * config = config_create("GameCard.config");
-	tiempoReintentoConexion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
-	tiempoReintentoOperacion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_OPERACION");
-	tiempoRetardoOperacion = config_get_string_value(config, "TIEMPO_RETARDO_OPERACION");
-	puntoMontaje = config_get_string_value(config, "PUNTO_MONTAJE_TALLGRASS");
-	ipBroker = config_get_string_value(config, "IP_BROKER");
-	puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
-}*/
+
 
 void print_config()
 {
 	gamecard_logger_info("TIEMPO_DE_REINTENTO_CONEXION: %d", gamecard_config->tiempo_de_reintento_conexion);
 	gamecard_logger_info("TIEMPO_DE_REINTENTO_OPERACION: %d", gamecard_config->tiempo_de_reintento_operacion);
+	gamecard_logger_info("TIEMPO_RETARDO_OPERACION: %s", gamecard_config->tiempo_retardo_operacion);//
 	gamecard_logger_info("PUNTO_MONTAJE_TALLGRASS: %s", gamecard_config->punto_montaje_tallgrass);
 	gamecard_logger_info("IP_BROKER: %s", gamecard_config->ip_broker);
 	gamecard_logger_info("PUERTO_BROKER: %d", gamecard_config->puerto_broker);

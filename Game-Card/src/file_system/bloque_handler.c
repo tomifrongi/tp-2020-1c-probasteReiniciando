@@ -1,16 +1,19 @@
 #include "bloque_handler.h"
 
-int blocks_occ(char* value) {
+int blocks_occ(char* value) //bloques ocupados
+{
     int tamanio = string_length(value);
     return get_blocks(tamanio);
 }
 
-int get_blocks(int tamanio) {
+int get_blocks(int tamanio) //obtener bloques
+{
     // Redondea hacia arriba
     return 1 + ((tamanio - 1) / lfsMetaData.blockSize);
 }
 
-void write_blocks(char* value, t_list* bloques) {
+void write_blocks(char* value, t_list* bloques) //escribir bloques
+{
 
     int limite = string_length(value);
     char* valorAGuardar = string_duplicate(value);
@@ -50,7 +53,8 @@ void write_blocks(char* value, t_list* bloques) {
 // y se retorna una lista con los contenidos leidos 
 // t_list(int) => t_list (blockLine)
 // is_break determina si el contenido fue partido en otro bloque (si es que al grabar no entro todo el contenido y el \n esta en el bloque siguiente)
-t_list* readPokemonLines(t_list* blocks) {
+t_list* readPokemonLines(t_list* blocks)
+{
 	t_list* retList = list_create();
 	size_t len = 0;
 	char* line = NULL;
@@ -99,7 +103,8 @@ t_list* readPokemonLines(t_list* blocks) {
 }
 
 // Dado un string con formato [1,2,3,...] se devuelve una lista con los enteros que simbolizan un numero de bloque
-t_list* stringBlocksToList(char* blocks) {
+t_list* stringBlocksToList(char* blocks)
+{
 	t_list* retList = list_create();
 	// Solo esta usando un bloque
 	if (strlen(blocks) <= 3) {
@@ -120,7 +125,8 @@ t_list* stringBlocksToList(char* blocks) {
 }
 
 // Dado una linea con formato "1-1=100/n" se devuelve la estructura correspondiente para poder manipularla
-blockLine* formatStringToBlockLine(char* blockline) {
+blockLine* formatStringToBlockLine(char* blockline)
+{
 	blockLine* newLineBlock = malloc(sizeof(blockLine));
 	char** splittedLine = string_split(blockline, "=");
 	char** coordinates = string_split(splittedLine[0], "-");
@@ -131,7 +137,8 @@ blockLine* formatStringToBlockLine(char* blockline) {
 }
 
 // Formatea una lista de blockLines al string final que se va escribir "1-3=10\n1-3=50\n"
-char* formatListToStringLine(t_list* pokemonLines) {
+char* formatListToStringLine(t_list* pokemonLines)
+{
 	char* retChar = string_new();
 	for(int j=0; j<list_size(pokemonLines); j++) {
 		blockLine* newLineBlock = list_get(pokemonLines, j);
@@ -141,7 +148,8 @@ char* formatListToStringLine(t_list* pokemonLines) {
 }
 
 // Formatea unas coordenadas y cantidad a "1-1=100" string
-char* formatToBlockLine(int intPosX, int intPosY, int intCantidad) {
+char* formatToBlockLine(int intPosX, int intPosY, int intCantidad)
+{
 	char* pokemonPerPosition = string_new();
 	char* posX = string_itoa(intPosX);
 	char* posY = string_itoa(intPosY);
@@ -160,7 +168,8 @@ char* formatToBlockLine(int intPosX, int intPosY, int intCantidad) {
 	return pokemonPerPosition;
 }
 
-blockLine* createBlockLine(int intPosX, int intPosY, int intCantidad) {
+blockLine* createBlockLine(int intPosX, int intPosY, int intCantidad)
+{
 	blockLine* newLineBlock = malloc(sizeof(blockLine));
 	newLineBlock->posX = intPosX;
 	newLineBlock->posY = intPosY;
@@ -168,17 +177,19 @@ blockLine* createBlockLine(int intPosX, int intPosY, int intCantidad) {
 	return newLineBlock;
 }
 
-void printListOfPokemonReadedLines(t_list* pokemonLines) {
+void printListOfPokemonReadedLines(t_list* pokemonLines)
+{
 	gamecard_logger_info("Size lista %d:", list_size(pokemonLines));
 	for (int i=0; i<list_size(pokemonLines); i++) {
 		blockLine* newLineBlock = list_get(pokemonLines, i);
 		gamecard_logger_info("Elemento i %d:", i);
-		gamecard_logger_info("Pokemon Line %s:", formatToBlockLine(newLineBlock->posX, newLineBlock->posY, newLineBlock->cantidad));
+		gamecard_logger_info("Linea del Pokemon %s:", formatToBlockLine(newLineBlock->posX, newLineBlock->posY, newLineBlock->cantidad));
 	}
 }
 
 //Chequea si el string a escribir entra en los bloques
-bool stringFitsInBlocks(char* stringToWrite, t_list* listBlocks) {
+bool stringFitsInBlocks(char* stringToWrite, t_list* listBlocks)
+{
 	int stringToWriteSize = strlen(stringToWrite);
 	int spaceToAllocateString = list_size(listBlocks) * lfsMetaData.blockSize;
 	return stringToWriteSize <= spaceToAllocateString;

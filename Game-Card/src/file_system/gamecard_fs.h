@@ -11,12 +11,11 @@
 #include <commons/bitarray.h>
 #include <commons/collections/list.h>
 
-#include "../logger/game_card_logger.h"
-#include "../config/game_card_config.h"
-#include "../shared-common/common/utils.h"
-
-#include "./bloques_handler.h"
-#include "./game_card_handler.h"
+#include "../logger/gamecard_logger.h"
+#include "../config/gamecard_config.h"
+//#include "../shared-common/common/utils.h"
+#include "bloque_handler.h"
+#include "gamecard_handler.h"
 
 pthread_mutex_t MUTEX_METADATA;
 

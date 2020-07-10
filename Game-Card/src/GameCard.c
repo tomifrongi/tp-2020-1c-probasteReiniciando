@@ -9,15 +9,43 @@
  */
 
 #include "GameCard.h"
-#include "./src/file_system/gamecard_config.h"//isnt working
 
 pthread_mutex_t mutexLogger;
-
 t_config* config;
 
-int main(void) {
+int main(void)
+{
+	if (init_log() < 0)
+	{
+		return EXIT_FAILURE;
+	}
+	gamecard_init();
+	gamecard_exit();
 
-	//Inicio de logger y traer valores del config.
+	return EXIT_SUCCESS;
+
+}
+
+void gamecard_init()
+{
+	init_log();
+	init_config();
+	gcfsCreateStructs();
+
+}
+
+/*void initConfigLogger(){
+	log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
+	t_config * config = config_create("GameCard.config");
+	tiempoReintentoConexion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
+	tiempoReintentoOperacion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_OPERACION");
+	tiempoRetardoOperacion = config_get_string_value(config, "TIEMPO_RETARDO_OPERACION");
+	puntoMontaje = config_get_string_value(config, "PUNTO_MONTAJE_TALLGRASS");
+	ipBroker = config_get_string_value(config, "IP_BROKER");
+	puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
+}*/
+int main(void)
+{
 
 	initConfigLogger();
 //Cambiar el puntoMontaje por config_get_...
@@ -45,21 +73,8 @@ int main(void) {
 
 }
 
-//-------Init of Connections------//
-
-/*void initConfigLogger(){
-	log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
-	t_config * config = config_create("GameCard.config");
-	tiempoReintentoConexion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
-	tiempoReintentoOperacion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_OPERACION");
-	tiempoRetardoOperacion = config_get_string_value(config, "TIEMPO_RETARDO_OPERACION");
-	puntoMontaje = config_get_string_value(config, "PUNTO_MONTAJE_TALLGRASS");
-	ipBroker = config_get_string_value(config, "IP_BROKER");
-	puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
-}*/
-
 void* handler_suscripciones(uint32_t cola){
-	int socketBroker = connect_to_server(ipBroker, puertoBroker, NULL);
+	int socketBroker = connect_to_server(ip_broker, puerto_broker, NULL);
 	t_message* message;
 	void* content;
 	int salida = 0;
@@ -316,9 +331,6 @@ void leer_bitmap(char* root) {
 	//Terminar
 }
 
-
-
-//-------Init of pokemons------//
 
 /* TODO te comento tu codigo para poder debugear xddddd
 
