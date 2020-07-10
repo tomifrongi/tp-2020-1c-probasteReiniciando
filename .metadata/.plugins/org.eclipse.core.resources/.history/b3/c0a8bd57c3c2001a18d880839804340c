@@ -15,8 +15,21 @@ t_config* config;
 
 int main(void)
 {
+	log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
+	if (log < 0)
+	{
+		return EXIT_FAILURE;
+	}
+	gamecard_init();
+	gamecard_exit();
+
+	return EXIT_SUCCESS;
+
+}
+
+void gamecard_init()
+{
 	gamecard_logger_info("Se empieza a iniciar el GAMECARD...");
-	init_log();
 	init_config();
 	gcfsCreateStructs();
 
@@ -52,9 +65,6 @@ int main(void)
 	gm_server();
 	usleep(600000);
 	for(;;);
-
-	/*gamecard_exit();
-	return EXIT_SUCCESS;*/
 }
 
 void gm_retry_connection(void*arg)

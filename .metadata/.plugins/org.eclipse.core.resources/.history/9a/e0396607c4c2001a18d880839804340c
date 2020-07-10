@@ -15,8 +15,22 @@ t_config* config;
 
 int main(void)
 {
+	log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
+	if (log < 0)
+	{
+		return EXIT_FAILURE;
+	}
+	gamecard_init();
+	gamecard_exit();
+
+	return EXIT_SUCCESS;
+
+}
+
+void gamecard_init()
+{
+	id_cola c;
 	gamecard_logger_info("Se empieza a iniciar el GAMECARD...");
-	init_log();
 	init_config();
 	gcfsCreateStructs();
 
@@ -30,7 +44,7 @@ int main(void)
 	t_queue catch_queue;
 	t_queue get_queue;
 
-	gamecard_logger_info("Se crea un hilo para subscribirse a NEW_POKEMON del BROKER%d");
+	/*gamecard_logger_info("Se crea un hilo para subscribirse a NEW_POKEMON del BROKER%d");
 	new_queue = NEW;
 	pthread_create(&thread1, NULL, (void*)gm_retry_connection, (void*)&new_queue);
 	pthread_detach(thread1);
@@ -46,15 +60,12 @@ int main(void)
 	new_queue = GET;
 	pthread_create(&thread3, NULL, (void*)gm_retry_connection, (void*)&get_queue);
 	pthread_detach(thread3);
-	usleep(600000);
+	usleep(600000);*/
 
 	gamecard_logger_info("Se crea un hilo para poner al Módulo GAMECARD en modo Servidor");
 	gm_server();
 	usleep(600000);
 	for(;;);
-
-	/*gamecard_exit();
-	return EXIT_SUCCESS;*/
 }
 
 void gm_retry_connection(void*arg)
@@ -80,8 +91,8 @@ void subscribe(void*arg)
 	}
 	else
 	{
-
-		gamecard_logger_info("La conexion de la cola %d con el BROKER se hizo!", queue);
+		printf("aca tendriamos que hacer un success del broker");
+		/*gamecard_logger_info("La conexion de la cola %d con el BROKER se hizo!", queue);
 		t_suscripcion* sub = malloc(sizeof(t_suscripcion));
 		t_protocolo subscribe_protocol = SUBSCRIBE; //RARI, ver esto
 		sub->ip = string_duplicate(gamecard_config->ip_game_card);
@@ -90,7 +101,7 @@ void subscribe(void*arg)
 		sub->cola = queue;
 		utils_serialize_and_send(new_broker_fd, subscribe_protocol, sub);
 		recv_game_card(new_broker_fd, 0);
-		is_conn = true;
+		is_conn = true;*/
 	}
 }
 
@@ -249,7 +260,7 @@ void *msg_recv_to_gamecard(int fd, int respond_to) {
 	}
 }
 
-/*void send_ack(void* arg) {
+void send_ack(void* arg) {
 	int id = *((int*) arg);
 
 	t_ack* ack_snd = malloc(sizeof(t_ack));
@@ -350,5 +361,5 @@ void game_card_exit() {
 	free(struct_paths[FILES]);
 	free(struct_paths[BLOCKS]);
 	free(struct_paths[TALL_GRASS]);
-}*/
+}
 

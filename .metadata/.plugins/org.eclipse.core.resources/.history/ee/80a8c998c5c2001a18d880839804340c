@@ -15,8 +15,22 @@ t_config* config;
 
 int main(void)
 {
+	log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
+	if (log < 0)
+	{
+		return EXIT_FAILURE;
+	}
+	gamecard_init();
+	gamecard_exit();
+
+	return EXIT_SUCCESS;
+
+}
+
+void gamecard_init()
+{
+	id_cola c;
 	gamecard_logger_info("Se empieza a iniciar el GAMECARD...");
-	init_log();
 	init_config();
 	gcfsCreateStructs();
 
@@ -52,9 +66,6 @@ int main(void)
 	gm_server();
 	usleep(600000);
 	for(;;);
-
-	/*gamecard_exit();
-	return EXIT_SUCCESS;*/
 }
 
 void gm_retry_connection(void*arg)
@@ -80,7 +91,7 @@ void subscribe(void*arg)
 	}
 	else
 	{
-
+		printf("aca tendriamos que hacer un success del broker");
 		gamecard_logger_info("La conexion de la cola %d con el BROKER se hizo!", queue);
 		t_suscripcion* sub = malloc(sizeof(t_suscripcion));
 		t_protocolo subscribe_protocol = SUBSCRIBE; //RARI, ver esto
@@ -249,7 +260,7 @@ void *msg_recv_to_gamecard(int fd, int respond_to) {
 	}
 }
 
-/*void send_ack(void* arg) {
+void send_ack(void* arg) {
 	int id = *((int*) arg);
 
 	t_ack* ack_snd = malloc(sizeof(t_ack));
@@ -350,5 +361,5 @@ void game_card_exit() {
 	free(struct_paths[FILES]);
 	free(struct_paths[BLOCKS]);
 	free(struct_paths[TALL_GRASS]);
-}*/
+}
 

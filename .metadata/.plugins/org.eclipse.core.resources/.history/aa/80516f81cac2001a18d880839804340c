@@ -15,10 +15,25 @@ t_config* config;
 
 int main(void)
 {
+	log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
+	if (log < 0)
+	{
+		return EXIT_FAILURE;
+	}
+	gamecard_init();
+	//gamecard_exit();
+
+	return EXIT_SUCCESS;
+
+}
+
+void gamecard_init()
+{
+	id_cola c;
 	gamecard_logger_info("Se empieza a iniciar el GAMECARD...");
-	init_log();
 	init_config();
-	gcfsCreateStructs();
+
+	//gamecard_fs_CreateStructs();
 
 	pthread_attr_t attrs;
 	pthread_attr_init(&attrs);
@@ -26,49 +41,168 @@ int main(void)
 	pthread_t thread1;
 	pthread_t thread2;
 	pthread_t thread3;
+
 	t_queue new_queue;
 	t_queue catch_queue;
 	t_queue get_queue;
 
+
 	gamecard_logger_info("Se crea un hilo para subscribirse a NEW_POKEMON del BROKER%d");
-	new_queue = NEW;
-	pthread_create(&thread1, NULL, (void*)gm_retry_connection, (void*)&new_queue);
+	pthread_create(&thread1, NULL, handler_suscripciones, (uint32_t) (NEW));
 	pthread_detach(thread1);
 	usleep(600000);
 
+
+
 	gamecard_logger_info("Se crea un hilo para subscribirse a CATCH_POKEMON del BROKER%d");
-	new_queue = CATCH;
-	pthread_create(&thread2, NULL, (void*)gm_retry_connection, (void*)&catch_queue);
+	pthread_create(&thread2, NULL, handler_suscripciones, (uint32_t) (CATCH));
 	pthread_detach(thread2);
 	usleep(600000);
 
 	gamecard_logger_info("Se crea un hilo para subscribirse a GET_POKEMON del BROKER%d");
-	new_queue = GET;
-	pthread_create(&thread3, NULL, (void*)gm_retry_connection, (void*)&get_queue);
+	pthread_create(&thread3, NULL, handler_suscripciones, (uint32_t) (GET));
 	pthread_detach(thread3);
 	usleep(600000);
 
-	gamecard_logger_info("Se crea un hilo para poner al Módulo GAMECARD en modo Servidor");
+	gamecard_logger_info("Se crea un hilo para poner a GAMECARD en Modo Servidor");
 	gm_server();
 	usleep(600000);
+
 	for(;;);
 
-	/*gamecard_exit();
-	return EXIT_SUCCESS;*/
+}
+int gm_sever()
+{
+	printf("GAMECARD en modo servidor");
+	return 1;
+}
+void* handler_suscripciones(uint32_t cola)
+{
+	int socketBroker = connect_to_server(gamecard_config->ip_broker, gamecard_config->puerto_broker, NULL);
+	t_message* message;
+	void* content;
+	int salida = 0;
+	while(1){
+		if(socketBroker != -errno){
+			pthread_mutex_lock(&mutexLogger);
+			log_info(log, "CONEXION EXITOSA CON EL BROKER");
+			pthread_mutex_unlock(&mutexLogger);
+			switch(cola){
+				case NEW:{
+					content = malloc(sizeof(uint32_t));
+					uint32_t numero = NEW;
+					memcpy (content, &numero, sizeof(uint32_t));
+					send_message(socketBroker, SUSCRIPCION, content, sizeof(uint32_t));
+					free(content);
+					do{
+						message = recv_message(socketBroker);
+						if(message == -1 || message == 0){
+							salida = 1;
+						}else{
+							void*aux=message->content;
+							new_pokemon_enviar mensaje;
+							memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+							aux += mensaje.sizeNombre;
+							memcpy(&mensaje.cantidad,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
+
+							//Envio de ACK hay que agregarselo al broker
+							send_message(socketBroker, CONFIRMACION, NULL, 0);
+
+							//Empezar revision de archivos en FS
+
+						}
+					}while(salida != 1);
+					salida = 0;
+					free_t_message(message);
+					break;
+				}
+				case CATCH:{
+					content = malloc(sizeof(uint32_t));
+					uint32_t numero = CATCH;
+					memcpy (content, &numero, sizeof(uint32_t));
+					send_message(socketBroker, SUSCRIPCION, content, sizeof(uint32_t));
+					free(content);
+					do{
+						message = recv_message(socketBroker);
+						if(message == -1 || message == 0){
+							salida = 1;
+						}else{
+							void *aux = message->content;
+							catch_pokemon_enviar mensaje;
+							memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+							aux += mensaje.sizeNombre;
+							memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
+
+							//Envio de ACK hay que agregarselo al broker
+							send_message(socketBroker, CONFIRMACION, NULL, 0);
+
+							//Empezar revision de archivos en FS
+
+						}
+					}while(salida != 1);
+					salida = 0;
+					free_t_message(message);
+					break;
+				}
+				case GET:{
+					content = malloc(sizeof(uint32_t));
+					uint32_t numero = GET;
+					memcpy (content, &numero, sizeof(uint32_t));
+					send_message(socketBroker, SUSCRIPCION, content, sizeof(uint32_t));
+					free(content);
+					do{
+						message = recv_message(socketBroker);
+						if(message == -1 || message == 0){
+							salida = 1;
+						}else{
+							void *aux = message->content;
+							get_pokemon_enviar mensaje;
+							memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+
+							//Envio de ACK hay que agregarselo al broker
+							send_message(socketBroker, CONFIRMACION, NULL, 0);
+
+							//Empezar revision de archivos en FS
+
+						}
+					}while(salida != 1);
+					salida = 0;
+					free_t_message(message);
+					break;
+				}
+			}
+		}
+		socketBroker = connect_to_server(gamecard_config->ip_broker, gamecard_config->puerto_broker, NULL);
+	}
+	return NULL;
 }
 
-void gm_retry_connection(void*arg)
+/*void gm_retry_connection(void*arg)
 {
 	void* res = arg;
 	while(true)
 	{
-		is_conn = false; //is_conn es un valor booleano
+		is_conn = false;
 		subscribe(res);
 		utils_delay(gamecard_config->tiempo_de_reintento_conexion);
 	}
-}
+}*/
 
-void subscribe(void*arg)
+
+
+/*void subscribe(void*arg)
 {
 	t_queue* queue = *((int *) arg);
 	int new_broker_fd = socket_connect_to_server(gamecard_config->ip_broker, gamecard_config->puerto_broker);
@@ -249,7 +383,7 @@ void *msg_recv_to_gamecard(int fd, int respond_to) {
 	}
 }
 
-/*void send_ack(void* arg) {
+void send_ack(void* arg) {
 	int id = *((int*) arg);
 
 	t_ack* ack_snd = malloc(sizeof(t_ack));
@@ -350,5 +484,5 @@ void game_card_exit() {
 	free(struct_paths[FILES]);
 	free(struct_paths[BLOCKS]);
 	free(struct_paths[TALL_GRASS]);
-}*/
-
+}
+*/

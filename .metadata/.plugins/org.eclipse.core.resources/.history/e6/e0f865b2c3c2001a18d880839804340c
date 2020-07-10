@@ -15,8 +15,22 @@ t_config* config;
 
 int main(void)
 {
+	log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
+	if (log < 0)
+	{
+		return EXIT_FAILURE;
+	}
+	gamecard_init();
+	gamecard_exit();
+
+	return EXIT_SUCCESS;
+
+}
+
+void gamecard_init()
+{
+	id_cola c;
 	gamecard_logger_info("Se empieza a iniciar el GAMECARD...");
-	init_log();
 	init_config();
 	gcfsCreateStructs();
 
@@ -30,7 +44,7 @@ int main(void)
 	t_queue catch_queue;
 	t_queue get_queue;
 
-	gamecard_logger_info("Se crea un hilo para subscribirse a NEW_POKEMON del BROKER%d");
+	/*gamecard_logger_info("Se crea un hilo para subscribirse a NEW_POKEMON del BROKER%d");
 	new_queue = NEW;
 	pthread_create(&thread1, NULL, (void*)gm_retry_connection, (void*)&new_queue);
 	pthread_detach(thread1);
@@ -46,15 +60,12 @@ int main(void)
 	new_queue = GET;
 	pthread_create(&thread3, NULL, (void*)gm_retry_connection, (void*)&get_queue);
 	pthread_detach(thread3);
-	usleep(600000);
+	usleep(600000);*/
 
 	gamecard_logger_info("Se crea un hilo para poner al Módulo GAMECARD en modo Servidor");
 	gm_server();
 	usleep(600000);
 	for(;;);
-
-	/*gamecard_exit();
-	return EXIT_SUCCESS;*/
 }
 
 void gm_retry_connection(void*arg)
@@ -87,7 +98,7 @@ void subscribe(void*arg)
 		sub->ip = string_duplicate(gamecard_config->ip_game_card);
 		sub->puerto = gamecard_config->puerto_game_card;
 		sub->proceso = GAMECARD;
-		sub->cola = queue;
+		sub->cola = &queue;
 		utils_serialize_and_send(new_broker_fd, subscribe_protocol, sub);
 		recv_game_card(new_broker_fd, 0);
 		is_conn = true;
