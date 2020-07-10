@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <commons/string.h>
 #include <commons/log.h>
-//#include "../../../shared-common/common/logger.h"
 
 #define LOG_FILE "/home/utnso/log_gamecard.txt"
 #define PROGRAM_NAME "GAME_CARD"

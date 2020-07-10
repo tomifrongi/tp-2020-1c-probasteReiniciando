@@ -10,12 +10,11 @@
 #include <commons/config.h>
 #include <commons/bitarray.h>
 #include <commons/collections/list.h>
-
 #include "../logger/gamecard_logger.h"
 #include "../config/gamecard_config.h"
-//#include "../shared-common/common/utils.h"
 #include "bloque_handler.h"
 #include "gamecard_handler.h"
+#include "../GameCard.h"
 
 pthread_mutex_t MUTEX_METADATA;
 
@@ -25,17 +24,17 @@ int createRecursiveDirectory(const char* path);
 int createFile(const char* fullPath);
 void initSemaphore();
 
-void createNewPokemon(t_new_pokemon* newPokemon);
-t_list* getAPokemon(t_get_pokemon* getPokemon);
-int catchAPokemon(t_catch_pokemon* catchPokemon);
+void createNewPokemon(new_pokemon* newPokemon);
+t_list* getAPokemon(get_pokemon* getPokemon);
+int catchAPokemon(catch_pokemon* catchPokemon);
 
-void operateNewPokemonFile(t_new_pokemon* newPokemon, char* completePath, int freeBlocks);
-t_list* operateGetPokemonFile(t_get_pokemon* getPokemon, char* completePath);
-int operateCatchPokemonFile(t_catch_pokemon* catchPokemon, char* completePath);
+void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int freeBlocks);
+t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath);
+int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath);
 
 int coordinateExists(unsigned int posX, unsigned int posY, t_list* pokemonLines);
-void addTotalPokemonIfCoordinateExist(t_new_pokemon* newPokemon, t_list* pokemonLines);
-void deletePokemonTotalIfCoordinateExist(t_catch_pokemon* catchPokemon, t_list* pokemonLines);
+void addTotalPokemonIfCoordinateExist(new_pokemon* newPokemon, t_list* pokemonLines);
+void deletePokemonTotalIfCoordinateExist(catch_pokemon* catchPokemon, t_list* pokemonLines);
 t_list* requestFreeBlocks(int extraBlocksNeeded);
 
 int calcualarBloques(int tamanio);

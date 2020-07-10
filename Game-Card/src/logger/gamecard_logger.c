@@ -5,7 +5,7 @@ int gamecard_logger_create()
 	gamecard_log = logger_create(LOG_FILE, PROGRAM_NAME);
 	if (gamecard_log == NULL || gamecard_log < 0)
 	{
-		perror("No ha sido posible instanciar el game_card_logger");
+		perror("No ha sido posible instanciar el GameCard_logger");
 		return -1;
 	}
 

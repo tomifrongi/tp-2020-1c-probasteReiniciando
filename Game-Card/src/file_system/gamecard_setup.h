@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -9,7 +10,6 @@
 #include <commons/collections/list.h>
 #include "../logger/gamecard_logger.h"
 #include "../config/gamecard_config.h"
-//#include "../shared-common/common/utils.h"
 #include "./bitmap.h"
 
 typedef enum {

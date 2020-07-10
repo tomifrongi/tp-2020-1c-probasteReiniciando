@@ -1,22 +1,23 @@
-#include "setup.h"
+#include "gamecard_setup.h"
+
 
 void createRootFiles() {
 	char* dir_tallGrass = string_new();
-	string_append(&dir_tallGrass, game_card_config->punto_montaje_tallgrass);
+	string_append(&dir_tallGrass, gamecard_config->punto_montaje_tallgrass);
 
 	char* dir_metadata = string_new();
-	string_append(&dir_metadata, game_card_config->punto_montaje_tallgrass);
+	string_append(&dir_metadata, gamecard_config->punto_montaje_tallgrass);
 	string_append(&dir_metadata, "Metadata/");
 	
 	char* archivos = string_new();
-	string_append(&archivos, game_card_config->punto_montaje_tallgrass);
+	string_append(&archivos, gamecard_config->punto_montaje_tallgrass);
 	string_append(&archivos, "Files/");
 
 	char* dir_bloques = string_new();
-	string_append(&dir_bloques, game_card_config->punto_montaje_tallgrass);
+	string_append(&dir_bloques, gamecard_config->punto_montaje_tallgrass);
 	string_append(&dir_bloques, "Bloques/");
 
-	if(_mkpath(game_card_config->punto_montaje_tallgrass, 0755) == -1) {
+	if(_mkpath(gamecard_config->punto_montaje_tallgrass, 0755) == -1) {
 		game_card_logger_error("_mkpath");
 	} else {
 		// Creo carpetas
