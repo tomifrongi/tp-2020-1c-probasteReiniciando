@@ -550,4 +550,4 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 	free(pokemonMetadata.isOpen);
 
 	return res;
-}
+}//Ver que falta
