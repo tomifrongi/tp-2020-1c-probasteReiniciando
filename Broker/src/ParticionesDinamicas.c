@@ -37,9 +37,9 @@
 
 void borrar_suscriptor(void* algo){}
 
-int main(){
-	ejecutarPruebaCompactacionMio();
-}
+//int main(){
+//	ejecutarPruebaCompactacionMio();
+//}
 
 void ejecutarPruebaBaseBroker(){
 

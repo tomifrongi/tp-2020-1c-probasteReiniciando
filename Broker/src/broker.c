@@ -12,7 +12,7 @@
 
 pthread_mutex_t mutexId;
 pthread_mutex_t mutexLogger;
-/*
+
 int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
 	PUERTO_BROKER = 8080;
@@ -23,7 +23,7 @@ int main(void) {
 	init_broker_server();
 	return EXIT_SUCCESS;
 }
-*/
+
 void init_broker_server() {
 	listener_socket = init_server(PUERTO_BROKER);
 	log_info(logger, "Servidor levantado! Escuchando en %i",PUERTO_BROKER);
@@ -56,11 +56,13 @@ void* handler_clients(void* socket){
 				log_info(logger, "NEW POKEMON RECIBIDO");
 				pthread_mutex_unlock(&mutexLogger);
 
+//				char* nombrePrueba = malloc(10);
 				void*aux=message->content;
 				new_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.cantidad,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
@@ -73,9 +75,17 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
-				//POSICION MENSAJE = CACHEAR MENSAJE
+				cachearMensaje(&mensaje);
+				free(mensaje.nombrePokemon);
 				//QUEUE PUSH (POSICION MENSAJE)
-				log_info(logger,"%s", &mensaje.nombrePokemon);
+				log_info(logger,"%s", mensaje.nombrePokemon);
+
+
+
+				log_info(logger,"el size es: %d",mensaje.sizeNombre);
+				log_info(logger,"la cantidad es: %d",mensaje.cantidad);
+				log_info(logger,"la posicion x es: %d",mensaje.posicionEjeX);
+				log_info(logger,"la posicion y es: %d",mensaje.posicionEjeY);
 
 				pthread_mutex_lock(&mutexQueueNew);
 				queue_push(new_admin.queue, &mensaje);

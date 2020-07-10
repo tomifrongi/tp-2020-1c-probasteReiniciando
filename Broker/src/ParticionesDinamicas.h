@@ -55,6 +55,7 @@ particion_dinamica_memoria* buscarPrimerParticionLibre(uint32_t tamanioMensaje);
 particion_dinamica_memoria* buscarMejorParticionLibre(uint32_t tamanioMensaje);
 
 
+
 void agregarParticionContigua(particion_dinamica_memoria* particion,uint32_t tamanioParticionAntigua);
 
 void ejecutarCicloNormal(void* mensaje,id_cola id);
@@ -63,7 +64,7 @@ bool particionesOcupadas();
 void cachearMensaje(void* mensaje,id_cola id);
 
 particion_dinamica_memoria* cargarDatosParticion(particion_dinamica_memoria* particion,void* mensaje,id_cola id);
-
+t_list* sacarParticionesLibres();
 int* crear_elemento_colaMensajesMemoria(int idMensaje);
 particion_dinamica_memoria* removerPorPosicion(int posicion);
 void borrar_elemento_colaMensajesMemoria(int* idMensaje);
