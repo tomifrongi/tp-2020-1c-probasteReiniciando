@@ -1,364 +1,386 @@
-/*
- ============================================================================
- Name        : Game-Card.c
- Author      : 
- Version     :
- Copyright   : Your copyright notice
- Description : Hello World in C, Ansi-style
- ============================================================================
- */
-
 #include "GameCard.h"
 
 pthread_mutex_t mutexLogger;
 t_config* config;
+t_log* log;
 
-int main(void)
-{
-	if (init_log() < 0)
-	{
-		return EXIT_FAILURE;
-	}
-	gamecard_init();
-	gamecard_exit();
+int main(void) {
 
-	return EXIT_SUCCESS;
+	//Inicio de logger y traer valores del config.
+
+	initConfigLogger();
+
+	char* root_directory = puntoMontaje; //config_get_string_value(config, "PUNTO_MONTAJE_TALLGRASS"); hace lo mismo que puntoMontaje
+
+	//chequear_metadata(root_directory);
+	//leer_metadata(root_directory);
+	//leer_bitmap(root_directory);
+
+	//Crear hilos para el manejo de las suscripciones.
+
+	pthread_t cola_new_thread;
+	pthread_t cola_catch_thread;
+	pthread_t cola_get_thread;
+
+	pthread_create(&cola_new_thread, NULL, handler_suscripciones, (uint32_t) (NEW));
+	pthread_create(&cola_catch_thread, NULL, handler_suscripciones, (uint32_t) (CATCH));
+	pthread_create(&cola_get_thread, NULL, handler_suscripciones, (uint32_t) (GET));
+
+	pthread_detach(cola_new_thread);
+	pthread_detach(cola_catch_thread);
+	pthread_detach(cola_get_thread);
 
 }
 
-void gamecard_init()
-{
-	gamecard_logger_info("Se empieza a iniciar el GAMECARD...");
-	init_log();
-	init_config();
-	gcfsCreateStructs();
+//-------Init of Connections------//
 
-	pthread_attr_t attrs;
-	pthread_attr_init(&attrs);
-	pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_JOINABLE);
-	pthread_t thread1;
-	pthread_t thread2;
-	pthread_t thread3;
-	t_queue new_queue;
-	t_queue catch_queue;
-	t_queue get_queue;
-
-	gamecard_logger_info("Se crea un hilo para subscribirse a NEW_POKEMON del BROKER%d");
-	new_queue = NEW;
-	pthread_create(&thread1, NULL, (void*)gm_retry_connection, (void*)&new_queue);
-	pthread_detach(thread1);
-	usleep(600000);
-
-	gamecard_logger_info("Se crea un hilo para subscribirse a CATCH_POKEMON del BROKER%d");
-	new_queue = CATCH;
-	pthread_create(&thread2, NULL, (void*)gm_retry_connection, (void*)&catch_queue);
-	pthread_detach(thread2);
-	usleep(600000);
-
-	gamecard_logger_info("Se crea un hilo para subscribirse a GET_POKEMON del BROKER%d");
-	new_queue = GET;
-	pthread_create(&thread3, NULL, (void*)gm_retry_connection, (void*)&get_queue);
-	pthread_detach(thread3);
-	usleep(600000);
-
-	gamecard_logger_info("Se crea un hilo para poner al Módulo GAMECARD en modo Servidor");
-	gm_server();
-	usleep(600000);
-	for(;;);
+void initConfigLogger(){
+		log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
+		t_config * config = config_create("GameCard.config");
+		tiempoReintentoConexion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
+		tiempoReintentoOperacion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_OPERACION");
+		tiempoRetardoOperacion = config_get_string_value(config, "TIEMPO_RETARDO_OPERACION");
+		puntoMontaje = config_get_string_value(config, "PUNTO_MONTAJE_TALLGRASS");
+		ipBroker = config_get_string_value(config, "IP_BROKER");
+		puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
 }
 
-void gm_retry_connection(void*arg)
-{
-	void* res = arg;
-	while(true)
-	{
-		is_conn = false; //is_conn es un valor booleano
-		subscribe(res);
-		utils_delay(gamecard_config->tiempo_de_reintento_conexion);
-	}
-}
+void* handler_suscripciones(uint32_t cola){
+	int socketBroker = connect_to_server(ipBroker, puertoBroker, NULL);
+	t_message* message;
+	void* content;
+	int salida = 0;
+	while(1){
+		if(socketBroker != -errno){
+			pthread_mutex_lock(&mutexLogger);
+			log_info(log, "CONEXION EXITOSA CON EL BROKER");
+			pthread_mutex_unlock(&mutexLogger);
+			switch(cola){
+				case NEW:{
+					content = malloc(sizeof(uint32_t));
+					uint32_t numero = NEW;
+					memcpy (content, &numero, sizeof(uint32_t));
+					send_message(socketBroker, SUSCRIPCION, content, sizeof(uint32_t));
+					free(content);
+					do{
+						message = recv_message(socketBroker);
+						if(message == -1 || message == 0){
+							salida = 1;
+						}else{
+							void*aux=message->content;
+							new_pokemon_enviar mensaje;
+							memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+							aux += mensaje.sizeNombre;
+							memcpy(&mensaje.cantidad,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
 
-void subscribe(void*arg)
-{
-	t_queue* queue = *((int *) arg);
-	int new_broker_fd = socket_connect_to_server(gamecard_config->ip_broker, gamecard_config->puerto_broker);
+							//Envio de ACK hay que agregarselo al broker
+							send_message(socketBroker, CONFIRMACION, NULL, 0);
 
-	if(new_broker_fd < 0)
-	{
-		gamecard_logger_warn("No se pudo conectar la cola %d con el BROKER", queue);
-		socket_close_conection(new_broker_fd);
-	}
-	else
-	{
+							//Empezar revision de archivos en FS
 
-		gamecard_logger_info("La conexion de la cola %d con el BROKER se hizo!", queue);
-		t_suscripcion* sub = malloc(sizeof(t_suscripcion));
-		t_protocolo subscribe_protocol = SUBSCRIBE; //RARI, ver esto
-		sub->ip = string_duplicate(gamecard_config->ip_game_card);
-		sub->puerto = gamecard_config->puerto_game_card;
-		sub->proceso = GAMECARD;
-		sub->cola = queue;
-		utils_serialize_and_send(new_broker_fd, subscribe_protocol, sub);
-		recv_game_card(new_broker_fd, 0);
-		is_conn = true;
-	}
-}
+						}
+					}while(salida != 1);
+					salida = 0;
+					free_t_message(message);
+					break;
+				}
+				case CATCH:{
+					content = malloc(sizeof(uint32_t));
+					uint32_t numero = CATCH;
+					memcpy (content, &numero, sizeof(uint32_t));
+					send_message(socketBroker, SUSCRIPCION, content, sizeof(uint32_t));
+					free(content);
+					do{
+						message = recv_message(socketBroker);
+						if(message == -1 || message == 0){
+							salida = 1;
+						}else{
+							void *aux = message->content;
+							catch_pokemon_enviar mensaje;
+							memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+							aux += mensaje.sizeNombre;
+							memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
 
-void gm_server()
-{
-	int gm_socket = socket_create_listener(gamecard_config->ip_game_card, gamecard_config->puerto_game_card);
-	if (gm_socket < 0)
-	{
-		gamecard_logger_error("Error al levantar GAMECARD Server");
-	}
+							//Envio de ACK hay que agregarselo al broker
+							send_message(socketBroker, CONFIRMACION, NULL, 0);
 
-	game_card_logger_info("El Server se creó OK. Esperando la conexion del GAMEBOY");
-	struct sockaddr_in info_client;
-	socklen_t addrlen = sizeof info_client;
-	pthread_attr_t attrs;
-	pthread_attr_init(&attrs);
-	pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_JOINABLE);
-	int accepted_fd;
-	for (;;) {
-		pthread_t thread1;
-		if ((accepted_fd = accept(gm_socket,(struct sockaddr *) &info_client, &addrlen)) != -1)
-		{
-			t_handle_connection* conn_handler = malloc(sizeof(t_handle_connection));
-			conn_handler->fd = accepted_fd;
-			conn_handler->bool_val = 1;
-			pthread_create(&thread1, NULL, (void*) handle_conn,(void*) conn_handler);
-			pthread_detach(thread1);
-			game_card_logger_info("Creando un hilo para atender una conexión en el socket %d",accepted_fd);
-			usleep(500000);
+							//Empezar revision de archivos en FS
+
+						}
+					}while(salida != 1);
+					salida = 0;
+					free_t_message(message);
+					break;
+				}
+				case GET:{
+					content = malloc(sizeof(uint32_t));
+					uint32_t numero = GET;
+					memcpy (content, &numero, sizeof(uint32_t));
+					send_message(socketBroker, SUSCRIPCION, content, sizeof(uint32_t));
+					free(content);
+					do{
+						message = recv_message(socketBroker);
+						if(message == -1 || message == 0){
+							salida = 1;
+						}else{
+							void *aux = message->content;
+							get_pokemon_enviar mensaje;
+							memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
+							aux += sizeof(uint32_t);
+							memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+
+							//Envio de ACK hay que agregarselo al broker
+							send_message(socketBroker, CONFIRMACION, NULL, 0);
+
+							//Empezar revision de archivos en FS
+
+						}
+					}while(salida != 1);
+					salida = 0;
+					free_t_message(message);
+					break;
+				}
+			}
 		}
-		else
-		{
-			gamecard_logger_error("Error al conectarse con un Cliente");
+		socketBroker = connect_to_server(ipBroker, puertoBroker, NULL);
+	}
+	return NULL;
+}
+//-------End of Connections------//
+
+
+/*void chequear_existencia_directorio(char* path) {
+
+	int resultado = mkdir(path, 0700);
+	if(resultado){
+		if(errno == EEXIST){ //Si el error fue que encontro el directorio, continua
+			log_debug(log, "Se encontró el directorio: \"%s\". !\n", path);
+		} else { //Hubo otro error
+			log_error(log, "Hubo un error al encontrar el directorio: \"%s\". !\n", path);
+			exit(4);
 		}
+	} else { //No se creó, entonces hubo un error
+		log_error(log, "No se encontró el directorio: \"%s\".\n", path);
+		rmdir(path); //Como creé el directorio, lo borro para no dejarlo
+		exit(3);
 	}
 }
 
-static void *handle_conn(void *arg)
-{
-	t_handle_connection* connect_handler = (t_handle_connection *) arg;
-	int client_fd = connect_handler->fd;
-	recv_gamecard(client_fd, connect_handler->bool_val);
+void chequear_existencia_archivo(char* path) {
+
+	if(access(path, F_OK) != -1) {
+		log_debug(log, "Se encontró el archivo: \"%s\". !\n");
+	} else{
+		log_error(log, "Hubo un error al encontrar el archivo: \"%s\". !\n");
+		exit(5);
+	}
+}
+
+char *buscar_path(char *root, char *path){
+
+	char *new_directory = string_new();
+	string_append(&new_directory, root);
+	string_append(&new_directory, path);
+
+	return new_directory;
+}
+
+void chequear_metadata(char* root_directory){
+
+	chequear_existencia_directorio(root_directory);
+
+	char* metadata_directory = buscar_path(root_directory, "\Metadata");
+	chequear_existencia_directorio(metadata_directory);
+
+	char* metadata_metadata_archive = buscar_path(metadata_directory, "\Metadata.bin");
+	chequear_existencia_archivo(metadata_metadata_archive);
+
+	char* files_directory = buscar_path(root_directory, "\Files");
+	chequear_existencia_directorio(files_directory);
+
+	char* metadata_files_archive = buscar_path(files_directory, "\Metadata.bin");
+	chequear_existencia_archivo(metadata_files_archive);
+
+	char* blocks_directory = buscar_path(root_directory, "\Blocks");
+	chequear_existencia_directorio(blocks_directory);
+
+	log_info(log, "Se encontraron todos los archivos de Tall Grass.\n");
+	printf("Se encontraron todos los archivos de Tall Grass");
+
+}
+
+void corroborar_existencia(void* resultado) {
+
+	if(resultado == NULL) {
+		log_error(log, "Error con resultado NULL");
+		exit(7);
+	}
+}
+
+char* metadata_key_string(char* memoria, int size_memoria, char* key) {
+
+	char* resultado = malloc(sizeof(char*));
+	int i, j;
+	for(i = 0; i < size_memoria; i++){
+		for(j = 0; memoria[i] == key[j]; j++){
+			i++;
+		}
+		if(j == strlen(key)) {
+			i++;
+			int k;
+			for (k = 0; (memoria[i] != '\n') && (memoria[i] != '\0') && (memoria[i] != EOF); k++) {
+				resultado[k] = memoria[i];
+				i++;
+			}
+			resultado[k] = '\0';
+			return resultado;
+		}
+	}
+
 	return NULL;
 }
 
-void *msg_recv_to_gamecard(int fd, int respond_to) {
-	int received_bytes;
-	int protocol;
-	int client_fd = fd;
+uint32_t metadata_key_int(char* memoria, int size_memoria, char* key) {
 
-	// 1 = Receives from GB; 0 = Receives from Broker
-	int is_server = respond_to;
+	char* buscado_en_string = metadata_key_string(memoria, size_memoria, key);
+	corroborar_existencia(buscado_en_string);
 
-	while (true) {
-		received_bytes = recv(client_fd, &protocol, sizeof(int), 0);
+	return atoi(buscado_en_string);
+}
 
-		if (received_bytes <= 0) {
-			gamecard_logger_error("¡¡Error al recibir mensaje en GAMECARD!!");
-			return NULL;
-		}
-		switch (protocol) {
+void leer_metadata(char* root) {
 
-		// Desde el BROKER o GAMEBOY
-		case NEW_POKEMON: {
-			gamecard_logger_info("El mensaje NEW_POKEMON fue recibido");
-			new_pokemon_enviar *new_recv = utils_receive_and_deserialize(client_fd, protocol);
-			gamecard_logger_info("ID recibido: %d", new_recv->id_mensaje);
-			gamecard_logger_info("ID Correlacional: %d", new_recv->id_correlacional);
-			game_card_logger_info("Cantidad: %d", new_recv->cantidad);
-			game_card_logger_info("Nombre Pokemon: %s", new_recv->nombrePokemon);
-			game_card_logger_info("Largo Nombre: %d", new_recv->sizeNombre);
-			game_card_logger_info("Posicion X: %d", new_recv->posicionEjeX);
-			game_card_logger_info("Posicion Y: %d", new_recv->posicionEjeY);
-			createNewPokemon(new_recv);
-			usleep(100000);
+	char* metadata_archive_path = buscar_path(root, "\Metadata\Metadata.bin");
+	struct stat fb;
 
-			pthread_attr_t attrs;
-			pthread_attr_init(&attrs);
-			pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_JOINABLE);
+	int fd = open(metadata_archive_path, O_RDONLY);
+	fstat(fd, &fb);
+	char* memoria = mmap(NULL, fb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
-			if (is_server == 0) {
-				pthread_t thread;
-				pthread_create(&thread, NULL, (void*) send_ack,
-						(void*) &new_recv->id_correlacional);
-				pthread_detach(thread);
-			}
+	t_header* tall_grass = malloc(sizeof(t_header));
 
-			pthread_t tid1;
-			pthread_create(&tid1, NULL, (void*) process_new_and_send_appeared,(void*) new_recv);
-			pthread_detach(tid1);
+	tall_grass->block_size = metadata_key_int(memoria, fb.st_size, "BLOCK_SIZE");
+	tall_grass->blocks = metadata_key_int(memoria, fb.st_size, "BLOCKS");
+	tall_grass->magic_number = metadata_key_string(memoria, fb.st_size, "MAGIC_NUMBER");
+	corroborar_existencia(tall_grass->block_size);
 
-			break;
-		}
+	log_info(log, "HEADER\nBLOCK SIZE = %d\nBLOCKS = %d\nMAGIC NUMBER = %s\n", tall_grass->block_size, tall_grass->blocks, tall_grass->magic_number);
 
-		// Desde el BROKER o GAMEBOY
-		case GET_POKEMON: {
-			gamecard_logger_info("El mensaje GET_POKEMON fue recibido");
-			get_pokemon_enviar *get_rcv = utils_receive_and_deserialize(client_fd, protocol);
-			gamecard_logger_info("ID correlacional: %d", get_rcv->id_correlacional);
-			gamecard_logger_info("Nombre Pokemon: %s", get_rcv->nombrePokemon);
-			gamecard_logger_info("Largo nombre: %d", get_rcv->sizeNombre);
-			getAPokemon(get_rcv);
-			usleep(50000);
+	if(munmap(memoria, fb.st_size) == -1){
+		printf("Hubo un error cerrando el mapeo de memoria");
+		log_error(log, "Hubo un error cerrando el mapeo de memoria");
+		exit(6);
+	}
+	close(fd);
 
-			// Al BROKER
-			pthread_attr_t attrs;
-			pthread_attr_init(&attrs);
-			pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_JOINABLE);
+}
 
-			if (is_server == 0) {
-				pthread_t thread2;
-				pthread_create(&thread2, NULL, (void*) send_ack,(void*) &get_rcv->id_correlacional);
-				pthread_detach(thread2);
-			}
+void leer_bitmap(char* root) {
 
-			pthread_t thread3;
-			pthread_create(&thread3, NULL, (void*) process_get_and_send_localized,(void*) get_rcv);
-			pthread_detach(thread3);
+	char* metadata_bitmap = buscar_path(root, "\Metadata\Bitmap.bin");
+	struct stat fb;
 
-			break;
-		}
+	int fd = open(metadata_bitmap, O_RDONLY);
+	char* bitmap_mmap = mmap(NULL, fb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
-		// Desde el BROKER o GAMEBOY
-		case CATCH_POKEMON: {
-			gamecard_logger_info("El mensaje CATCH_POKEMON fue recibido");
-			catch_pokemon_enviar *catch_rcv = utils_receive_and_deserialize(client_fd, protocol);
-			gamecard_logger_info("ID correlacional: %d", catch_rcv->id_correlacional);
-			gamecard_logger_info("Nombre Pokemon: %s", catch_rcv->nombrePokemon);
-			gamecard_logger_info("Largo nombre: %d",catch_rcv->sizeNombre);
-			gamecard_logger_info("Posicion X: %d", catch_rcv->posicionEjeX);
-			gamecard_logger_info("Posicion Y: %d", catch_rcv->posicionEjeY);
-			catchAPokemon(catch_rcv);
-			usleep(50000);
+	if(bitmap_mmap == NULL){
+		log_info(log, "El bitmap está vacío");
+		//Chequear si es un error
+	}
 
-			// Al BROKER
-			pthread_attr_t attrs;
-			pthread_attr_init(&attrs);
-			pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_JOINABLE);
+	t_bitarray* bitmap = bitarray_create(bitmap_mmap, fb.st_size);
 
-			if (is_server == 0) {
-				pthread_t thread4;
-				pthread_create(&thread4, NULL, (void*) send_ack,(void*) &catch_rcv->id_correlacional);
-				pthread_detach(thread4);
-			}
+	//Terminar
+}
 
-			pthread_t thread5;
+*/
 
-			pthread_create(&thread5, NULL, (void*) process_catch_and_send_caught,(void*) catch_rcv);
-			pthread_detach(thread5);
-			break;
-		}
+//-------Init of pokemons------//
 
-		default:
+/* TODO te comento tu codigo para poder debugear xddddd
+int cantidad_pokemones(FILE* archivo_pokemon){
+	int cantidad=0;
+	t_linea linea;
+	while(archivo_pokemon){
+		fscanf(archivo_pokemon,"%d%c%d%c%d%\n",&linea.cord_x,linea.guion,&linea.cord_y,linea.igual,&linea.cantidad);
+		cantidad += linea.cantidad;
+	}
+	return cantidad;
+}
+// funciones new_pokemon
+void existen_posiciones_pokemon_nuevo(FILE* archivo_pokemon,new_pokemon pokemon_nuevo){
+	char* posicion = "";
+	t_linea linea;
+	while(archivo_pokemon){
+		fscanf(archivo_pokemon,"%d%c%d%c%d%\n",&linea.cord_x,linea.guion,&linea.cord_y,linea.igual,&linea.cantidad);
+		if(linea.cord_x == pokemon_nuevo.posicionEjeX && linea.cord_y == pokemon_nuevo.posicionEjeY){
+			pokemon_nuevo.cantidad = linea.cantidad;
 			break;
 		}
 	}
+	strcat(posicion,pokemon_nuevo.posicionEjeX);
+	strcat(posicion,"-");
+	strcat(posicion,pokemon_nuevo.posicionEjeY);   // TODO averiguar como convertir enteros en Strings
+	strcat(posicion,"=");
+	strcat(posicion,pokemon_nuevo.cantidad);
+	strcat(posicion,"\n");
+	fwrite(posicion,1,sizeof(posicion),archivo_pokemon);
 }
-
-/*void send_ack(void* arg) {
-	int id = *((int*) arg);
-
-	t_ack* ack_snd = malloc(sizeof(t_ack));
-	t_protocol ack_protocol = ACK;
-	ack_snd->id = id;
-	int client_fd = socket_connect_to_server(gamecard_config->ip_broker,
-			gamecard_config->puerto_broker);
-	if (client_fd > 0) {
-		utils_serialize_and_send(client_fd, ack_protocol, ack_snd);
-		game_card_logger_info("ACK se envió al BROKER");
+// funciones catch_pokemon
+void existen_posiciones_pokemon_atrapado(FILE* archivo_pokemon,catch_pokemon pokemon_atrapado){
+	t_linea linea = malloc(sizeof(t_linea));
+	while(archivo_pokemon){
+		fscanf(archivo_pokemon,"%d%c%d%c%d%\n",&linea.cord_x,linea.guion,&linea.cord_y,linea.igual,&linea.cantidad);
+		if(linea.cord_x == pokemon_atrapado.posicionEjeX && linea.cord_y == pokemon_atrapado.posicionEjeY)
+			break;
+		}
+	printf("posicion no encontrada");
+	exit(1);
+}
+void decrementar_cantidad(FILE* archivo_pokemon,catch_pokemon pokemon_atrapado){
+	t_linea linea=malloc(sizeof(t_linea));
+	while(archivo_pokemon){
+		fscanf(archivo_pokemon,"%d%c%d%c%d%\n",&linea.cord_x,linea.guion,&linea.cord_y,linea.igual,&linea.cantidad);
+		if(linea.cord_x == pokemon_atrapado.posicionEjeX && linea.cord_y == pokemon_atrapado.posicionEjeY){
+			if(linea.cantidad == 0)
+				eliminarLinea(archivo_pokemon,linea);//TODO
+			else
+				linea.cantidad--;
+			break;
+		}
 	}
-	game_card_logger_info("La conexion al BROKER se cerrará");
-	socket_close_conection(client_fd);
 }
-
-void process_new_and_send_appeared(void* arg) {
-	new_pokemon* new_recv = (new_pokemon*) arg;
-
-	// Process New and send Appeared to broker
-	t_appeared_pokemon* appeared_snd = malloc(sizeof(t_appeared_pokemon));
-	t_protocol appeared_protocol = APPEARED_POKEMON;
-	appeared_snd->nombre_pokemon = new_receive->nombre_pokemon;
-	appeared_snd->tamanio_nombre = new_receive->tamanio_nombre;
-	appeared_snd->id_correlacional = new_receive->id_correlacional;
-	appeared_snd->pos_x = new_receive->pos_x;
-	appeared_snd->pos_y = new_receive->pos_y;
-	appeared_snd->cantidad = new_receive->cantidad;
-	int client_fd = socket_connect_to_server(gamecard_config->ip_broker,
-			gamecard_config->puerto_broker);
-	if (client_fd > 0) {
-		utils_serialize_and_send(client_fd, appeared_protocol, appeared_snd);
-		game_card_logger_info("APPEARED sent to BROKER");
+void eliminarLinea(FILE* archivo_pokemon,t_linea linea_a_borrar){
+	t_linea linea=malloc(sizeof(t_linea));
+	while(archivo_pokemon){
+		fscanf(archivo_pokemon,"%d%c%d%c%d%\n",&linea.cord_x,linea.guion,&linea.cord_y,linea.igual,&linea.cantidad);
+		if(linea.cord_x == linea_a_borrar.cord_x && linea.cord_y == linea_a_borrar.cord_y){
+			fwrite("",1,sizeof(""),archivo_pokemon);
+			break;
+		}
 	}
-	usleep(500000);
-	game_card_logger_info("CLOSING CONNECTION WITH BROKER");
-	socket_close_conection(client_fd);
 }
-
-void process_get_and_send_localized(void* arg) {
-	t_get_pokemon* get_rcv = (t_get_pokemon*) arg;
-
-	// Temporal mock for list (to return @LOCALIZED)
-	t_list* positions = list_create();
-	t_position *pos = malloc(sizeof(t_position));
-	pos->pos_x = 21;
-	pos->pos_y = 8;
-	t_position *pos2 = malloc(sizeof(t_position));
-	pos2->pos_x = 2;
-	pos2->pos_y = 8;
-	list_add(positions, pos);
-	list_add(positions, pos2);
-
-	// Process get and sent localize
-	t_localized_pokemon* loc_snd = malloc(sizeof(t_localized_pokemon));
-	loc_snd->id_correlacional = get_rcv->id_correlacional;
-	loc_snd->nombre_pokemon = get_rcv->nombre_pokemon;
-	loc_snd->tamanio_nombre = strlen(loc_snd->nombre_pokemon) + 1;
-	loc_snd->cant_elem = list_size(positions);
-	loc_snd->posiciones = positions;
-	t_protocol localized_protocol = LOCALIZED_POKEMON;
-
-	int client_fd = socket_connect_to_server(game_card_config->ip_broker,
-			game_card_config->puerto_broker);
-	if (client_fd > 0) {
-		utils_serialize_and_send(client_fd, localized_protocol, loc_snd);
-		game_card_logger_info("LOCALIZED sent to BROKER");
+// funciones get_pokemon
+t_list* obtener_posiciones_y_cantidades(FILE* archivo_pokemon){
+	t_linea linea = malloc(sizeof(t_linea));
+	t_list lista = list_create();
+	while(archivo_pokemon){
+		fscanf(archivo_pokemon,"%d%c%d%c%d%\n",&linea.cord_x,linea.guion,&linea.cord_y,linea.igual,&linea.cantidad);
+		list_add(lista,linea);
 	}
-	usleep(50000);
-	socket_close_conection(client_fd);
+	 return lista;
 }
+*/
 
-void process_catch_and_send_caught(void* arg) {
-	t_catch_pokemon* catch_rcv = (t_catch_pokemon*) arg;
 
-	// Process Catch and send Caught to broker
-	t_caught_pokemon* caught_snd = malloc(sizeof(t_caught_pokemon));
-	caught_snd->id_correlacional = catch_rcv->id_correlacional;
-	caught_snd->result = 1;
-	t_protocol caught_protocol = CAUGHT_POKEMON;
-
-	int client_fd = socket_connect_to_server(game_card_config->ip_broker,
-			game_card_config->puerto_broker);
-	if (client_fd > 0) {
-		utils_serialize_and_send(client_fd, caught_protocol, caught_snd);
-		game_card_logger_info("CAUGHT sent to BROKER");
-	}
-	usleep(500000);
-	socket_close_conection(client_fd);
-}
-
-void game_card_exit() {
-	socket_close_conection(game_card_fd);
-	//gcfsFreeBitmaps();
-	game_card_config_free();
-	game_card_logger_destroy();
-
-	free(struct_paths[METADATA]);
-	free(struct_paths[FILES]);
-	free(struct_paths[BLOCKS]);
-	free(struct_paths[TALL_GRASS]);
-}*/
-
+//-------End of pokemons------//

@@ -1,9 +1,6 @@
 #ifndef GAMECARD_H_
 #define GAMECARD_H_
 
-#define LOCAL_IP "127.0.0.1"
-#define LOCAL_PORT 5001
-
 #include "commons/config.h"
 #include "commons/log.h"
 #include <commons/collections/list.h>
@@ -23,21 +20,9 @@
 #include <errno.h>
 #include <stdint.h>
 #include <fcntl.h>
-#include <stdbool.h>
-#include "config/gamecard_config.h"
-#include "logger/gamecard_logger.h"
-#include "file_system/gamecard_fs.h"
-#include <sys/queue.h>
-#include <sys/socket.h>
+
 
 #define MAX_CLIENTS 128
-
-typedef enum{ //muy ladri hacer esto, no estoy segura de que funcione
-	GAMECARD,
-	BROKER,
-	GAMEBOY,
-	TEAM
-}t_procesos;
 
 typedef struct{
 	int cord_x;
@@ -47,47 +32,44 @@ typedef struct{
 	int cantidad;
 }t_linea;
 
-typedef struct{
-	uint32_t ip;
-	uint32_t puerto;
-	t_procesos proceso;
-	id_cola cola;
-}t_suscripcion;
+t_log* log;
 
 typedef struct{
-	char* bool_val;
-	uint32_t fd;
-}t_handle_connection;
+	uint32_t block_size;
+	uint32_t blocks;
+	char* magic_number;
+}t_principal;
 
-typedef struct{
-	uint32_t protocolo;
-}t_protocolo;
+int tiempoReintentoConexion;
+int tiempoReintentoOperacion;
+int tiempoRetardoOperacion;
+char* puntoMontaje;
+char* ipBroker;
+int puertoBroker;
 
-int gamecard_fd;
-bool is_conn;
-
-/**/
 void* handler_suscripciones(uint32_t cola);
+void initConfigLogger();
 int cantidad_pokemones(FILE* archivo_pokemon);
 void existen_posiciones_pokemon_nuevo(FILE* archivo_pokemon,new_pokemon pokemon_nuevo);
 void existen_posiciones_pokemon_atrapado(FILE* archivo_pokemon,catch_pokemon pokemon_atrapado);
 void decrementar_cantidad(FILE* archivo_pokemon,catch_pokemon pokemon_atrapado);
 void eliminarLinea(FILE* archivo_pokemon,t_linea linea_a_borrar);
 t_list* obtener_posiciones_y_cantidades(FILE* archivo_pokemon);
-/**/
 
-int game_card_load();
-void game_card_init();
-void game_card_retry_connect(void* arg);
-void game_card_init_as_server();
-void *recv_game_card(int fd, int send_to);
-void game_card_exit();
-void subscribe_to(void *arg);
-static void *handle_conn(void *arg);
-void send_ack(void* arg);
-void process_new_and_send_appeared(void* arg);
-void process_get_and_send_localized(void* arg);
-void process_catch_and_send_caught(void* arg);
-/**/
-#endif
+// otro  comentario.
+// Chequear, lee: archivos, directorios
+
+/*void chequear_metadata(char* root_directory);
+void leer_metadata(char* root);
+void leer_bitmap(char* root);
+void chequear_existencia_directorio(char* path);
+void chequear_existencia_archivo(char* path);
+char* buscar_path(char *root, char *path);
+void corroborar_existencia(void* resultado);
+char* metadata_key_string(char* memoria, int size_memoria, char* key);
+uint32_t metadata_key_int(char* memoria, int size_memoria, char* key);*/
+
+
+
+#endif /* GAMECARD_H_ */
 /* GAMECARD_H_ */
