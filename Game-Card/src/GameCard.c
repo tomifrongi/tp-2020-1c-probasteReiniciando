@@ -8,7 +8,7 @@
  ============================================================================
  */
 
-#include "GameCard.h"
+/*#include "GameCard.h"
 
 pthread_mutex_t mutexLogger;
 t_config* config;
@@ -55,9 +55,9 @@ int main(void)
 
 	/*gamecard_exit();
 	return EXIT_SUCCESS;*/
-}
 
-void gm_retry_connection(void*arg)
+
+/*void gm_retry_connection(void*arg)
 {
 	void* res = arg;
 	while(true)
@@ -68,7 +68,7 @@ void gm_retry_connection(void*arg)
 	}
 }
 
-void subscribe(void*arg)
+/*void subscribe(void*arg)
 {
 	t_queue* queue = *((int *) arg);
 	int new_broker_fd = socket_connect_to_server(gamecard_config->ip_broker, gamecard_config->puerto_broker);

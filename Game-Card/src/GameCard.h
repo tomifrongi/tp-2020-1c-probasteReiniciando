@@ -24,9 +24,7 @@
 #include <stdint.h>
 #include <fcntl.h>
 #include <stdbool.h>
-#include "config/gamecard_config.h"
-#include "logger/gamecard_logger.h"
-#include "file_system/gamecard_fs.h"
+#include <gamecard_fs.h>
 #include <sys/queue.h>
 #include <sys/socket.h>
 
