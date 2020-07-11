@@ -2,7 +2,6 @@
 
 pthread_mutex_t mutexLogger;
 t_log* log;
-
 int main(void)
 {
 
@@ -175,116 +174,6 @@ void* handler_suscripciones(uint32_t cola)
 	return NULL;
 }
 
-/*void chequear_existencia_directorio(char* path) {
-	int resultado = mkdir(path, 0700);
-	if(resultado){
-		if(errno == EEXIST){ //Si el error fue que encontro el directorio, continua
-			log_debug(log, "Se encontró el directorio: \"%s\". !\n", path);
-		} else { //Hubo otro error
-			log_error(log, "Hubo un error al encontrar el directorio: \"%s\". !\n", path);
-			exit(4);
-		}
-	} else { //No se creó, entonces hubo un error
-		log_error(log, "No se encontró el directorio: \"%s\".\n", path);
-		rmdir(path); //Como creé el directorio, lo borro para no dejarlo
-		exit(3);
-	}
-}
-void chequear_existencia_archivo(char* path) {
-	if(access(path, F_OK) != -1) {
-		log_debug(log, "Se encontró el archivo: \"%s\". !\n");
-	} else{
-		log_error(log, "Hubo un error al encontrar el archivo: \"%s\". !\n");
-		exit(5);
-	}
-}
-char *buscar_path(char *root, char *path){
-	char *new_directory = string_new();
-	string_append(&new_directory, root);
-	string_append(&new_directory, path);
-	return new_directory;
-}
-void chequear_metadata(char* root_directory){
-	chequear_existencia_directorio(root_directory);
-	char* metadata_directory = buscar_path(root_directory, "\Metadata");
-	chequear_existencia_directorio(metadata_directory);
-	char* metadata_metadata_archive = buscar_path(metadata_directory, "\Metadata.bin");
-	chequear_existencia_archivo(metadata_metadata_archive);
-	char* files_directory = buscar_path(root_directory, "\Files");
-	chequear_existencia_directorio(files_directory);
-	char* metadata_files_archive = buscar_path(files_directory, "\Metadata.bin");
-	chequear_existencia_archivo(metadata_files_archive);
-	char* blocks_directory = buscar_path(root_directory, "\Blocks");
-	chequear_existencia_directorio(blocks_directory);
-	log_info(log, "Se encontraron todos los archivos de Tall Grass.\n");
-	printf("Se encontraron todos los archivos de Tall Grass");
-}
-void corroborar_existencia(void* resultado) {
-	if(resultado == NULL) {
-		log_error(log, "Error con resultado NULL");
-		exit(7);
-	}
-}
-char* metadata_key_string(char* memoria, int size_memoria, char* key) {
-	char* resultado = malloc(sizeof(char*));
-	int i, j;
-	for(i = 0; i < size_memoria; i++){
-		for(j = 0; memoria[i] == key[j]; j++){
-			i++;
-		}
-		if(j == strlen(key)) {
-			i++;
-			int k;
-			for (k = 0; (memoria[i] != '\n') && (memoria[i] != '\0') && (memoria[i] != EOF); k++) {
-				resultado[k] = memoria[i];
-				i++;
-			}
-			resultado[k] = '\0';
-			return resultado;
-		}
-	}
-	return NULL;
-}
-uint32_t metadata_key_int(char* memoria, int size_memoria, char* key) {
-	char* buscado_en_string = metadata_key_string(memoria, size_memoria, key);
-	corroborar_existencia(buscado_en_string);
-	return atoi(buscado_en_string);
-}
-void leer_metadata(char* root) {
-	char* metadata_archive_path = buscar_path(root, "\Metadata\Metadata.bin");
-	struct stat fb;
-	int fd = open(metadata_archive_path, O_RDONLY);
-	fstat(fd, &fb);
-	char* memoria = mmap(NULL, fb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	t_header* tall_grass = malloc(sizeof(t_header));
-	tall_grass->block_size = metadata_key_int(memoria, fb.st_size, "BLOCK_SIZE");
-	tall_grass->blocks = metadata_key_int(memoria, fb.st_size, "BLOCKS");
-	tall_grass->magic_number = metadata_key_string(memoria, fb.st_size, "MAGIC_NUMBER");
-	corroborar_existencia(tall_grass->block_size);
-	log_info(log, "HEADER\nBLOCK SIZE = %d\nBLOCKS = %d\nMAGIC NUMBER = %s\n", tall_grass->block_size, tall_grass->blocks, tall_grass->magic_number);
-	if(munmap(memoria, fb.st_size) == -1){
-		printf("Hubo un error cerrando el mapeo de memoria");
-		log_error(log, "Hubo un error cerrando el mapeo de memoria");
-		exit(6);
-	}
-	close(fd);
-}
-void leer_bitmap(char* root) {
-	char* metadata_bitmap = buscar_path(root, "\Metadata\Bitmap.bin");
-	struct stat fb;
-	int fd = open(metadata_bitmap, O_RDONLY);
-	char* bitmap_mmap = mmap(NULL, fb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	if(bitmap_mmap == NULL){
-		log_info(log, "El bitmap está vacío");
-		//Chequear si es un error
-	}
-	t_bitarray* bitmap = bitarray_create(bitmap_mmap, fb.st_size);
-	//Terminar
-}
-*/
-
-//-------Init of pokemons------//
-
 /* TODO te comento tu codigo para poder debugear xddddd
 int cantidad_pokemones(FILE* archivo_pokemon){
 	int cantidad=0;
@@ -359,6 +248,11 @@ t_list* obtener_posiciones_y_cantidades(FILE* archivo_pokemon){
 	 return lista;
 }
 */
-
+void gamecard_config_free()
+{
+	free(puntoMontaje);
+	free(ipBroker);
+	free(puertoBroker);
+}
 
 //-------End of pokemons------//

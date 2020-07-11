@@ -1,6 +1,13 @@
-14:02:38 **** Incremental Build of configuration Debug for project Game-Card ****
+19:36:57 **** Incremental Build of configuration Debug for project Game-Card ****
 make all 
-make: Nothing to be done for 'all'.
+Building file: ../src/file_system/bitmap.c
+Invoking: GCC C Compiler
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/file_system/bitmap.d" -MT"src/file_system/bitmap.o" -o "src/file_system/bitmap.o" "../src/file_system/bitmap.c"
+In file included from ../src/file_system/bitmap.c:1:0:
+../src/file_system/bitmap.h:15:39: fatal error: ../logger/gamecard_logger.h: No such file or directory
+compilation terminated.
+src/file_system/subdir.mk:30: recipe for target 'src/file_system/bitmap.o' failed
+make: *** [src/file_system/bitmap.o] Error 1
 
-14:02:39 Build Finished (took 859ms)
+19:36:58 Build Finished (took 1s.30ms)
 

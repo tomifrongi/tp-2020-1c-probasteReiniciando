@@ -12,11 +12,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>
-#include "../logger/gamecard_logger.h"
 
-void show_bitarray(t_bitarray* bitmap);
+void mostrar_bitarray(t_bitarray* bitmap);
 void set_bloq_occ_in_pos(t_bitarray* bitmap, off_t pos);
 void set_bloq_free_in_pos(t_bitarray* bitmap, off_t pos);
 bool test_bloq_free_in_pos(t_bitarray* bitmap, int pos);
-int get_and_set_free_block(t_bitarray* bitmap, unsigned int blocks);
-int get_free_blocks(int metadataBlocks, t_bitarray* bitmap);
+int obtener_conf_free_block(t_bitarray* bitmap, unsigned int blocks);
+int liberar_blocks(int metadataBlocks, t_bitarray* bitmap);
