@@ -28,6 +28,8 @@
 #include "funcionesEnvio.h"
 #include "ProtocoloDeMensajes.h"
 #include "Configuracion.h"
+#include "BuddySystem.h"
+#include "ParticionesDinamicas.h"
 
 //Parametros a recibir desde el config
 uint32_t ID_INICIAL;
@@ -39,6 +41,7 @@ pthread_mutex_t mutexQueueCatch;
 pthread_mutex_t mutexQueueCaught;
 pthread_mutex_t mutexId;
 pthread_mutex_t mutexLogger;
+pthread_mutex_t mutexMemoria;
 
 t_list* idsCorrelativosAppeared;
 t_list* idsCorrelativosLocalized;

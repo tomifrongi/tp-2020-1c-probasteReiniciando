@@ -10,6 +10,7 @@
 #include <commons/string.h>
 #include <commons/collections/queue.h>
 #include "ProtocoloDeMensajes.h"
+#include "funcionesEnvio.h"
 
 #include "tiposMensajesEnMemoria.h"
 #include "Configuracion.h"
@@ -28,7 +29,7 @@ typedef struct {
 	t_list* suscriptoresACK;
 }particion_buddy_memoria;
 
-t_list* particionesEnMemoria;
+t_list* particionesEnMemoriaBuddy;
 void* principioMemoria;
 t_queue* colaMensajesMemoria;
 int CONTADORLRU;
@@ -44,7 +45,7 @@ int buscarPotenciaDeDosMasCercana(uint32_t tamanio);
 void eliminarParticionBuddy();
 void consolidarMemoriaBuddy();
 t_list* sacarParticionesLibresBuddy();
-
+void inicializarMemoriaBuddy();
 particion_buddy_memoria* crear_particion_buddy_memoria(particion_buddy_memoria particion);
 void borrar_particion_buddy_memoria(particion_buddy_memoria* particion);
 

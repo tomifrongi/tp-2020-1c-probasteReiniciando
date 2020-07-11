@@ -17,9 +17,17 @@ int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
 	PUERTO_BROKER = 8080;
 	ID_INICIAL = 0;
+	TAMANO_MEMORIA =64;
+	TAMANO_MINIMO_PARTICION = 4;
+	ALGORITMO_MEMORIA = "BS";
+	ALGORITMO_REEMPLAZO ="FIFO";
+	ALGORITMO_PARTICION_LIBRE ="FF";
+
 	crearEstructurasAdministrativas();
 	iniciarMutexs();
 	iniciarListasIds();
+	inicializarMemoriaBuddy();
+
 	init_broker_server();
 	return EXIT_SUCCESS;
 }
@@ -75,7 +83,21 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
-				cachearMensaje(&mensaje);
+
+				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensaje(&mensaje,NEW);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensajeBuddy(&mensaje,NEW);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
 				free(mensaje.nombrePokemon);
 				//QUEUE PUSH (POSICION MENSAJE)
 				log_info(logger,"%s", mensaje.nombrePokemon);
@@ -106,6 +128,7 @@ void* handler_clients(void* socket){
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
 				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
@@ -125,6 +148,19 @@ void* handler_clients(void* socket){
 					queue_push(appeared_admin.queue, &mensaje);
 					list_add(idsCorrelativosAppeared,&mensaje.idCorrelativo);
 					log_info(logger,"mensaje agregado a la cola");
+					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensaje(&mensaje,APPEARED);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
+
+					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensajeBuddy(&mensaje,APPEARED);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
 				}
 				pthread_mutex_unlock(&mutexQueueAppeared);
 
@@ -143,8 +179,10 @@ void* handler_clients(void* socket){
 				catch_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
 				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
+//				log_info(logger,"NOMBRE CATCH: %s",mensaje.nombrePokemon);
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
@@ -153,6 +191,20 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
+
+				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensaje(&mensaje,CATCH);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensajeBuddy(&mensaje,CATCH);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
 
 				pthread_mutex_lock(&mutexQueueCatch);
 				queue_push(catch_admin.queue, &mensaje);
@@ -180,6 +232,20 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
+				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensaje(&mensaje,CAUGHT);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensajeBuddy(&mensaje,CAUGHT);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
 				pthread_mutex_lock(&mutexQueueCaught);
 				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
 					queue_push(caught_admin.queue, &mensaje);
@@ -200,12 +266,27 @@ void* handler_clients(void* socket){
 				get_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
 				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 
 				pthread_mutex_lock(&mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
+
+				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensaje(&mensaje,GET);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensajeBuddy(&mensaje,GET);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
 
 				pthread_mutex_lock(&mutexQueueGet);
 				queue_push(get_admin.queue, &mensaje);
@@ -226,6 +307,7 @@ void* handler_clients(void* socket){
 				uint32_t *posicion;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
 				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.cantidadPosiciones,aux,sizeof(uint32_t));
@@ -244,6 +326,21 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
+
+				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensaje(&mensaje,LOCALIZED);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensajeBuddy(&mensaje,LOCALIZED);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
 
 				pthread_mutex_lock(&mutexQueueLocalized);
 				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){

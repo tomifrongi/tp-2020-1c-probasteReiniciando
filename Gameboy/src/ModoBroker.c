@@ -26,7 +26,7 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 		parametros = obtenerParametrosNewBroker();
 		mensaje.content = serializarNewContentBroker(parametros);
 		mensaje.head = NEW_POKEMON;
-		mensaje.size = sizeof(new_pokemon_broker);
+		mensaje.size = sizeof(uint32_t)*4+parametros.sizeNombre;
 		break;
 	}
 	case 2:{
@@ -34,7 +34,7 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 		parametros = obtenerParametrosAppearedBroker();
 		mensaje.content = serializarAppearedContentBroker(parametros);
 		mensaje.head = APPEARED_POKEMON;
-		mensaje.size = sizeof(appeared_pokemon_broker);
+		mensaje.size = sizeof(uint32_t)*4+parametros.sizeNombre;
 		break;
 	}
 	case 3:{
@@ -42,7 +42,7 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 		parametros = obtenerParametrosCatchBroker();
 		mensaje.content = serializarCatchContentBroker(parametros);
 		mensaje.head = CATCH_POKEMON;
-		mensaje.size = sizeof(catch_pokemon_broker);
+		mensaje.size = sizeof(uint32_t)*3+parametros.sizeNombre;
 		break;
 	}
 	case 4:{
@@ -58,7 +58,7 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 		parametros = obtenerParametrosGetBroker();
 		mensaje.content = serializarGetContentBroker(parametros);
 		mensaje.head = GET_POKEMON;
-		mensaje.size = sizeof(get_pokemon_broker);
+		mensaje.size = sizeof(uint32_t)+parametros.sizeNombre;
 		break;
 	}
 	default:
