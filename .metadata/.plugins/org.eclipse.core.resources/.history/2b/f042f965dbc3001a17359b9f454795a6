@@ -69,16 +69,16 @@ int _mkpath(char* file_path, mode_t mode)
 
 char* obtenerPathDelNumeroDeBloque(int numeroDeBloque){
 	char* path_del_bloque = malloc(strlen(puntoMontaje)+strlen("/Bloques")+20);
-	sprintf(path_del_bloque,"%sBloques/%d.bin",puntoMontaje, numeroDeBloque);
+	sprintf(path_del_bloque,"%sBloques/%d.bin",gamecard_config->punto_montaje_tallgrass, numeroDeBloque);
 	return path_del_bloque;
 }
 
 
-t_pokemon_metadata readPokemonMetadata(char* pokemonPath) {
+pokemonMetadata readPokemonMetadata(char* pokemonPath) {
 	char* existingPokemonMetadata = string_new();
 	char* existingPokemonBlocks = string_new();
 
-	t_pokemon_metadata metadata;
+	pokemonMetadata metadata;
 
 	metadata.blocks = string_new();
 	metadata.isOpen = string_new();

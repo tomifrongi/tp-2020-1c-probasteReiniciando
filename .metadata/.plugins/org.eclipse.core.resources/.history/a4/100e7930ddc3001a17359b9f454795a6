@@ -74,7 +74,7 @@ char* obtenerPathDelNumeroDeBloque(int numeroDeBloque){
 }
 
 
-t_pokemon_metadata readPokemonMetadata(char* pokemonPath) {
+t_pokemon_metadata readPokemonMetadata(uint32_t* pokemonPath) {
 	char* existingPokemonMetadata = string_new();
 	char* existingPokemonBlocks = string_new();
 

@@ -44,4 +44,4 @@ void escribir_blocks(char* value, t_list* bloques);
 
 t_list* leer_pokemons(t_list* blocks);
 
-#endif //BLOQUE_HANDLER_H
+#endif BLOQUE_HANDLER_H

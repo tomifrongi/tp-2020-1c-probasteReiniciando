@@ -12,13 +12,13 @@
 #include "Gamecard.h"
 
 typedef struct {
-	uint32_t blockSize;
+	int blockSize;
 	char* blocks;
 	char* isOpen;
-} t_pokemon_metadata;
+} pokemonMetadata;
 
 int lastchar(const char* str, char chr);
 int split_path(const char* path, char** super_path, char** name);
 int _mkpath(char* file_path, mode_t mode);
 char* obtenerPathDelNumeroDeBloque(int numeroDeBloque);
-t_pokemon_metadata readPokemonMetadata(char* pokemonPath);
+pokemonMetadata readPokemonMetadata(char* pokemonPath);

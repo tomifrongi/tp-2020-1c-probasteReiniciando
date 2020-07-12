@@ -1,7 +1,6 @@
 #include "gm_filesystem.h"
 
 t_log* log;
-
 void gamecardfsCreateStructs() //Estructuras del File System
 {
 	createRootFiles();
@@ -345,7 +344,7 @@ t_list* getAPokemon(get_pokemon* getPokemon)
 
 	if (access(completePath, F_OK) != -1)
 	{
-		printf("Existe el pokemon, se leen las estructuras");
+		log_info("Existe el pokemon, se leen las estructuras");
 		res = operateGetPokemonFile(getPokemon, completePath);
 	}
 	else
@@ -358,10 +357,10 @@ t_list* getAPokemon(get_pokemon* getPokemon)
 }
 
 void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int freeBlocks) {
-	t_pokemon_metadata pokemonMetadata = readPokemonMetadata(completePath);
+	pokemonMetadata pokemonMetadata = readPokemonMetadata(completePath);
 
 	if(string_equals_ignore_case(pokemonMetadata.isOpen, "N")) {
-		printf("El archivo no esta abierto por ningun proceso, se procede a abrir el mismo.");
+		log_info("El archivo no esta abierto por ningun proceso, se procede a abrir el mismo.");
 		
 		pthread_mutex_lock(&MUTEX_METADATA);
 		updateOpenFileState(newPokemon->nombrePokemon, "Y");
@@ -399,7 +398,7 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 			updatePokemonMetadata(newPokemon->nombrePokemon, "N", stringLength, metadataBlocks, "N");
 			pthread_mutex_unlock(&MUTEX_METADATA);
 
-			printf("Operacion NEW_POKEMON terminada correctamente");
+			log_info("Operacion NEW_POKEMON terminada correctamente");
 			free(metadataBlocks);
 		}
 		else
@@ -424,12 +423,12 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 
 
 t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
-	t_pokemon_metadata pokemonMetadata = readPokemonMetadata(completePath);
+	pokemonMetadata pokemonMetadata = readPokemonMetadata(completePath);
 	t_list* res;
 
 	if (string_equals_ignore_case(pokemonMetadata.isOpen, "N"))
 	{
-		printf("El archivo no esta abierto por ningun proceso, se procede a abrir el mismo.");
+		log_info("El archivo no esta abierto por ningun proceso, se procede a abrir el mismo.");
 		
 		pthread_mutex_lock(&MUTEX_METADATA);
 		updateOpenFileState(getPokemon->nombrePokemon, "Y");
@@ -442,7 +441,7 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
 		updateOpenFileState(getPokemon->nombrePokemon, "N");
 		pthread_mutex_unlock(&MUTEX_METADATA);
 
-		printf("Operacion GET_POKEMON terminada correctamente");
+		log_info("Operacion GET_POKEMON terminada correctamente");
 	}
 	else
 	{
@@ -458,7 +457,7 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
 
 int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 {
-	t_pokemon_metadata pokemonMetadata = readPokemonMetadata(completePath);
+	pokemonMetadata pokemonMetadata = readPokemonMetadata(completePath);
 	int res = 0;
 
 	if (string_equals_ignore_case(pokemonMetadata.isOpen, "N"))

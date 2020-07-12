@@ -74,11 +74,11 @@ char* obtenerPathDelNumeroDeBloque(int numeroDeBloque){
 }
 
 
-t_pokemon_metadata readPokemonMetadata(char* pokemonPath) {
+t_pokemonMetadata readPokemonMetadata(char* pokemonPath) {
 	char* existingPokemonMetadata = string_new();
 	char* existingPokemonBlocks = string_new();
 
-	t_pokemon_metadata metadata;
+	t_pokemonMetadata metadata;
 
 	metadata.blocks = string_new();
 	metadata.isOpen = string_new();

@@ -1,7 +1,6 @@
 #include "gm_filesystem.h"
 
 t_log* log;
-
 void gamecardfsCreateStructs() //Estructuras del File System
 {
 	createRootFiles();
@@ -358,7 +357,7 @@ t_list* getAPokemon(get_pokemon* getPokemon)
 }
 
 void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int freeBlocks) {
-	t_pokemon_metadata pokemonMetadata = readPokemonMetadata(completePath);
+	pokemonMetadata pokemonMetadata = readPokemonMetadata(completePath);
 
 	if(string_equals_ignore_case(pokemonMetadata.isOpen, "N")) {
 		printf("El archivo no esta abierto por ningun proceso, se procede a abrir el mismo.");
@@ -424,7 +423,7 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 
 
 t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
-	t_pokemon_metadata pokemonMetadata = readPokemonMetadata(completePath);
+	pokemonMetadata pokemonMetadata = readPokemonMetadata(completePath);
 	t_list* res;
 
 	if (string_equals_ignore_case(pokemonMetadata.isOpen, "N"))
@@ -458,7 +457,7 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
 
 int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 {
-	t_pokemon_metadata pokemonMetadata = readPokemonMetadata(completePath);
+	pokemonMetadata pokemonMetadata = readPokemonMetadata(completePath);
 	int res = 0;
 
 	if (string_equals_ignore_case(pokemonMetadata.isOpen, "N"))

@@ -424,7 +424,7 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 
 
 t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
-	t_pokemon_metadata pokemonMetadata = readPokemonMetadata(completePath);
+	pokemonMetadata pokemonMetadata = readPokemonMetadata(completePath);
 	t_list* res;
 
 	if (string_equals_ignore_case(pokemonMetadata.isOpen, "N"))
@@ -458,7 +458,7 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
 
 int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 {
-	t_pokemon_metadata pokemonMetadata = readPokemonMetadata(completePath);
+	pokemonMetadata pokemonMetadata = readPokemonMetadata(completePath);
 	int res = 0;
 
 	if (string_equals_ignore_case(pokemonMetadata.isOpen, "N"))
