@@ -13,6 +13,7 @@
 #include <commons/string.h>
 #include <commons/collections/list.h>
 #include "gm_metadata.h"
+#include <stdint.h>
 
 
 typedef struct {
