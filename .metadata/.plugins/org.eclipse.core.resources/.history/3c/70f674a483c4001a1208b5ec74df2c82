@@ -78,7 +78,7 @@ void process_new_and_send_appeared(void* arg);
 void process_get_and_send_localized(void* arg);
 void process_catch_and_send_caught(void* arg);
 
-#endif
+#endif GAMECARD_P_H
 /* GAMECARD_H_ */
 
 

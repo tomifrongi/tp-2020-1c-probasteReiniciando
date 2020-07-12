@@ -299,7 +299,6 @@ void send_ack(void* arg) {
 	//t_ack* ack_snd = malloc(sizeof(t_ack));
 	//t_protocol ack_protocol = ACK;
 	//ack_snd->id = id;
-
 	int client_fd = socket_connect_to_server(ipBroker, puertoBroker);
 	if (client_fd > 0) {
 		utils_serialize_and_send(client_fd, ack_protocol, ack_snd);

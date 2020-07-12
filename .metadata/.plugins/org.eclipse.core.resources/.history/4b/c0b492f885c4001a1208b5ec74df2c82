@@ -186,8 +186,6 @@ void *recv_game_card(int fd, int respond_to) {
 			return NULL;
 		}
 		switch (protocol) {
-		//switch (log)
-		//y que el log contenta el t_header
 
 		// From Broker or GB
 		case NEW_POKEMON: {
@@ -297,9 +295,8 @@ void send_ack(void* arg) {
 	suscripcion susc; //contiene id_cola QUE ES EL TIPO DE MENSAJE(NEW, GET, CATCH)
 
 	//t_ack* ack_snd = malloc(sizeof(t_ack));
-	//t_protocol ack_protocol = ACK;
-	//ack_snd->id = id;
-
+	t_protocol ack_protocol = ACK;
+	ack_snd->id = id;
 	int client_fd = socket_connect_to_server(ipBroker, puertoBroker);
 	if (client_fd > 0) {
 		utils_serialize_and_send(client_fd, ack_protocol, ack_snd);
@@ -315,7 +312,7 @@ void process_new_and_send_appeared(void* arg) {
 	// Process New and send Appeared to broker
 	appeared_pokemon_enviar* appeared_snd = malloc(sizeof(appeared_pokemon_enviar));
 	t_header appeared = APPEARED;
-	//t_protocol appeared_protocol = APPEARED_POKEMON;
+	t_protocol appeared_protocol = APPEARED_POKEMON;
 	appeared_snd->nombrePokemon = new_receive->nombrePokemon;
 	appeared_snd->sizeNombre = new_receive->sizeNombre;
 	appeared_snd->id_correlacional = new_receive->id_correlacional;
@@ -324,11 +321,11 @@ void process_new_and_send_appeared(void* arg) {
 	appeared_snd->cantidad = new_receive->cantidad;
 	int client_fd = socket_connect_to_server(ipBroker, puertoBroker);
 	if (client_fd > 0) {
-		utils_serialize_and_send(client_fd,/*appeared*/ APPEARED, appeared_snd);
-		game_card_logger_info("El mensaje APPEARED fué enviado al BROKER");
+		utils_serialize_and_send(client_fd, appeared_protocol, appeared_snd);
+		game_card_logger_info("APPEARED sent to BROKER");
 	}
 	usleep(500000);
-	game_card_logger_info("Cerrando la conexión con el BROKER");
+	game_card_logger_info("CERRANDO LA CONEXION CON EL BROKER");
 	socket_close_conection(client_fd);
 }
 

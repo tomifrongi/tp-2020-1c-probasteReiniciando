@@ -299,7 +299,6 @@ void send_ack(void* arg) {
 	//t_ack* ack_snd = malloc(sizeof(t_ack));
 	//t_protocol ack_protocol = ACK;
 	//ack_snd->id = id;
-
 	int client_fd = socket_connect_to_server(ipBroker, puertoBroker);
 	if (client_fd > 0) {
 		utils_serialize_and_send(client_fd, ack_protocol, ack_snd);
@@ -328,7 +327,7 @@ void process_new_and_send_appeared(void* arg) {
 		game_card_logger_info("El mensaje APPEARED fué enviado al BROKER");
 	}
 	usleep(500000);
-	game_card_logger_info("Cerrando la conexión con el BROKER");
+	game_card_logger_info("CERRANDO LA CONEXION CON EL BROKER");
 	socket_close_conection(client_fd);
 }
 
