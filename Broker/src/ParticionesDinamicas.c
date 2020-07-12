@@ -529,10 +529,15 @@ void inicializarMemoria(){
 
 void cachearMensaje(void* mensaje,id_cola id){
 	sacarBarraCero(mensaje,id);
-	if(FRECUENCIA_COMPACTACION == -1)
-		ejecutarCicloAlternativo(mensaje,id);
+	if(obtenerTamanioMensaje(mensaje,id)<=TAMANO_MEMORIA)
+	{
+		if(FRECUENCIA_COMPACTACION == -1)
+			ejecutarCicloAlternativo(mensaje,id);
+		else
+			ejecutarCicloNormal(mensaje,id);
+	}
 	else
-		ejecutarCicloNormal(mensaje,id);
+		log_info(logger,"MENSAJE NO CACHEADO DEBIDO A QUE LA LONGITUD SUPERA EL TAMAÑO DE LA MEMORIA");
 }
 
 void ejecutarCicloNormal(void* mensaje,id_cola id){

@@ -25,7 +25,7 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 		new_pokemon_broker parametros;
 
 		printf("Ingrese el nombre del pokemon:\n");
-		char nombrePokemon[30];
+		char nombrePokemon[100];
 		scanf("%s", nombrePokemon);
 		parametros.nombrePokemon = &nombrePokemon[0];
 		parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
@@ -48,7 +48,7 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 		appeared_pokemon_broker parametros;
 
 		printf("Ingrese el nombre del pokemon:\n");
-		char nombrePokemon[30];
+		char nombrePokemon[100];
 		scanf("%s", nombrePokemon);
 		parametros.nombrePokemon = &nombrePokemon[0];
 		parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
@@ -70,7 +70,7 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 	case 3:{
 	        catch_pokemon_broker parametros;
 	        printf("Ingrese el nombre del pokemon:\n");
-	        char nombrePokemon[30];
+	        char nombrePokemon[100];
 	        scanf("%s", nombrePokemon);
 	        parametros.nombrePokemon = &nombrePokemon[0];
 	        parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
@@ -102,7 +102,7 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 		get_pokemon_broker parametros;
 
 		printf("Ingrese el nombre del pokemon:\n");
-		char nombrePokemon[30];
+		char nombrePokemon[100];
 		scanf("%s", nombrePokemon);
 		parametros.nombrePokemon = &nombrePokemon[0];
 		parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;

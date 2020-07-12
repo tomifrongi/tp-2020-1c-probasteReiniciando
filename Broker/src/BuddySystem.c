@@ -26,17 +26,21 @@ void inicializarMemoriaBuddy(){
 			CONTADORLRU = 0;
 }
 void cachearMensajeBuddy(void* mensaje,id_cola id){
-	while(1)
-	{
-		if(almacenarMensajeBuddy(mensaje,id))
-			break;
-		else{
-			eliminarParticionBuddy();
-			consolidarMemoriaBuddy();
+	sacarBarraCeroBuddy(mensaje,id);
+	if(obtenerTamanioMensaje(mensaje,id)<=TAMANO_MEMORIA){
+		while(1)
+		{
+			if(almacenarMensajeBuddy(mensaje,id))
+				break;
+			else{
+				eliminarParticionBuddy();
+				consolidarMemoriaBuddy();
+			}
 		}
 	}
+	else
+		log_info(logger,"MENSAJE NO CACHEADO DEBIDO A QUE LA LONGITUD SUPERA EL TAMAÑO DE LA MEMORIA");
 }
-
 void sacarBarraCeroBuddy(void* mensaje,id_cola id){
 	switch(id){
 		case NEW: {
@@ -73,7 +77,7 @@ void sacarBarraCeroBuddy(void* mensaje,id_cola id){
 
 bool almacenarMensajeBuddy(void* mensaje,id_cola id){
 
-	sacarBarraCeroBuddy(mensaje,id);
+
 	uint32_t tamanioMensaje = obtenerTamanioMensaje(mensaje,id);
 	void* mensajeSerializado = serializarMensaje(mensaje,id);
 	particion_buddy_memoria* particion;
@@ -396,6 +400,7 @@ void consolidarMemoriaBuddy(){
             if(particion->libre && particionAdyacente->libre){
 
                 if(particion->tamanio == particionAdyacente->tamanio){
+                	log_info(logger,"POSICION %d Y POSICION %d CONSOLIDADA",particion->posicionParticion,particionAdyacente->posicionParticion);
                     particion->tamanio+=particionAdyacente->tamanio;
                     int posicion = particionAdyacente->posicionParticion;
                     particionAdyacente = removerPorPosicionBuddy(posicion);

@@ -14,16 +14,21 @@
 
 
 typedef struct {
-	t_queue* queue;
+	t_list* queue;
 	t_list* suscriptores;
 }estructuraAdministrativa;
 
-estructuraAdministrativa get_admin;
-estructuraAdministrativa localized_admin;
-estructuraAdministrativa catch_admin;
-estructuraAdministrativa caught_admin;
-estructuraAdministrativa new_admin;
-estructuraAdministrativa appeared_admin;
+typedef struct {
+	pid_t idSuscriptor;
+	int socket;
+}suscriptor;
+
+estructuraAdministrativa* get_admin;
+estructuraAdministrativa* localized_admin;
+estructuraAdministrativa* catch_admin;
+estructuraAdministrativa* caught_admin;
+estructuraAdministrativa* new_admin;
+estructuraAdministrativa* appeared_admin;
 
 //------------
 
@@ -31,5 +36,8 @@ estructuraAdministrativa appeared_admin;
 //FUNCIONES
 void crearEstructurasAdministrativas ();
 void destruirEstructurasAdministrativas();
+suscriptor* crearSuscriptor(suscriptor suscriptorNuevo);
+void borrarSuscriptor(suscriptor* suscriptor);
+
 
 #endif /* COLASDEMENSAJES_H_ */

@@ -54,8 +54,9 @@ void* handler_clients(void* socket);
 void init_broker_server();
 
 void enviarConfirmacion(uint32_t id, int broker_sock);
-void agregarSuscripcion(uint32_t id_cola,int broker_sock);
-
+void agregarSuscripcion(suscripcion mensajeSuscripcion,int broker_sock);
+suscriptor* buscarSuscriptor(estructuraAdministrativa* estAdm,pid_t idSuscriptor);
+void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket);
 void iniciarMutexs();
 void iniciarListasIds();
 void* buscarIdCorrelativo(t_list* lista,uint32_t idCorrelativo);

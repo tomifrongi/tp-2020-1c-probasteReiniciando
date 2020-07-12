@@ -1,7 +1,7 @@
 /*
  ============================================================================
  Name        : Broker.c
- Author      : Tomas
+ Author      : Tomas y Juan
  Version     :
  Copyright   : Your copyright notice
  Description : Hello World in C, Ansi-style
@@ -19,7 +19,7 @@ int main(void) {
 	ID_INICIAL = 0;
 	TAMANO_MEMORIA =64;
 	TAMANO_MINIMO_PARTICION = 4;
-	ALGORITMO_MEMORIA = "PARTICIONES";
+	ALGORITMO_MEMORIA = "BS";
 	ALGORITMO_REEMPLAZO ="FIFO";
 	ALGORITMO_PARTICION_LIBRE ="FF";
 	FRECUENCIA_COMPACTACION = 1;
@@ -27,7 +27,7 @@ int main(void) {
 	crearEstructurasAdministrativas();
 	iniciarMutexs();
 	iniciarListasIds();
-	inicializarMemoria();
+	inicializarMemoriaBuddy();
 
 	init_broker_server();
 	return EXIT_SUCCESS;
@@ -324,7 +324,7 @@ void* handler_clients(void* socket){
 					memcpy(posicion,aux,sizeof(uint32_t));
 					aux += sizeof(uint32_t);
 					list_add(&mensaje.posiciones, &posicion);
-				}
+				} //TODO CORREGIR
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
 
@@ -363,10 +363,15 @@ void* handler_clients(void* socket){
 				break;
 			}
 			case SUSCRIPCION:{
-				uint32_t id_cola;
+				suscripcion mensajeSuscripcion;
 				void *aux = message->content;
-				memcpy(&id_cola,aux,sizeof(uint32_t));
-				agregarSuscripcion(id_cola,broker_sock);
+				memcpy(&mensajeSuscripcion.idCola,aux,sizeof(uint32_t));
+				aux +=sizeof(uint32_t);
+				memcpy(&mensajeSuscripcion.idSuscriptor,aux,sizeof(pid_t));
+				agregarSuscripcion(mensajeSuscripcion,broker_sock);
+
+				enviarUltimosMensajesRecibidos(mensajeSuscripcion,broker_sock);
+
 				break;
 			}
 
@@ -399,37 +404,193 @@ void enviarConfirmacion(uint32_t id, int broker_sock){
 	send_message(broker_sock, CONFIRMACION,content,size);
 }
 
-void agregarSuscripcion (uint32_t id_cola, int broker_sock){
-	switch(id_cola){
-	case NEW:
-		list_add(new_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+suscriptor* buscarSuscriptor(estructuraAdministrativa* estAdm,pid_t idSuscriptor){
+	bool algo (void* suscriptorLista){
+		suscriptor* suscriptorCasteado = suscriptorLista;
+		return idSuscriptor == suscriptorCasteado->idSuscriptor;
+	}
+
+	return list_find(estAdm->suscriptores,algo);
+
+}
+
+
+void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
+	switch(mensajeSuscripcion.idCola){
+	case NEW:{
+		suscriptor* suscriptorEncontrado;
+		suscriptorEncontrado = buscarSuscriptor(new_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(new_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case APPEARED:
-		list_add(appeared_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA APPEARED",broker_sock);
+	}
+	case APPEARED:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(appeared_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(appeared_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case GET:
-		list_add(get_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA GET",broker_sock);
+	}
+	case GET:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(get_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(get_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case LOCALIZED:
-		list_add(localized_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA LOCALIZED",broker_sock);
+	}
+
+	case LOCALIZED:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(localized_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(localized_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case CATCH:
-		list_add(catch_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA CATCH",broker_sock);
+	}
+	case CATCH:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(catch_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(catch_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case CAUGHT:
-		list_add(caught_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA CAUGHT",broker_sock);
+	}
+	case CAUGHT:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(caught_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(caught_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
+	}
 	default:
 		break;
 
 	}
 }
+
+void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
+	estructuraAdministrativa* estructuraAuxiliar;
+	switch(suscripcion.idCola){
+	case NEW:{
+		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+		{
+			estructuraAuxiliar = new_admin;
+			int sizeCola = list_size(estructuraAuxiliar->queue);
+			int index = 0;
+			while(index<sizeCola){
+				uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+				particion_dinamica_memoria* particion = encontrarParticionDinamicaPorID(*idMensaje);
+				if(particion != NULL){
+					bool igualSuscriptor(void* suscriptorACK){
+						suscriptor* suscriptorACKCasteado = suscriptorACK;
+						return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+					}
+					suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+					if (suscriptorEncontrado == NULL){
+						//ENVIAR
+					}
+
+				}
+			}
+		}
+
+			else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS")){
+				//IDEM ANTERIOR
+			}
+
+			//new_pokemon_enviar npe = buscarMensajeEnMemoria(idMensaje);
+		}
+		break;
+	}
+
+	case APPEARED:{
+		estructuraAuxiliar = appeared_admin;
+		break;
+	}
+
+	case GET:{
+		estructuraAuxiliar = get_admin;
+		break;
+	}
+
+	case LOCALIZED:{
+		estructuraAuxiliar = localized_admin;
+		break;
+	}
+
+	case CATCH:{
+		estructuraAuxiliar = catch_admin;
+		break;
+	}
+
+	case CAUGHT:{
+		estructuraAuxiliar = caught_admin;
+		break;
+	}
+	}
+
+
+
+
 
 void iniciarMutexs(){
 	pthread_mutex_init(&mutexId,NULL);
