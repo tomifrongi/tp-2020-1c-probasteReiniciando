@@ -38,13 +38,23 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 		break;
 	}
 	case 3:{
-		catch_pokemon_broker parametros;
-		parametros = obtenerParametrosCatchBroker();
-		mensaje.content = serializarCatchContentBroker(parametros);
-		mensaje.head = CATCH_POKEMON;
-		mensaje.size = sizeof(uint32_t)*3+parametros.sizeNombre;
-		break;
-	}
+	        catch_pokemon_broker parametros;
+	        printf("Ingrese el nombre del pokemon:\n");
+	        char nombrePokemon[30];
+	        scanf("%s", nombrePokemon);
+	        parametros.nombrePokemon = &nombrePokemon[0];
+	        parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
+
+	        printf("Ingrese la posicion X:\n");
+	        scanf("%d",&parametros.posicionEjeX);
+
+	        printf("Ingrese la posicion Y:\n");
+	        scanf("%d",&parametros.posicionEjeY);
+	        mensaje.content = serializarCatchContentBroker(parametros);
+	        mensaje.head = CATCH_POKEMON;
+	        mensaje.size = sizeof(uint32_t)*3+parametros.sizeNombre;
+	        break;
+	    }
 	case 4:{
 		caught_pokemon_broker parametros;
 		parametros = obtenerParametrosCaughtBroker();

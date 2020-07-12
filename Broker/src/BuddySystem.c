@@ -118,6 +118,7 @@ bool almacenarMensajeBuddy(void* mensaje,id_cola id){
 }
 
 particion_buddy_memoria* buscarPrimerParticionLibreBuddy(uint32_t tamanioMensaje){
+	ordenarParticionesPorPosicionBuddy();
 
 	bool particionLibre(void* particion){
 		particion_buddy_memoria* particionCasteada = particion;
@@ -344,13 +345,15 @@ void eliminarParticionBuddy(){
 		{
 			int* idMensaje = queue_pop(colaMensajesMemoria);
 			int idMensajeAuxiliar = *idMensaje;
-			log_info("ID VICTIMA: %d",idMensajeAuxiliar);
 			borrar_elemento_colaMensajesMemoriaBuddy(idMensaje);
 
 			void cambiarALibre(void* particion){
 				particion_buddy_memoria* particionCasteada = particion;
-				if((particionCasteada->idMensaje) == idMensajeAuxiliar)
+				if((particionCasteada->idMensaje) == idMensajeAuxiliar){
 					particionCasteada->libre = true;
+					log_info(logger,"POSICION VICTIMA: %d",particionCasteada->posicionParticion);
+				}
+
 			}
 			list_iterate(particionesEnMemoriaBuddy, cambiarALibre);
 		}

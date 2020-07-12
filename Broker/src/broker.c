@@ -129,7 +129,7 @@ void* handler_clients(void* socket){
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
-				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
@@ -180,9 +180,10 @@ void* handler_clients(void* socket){
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
-				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
-//				log_info(logger,"NOMBRE CATCH: %s",mensaje.nombrePokemon);
+				log_info(logger,"NOMBRE CATCH: %s",mensaje.nombrePokemon);
+				//log_info(logger,"",mensaje.)
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
@@ -308,7 +309,7 @@ void* handler_clients(void* socket){
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
-				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.cantidadPosiciones,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
