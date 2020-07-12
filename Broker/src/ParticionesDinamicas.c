@@ -528,7 +528,7 @@ void inicializarMemoria(){
 }
 
 void cachearMensaje(void* mensaje,id_cola id){
-
+	sacarBarraCero(mensaje,id);
 	if(FRECUENCIA_COMPACTACION == -1)
 		ejecutarCicloAlternativo(mensaje,id);
 	else
@@ -553,11 +553,12 @@ void ejecutarCicloNormal(void* mensaje,id_cola id){
 			{
 				eliminarParticion();
 				consolidarMemoria();
-				actualizarBusquedasFallidas(&busquedasFallidas);
+				busquedasFallidas++;
 			}
-			else
+			else{
 				compactarMemoria();
 				busquedasFallidas = 0;
+			}
 		}
 	}
 }
@@ -596,6 +597,40 @@ void actualizarBusquedasFallidas(int* busquedasFallidas){
 	(*busquedasFallidas)++;
 }
 
+void sacarBarraCero(void* mensaje,id_cola id){
+	switch(id){
+		case NEW: {
+			new_pokemon_enviar* np = mensaje;
+			np->sizeNombre -=1;
+			break;
+		}
+		case APPEARED: {
+			appeared_pokemon_enviar* ap = mensaje;
+			ap->sizeNombre -=1;
+			break;
+		}
+		case GET: {
+			get_pokemon_enviar* gp = mensaje;
+			gp->sizeNombre -=1;
+			break;
+		}
+		case LOCALIZED: {
+			localized_pokemon_enviar* lp = mensaje;
+			lp->sizeNombre -=1;
+			break;
+		}
+		case CATCH:{
+			catch_pokemon_enviar* catchp = mensaje;
+			catchp->sizeNombre -=1;
+			break;
+		}
+		case CAUGHT:{
+			break;
+		}
+		}
+
+}
+
 void almacenarMensaje(void* mensaje,id_cola id){
 
 	uint32_t tamanioMensaje = obtenerTamanioMensaje(mensaje,id);
@@ -620,6 +655,8 @@ void almacenarMensaje(void* mensaje,id_cola id){
 		queue_push(colaMensajesMemoria,idMensaje);
 	}
 
+	log_info(logger,"POSICION NUEVO MENSAJE: %d",particion->posicionParticion);
+
 	memcpy(principioMemoria+posicionParticion,mensajeSerializado,tamanioMensaje);
 	free(mensajeSerializado);
 
@@ -635,6 +672,15 @@ t_list* sacarParticionesLibres(){
 
 }
 
+t_list* sacarParticionesOcupadas(){
+	bool particionLibre(void* particion){
+		particion_dinamica_memoria* particionCasteada = particion;
+		return (particionCasteada->libre);
+	}
+	 return list_filter(particionesEnMemoria,particionLibre);
+
+}
+
 void eliminarParticion(){
 	if(string_equals_ignore_case(ALGORITMO_REEMPLAZO,"FIFO"))
 	{
@@ -644,8 +690,12 @@ void eliminarParticion(){
 
 		void cambiarALibre(void* particion){
 			particion_dinamica_memoria* particionCasteada = particion;
-			if((particionCasteada->idMensaje) == idMensajeAuxiliar)
+			if((particionCasteada->idMensaje) == idMensajeAuxiliar){
 				particionCasteada->libre = true;
+				log_info(logger,"POSICION VICTIMA: %d",particionCasteada->posicionParticion);
+
+			}
+
 
 		}
 		list_iterate(particionesEnMemoria, cambiarALibre);
@@ -667,9 +717,10 @@ void eliminarParticion(){
 		list_destroy(particionesOcupadas);
 		void cambiarALibre(void* particion){
 			particion_dinamica_memoria* particionCasteada = particion;
-			if((particionCasteada->idMensaje) == idMensaje)
+			if((particionCasteada->idMensaje) == idMensaje){
 				particionCasteada->libre = true;
-
+				log_info(logger,"POSICION VICTIMA: %d",particionCasteada->posicionParticion);
+			}
 		}
 		list_iterate(particionesEnMemoria, cambiarALibre);
 	}
@@ -684,40 +735,39 @@ void compactarMemoria(){
 	int index = 0;
 	int indexAdyacente = index+1;
 	while(indexAdyacente<sizeLista){
-		particion_dinamica_memoria* particion = list_get(particionesEnMemoria,index);
-		particion_dinamica_memoria* particionAdyacente = list_get(particionesEnMemoria,indexAdyacente);
+		particion_dinamica_memoria* particionLibre = list_get(particionesEnMemoria,index);
+		particion_dinamica_memoria* particionOcupada = list_get(particionesEnMemoria,indexAdyacente);
 
-		if(particion->libre){
-			int posicion = particion->posicionParticion;
-			particion = removerPorPosicion(posicion);
-			posicion = particionAdyacente->posicionParticion;
-			particionAdyacente = removerPorPosicion(posicion);
+		if(particionLibre->libre){
+			int posicion = particionLibre->posicionParticion;
+			particionLibre = removerPorPosicion(posicion);
+			posicion = particionOcupada->posicionParticion;
+			particionOcupada = removerPorPosicion(posicion);
+			//---------
+			//ACA ESTA EL PROBLEMA
+			particionOcupada->posicionParticion = particionLibre->posicionParticion; //la particion ocupada pasa a ser la no adyacente
+			particionLibre->posicionParticion = particionOcupada->posicionParticion + particionOcupada->tamanio; //la particion libre pasa a ser la adyacente
+			//---------
+			memcpy(principioMemoria+(particionOcupada->posicionParticion),principioMemoria+(particionLibre->posicionParticion),particionOcupada->tamanioMensaje);
 
-			particionAdyacente->posicionParticion = particion->posicionParticion; //la particion ocupada pasa a ser la no adyacente
-			particion->posicionParticion = posicion; //la particion libre pasa a ser la adyacente
-
-			memcpy(principioMemoria+(particionAdyacente->posicionParticion),principioMemoria+(particion->posicionParticion),particionAdyacente->tamanioMensaje);
-
-			list_add(particionesEnMemoria,particion);
-			list_add(particionesEnMemoria,particionAdyacente);
-
-
+			list_add(particionesEnMemoria,particionLibre);
+			list_add(particionesEnMemoria,particionOcupada);
 
 			consolidarMemoria();
 			ordenarParticionesPorPosicion();
 			sizeLista = list_size(particionesEnMemoria);
-
-
-
-			//ACTUALIZAR MEMORIA
-
-
 		}
 		index++;
 		indexAdyacente++;
 	}
 
-
+	ordenarParticionesPorPosicion();
+	void imprimirInfo(void* particion){
+		particion_dinamica_memoria* particionCasteada = particion;
+		log_info(logger,"POSICION: %d LIBRE: %d TAMANIO: %d",particionCasteada->posicionParticion,particionCasteada->libre,particionCasteada->tamanio);
+	}
+	log_info(logger,"ESTADO MEMORIA");
+	list_iterate(particionesEnMemoria,imprimirInfo);
 
 
 
@@ -733,15 +783,16 @@ particion_dinamica_memoria* removerPorPosicion(int posicion){
 }
 
 void consolidarMemoria(){
-	ordenarParticionesPorPosicion();
 	int sizeLista = list_size(particionesEnMemoria);
 	int index = 0;
 	int indexAdyacente = index+1;
+	ordenarParticionesPorPosicion();
 	while(indexAdyacente<sizeLista){
 		particion_dinamica_memoria* particion = list_get(particionesEnMemoria,index);
 		particion_dinamica_memoria* particionAdyacente = list_get(particionesEnMemoria,indexAdyacente);
 
 		if(particion->libre && particionAdyacente->libre){
+			log_info(logger,"POSICION %d y POSICION %d CONSOLIDADA",particion->posicionParticion,particionAdyacente->posicionParticion);
 			int posicion = particion->posicionParticion;
 			particion = removerPorPosicion(posicion);
 			posicion = particionAdyacente->posicionParticion;
@@ -798,6 +849,7 @@ bool buscarParticionLibre(uint32_t tamanioMensaje){
 }
 
 particion_dinamica_memoria* buscarPrimerParticionLibre(uint32_t tamanioMensaje){
+	ordenarParticionesPorPosicion();
 
 	bool particionLibre(void* particion){
 		particion_dinamica_memoria* particionCasteada = particion;
@@ -831,12 +883,12 @@ particion_dinamica_memoria* buscarMejorParticionLibre(uint32_t tamanioMensaje){
 
 	particion_dinamica_memoria* mejorParticionAuxiliar = list_remove(particionesLibres,0);
 	list_destroy(particionesLibres);
-	int idMejorParticion = mejorParticionAuxiliar->idMensaje;
-	borrar_particion_dinamica_memoria(mejorParticionAuxiliar);
+	int posicionMejorParticion = mejorParticionAuxiliar->posicionParticion;
+//	borrar_particion_dinamica_memoria(mejorParticionAuxiliar);
 
 	bool particionMismoIdMensaje(void* particion){
 		particion_dinamica_memoria* particionCasteada = particion;
-		return (particionCasteada->idMensaje) == idMejorParticion;
+		return (particionCasteada->posicionParticion) == posicionMejorParticion;
 	}
 	particion_dinamica_memoria* mejorParticion = list_remove_by_condition(particionesEnMemoria,particionMismoIdMensaje);
 	return mejorParticion;

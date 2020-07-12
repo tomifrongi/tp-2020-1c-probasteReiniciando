@@ -10,6 +10,7 @@
 #include <commons/string.h>
 #include <commons/collections/queue.h>
 #include "ProtocoloDeMensajes.h"
+#include "funcionesEnvio.h"
 
 #include "tiposMensajesEnMemoria.h"
 #include "Configuracion.h"
@@ -54,6 +55,7 @@ void ordenarParticionesPorPosicion();
 particion_dinamica_memoria* buscarPrimerParticionLibre(uint32_t tamanioMensaje);
 particion_dinamica_memoria* buscarMejorParticionLibre(uint32_t tamanioMensaje);
 
+void sacarBarraCero(void* mensaje,id_cola id);
 
 
 void agregarParticionContigua(particion_dinamica_memoria* particion,uint32_t tamanioParticionAntigua);
@@ -65,6 +67,7 @@ void cachearMensaje(void* mensaje,id_cola id);
 
 particion_dinamica_memoria* cargarDatosParticion(particion_dinamica_memoria* particion,void* mensaje,id_cola id);
 t_list* sacarParticionesLibres();
+t_list* sacarParticionesOcupadas();
 int* crear_elemento_colaMensajesMemoria(int idMensaje);
 particion_dinamica_memoria* removerPorPosicion(int posicion);
 void borrar_elemento_colaMensajesMemoria(int* idMensaje);

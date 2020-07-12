@@ -19,14 +19,15 @@ int main(void) {
 	ID_INICIAL = 0;
 	TAMANO_MEMORIA =64;
 	TAMANO_MINIMO_PARTICION = 4;
-	ALGORITMO_MEMORIA = "BS";
+	ALGORITMO_MEMORIA = "PARTICIONES";
 	ALGORITMO_REEMPLAZO ="FIFO";
 	ALGORITMO_PARTICION_LIBRE ="FF";
+	FRECUENCIA_COMPACTACION = 1;
 
 	crearEstructurasAdministrativas();
 	iniciarMutexs();
 	iniciarListasIds();
-	inicializarMemoriaBuddy();
+	inicializarMemoria();
 
 	init_broker_server();
 	return EXIT_SUCCESS;
@@ -100,14 +101,14 @@ void* handler_clients(void* socket){
 
 				free(mensaje.nombrePokemon);
 				//QUEUE PUSH (POSICION MENSAJE)
-				log_info(logger,"%s", mensaje.nombrePokemon);
+//				log_info(logger,"%s", mensaje.nombrePokemon);
 
 
 
-				log_info(logger,"el size es: %d",mensaje.sizeNombre);
-				log_info(logger,"la cantidad es: %d",mensaje.cantidad);
-				log_info(logger,"la posicion x es: %d",mensaje.posicionEjeX);
-				log_info(logger,"la posicion y es: %d",mensaje.posicionEjeY);
+//				log_info(logger,"el size es: %d",mensaje.sizeNombre);
+//				log_info(logger,"la cantidad es: %d",mensaje.cantidad);
+//				log_info(logger,"la posicion x es: %d",mensaje.posicionEjeX);
+//				log_info(logger,"la posicion y es: %d",mensaje.posicionEjeY);
 
 				pthread_mutex_lock(&mutexQueueNew);
 				queue_push(new_admin.queue, &mensaje);
@@ -146,7 +147,9 @@ void* handler_clients(void* socket){
 				pthread_mutex_lock(&mutexQueueAppeared);
 				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
 					queue_push(appeared_admin.queue, &mensaje);
-					list_add(idsCorrelativosAppeared,&mensaje.idCorrelativo);
+					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
+					*idCorrelativoLista = mensaje.idCorrelativo;
+					list_add(idsCorrelativosAppeared,idCorrelativoLista);
 					log_info(logger,"mensaje agregado a la cola");
 					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 					{
@@ -226,31 +229,33 @@ void* handler_clients(void* socket){
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.pokemonAtrapado,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
 
 				pthread_mutex_lock(&mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
-				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
-				{
-					pthread_mutex_lock(&mutexMemoria);
-					cachearMensaje(&mensaje,CAUGHT);
-					pthread_mutex_unlock(&mutexMemoria);
-				}
 
-				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
-				{
-					pthread_mutex_lock(&mutexMemoria);
-					cachearMensajeBuddy(&mensaje,CAUGHT);
-					pthread_mutex_unlock(&mutexMemoria);
-				}
 
 				pthread_mutex_lock(&mutexQueueCaught);
-				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
+				if(buscarIdCorrelativo(idsCorrelativosCaught,mensaje.idCorrelativo)==NULL){
 					queue_push(caught_admin.queue, &mensaje);
-					list_add(idsCorrelativosCaught,&mensaje.idCorrelativo);
+					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
+					*idCorrelativoLista = mensaje.idCorrelativo;
+					list_add(idsCorrelativosCaught,idCorrelativoLista);
+					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensaje(&mensaje,CAUGHT);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
+
+					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensajeBuddy(&mensaje,CAUGHT);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
 				}
 				pthread_mutex_unlock(&mutexQueueCaught);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
@@ -328,25 +333,28 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
-				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
-				{
-					pthread_mutex_lock(&mutexMemoria);
-					cachearMensaje(&mensaje,LOCALIZED);
-					pthread_mutex_unlock(&mutexMemoria);
-				}
 
-				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
-				{
-					pthread_mutex_lock(&mutexMemoria);
-					cachearMensajeBuddy(&mensaje,LOCALIZED);
-					pthread_mutex_unlock(&mutexMemoria);
-				}
 
 
 				pthread_mutex_lock(&mutexQueueLocalized);
-				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
+				if(buscarIdCorrelativo(idsCorrelativosLocalized,mensaje.idCorrelativo)==NULL){
 					queue_push(localized_admin.queue, &mensaje);
-					list_add(idsCorrelativosLocalized,&mensaje.idCorrelativo);
+					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
+					*idCorrelativoLista = mensaje.idCorrelativo;
+					list_add(idsCorrelativosLocalized,idCorrelativoLista);
+					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensaje(&mensaje,LOCALIZED);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
+
+					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensajeBuddy(&mensaje,LOCALIZED);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
 				}
 				pthread_mutex_unlock(&mutexQueueLocalized);
 
