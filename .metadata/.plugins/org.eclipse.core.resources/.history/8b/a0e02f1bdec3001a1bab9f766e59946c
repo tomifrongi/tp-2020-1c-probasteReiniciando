@@ -1,8 +1,10 @@
 #include "gm_handler.h"
 
 
-//Evalua si el ultimo caracter de string es char
-int es_char(const char* str, char chr){
+/*
+ * 	Evalua si el ultimo caracter de str es chr.
+ */
+int lastchar(const char* str, char chr){
 	if ( ( str[strlen(str)-1]  == chr) ) return 1;
 	return 0;
 }
@@ -64,15 +66,15 @@ int _mkpath(char* file_path, mode_t mode)
 	return 0;
 }
 
-//Lo que hace es obtener el path que corresponde al bloque en el que estamos trabajando
-char* obtener_path_nro_bloque(int numeroDeBloque){
+
+char* obtenerPathDelNumeroDeBloque(int numeroDeBloque){
 	char* path_del_bloque = malloc(strlen(puntoMontaje)+strlen("/Bloques")+20);
 	sprintf(path_del_bloque,"%sBloques/%d.bin",puntoMontaje, numeroDeBloque);
 	return path_del_bloque;
 }
 
-//Esta funcion es para leer el metadata del pokemon
-t_pokemon_metadata leer_metadata_pokemon(char* pokemonPath) {
+
+t_pokemon_metadata readPokemonMetadata(char* pokemonPath) {
 	char* existingPokemonMetadata = string_new();
 	char* existingPokemonBlocks = string_new();
 

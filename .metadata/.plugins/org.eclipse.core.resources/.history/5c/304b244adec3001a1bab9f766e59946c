@@ -17,8 +17,8 @@ typedef struct {
 	char* isOpen;
 } t_pokemon_metadata;
 
-int es_char(const char* str, char chr);
+int lastchar(const char* str, char chr);
 int split_path(const char* path, char** super_path, char** name);
 int _mkpath(char* file_path, mode_t mode);
-char* obtener_path_nro_bloque(int numeroDeBloque);
-t_pokemon_metadata leer_metadata_pokemon(char* pokemonPath);
+char* obtenerPathDelNumeroDeBloque(int numeroDeBloque);
+t_pokemon_metadata readPokemonMetadata(char* pokemonPath);

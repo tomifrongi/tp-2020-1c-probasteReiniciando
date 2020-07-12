@@ -2,7 +2,7 @@
 
 
 //Evalua si el ultimo caracter de string es char
-int es_char(const char* str, char chr){
+int lastchar(const char* str, char chr){
 	if ( ( str[strlen(str)-1]  == chr) ) return 1;
 	return 0;
 }
