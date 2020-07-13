@@ -22,7 +22,7 @@ t_message obtenerMensajeTeam(){
 	parametros = obtenerParametrosAppearedTeam();
 	mensaje.content = serializarAppearedContentTeam(parametros);
 	mensaje.head = APPEARED_POKEMON;
-	mensaje.size = sizeof(appeared_pokemon_team);
+	mensaje.size = sizeof(uint32_t)*5+parametros.sizeNombre;
 	return mensaje;
 
 }

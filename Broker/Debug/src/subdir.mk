@@ -4,6 +4,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../src/BuddySystem.c \
 ../src/Configuracion.c \
 ../src/ParticionesDinamicas.c \
 ../src/broker.c \
@@ -12,6 +13,7 @@ C_SRCS += \
 ../src/tiposMensajesEnMemoria.c 
 
 OBJS += \
+./src/BuddySystem.o \
 ./src/Configuracion.o \
 ./src/ParticionesDinamicas.o \
 ./src/broker.o \
@@ -20,6 +22,7 @@ OBJS += \
 ./src/tiposMensajesEnMemoria.o 
 
 C_DEPS += \
+./src/BuddySystem.d \
 ./src/Configuracion.d \
 ./src/ParticionesDinamicas.d \
 ./src/broker.d \

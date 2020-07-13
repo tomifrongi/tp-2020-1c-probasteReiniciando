@@ -1,7 +1,7 @@
 /*
  ============================================================================
  Name        : Broker.c
- Author      : Tomas
+ Author      : Tomas y Juan
  Version     :
  Copyright   : Your copyright notice
  Description : Hello World in C, Ansi-style
@@ -12,18 +12,27 @@
 
 pthread_mutex_t mutexId;
 pthread_mutex_t mutexLogger;
-/*
+
 int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
 	PUERTO_BROKER = 8080;
 	ID_INICIAL = 0;
+	TAMANO_MEMORIA =64;
+	TAMANO_MINIMO_PARTICION = 4;
+	ALGORITMO_MEMORIA = "BS";
+	ALGORITMO_REEMPLAZO ="FIFO";
+	ALGORITMO_PARTICION_LIBRE ="FF";
+	FRECUENCIA_COMPACTACION = 1;
+
 	crearEstructurasAdministrativas();
 	iniciarMutexs();
 	iniciarListasIds();
+	inicializarMemoriaBuddy();
+
 	init_broker_server();
 	return EXIT_SUCCESS;
 }
-*/
+
 void init_broker_server() {
 	listener_socket = init_server(PUERTO_BROKER);
 	log_info(logger, "Servidor levantado! Escuchando en %i",PUERTO_BROKER);
@@ -56,11 +65,13 @@ void* handler_clients(void* socket){
 				log_info(logger, "NEW POKEMON RECIBIDO");
 				pthread_mutex_unlock(&mutexLogger);
 
+//				char* nombrePrueba = malloc(10);
 				void*aux=message->content;
 				new_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.cantidad,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
@@ -73,9 +84,31 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
-				//POSICION MENSAJE = CACHEAR MENSAJE
+
+				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensaje(&mensaje,NEW);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensajeBuddy(&mensaje,NEW);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+				free(mensaje.nombrePokemon);
 				//QUEUE PUSH (POSICION MENSAJE)
-				log_info(logger,"%s", &mensaje.nombrePokemon);
+//				log_info(logger,"%s", mensaje.nombrePokemon);
+
+
+
+//				log_info(logger,"el size es: %d",mensaje.sizeNombre);
+//				log_info(logger,"la cantidad es: %d",mensaje.cantidad);
+//				log_info(logger,"la posicion x es: %d",mensaje.posicionEjeX);
+//				log_info(logger,"la posicion y es: %d",mensaje.posicionEjeY);
 
 				pthread_mutex_lock(&mutexQueueNew);
 				queue_push(new_admin.queue, &mensaje);
@@ -96,7 +129,8 @@ void* handler_clients(void* socket){
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
@@ -113,8 +147,23 @@ void* handler_clients(void* socket){
 				pthread_mutex_lock(&mutexQueueAppeared);
 				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
 					queue_push(appeared_admin.queue, &mensaje);
-					list_add(idsCorrelativosAppeared,&mensaje.idCorrelativo);
+					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
+					*idCorrelativoLista = mensaje.idCorrelativo;
+					list_add(idsCorrelativosAppeared,idCorrelativoLista);
 					log_info(logger,"mensaje agregado a la cola");
+					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensaje(&mensaje,APPEARED);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
+
+					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensajeBuddy(&mensaje,APPEARED);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
 				}
 				pthread_mutex_unlock(&mutexQueueAppeared);
 
@@ -133,8 +182,11 @@ void* handler_clients(void* socket){
 				catch_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
+				log_info(logger,"NOMBRE CATCH: %s",mensaje.nombrePokemon);
+				//log_info(logger,"",mensaje.)
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
@@ -143,6 +195,20 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
+
+				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensaje(&mensaje,CATCH);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensajeBuddy(&mensaje,CATCH);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
 
 				pthread_mutex_lock(&mutexQueueCatch);
 				queue_push(catch_admin.queue, &mensaje);
@@ -163,17 +229,33 @@ void* handler_clients(void* socket){
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.pokemonAtrapado,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
 
 				pthread_mutex_lock(&mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
+
+
 				pthread_mutex_lock(&mutexQueueCaught);
-				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
+				if(buscarIdCorrelativo(idsCorrelativosCaught,mensaje.idCorrelativo)==NULL){
 					queue_push(caught_admin.queue, &mensaje);
-					list_add(idsCorrelativosCaught,&mensaje.idCorrelativo);
+					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
+					*idCorrelativoLista = mensaje.idCorrelativo;
+					list_add(idsCorrelativosCaught,idCorrelativoLista);
+					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensaje(&mensaje,CAUGHT);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
+
+					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensajeBuddy(&mensaje,CAUGHT);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
 				}
 				pthread_mutex_unlock(&mutexQueueCaught);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
@@ -190,12 +272,27 @@ void* handler_clients(void* socket){
 				get_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
 				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 
 				pthread_mutex_lock(&mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
+
+				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensaje(&mensaje,GET);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensajeBuddy(&mensaje,GET);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
 
 				pthread_mutex_lock(&mutexQueueGet);
 				queue_push(get_admin.queue, &mensaje);
@@ -216,7 +313,8 @@ void* handler_clients(void* socket){
 				uint32_t *posicion;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.cantidadPosiciones,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
@@ -226,7 +324,7 @@ void* handler_clients(void* socket){
 					memcpy(posicion,aux,sizeof(uint32_t));
 					aux += sizeof(uint32_t);
 					list_add(&mensaje.posiciones, &posicion);
-				}
+				} //TODO CORREGIR
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
 
@@ -235,10 +333,28 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
+
+
+
 				pthread_mutex_lock(&mutexQueueLocalized);
-				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
+				if(buscarIdCorrelativo(idsCorrelativosLocalized,mensaje.idCorrelativo)==NULL){
 					queue_push(localized_admin.queue, &mensaje);
-					list_add(idsCorrelativosLocalized,&mensaje.idCorrelativo);
+					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
+					*idCorrelativoLista = mensaje.idCorrelativo;
+					list_add(idsCorrelativosLocalized,idCorrelativoLista);
+					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensaje(&mensaje,LOCALIZED);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
+
+					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensajeBuddy(&mensaje,LOCALIZED);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
 				}
 				pthread_mutex_unlock(&mutexQueueLocalized);
 
@@ -247,10 +363,15 @@ void* handler_clients(void* socket){
 				break;
 			}
 			case SUSCRIPCION:{
-				uint32_t id_cola;
+				suscripcion mensajeSuscripcion;
 				void *aux = message->content;
-				memcpy(&id_cola,aux,sizeof(uint32_t));
-				agregarSuscripcion(id_cola,broker_sock);
+				memcpy(&mensajeSuscripcion.idCola,aux,sizeof(uint32_t));
+				aux +=sizeof(uint32_t);
+				memcpy(&mensajeSuscripcion.idSuscriptor,aux,sizeof(pid_t));
+				agregarSuscripcion(mensajeSuscripcion,broker_sock);
+
+				enviarUltimosMensajesRecibidos(mensajeSuscripcion,broker_sock);
+
 				break;
 			}
 
@@ -283,37 +404,193 @@ void enviarConfirmacion(uint32_t id, int broker_sock){
 	send_message(broker_sock, CONFIRMACION,content,size);
 }
 
-void agregarSuscripcion (uint32_t id_cola, int broker_sock){
-	switch(id_cola){
-	case NEW:
-		list_add(new_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+suscriptor* buscarSuscriptor(estructuraAdministrativa* estAdm,pid_t idSuscriptor){
+	bool algo (void* suscriptorLista){
+		suscriptor* suscriptorCasteado = suscriptorLista;
+		return idSuscriptor == suscriptorCasteado->idSuscriptor;
+	}
+
+	return list_find(estAdm->suscriptores,algo);
+
+}
+
+
+void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
+	switch(mensajeSuscripcion.idCola){
+	case NEW:{
+		suscriptor* suscriptorEncontrado;
+		suscriptorEncontrado = buscarSuscriptor(new_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(new_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case APPEARED:
-		list_add(appeared_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA APPEARED",broker_sock);
+	}
+	case APPEARED:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(appeared_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(appeared_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case GET:
-		list_add(get_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA GET",broker_sock);
+	}
+	case GET:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(get_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(get_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case LOCALIZED:
-		list_add(localized_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA LOCALIZED",broker_sock);
+	}
+
+	case LOCALIZED:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(localized_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(localized_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case CATCH:
-		list_add(catch_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA CATCH",broker_sock);
+	}
+	case CATCH:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(catch_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(catch_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case CAUGHT:
-		list_add(caught_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA CAUGHT",broker_sock);
+	}
+	case CAUGHT:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(caught_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(caught_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
+	}
 	default:
 		break;
 
 	}
 }
+
+void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
+	estructuraAdministrativa* estructuraAuxiliar;
+	switch(suscripcion.idCola){
+	case NEW:{
+		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+		{
+			estructuraAuxiliar = new_admin;
+			int sizeCola = list_size(estructuraAuxiliar->queue);
+			int index = 0;
+			while(index<sizeCola){
+				uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+				particion_dinamica_memoria* particion = encontrarParticionDinamicaPorID(*idMensaje);
+				if(particion != NULL){
+					bool igualSuscriptor(void* suscriptorACK){
+						suscriptor* suscriptorACKCasteado = suscriptorACK;
+						return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+					}
+					suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+					if (suscriptorEncontrado == NULL){
+						//ENVIAR
+					}
+
+				}
+			}
+		}
+
+			else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS")){
+				//IDEM ANTERIOR
+			}
+
+			//new_pokemon_enviar npe = buscarMensajeEnMemoria(idMensaje);
+		}
+		break;
+	}
+
+	case APPEARED:{
+		estructuraAuxiliar = appeared_admin;
+		break;
+	}
+
+	case GET:{
+		estructuraAuxiliar = get_admin;
+		break;
+	}
+
+	case LOCALIZED:{
+		estructuraAuxiliar = localized_admin;
+		break;
+	}
+
+	case CATCH:{
+		estructuraAuxiliar = catch_admin;
+		break;
+	}
+
+	case CAUGHT:{
+		estructuraAuxiliar = caught_admin;
+		break;
+	}
+	}
+
+
+
+
 
 void iniciarMutexs(){
 	pthread_mutex_init(&mutexId,NULL);

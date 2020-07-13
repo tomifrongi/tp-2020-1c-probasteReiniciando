@@ -70,6 +70,7 @@ typedef enum {
 
 typedef struct {
 	id_cola idCola;
+	pid_t idSuscriptor;
 } suscripcion;
 //t_header = SUSCRIPCION
 

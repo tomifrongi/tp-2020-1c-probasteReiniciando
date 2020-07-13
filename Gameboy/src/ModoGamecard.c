@@ -24,7 +24,7 @@ t_message obtenerMensajeGamecard(int opcionMensaje){
 		parametros = obtenerParametrosNewGamecard();
 		mensaje.content = serializarNewContentGamecard(parametros);
 		mensaje.head = NEW_POKEMON;
-		mensaje.size = sizeof(new_pokemon_gamecard);
+		mensaje.size = sizeof(uint32_t)*5+parametros.sizeNombre;
 		break;
 	}
 	case 2:{
@@ -32,7 +32,7 @@ t_message obtenerMensajeGamecard(int opcionMensaje){
 		parametros = obtenerParametrosCatchGamecard();
 		mensaje.content = serializarCatchContentGamecard(parametros);
 		mensaje.head = CATCH_POKEMON;
-		mensaje.size = sizeof(catch_pokemon_gamecard);
+		mensaje.size = sizeof(uint32_t)*4+parametros.sizeNombre;
 		break;
 
 	}
@@ -41,7 +41,7 @@ t_message obtenerMensajeGamecard(int opcionMensaje){
 		parametros = obtenerParametrosGetGamecard();
 		mensaje.content = serializarGetContentGamecard(parametros);
 		mensaje.head = GET_POKEMON;
-		mensaje.size = sizeof(get_pokemon_gamecard);
+		mensaje.size = sizeof(uint32_t)*2+parametros.sizeNombre;
 		break;
 	}
 	default:{

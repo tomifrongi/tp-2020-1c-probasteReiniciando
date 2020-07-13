@@ -14,6 +14,7 @@ void ejecutarModoBroker(){
 		t_message mensajeBroker = obtenerMensajeBroker(opcionMensaje);
 		if(mensajeBroker.head != ERROR_MESSAGE)
 			send_message(socketGame, mensajeBroker.head,mensajeBroker.content, mensajeBroker.size);
+		free(mensajeBroker.content);
 	}
 }
 
@@ -22,31 +23,76 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 	switch (opcionMensaje){
 	case 1:{
 		new_pokemon_broker parametros;
-		parametros = obtenerParametrosNewBroker();
+
+		printf("Ingrese el nombre del pokemon:\n");
+		char nombrePokemon[100];
+		scanf("%s", nombrePokemon);
+		parametros.nombrePokemon = &nombrePokemon[0];
+		parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
+
+		printf("Ingrese la posicion X:\n");
+		scanf("%d",&parametros.posicionEjeX);
+
+		printf("Ingrese la posicion Y:\n");
+		scanf("%d",&parametros.posicionEjeY);
+
+		printf("Ingrese la cantidad:\n");
+		scanf("%d", &parametros.cantidad);
+
 		mensaje.content = serializarNewContentBroker(parametros);
 		mensaje.head = NEW_POKEMON;
-		mensaje.size = sizeof(new_pokemon_broker);
+		mensaje.size = sizeof(uint32_t)*4+parametros.sizeNombre;
 		break;
 	}
 	case 2:{
 		appeared_pokemon_broker parametros;
-		parametros = obtenerParametrosAppearedBroker();
+
+		printf("Ingrese el nombre del pokemon:\n");
+		char nombrePokemon[100];
+		scanf("%s", nombrePokemon);
+		parametros.nombrePokemon = &nombrePokemon[0];
+		parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
+
+		printf("Ingrese la posicion X:\n");
+		scanf("%d",&parametros.posicionEjeX);
+
+		printf("Ingrese la posicion Y:\n");
+		scanf("%d",&parametros.posicionEjeY);
+
+		printf("Ingrese el id_mensaje_correlativo:\n");
+		scanf("%d", &parametros.idCorrelativo);
+
 		mensaje.content = serializarAppearedContentBroker(parametros);
 		mensaje.head = APPEARED_POKEMON;
-		mensaje.size = sizeof(appeared_pokemon_broker);
+		mensaje.size = sizeof(uint32_t)*4+parametros.sizeNombre;
 		break;
 	}
 	case 3:{
-		catch_pokemon_broker parametros;
-		parametros = obtenerParametrosCatchBroker();
-		mensaje.content = serializarCatchContentBroker(parametros);
-		mensaje.head = CATCH_POKEMON;
-		mensaje.size = sizeof(catch_pokemon_broker);
-		break;
-	}
+	        catch_pokemon_broker parametros;
+	        printf("Ingrese el nombre del pokemon:\n");
+	        char nombrePokemon[100];
+	        scanf("%s", nombrePokemon);
+	        parametros.nombrePokemon = &nombrePokemon[0];
+	        parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
+
+	        printf("Ingrese la posicion X:\n");
+	        scanf("%d",&parametros.posicionEjeX);
+
+	        printf("Ingrese la posicion Y:\n");
+	        scanf("%d",&parametros.posicionEjeY);
+	        mensaje.content = serializarCatchContentBroker(parametros);
+	        mensaje.head = CATCH_POKEMON;
+	        mensaje.size = sizeof(uint32_t)*3+parametros.sizeNombre;
+	        break;
+	    }
 	case 4:{
 		caught_pokemon_broker parametros;
-		parametros = obtenerParametrosCaughtBroker();
+		printf("Ingrese el id_mensaje_correlativo:\n");
+		scanf("%d", &parametros.idCorrelativo);
+
+		printf("Ingrese 1 si fue atrapado y 0 si no:\n");
+		scanf("%d", &parametros.pokemonAtrapado);
+
 		mensaje.content = serializarCaughtContentBroker(parametros);
 		mensaje.head = CAUGHT_POKEMON;
 		mensaje.size = sizeof(caught_pokemon_broker);
@@ -54,10 +100,16 @@ t_message obtenerMensajeBroker(int opcionMensaje){
 	}
 	case 5:{
 		get_pokemon_broker parametros;
-		parametros = obtenerParametrosGetBroker();
+
+		printf("Ingrese el nombre del pokemon:\n");
+		char nombrePokemon[100];
+		scanf("%s", nombrePokemon);
+		parametros.nombrePokemon = &nombrePokemon[0];
+		parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
+
 		mensaje.content = serializarGetContentBroker(parametros);
 		mensaje.head = GET_POKEMON;
-		mensaje.size = sizeof(get_pokemon_broker);
+		mensaje.size = sizeof(uint32_t)+parametros.sizeNombre;
 		break;
 	}
 	default:

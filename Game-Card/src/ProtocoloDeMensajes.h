@@ -28,7 +28,8 @@ typedef enum {
 	GET,
 	LOCALIZED,
 	CATCH,
-	CAUGHT
+	CAUGHT,
+	SUBSCRIBE
 }id_cola;
 
 typedef struct {
@@ -60,6 +61,7 @@ typedef struct {
 //Subscriber recibe:
 typedef struct {
 	uint32_t id_mensaje;
+	uint32_t id_correlacional;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidad;
@@ -106,7 +108,8 @@ typedef struct {
 
 //Subscriber recibe:
 typedef struct {
-	uint32_t id_mensaje;
+	uint32_t id_correlacional;
+	uint32_t id_mensaje;//ESTE NO SE SI VA.
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 }get_pokemon_enviar;
@@ -156,7 +159,8 @@ typedef struct {
 
 //Subscriber recibe:
 typedef struct {
-	uint32_t id_mensaje;
+	uint32_t id_mensaje; //ESTE NO SE SI VA.
+	uint32_t id_correlacional;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t posicionEjeX;
