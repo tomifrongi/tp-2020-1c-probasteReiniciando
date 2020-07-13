@@ -66,6 +66,7 @@ void planificar_team(t_team*team) {
 		if(verificar_nuevo_localized(team,pokemon)==true&&team_puede_capturar(team)==true)//las repuestas a los get,pueden ser dirigidos a otro team
 		{
 			/*
+			 *
 			 * la idea en este punto es mandarlo a capturar,  osea ponerlo en ready, despues el algoritmo de planificacion dira cuando se ejecuta
 		*/
 			planificar_entrenador(team,pokemon);}
