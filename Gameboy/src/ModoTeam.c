@@ -13,13 +13,29 @@ void ejecutarModoTeam(){
 	while(1){
 	t_message mensajeTeam = obtenerMensajeTeam();
 	send_message(socketGame, mensajeTeam.head,mensajeTeam.content, mensajeTeam.size);
+	free(mensajeTeam.content);
 	}
 }
 
 t_message obtenerMensajeTeam(){
 	t_message mensaje;
 	appeared_pokemon_team parametros;
-	parametros = obtenerParametrosAppearedTeam();
+
+	parametros.id_mensaje = 10100;
+	parametros.idCorrelativo = 0;
+
+	printf("Ingrese el nombre del pokemon:\n");
+	char nombrePokemon[30];
+	scanf("%s", nombrePokemon);
+	parametros.nombrePokemon = nombrePokemon;
+	parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
+
+	printf("Ingrese la posicion X:\n");
+	scanf("%d",&parametros.posicionEjeX);
+
+	printf("Ingrese la posicion Y:\n");
+	scanf("%d",&parametros.posicionEjeY);
+
 	mensaje.content = serializarAppearedContentTeam(parametros);
 	mensaje.head = APPEARED_POKEMON;
 	mensaje.size = sizeof(uint32_t)*5+parametros.sizeNombre;

@@ -17,20 +17,31 @@ void ejecutarModoSuscriptor()
 	send_message(socketGame, mensajeSuscripcion.head,mensajeSuscripcion.content, mensajeSuscripcion.size);
 	char* nombreCola= obtenerNombreCola(id);
 	log_info(logger, "SUSCRIPCION EXITOSA A LA COLA %s\n",nombreCola);
-//	char tiempoInicio = temporal_getemporal_get_string_time();
-/*		while(compararTiempo(duracion,tiempoInicio))
-			escuchar()
-			if(llegoAlgo())
-				logearMensaje()
-*/
+
+	time_t time1,time2;
+	double diferencia;
+	time1 = time(&time1);
+	while(diferencia<duracion){
+		t_message* mensajeRecibido = recv_message(socketGame);
+		log_info(logger, "MENSAJE %s RECIBIDO",nombreCola);
+		deserializarMensaje(mensajeRecibido);
+		free_t_message(mensajeRecibido);
+		time2 = time(&time2);
+		diferencia = difftime(time2,time1);
+
+		}
 }
 
 
 t_message obtenerMensajeSuscripcion(id_cola id){
 
 	t_message mensaje;
-	mensaje.content = serializarSuscripcionContent(id);
-	mensaje.head = CONFIRMACION;
+	suscripcion content;
+	content.idSuscriptor= getppid();
+	content.idCola = id;
+
+	mensaje.content = serializarSuscripcionContent(content);
+	mensaje.head = SUSCRIPCION;
 	mensaje.size = sizeof(suscripcion);
 
 	return mensaje;
@@ -38,17 +49,11 @@ t_message obtenerMensajeSuscripcion(id_cola id){
 }
 
 int obtenerTiempo(){
-	printf("Escriba el tiempo en minutos:\n");
+	printf("Escriba el tiempo en segundos:\n");
 	int tiempo;
 	scanf("%d",&tiempo);
 
 	return tiempo;
 }
 
-bool compararTiempo(int duracion,char*tiempoInicio){
-	//formato: hh:mm:ss:mmmm
 
-	char * tiempoactual = temporal_get_string_time();
-	return true;
-	//TODO compararTiempos
-}
