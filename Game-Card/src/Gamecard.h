@@ -31,6 +31,8 @@
 
 #define MAX_CLIENTS 128
 
+bool is_conn;
+
 typedef struct{
 	int cord_x;
 	char guion;
@@ -50,30 +52,28 @@ typedef struct{
 	uint32_t fd;
 }t_handle_connection;
 
+typedef struct {
+	uint32_t posicionEjeX;
+	uint32_t posicionEjeY;
+}t_posiciones;
+//-----------------------------------------CONEXIONES-------------------------------------------------//
 int tiempoReintentoConexion;
 int tiempoReintentoOperacion;
 int tiempoRetardoOperacion;
 char* puntoMontaje;
 char* ipBroker;
 int puertoBroker;
+//----------------------------------------------------------------------------------------------------//
 
 void* handler_suscripciones(uint32_t cola);
 void initConfigLogger();
-int cantidad_pokemones(FILE* archivo_pokemon);
-void existen_posiciones_pokemon_nuevo(FILE* archivo_pokemon,new_pokemon pokemon_nuevo);
-void existen_posiciones_pokemon_atrapado(FILE* archivo_pokemon,catch_pokemon pokemon_atrapado);
-void decrementar_cantidad(FILE* archivo_pokemon,catch_pokemon pokemon_atrapado);
-void eliminarLinea(FILE* archivo_pokemon,t_linea linea_a_borrar);
-t_list* obtener_posiciones_y_cantidades(FILE* archivo_pokemon);
-
-
-void game_card_retry_connect(void* arg);
+void gm_retry_connect(void* arg);
 void game_card_init_as_server();
-void *recv_game_card(int fd, int send_to);
+void *recv_gamecard(int fd, int send_to);
 void game_card_exit();
-void subscribe_to(void *arg);
-static void *handle_conn(void *arg);
-void send_ack(void* arg);
+//void subscribe_to(void *arg);
+//static void *handle_conn(void *arg);
+void enviar_ack(void* arg);
 void process_new_and_send_appeared(void* arg);
 void process_get_and_send_localized(void* arg);
 void process_catch_and_send_caught(void* arg);

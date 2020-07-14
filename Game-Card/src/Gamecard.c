@@ -22,17 +22,17 @@ int main(void)
 
 
 	printf("Se crea un hilo para subscribirse a NEW_POKEMON del BROKER");
-	pthread_create(&new_thread, NULL, handler_suscripciones, (uint32_t) (NEW));
+	pthread_create(&new_thread, NULL, (void*) gm_retry_connect, (uint32_t) (NEW));
 	pthread_detach(new_thread);
 	usleep(600000);
 
 	printf("Se crea un hilo para subscribirse a CATCH_POKEMON del BROKER");
-	pthread_create(&catch_thread, NULL, handler_suscripciones, (uint32_t) (CATCH));
+	pthread_create(&catch_thread, NULL, (void*) gm_retry_connect, (uint32_t) (CATCH));
 	pthread_detach(catch_thread);
 	usleep(600000);
 
 	printf("Se crea un hilo para subscribirse a GET_POKEMON del BROKER");
-	pthread_create(&get_thread, NULL, handler_suscripciones, (uint32_t) (GET));
+	pthread_create(&get_thread, NULL, (void*) gm_retry_connect, (uint32_t) (GET));
 	pthread_detach(get_thread);
 	usleep(600000);
 
@@ -40,6 +40,18 @@ int main(void)
 
 	/*gamecard_exit();
 	return EXIT_SUCCESS;*/
+}
+
+void gm_retry_connect(void* arg)
+{
+	//t_queue retryConn = arg;
+	void * retryConn = arg;
+	while (true)
+	{
+		is_conn = false;
+		handler_suscripciones (retryConn);
+		utils_delay(tiempoReintentoConexion);
+	}
 }
 
 void initConfigLogger()
@@ -170,7 +182,45 @@ void* handler_suscripciones(uint32_t cola)
 	return NULL;
 }
 
-void *recv_game_card(int fd, int respond_to) {
+//--------------------------------GAMECARD iniciando como SERVER-------------------------------------------------//
+void gm_init() {
+	int gm_socket = socket_create_listener(LOCAL_IP, LOCAL_PORT);
+	if (gm_socket < 0)
+	{
+		printf("Error al levantar GAMECARD server");
+	}
+
+	printf("Server creado correctamente!! Esperando conexion del GAMEBOY");
+
+	struct sockaddr_in client_info;
+	socklen_t addrlen = sizeof client_info;
+	pthread_attr_t attrs;
+	pthread_attr_init(&attrs);
+	pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_JOINABLE);
+	int accepted_fd;
+	for (;;) {
+		pthread_t tid;
+		if ((accepted_fd = accept(gm_socket, (struct sockaddr *) &client_info, &addrlen)) != -1)
+		{
+			t_handle_connection* connection_handler = malloc(
+					sizeof(t_handle_connection));
+			connection_handler->fd = accepted_fd;
+			connection_handler->bool_val = 1;
+			pthread_create(&tid, NULL, (void*) handle_connection, (void*) connection_handler);
+			pthread_detach(tid);
+			log_info("Creando un hilo para atender una conexión en el socket %d", accepted_fd);
+			usleep(500000);
+		}
+		else
+		{
+			log_error("Error al conectar con un cliente", accepted_fd);
+		}
+	}
+}
+//-------------------------------------------------------------------------------------------------------------//
+
+//-----------------------------------------RECIBIR MENSAJE AL GAMECARD-----------------------------------------//
+void *recv_gamecard(int fd, int respond_to) {
 	int received_bytes;
 	int client_fd = fd;
 	t_header msg;
@@ -211,8 +261,7 @@ void *recv_game_card(int fd, int respond_to) {
 
 			if (is_server == 0) {
 				pthread_t tid;
-				pthread_create(&tid, NULL, (void*) send_ack,
-						(void*) &new_recv->id_correlacional);
+				pthread_create(&tid, NULL, (void*) enviar_ack, (void*) &new_recv->id_correlacional);
 				pthread_detach(tid);
 			}
 
@@ -242,8 +291,7 @@ void *recv_game_card(int fd, int respond_to) {
 
 			if (is_server == 0) {
 				pthread_t tid2;
-				pthread_create(&tid2, NULL, (void*) send_ack,
-						(void*) &get_rcv->id_correlacional);
+				pthread_create(&tid2, NULL, (void*) enviar_ack, (void*) &get_rcv->id_correlacional);
 				pthread_detach(tid2);
 			}
 
@@ -276,8 +324,7 @@ void *recv_game_card(int fd, int respond_to) {
 
 			if (is_server == 0) {
 				pthread_t tid4;
-				pthread_create(&tid4, NULL, (void*) send_ack,
-						(void*) &catch_rcv->id_correlacional);
+				pthread_create(&tid4, NULL, (void*) enviar_ack, (void*) &catch_rcv->idCorrelativo);
 				pthread_detach(tid4);
 			}
 
@@ -295,17 +342,14 @@ void *recv_game_card(int fd, int respond_to) {
 	}
 }
 
-void send_ack(void* arg) {
+void enviar_ack(void* arg) {
 	int id = *((int*) arg);
 	t_header* ack_send;//seria SUSCRIPCION
 	suscripcion susc; //contiene id_cola QUE ES EL TIPO DE MENSAJE(NEW, GET, CATCH)
 
-	//t_ack* ack_snd = malloc(sizeof(t_ack));
-	//t_protocol ack_protocol = ACK;
-	//ack_snd->id = id;
-
 	int client_fd = socket_connect_to_server(ipBroker, puertoBroker);
-	if (client_fd > 0) {
+	if (client_fd > 0)
+	{
 		utils_serialize_and_send(client_fd, ack_send, susc);
 		printf("ACK enviado al BROKER");
 	}
@@ -313,14 +357,13 @@ void send_ack(void* arg) {
 	socket_close_conection(client_fd);
 }
 
+//----------------------------Procesar NEW y enviar APPEARED--------------------------------------------//
 void process_new_and_send_appeared(void* arg) {
 	new_pokemon* new_recv = (new_pokemon*) arg;
 
-	// Process New and send Appeared to broker
-
 	appeared_pokemon* appeared_snd = malloc(sizeof(appeared_pokemon_enviar));
+
 	t_header appeared = APPEARED_POKEMON;
-	//t_protocol appeared_protocol = APPEARED_POKEMON;
 
 	appeared_snd->nombrePokemon = new_recv->nombrePokemon;
 	appeared_snd->sizeNombre = new_recv->sizeNombre;
@@ -337,55 +380,61 @@ void process_new_and_send_appeared(void* arg) {
 	printf("Cerrando la conexión con el BROKER");
 	socket_close_conection(client_fd);
 }
+//-----------------------------------------------------------------------------------------------------//
 
+//----------------------------Procesar GET y enviar LOCALIZED------------------------------------------//
 void process_get_and_send_localized(void* arg) {
 	get_pokemon* get_rcv = (get_pokemon*) arg;
+	localized_pokemon* localized_snd = malloc(sizeof(localized_pokemon));
+	t_list* posiciones = list_create();
+	t_posiciones *posicion = malloc(sizeof(t_posiciones));
+	t_posiciones *otraPosicion = malloc(sizeof(t_posiciones));
 
-	// Temporal mock for list (to return @LOCALIZED)
-	t_list* positions = list_create();
+	posicion->posicionEjeX = 21;
+	posicion->posicionEjeY = 8;
 
-	t_position *pos = malloc(sizeof(t_position));
-	pos->pos_x = 21;
-	pos->pos_y = 8;
-	t_position *pos2 = malloc(sizeof(t_position));
-	pos2->pos_x = 2;
-	pos2->pos_y = 8;
-	list_add(positions, pos);
-	list_add(positions, pos2);
+	otraPosicion->posicionEjeX = 2;
+	otraPosicion->posicionEjeY = 8;
+
+	list_add(posiciones, posicion);
+	list_add(posiciones, otraPosicion);
 
 	// Process get and sent localize
-	localized_pokemon* loc_snd = malloc(sizeof(localized_pokemon));
-	loc_snd->id_correlacional = get_rcv->id_correlacional;
-	loc_snd->nombrePokemon = get_rcv->nombrePokemon;
-	loc_snd->sizeNombre = strlen(loc_snd->nombrePokemon) + 1;
-	loc_snd->cant_elem = list_size(positions);
-	loc_snd->posiciones = positions;
-	t_protocol localized_protocol = LOCALIZED_POKEMON;
+	localized_snd->idCorrelativo = get_rcv->id_mensaje;
+	localized_snd->nombrePokemon = get_rcv->nombrePokemon;
+	localized_snd->sizeNombre = strlen(localized_snd->nombrePokemon) + 1;
+	localized_snd->cantidadPosiciones = list_size(posiciones);
+	localized_snd->posiciones = posiciones;
+
+	t_header localized = LOCALIZED_POKEMON;
 
 	int client_fd = socket_connect_to_server(ipBroker, puertoBroker);
 	if (client_fd > 0) {
-		utils_serialize_and_send(client_fd, localized_protocol, loc_snd);
-		game_card_logger_info("LOCALIZED sent to BROKER");
+		utils_serialize_and_send(client_fd, localized, localized_snd);
+		printf("El mensaje LOCALIZED fué enviado al BROKER");
 	}
 	usleep(50000);
 	socket_close_conection(client_fd);
 }
+//----------------------------------------------------------------------------------------------------------//
 
+//----------------------------Procesar CATCH y enviar CAUGHT-----------------------------------------------//
 void process_catch_and_send_caught(void* arg) {
 	catch_pokemon* catch_rcv = (catch_pokemon*) arg;
+	caught_pokemon* caught_snd = malloc(sizeof(caught_pokemon));
 
 	// Process Catch and send Caught to broker
-	caught_pokemon* caught_snd = malloc(sizeof(caught_pokemon));
-	caught_snd->id_correlacional = catch_rcv->id_correlacional;
-	caught_snd->result = 1;
-	t_protocol caught_protocol = CAUGHT_POKEMON;
+
+	caught_snd->idCorrelativo = catch_rcv->id_mensaje;
+	caught_snd->pokemonAtrapado = 1;
+	t_header caught = CAUGHT_POKEMON;
 
 	int client_fd = socket_connect_to_server(ipBroker, puertoBroker);
 	if (client_fd > 0) {
-		utils_serialize_and_send(client_fd, caught_protocol, caught_snd);
-		game_card_logger_info("CAUGHT sent to BROKER");
+		utils_serialize_and_send(client_fd, caught, caught_snd);
+		printf("El mensaje CAUGHT fue enviado al BROKER");
 	}
 	usleep(500000);
 	socket_close_conection(client_fd);
 }
-
+//---------------------------------------------------------------------------------------------------------//
