@@ -319,22 +319,22 @@ void process_new_and_send_appeared(void* arg) {
 	// Process New and send Appeared to broker
 
 	appeared_pokemon* appeared_snd = malloc(sizeof(appeared_pokemon_enviar));
-	t_header appeared = APPEARED_POKEMON;
+	t_header appeared = APPEARED;
 	//t_protocol appeared_protocol = APPEARED_POKEMON;
 
 	appeared_snd->nombrePokemon = new_recv->nombrePokemon;
 	appeared_snd->sizeNombre = new_recv->sizeNombre;
-	appeared_snd->idCorrelativo = new_recv->id_mensaje;
+	appeared_snd->idCorrelativo = new_recv->id_correlacional;
 	appeared_snd->posicionEjeX = new_recv->posicionEjeX;
 	appeared_snd->posicionEjeY = new_recv->posicionEjeY;
 	appeared_snd->cantidad = new_recv->cantidad;
 	int client_fd = socket_connect_to_server(ipBroker, puertoBroker);
 	if (client_fd > 0) {
 		utils_serialize_and_send(client_fd,/*appeared*/ APPEARED, appeared_snd);
-		printf("El mensaje APPEARED fué enviado al BROKER");
+		game_card_logger_info("El mensaje APPEARED fué enviado al BROKER");
 	}
 	usleep(500000);
-	printf("Cerrando la conexión con el BROKER");
+	game_card_logger_info("Cerrando la conexión con el BROKER");
 	socket_close_conection(client_fd);
 }
 
@@ -343,7 +343,6 @@ void process_get_and_send_localized(void* arg) {
 
 	// Temporal mock for list (to return @LOCALIZED)
 	t_list* positions = list_create();
-
 	t_position *pos = malloc(sizeof(t_position));
 	pos->pos_x = 21;
 	pos->pos_y = 8;

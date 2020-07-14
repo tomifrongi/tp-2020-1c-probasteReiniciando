@@ -343,7 +343,6 @@ void process_get_and_send_localized(void* arg) {
 
 	// Temporal mock for list (to return @LOCALIZED)
 	t_list* positions = list_create();
-
 	t_position *pos = malloc(sizeof(t_position));
 	pos->pos_x = 21;
 	pos->pos_y = 8;

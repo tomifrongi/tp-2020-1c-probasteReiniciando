@@ -334,7 +334,7 @@ void process_new_and_send_appeared(void* arg) {
 		printf("El mensaje APPEARED fué enviado al BROKER");
 	}
 	usleep(500000);
-	printf("Cerrando la conexión con el BROKER");
+	game_card_logger_info("Cerrando la conexión con el BROKER");
 	socket_close_conection(client_fd);
 }
 
@@ -343,7 +343,6 @@ void process_get_and_send_localized(void* arg) {
 
 	// Temporal mock for list (to return @LOCALIZED)
 	t_list* positions = list_create();
-
 	t_position *pos = malloc(sizeof(t_position));
 	pos->pos_x = 21;
 	pos->pos_y = 8;
