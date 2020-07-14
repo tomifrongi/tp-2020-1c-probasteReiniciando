@@ -2,12 +2,12 @@
 
 
 void crearEstructurasAdministrativas (){
-	estructuraAdministrativa* get_admin = malloc(sizeof(estructuraAdministrativa));
-	estructuraAdministrativa* localized_admin  = malloc(sizeof(estructuraAdministrativa));
-	estructuraAdministrativa* catch_admin  = malloc(sizeof(estructuraAdministrativa));
-	estructuraAdministrativa* caught_admin  = malloc(sizeof(estructuraAdministrativa));
-	estructuraAdministrativa* new_admin = malloc(sizeof(estructuraAdministrativa));
-	estructuraAdministrativa* appeared_admin = malloc(sizeof(estructuraAdministrativa));
+	get_admin = malloc(sizeof(estructuraAdministrativa));
+	localized_admin  = malloc(sizeof(estructuraAdministrativa));
+	catch_admin  = malloc(sizeof(estructuraAdministrativa));
+	caught_admin  = malloc(sizeof(estructuraAdministrativa));
+	new_admin = malloc(sizeof(estructuraAdministrativa));
+	appeared_admin = malloc(sizeof(estructuraAdministrativa));
 
 	get_admin->queue = list_create();
 	localized_admin->queue = list_create();

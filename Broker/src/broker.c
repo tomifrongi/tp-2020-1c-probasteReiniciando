@@ -17,7 +17,7 @@ int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
 	PUERTO_BROKER = 8080;
 	ID_INICIAL = 0;
-	TAMANO_MEMORIA =64;
+	TAMANO_MEMORIA =2048;
 	TAMANO_MINIMO_PARTICION = 4;
 	ALGORITMO_MEMORIA = "BS";
 	ALGORITMO_REEMPLAZO ="FIFO";
@@ -368,6 +368,7 @@ void* handler_clients(void* socket){
 				memcpy(&mensajeSuscripcion.idSuscriptor,aux,sizeof(pid_t));
 				agregarSuscripcion(mensajeSuscripcion,broker_sock);
 				enviarUltimosMensajesRecibidos(mensajeSuscripcion,broker_sock);
+				log_info(logger,"NUEVA SUSCRIPCION");
 
 				break;
 			}
@@ -571,8 +572,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						free(content);
 
 					}
-
 				}
+				index++;
 			}
 		}
 
@@ -602,24 +603,25 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 
 							memcpy(content+bytesEscritos,idMensaje,sizeof(npEnviar.id_mensaje));
 							bytesEscritos+= sizeof(npEnviar.id_mensaje);
-							memcpy(&npEnviar.sizeNombre,principioMemoria+bytesLeidosMemoria,sizeof(npEnviar.sizeNombre));
+							memcpy(&npEnviar.sizeNombre,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(npEnviar.sizeNombre));
 							npEnviar.sizeNombre++;
 							memcpy(content+bytesEscritos,&npEnviar.sizeNombre,sizeof(npEnviar.sizeNombre));
 							bytesEscritos+=sizeof(npEnviar.sizeNombre);
 							bytesLeidosMemoria+=sizeof(npEnviar.sizeNombre);
-							memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(npEnviar.sizeNombre-1));
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(npEnviar.sizeNombre-1));
 							bytesEscritos+=npEnviar.sizeNombre;
 							bytesLeidosMemoria+=(npEnviar.sizeNombre-1);
 							char caracterNulo= '\0';
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 							bytesEscritos+=sizeof(caracterNulo);
-							memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,3*sizeof(uint32_t));
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,3*sizeof(uint32_t));
 
 							send_message(socket, NEW_POKEMON,content,sizeNew);
 							free(content);
 						}
 
 					}
+					index++;
 				}
 			}
 		break;
@@ -674,6 +676,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					}
 
 				}
+				index++;
 			}
 		}
 
@@ -706,24 +709,25 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							apEnviar.idCorrelativo = particion->idCorrelativo;
 							memcpy(content+bytesEscritos,&apEnviar.idCorrelativo,sizeof(apEnviar.idCorrelativo));
 							bytesEscritos+= sizeof(apEnviar.idCorrelativo);
-							memcpy(&apEnviar.sizeNombre,principioMemoria+bytesLeidosMemoria,sizeof(apEnviar.sizeNombre));
+							memcpy(&apEnviar.sizeNombre,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(apEnviar.sizeNombre));
 							apEnviar.sizeNombre++;
 							memcpy(content+bytesEscritos,&apEnviar.sizeNombre,sizeof(apEnviar.sizeNombre));
 							bytesEscritos+=sizeof(apEnviar.sizeNombre);
 							bytesLeidosMemoria+=sizeof(apEnviar.sizeNombre);
-							memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(apEnviar.sizeNombre-1));
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(apEnviar.sizeNombre-1));
 							bytesEscritos+=apEnviar.sizeNombre;
 							bytesLeidosMemoria+=(apEnviar.sizeNombre-1);
 							char caracterNulo= '\0';
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 							bytesEscritos+=sizeof(caracterNulo);
-							memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,2*sizeof(uint32_t));
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,2*sizeof(uint32_t));
 
 							send_message(socket, APPEARED_POKEMON,content,sizeAppeared);
 							free(content);
 						}
 
 					}
+					index++;
 				}
 			}
 		break;
@@ -774,6 +778,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					}
 
 				}
+				index++;
 			}
 		}
 
@@ -803,12 +808,12 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 
 							memcpy(content+bytesEscritos,idMensaje,sizeof(gpEnviar.id_mensaje));
 							bytesEscritos+= sizeof(gpEnviar.id_mensaje);
-							memcpy(&gpEnviar.sizeNombre,principioMemoria+bytesLeidosMemoria,sizeof(gpEnviar.sizeNombre));
+							memcpy(&gpEnviar.sizeNombre,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(gpEnviar.sizeNombre));
 							gpEnviar.sizeNombre++;
 							memcpy(content+bytesEscritos,&gpEnviar.sizeNombre,sizeof(gpEnviar.sizeNombre));
 							bytesEscritos+=sizeof(gpEnviar.sizeNombre);
 							bytesLeidosMemoria+=sizeof(gpEnviar.sizeNombre);
-							memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(gpEnviar.sizeNombre-1));
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(gpEnviar.sizeNombre-1));
 							bytesEscritos+=gpEnviar.sizeNombre;
 							bytesLeidosMemoria+=(gpEnviar.sizeNombre-1);
 							char caracterNulo= '\0';
@@ -820,6 +825,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						}
 
 					}
+					index++;
 				}
 			}
 		break;
@@ -878,6 +884,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					}
 
 				}
+				index++;
 			}
 		}
 
@@ -910,28 +917,29 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							lpEnviar.idCorrelativo = particion->idCorrelativo;
 							memcpy(content+bytesEscritos,&lpEnviar.idCorrelativo,sizeof(lpEnviar.idCorrelativo));
 							bytesEscritos+= sizeof(lpEnviar.idCorrelativo);
-							memcpy(&lpEnviar.sizeNombre,principioMemoria+bytesLeidosMemoria,sizeof(lpEnviar.sizeNombre));
+							memcpy(&lpEnviar.sizeNombre,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(lpEnviar.sizeNombre));
 							lpEnviar.sizeNombre++;
 							memcpy(content+bytesEscritos,&lpEnviar.sizeNombre,sizeof(lpEnviar.sizeNombre));
 							bytesEscritos+=sizeof(lpEnviar.sizeNombre);
 							bytesLeidosMemoria+=sizeof(lpEnviar.sizeNombre);
-							memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(lpEnviar.sizeNombre-1));
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(lpEnviar.sizeNombre-1));
 							bytesEscritos+=lpEnviar.sizeNombre;
 							bytesLeidosMemoria+=(lpEnviar.sizeNombre-1);
 							char caracterNulo= '\0';
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 							bytesEscritos+=sizeof(caracterNulo);
-							memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,sizeof(lpEnviar.cantidadPosiciones));
-							memcpy(&lpEnviar.cantidadPosiciones,principioMemoria+bytesLeidosMemoria,sizeof(lpEnviar.cantidadPosiciones));
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(lpEnviar.cantidadPosiciones));
+							memcpy(&lpEnviar.cantidadPosiciones,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(lpEnviar.cantidadPosiciones));
 							bytesEscritos+=sizeof(lpEnviar.posiciones);
 							bytesLeidosMemoria+=sizeof(lpEnviar.posiciones);
-							memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,sizeof(uint32_t)*2*lpEnviar.cantidadPosiciones);
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(uint32_t)*2*lpEnviar.cantidadPosiciones);
 
 							send_message(socket, LOCALIZED_POKEMON,content,sizeLocalized);
 							free(content);
 						}
 
 					}
+					index++;
 				}
 			}
 		break;
@@ -982,6 +990,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					}
 
 				}
+				index++;
 			}
 		}
 
@@ -1011,24 +1020,25 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 
 							memcpy(content+bytesEscritos,idMensaje,sizeof(cpEnviar.id_mensaje));
 							bytesEscritos+= sizeof(cpEnviar.id_mensaje);
-							memcpy(&cpEnviar.sizeNombre,principioMemoria+bytesLeidosMemoria,sizeof(cpEnviar.sizeNombre));
+							memcpy(&cpEnviar.sizeNombre,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(cpEnviar.sizeNombre));
 							cpEnviar.sizeNombre++;
 							memcpy(content+bytesEscritos,&cpEnviar.sizeNombre,sizeof(cpEnviar.sizeNombre));
 							bytesEscritos+=sizeof(cpEnviar.sizeNombre);
 							bytesLeidosMemoria+=sizeof(cpEnviar.sizeNombre);
-							memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(cpEnviar.sizeNombre-1));
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(cpEnviar.sizeNombre-1));
 							bytesEscritos+=cpEnviar.sizeNombre;
 							bytesLeidosMemoria+=(cpEnviar.sizeNombre-1);
 							char caracterNulo= '\0';
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 							bytesEscritos+=sizeof(caracterNulo);
-							memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,2*sizeof(uint32_t));
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,2*sizeof(uint32_t));
 
 							send_message(socket, CATCH_POKEMON,content,sizeCatch);
 							free(content);
 						}
 
 					}
+					index++;
 				}
 			}
 		break;
@@ -1072,6 +1082,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					}
 
 				}
+				index++;
 			}
 		}
 
@@ -1104,13 +1115,14 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							cpEnviar.idCorrelativo = particion->idCorrelativo;
 							memcpy(content+bytesEscritos,&cpEnviar.idCorrelativo,sizeof(cpEnviar.idCorrelativo));
 							bytesEscritos+= sizeof(cpEnviar.idCorrelativo);
-							memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,sizeof(uint32_t));
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(uint32_t));
 
 							send_message(socket, CAUGHT_POKEMON,content,sizeCaught);
 							free(content);
 						}
 
 					}
+					index++;
 				}
 			}
 		break;
