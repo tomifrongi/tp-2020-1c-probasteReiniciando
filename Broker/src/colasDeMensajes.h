@@ -14,7 +14,7 @@
 
 
 typedef struct {
-	t_list* queue;
+	t_list* queue; // agrego al final de la cola y saco del principio
 	t_list* suscriptores;
 }estructuraAdministrativa;
 
@@ -39,5 +39,7 @@ void destruirEstructurasAdministrativas();
 suscriptor* crearSuscriptor(suscriptor suscriptorNuevo);
 void borrarSuscriptor(suscriptor* suscriptor);
 
+uint32_t* crearElementoCola(uint32_t elemento);
+void borrarElementoCola(uint32_t* elemento);
 
 #endif /* COLASDEMENSAJES_H_ */

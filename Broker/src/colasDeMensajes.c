@@ -27,27 +27,35 @@ void crearEstructurasAdministrativas (){
 }
 
 void destruirEstructurasAdministrativas(){
-	list_destroy(get_admin.queue);
-	list_destroy(localized_admin.queue);
-	list_destroy(catch_admin.queue);
-	list_destroy(new_admin.queue);
-	list_destroy(appeared_admin.queue);
-	list_destroy(caught_admin.queue);
+	list_destroy_and_destroy_elements(get_admin->queue,(void*)borrarElementoCola);
+	list_destroy_and_destroy_elements(localized_admin->queue,(void*)borrarElementoCola);
+	list_destroy_and_destroy_elements(catch_admin->queue,(void*)borrarElementoCola);
+	list_destroy_and_destroy_elements(new_admin->queue,(void*)borrarElementoCola);
+	list_destroy_and_destroy_elements(appeared_admin->queue,(void*)borrarElementoCola);
+	list_destroy_and_destroy_elements(caught_admin->queue,(void*)borrarElementoCola);
 
-	list_destroy(get_admin.suscriptores);
-	list_destroy(localized_admin.suscriptores);
-	list_destroy(catch_admin.suscriptores);
-	list_destroy(new_admin.suscriptores);
-	list_destroy(appeared_admin.suscriptores);
-	list_destroy(caught_admin.suscriptores);
+	list_destroy_and_destroy_elements(get_admin->suscriptores,(void*)borrarSuscriptor);
+	list_destroy_and_destroy_elements(localized_admin->suscriptores,(void*)borrarSuscriptor);
+	list_destroy_and_destroy_elements(catch_admin->suscriptores,(void*)borrarSuscriptor);
+	list_destroy_and_destroy_elements(new_admin->suscriptores,(void*)borrarSuscriptor);
+	list_destroy_and_destroy_elements(appeared_admin->suscriptores,(void*)borrarSuscriptor);
+	list_destroy_and_destroy_elements(caught_admin->suscriptores,(void*)borrarSuscriptor);
 }
 
 suscriptor* crearSuscriptor(suscriptor suscriptorNuevo){
 	suscriptor* suscriptorNuevoCreado = malloc(sizeof(suscriptor));
 	suscriptorNuevoCreado->idSuscriptor = suscriptorNuevo.idSuscriptor;
 	suscriptorNuevoCreado->socket = suscriptorNuevo.socket;
-	return suscriptorNuevo;
+	return suscriptorNuevoCreado;
 }
 void borrarSuscriptor(suscriptor* suscriptor){
 	free(suscriptor);
+}
+
+uint32_t* crearElementoCola(uint32_t elemento){
+	uint32_t* elementoCreado = malloc(sizeof(uint32_t));
+	return elementoCreado;
+}
+void borrarElementoCola(uint32_t* elemento){
+	free(elemento);
 }

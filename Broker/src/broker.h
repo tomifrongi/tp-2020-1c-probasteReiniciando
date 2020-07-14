@@ -43,6 +43,8 @@ pthread_mutex_t mutexId;
 pthread_mutex_t mutexLogger;
 pthread_mutex_t mutexMemoria;
 
+
+//TODO crear y destruir elemento de estas listas
 t_list* idsCorrelativosAppeared;
 t_list* idsCorrelativosLocalized;
 t_list* idsCorrelativosCaught;

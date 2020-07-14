@@ -30,9 +30,9 @@ typedef struct {
 }particion_buddy_memoria;
 
 t_list* particionesEnMemoriaBuddy;
-void* principioMemoria;
-t_queue* colaMensajesMemoria;
-int CONTADORLRU;
+void* principioMemoriaBuddy;
+t_queue* colaMensajesMemoriaBuddy;
+int CONTADORLRUBUDDY;
 
 
 void cachearMensajeBuddy(void* mensaje,id_cola id);
@@ -56,4 +56,5 @@ void ordenarParticionesPorPosicionBuddy();
 particion_buddy_memoria* removerPorPosicionBuddy(int posicion);
 void sacarBarraCeroBuddy(void* mensaje,id_cola id);
 
+particion_buddy_memoria* encontrarParticionBuddyPorID(int idMensaje);
 #endif /* BUDDYSYSTEM_H_ */

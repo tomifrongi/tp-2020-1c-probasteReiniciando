@@ -1068,7 +1068,15 @@ void borrar_elemento_colaMensajesMemoria(int* idMensaje){
 	free(idMensaje);
 }
 
+particion_dinamica_memoria* encontrarParticionDinamicaPorID(int idMensaje){
+	bool particionIgualID(void* particion){
+		particion_dinamica_memoria* particionCasteada = particion;
 
+		return (particionCasteada->idMensaje == idMensaje) && !(particionCasteada->libre);
+	}
+
+	return list_find(particionesEnMemoria,particionIgualID);
+}
 
 
 
