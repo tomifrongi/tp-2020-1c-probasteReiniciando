@@ -36,15 +36,6 @@
 bool is_conn;
 int gamecard_fd;
 
-typedef struct{
-	int cord_x;
-	char guion;
-	int cord_y;
-	char igual;
-	int cantidad;
-}t_linea;
-
-
 //METADATA(no lo uso aca, sino que lo uso en gm_metadata//
 typedef struct{
 	uint32_t block_size;
@@ -74,7 +65,12 @@ char* puntoMontaje;
 char* ipBroker;
 int puertoBroker;
 
-
+//SUSCRIPCION//
+typedef struct {
+	uint32_t ip;
+	uint32_t puerto;
+	t_queue cola;
+}t_subscribe;
 //-----------------------------------FUNCIONES DECLARADAS-------------------------------------------//
 
 void reintentar_conexion(void* arg);
