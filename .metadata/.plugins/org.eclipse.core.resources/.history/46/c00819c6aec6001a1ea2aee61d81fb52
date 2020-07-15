@@ -196,8 +196,7 @@ blockLine* crear_block_line(int intPosX, int intPosY, int intCantidad)
 void mostrar_lista_pokemons(t_list* pokemonLines)
 {
 	log_info("Size lista %d:", list_size(pokemonLines));
-	for (int i=0; i<list_size(pokemonLines); i++)
-	{
+	for (int i=0; i<list_size(pokemonLines); i++) {
 		blockLine* newLineBlock = list_get(pokemonLines, i);
 		log_info("Elemento i %d:", i);
 		log_info("Linea del Pokemon %s:", formatToBlockLine(newLineBlock->posX, newLineBlock->posY, newLineBlock->cantidad));

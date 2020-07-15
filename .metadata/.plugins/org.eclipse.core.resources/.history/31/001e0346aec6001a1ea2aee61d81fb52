@@ -71,7 +71,6 @@ typedef struct {
 	uint32_t puerto;
 	t_queue cola;
 }t_subscribe;
-
 //-----------------------------------FUNCIONES DECLARADAS-------------------------------------------//
 
 void reintentar_conexion(void* arg);
