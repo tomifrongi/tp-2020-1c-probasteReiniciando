@@ -1,4 +1,4 @@
-14:57:40 **** Incremental Build of configuration Debug for project Game-Card ****
+23:32:23 **** Incremental Build of configuration Debug for project Game-Card ****
 make all 
 Building file: ../src/Gamecard.c
 Invoking: GCC C Compiler
@@ -22,70 +22,69 @@ In file included from ../src/bloque_handler.h:15:0,
  t_log* log;
         ^
 ../src/Gamecard.c: In function ‘main’:
-../src/Gamecard.c:30:64: warning: passing argument 4 of ‘pthread_create’ makes pointer from integer without a cast [-Wint-conversion]
-  pthread_create(&catch_thread, NULL, (void*) gm_retry_connect, (uint32_t) (CATCH));
-                                                                ^
+../src/Gamecard.c:9:2: warning: implicit declaration of function ‘initConfigLogger’ [-Wimplicit-function-declaration]
+  initConfigLogger();
+  ^
+../src/Gamecard.c:30:67: warning: passing argument 4 of ‘pthread_create’ makes pointer from integer without a cast [-Wint-conversion]
+  pthread_create(&catch_thread, NULL, (void*) reintentar_conexion, (uint32_t) (CATCH));
+                                                                   ^
 In file included from ../src/funcionesEnvio.h:20:0,
                  from ../src/ProtocoloDeMensajes.h:16,
                  from ../src/Gamecard.h:12,
                  from ../src/Gamecard.c:1:
 /usr/include/pthread.h:233:12: note: expected ‘void * restrict’ but argument is of type ‘unsigned int’
- extern int pthread_create (pthread_t *__restrict __newthread,
-            ^
-../src/Gamecard.c:35:62: warning: passing argument 4 of ‘pthread_create’ makes pointer from integer without a cast [-Wint-conversion]
-  pthread_create(&get_thread, NULL, (void*) gm_retry_connect, (uint32_t) (GET));
-                                                              ^
-In file included from ../src/funcionesEnvio.h:20:0,
-                 from ../src/ProtocoloDeMensajes.h:16,
-                 from ../src/Gamecard.h:12,
-                 from ../src/Gamecard.c:1:
-/usr/include/pthread.h:233:12: note: expected ‘void * restrict’ but argument is of type ‘unsigned int’
- extern int pthread_create (pthread_t *__restrict __newthread,
-            ^
-../src/Gamecard.c: In function ‘gm_retry_connect’:
-../src/Gamecard.c:52:26: warning: passing argument 1 of ‘handler_suscripciones’ makes integer from pointer without a cast [-Wint-conversion]
 src/subdir.mk:36: recipe for target 'src/Gamecard.o' failed
+ extern int pthread_create (pthread_t *__restrict __newthread,
+            ^
+../src/Gamecard.c:35:65: warning: passing argument 4 of ‘pthread_create’ makes pointer from integer without a cast [-Wint-conversion]
+  pthread_create(&get_thread, NULL, (void*) reintentar_conexion, (uint32_t) (GET));
+                                                                 ^
+In file included from ../src/funcionesEnvio.h:20:0,
+                 from ../src/ProtocoloDeMensajes.h:16,
+                 from ../src/Gamecard.h:12,
+                 from ../src/Gamecard.c:1:
+/usr/include/pthread.h:233:12: note: expected ‘void * restrict’ but argument is of type ‘unsigned int’
+ extern int pthread_create (pthread_t *__restrict __newthread,
+            ^
+../src/Gamecard.c: In function ‘reintentar_conexion’:
+../src/Gamecard.c:54:26: warning: passing argument 1 of ‘handler_suscripciones’ makes integer from pointer without a cast [-Wint-conversion]
    handler_suscripciones (retryConn);
                           ^
 In file included from ../src/Gamecard.c:1:0:
-../src/Gamecard.h:68:7: note: expected ‘uint32_t {aka unsigned int}’ but argument is of type ‘void *’
+../src/Gamecard.h:81:7: note: expected ‘uint32_t {aka unsigned int}’ but argument is of type ‘void *’
  void* handler_suscripciones(uint32_t cola);
        ^
-../src/Gamecard.c:53:3: warning: implicit declaration of function ‘utils_delay’ [-Wimplicit-function-declaration]
+../src/Gamecard.c:55:3: warning: implicit declaration of function ‘utils_delay’ [-Wimplicit-function-declaration]
    utils_delay(tiempoReintentoConexion);
    ^
-../src/Gamecard.c: In function ‘initConfigLogger’:
-../src/Gamecard.c:63:27: warning: assignment makes integer from pointer without a cast [-Wint-conversion]
+../src/Gamecard.c: In function ‘iniciar_config_logger’:
+../src/Gamecard.c:66:27: warning: assignment makes integer from pointer without a cast [-Wint-conversion]
    tiempoReintentoConexion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
                            ^
-../src/Gamecard.c:64:28: warning: assignment makes integer from pointer without a cast [-Wint-conversion]
+../src/Gamecard.c:67:28: warning: assignment makes integer from pointer without a cast [-Wint-conversion]
    tiempoReintentoOperacion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_OPERACION");
                             ^
-../src/Gamecard.c:65:26: warning: assignment makes integer from pointer without a cast [-Wint-conversion]
+../src/Gamecard.c:68:26: warning: assignment makes integer from pointer without a cast [-Wint-conversion]
    tiempoRetardoOperacion = config_get_string_value(config, "TIEMPO_RETARDO_OPERACION");
                           ^
 ../src/Gamecard.c: In function ‘handler_suscripciones’:
-../src/Gamecard.c:91:18: warning: comparison between pointer and integer
-       if(message == -1 || message == 0){
+../src/Gamecard.c:97:18: warning: comparison between pointer and integer
+       if(message == -1 || message == 0)
                   ^
-../src/Gamecard.c:126:18: warning: comparison between pointer and integer
-       if(message == -1 || message == 0){
+../src/Gamecard.c:138:18: warning: comparison between pointer and integer
+       if(message == -1 || message == 0)
                   ^
-../src/Gamecard.c:158:18: warning: comparison between pointer and integer
-       if(message == -1 || message == 0){
+../src/Gamecard.c:176:18: warning: comparison between pointer and integer
+       if(message == -1 || message == 0)
                   ^
 ../src/Gamecard.c: In function ‘gm_init’:
-../src/Gamecard.c:187:18: warning: implicit declaration of function ‘socket_create_listener’ [-Wimplicit-function-declaration]
+../src/Gamecard.c:210:18: warning: implicit declaration of function ‘socket_create_listener’ [-Wimplicit-function-declaration]
   int gm_socket = socket_create_listener(LOCAL_IP, LOCAL_PORT);
                   ^
-../src/Gamecard.c:208:33: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
-    connection_handler->bool_val = 1;
-                                 ^
-../src/Gamecard.c:209:39: error: ‘handle_connection’ undeclared (first use in this function)
-    pthread_create(&tid, NULL, (void*) handle_connection, (void*) connection_handler);
-                                       ^
-../src/Gamecard.c:209:39: note: each undeclared identifier is reported only once for each function it appears in
-../src/Gamecard.c:211:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+../src/Gamecard.c:234:16: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    conn->valor = 1;
+                ^
+../src/Gamecard.c:237:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
     log_info("Creando un hilo para atender una conexión en el socket %d", accepted_fd);
              ^
 In file included from ../src/Gamecard.h:8:0,
@@ -93,7 +92,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:211:75: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
+../src/Gamecard.c:237:75: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
     log_info("Creando un hilo para atender una conexión en el socket %d", accepted_fd);
                                                                            ^
 In file included from ../src/Gamecard.h:8:0,
@@ -101,7 +100,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘int’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:216:14: warning: passing argument 1 of ‘log_error’ from incompatible pointer type [-Wincompatible-pointer-types]
+../src/Gamecard.c:242:14: warning: passing argument 1 of ‘log_error’ from incompatible pointer type [-Wincompatible-pointer-types]
     log_error("Error al conectar con un cliente", accepted_fd);
               ^
 In file included from ../src/Gamecard.h:8:0,
@@ -109,7 +108,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:97:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
   void   log_error(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:216:50: warning: passing argument 2 of ‘log_error’ makes pointer from integer without a cast [-Wint-conversion]
+../src/Gamecard.c:242:50: warning: passing argument 2 of ‘log_error’ makes pointer from integer without a cast [-Wint-conversion]
     log_error("Error al conectar con un cliente", accepted_fd);
                                                   ^
 In file included from ../src/Gamecard.h:8:0,
@@ -117,12 +116,16 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:97:9: note: expected ‘const char *’ but argument is of type ‘int’
   void   log_error(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c: In function ‘recv_gamecard’:
-../src/Gamecard.c:244:34: warning: implicit declaration of function ‘utils_receive_and_deserialize’ [-Wimplicit-function-declaration]
+../src/Gamecard.c: In function ‘handle_conexion_server’:
+../src/Gamecard.c:252:2: warning: implicit declaration of function ‘recv_game_card’ [-Wimplicit-function-declaration]
+  recv_game_card(client_fd, conexion->valor);
+  ^
+../src/Gamecard.c: In function ‘recibir_msgs_gamecard’:
+../src/Gamecard.c:278:34: warning: implicit declaration of function ‘utils_receive_and_deserialize’ [-Wimplicit-function-declaration]
     new_pokemon_enviar *new_recv= utils_receive_and_deserialize(client_fd, msg);
                                   ^
-../src/Gamecard.c:244:34: warning: initialization makes pointer from integer without a cast [-Wint-conversion]
-../src/Gamecard.c:246:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+../src/Gamecard.c:278:34: warning: initialization makes pointer from integer without a cast [-Wint-conversion]
+../src/Gamecard.c:280:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
     log_info("ID recibido: %d", new_recv->id_mensaje);
              ^
 In file included from ../src/Gamecard.h:8:0,
@@ -130,7 +133,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:246:32: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
+../src/Gamecard.c:280:32: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
     log_info("ID recibido: %d", new_recv->id_mensaje);
                                 ^
 In file included from ../src/Gamecard.h:8:0,
@@ -138,107 +141,8 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:247:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
-    log_info("ID Correlacional: %d", new_recv->id_correlacional);
-             ^
-In file included from ../src/Gamecard.h:8:0,
-                 from ../src/Gamecard.c:1:
-/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
-  void   log_info(t_log* logger, const char* message, ...);
-         ^
-../src/Gamecard.c:247:37: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
-    log_info("ID Correlacional: %d", new_recv->id_correlacional);
-                                     ^
-In file included from ../src/Gamecard.h:8:0,
-                 from ../src/Gamecard.c:1:
-/usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
-  void   log_info(t_log* logger, const char* message, ...);
-         ^
-../src/Gamecard.c:248:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
-    log_info("Cantidad: %d", new_recv->cantidad);
-             ^
-In file included from ../src/Gamecard.h:8:0,
-                 from ../src/Gamecard.c:1:
-/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
-  void   log_info(t_log* logger, const char* message, ...);
-         ^
-../src/Gamecard.c:248:29: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
-    log_info("Cantidad: %d", new_recv->cantidad);
-                             ^
-In file included from ../src/Gamecard.h:8:0,
-                 from ../src/Gamecard.c:1:
-/usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
-  void   log_info(t_log* logger, const char* message, ...);
-         ^
-../src/Gamecard.c:249:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
-    log_info("Nombre Pokemon: %s", new_recv->nombrePokemon);
-             ^
-In file included from ../src/Gamecard.h:8:0,
-                 from ../src/Gamecard.c:1:
-/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
-  void   log_info(t_log* logger, const char* message, ...);
-         ^
-../src/Gamecard.c:250:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
-    log_info("Largo Nombre: %d", new_recv->sizeNombre);
-             ^
-In file included from ../src/Gamecard.h:8:0,
-                 from ../src/Gamecard.c:1:
-/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
-  void   log_info(t_log* logger, const char* message, ...);
-         ^
-../src/Gamecard.c:250:33: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
-    log_info("Largo Nombre: %d", new_recv->sizeNombre);
-                                 ^
-In file included from ../src/Gamecard.h:8:0,
-                 from ../src/Gamecard.c:1:
-/usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
-  void   log_info(t_log* logger, const char* message, ...);
-         ^
-../src/Gamecard.c:251:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
-    log_info("Posicion X: %d", new_recv->posicionEjeX);
-             ^
-In file included from ../src/Gamecard.h:8:0,
-                 from ../src/Gamecard.c:1:
-/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
-  void   log_info(t_log* logger, const char* message, ...);
-         ^
-../src/Gamecard.c:251:31: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
-    log_info("Posicion X: %d", new_recv->posicionEjeX);
-                               ^
-In file included from ../src/Gamecard.h:8:0,
-                 from ../src/Gamecard.c:1:
-/usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
-  void   log_info(t_log* logger, const char* message, ...);
-         ^
-../src/Gamecard.c:252:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
-    log_info("Posicion Y: %d", new_recv->posicionEjeY);
-             ^
-In file included from ../src/Gamecard.h:8:0,
-                 from ../src/Gamecard.c:1:
-/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
-  void   log_info(t_log* logger, const char* message, ...);
-         ^
-../src/Gamecard.c:252:31: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
-    log_info("Posicion Y: %d", new_recv->posicionEjeY);
-                               ^
-In file included from ../src/Gamecard.h:8:0,
-                 from ../src/Gamecard.c:1:
-/usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
-  void   log_info(t_log* logger, const char* message, ...);
-         ^
-../src/Gamecard.c:254:21: warning: passing argument 1 of ‘createNewPokemon’ from incompatible pointer type [-Wincompatible-pointer-types]
-    createNewPokemon(new_recv);
-                     ^
-In file included from ../src/Gamecard.h:27:0,
-                 from ../src/Gamecard.c:1:
-../src/gm_filesystem.h:26:6: note: expected ‘new_pokemon * {aka struct <anonymous> *}’ but argument is of type ‘new_pokemon_enviar * {aka struct <anonymous> *}’
- void createNewPokemon(new_pokemon* newPokemon);
-      ^
-../src/Gamecard.c:279:34: warning: initialization makes pointer from integer without a cast [-Wint-conversion]
-    get_pokemon_enviar *get_rcv = utils_receive_and_deserialize(client_fd, msg);
-                                  ^
 ../src/Gamecard.c:281:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
-    log_info("ID correlacional: %d", get_rcv->id_correlacional);
+    log_info("ID Correlacional: %d", new_recv->id_correlacional);
              ^
 In file included from ../src/Gamecard.h:8:0,
                  from ../src/Gamecard.c:1:
@@ -246,7 +150,7 @@ In file included from ../src/Gamecard.h:8:0,
   void   log_info(t_log* logger, const char* message, ...);
          ^
 ../src/Gamecard.c:281:37: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
-    log_info("ID correlacional: %d", get_rcv->id_correlacional);
+    log_info("ID Correlacional: %d", new_recv->id_correlacional);
                                      ^
 In file included from ../src/Gamecard.h:8:0,
                  from ../src/Gamecard.c:1:
@@ -254,6 +158,109 @@ In file included from ../src/Gamecard.h:8:0,
   void   log_info(t_log* logger, const char* message, ...);
          ^
 ../src/Gamecard.c:282:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+    log_info("Cantidad: %d", new_recv->cantidad);
+             ^
+In file included from ../src/Gamecard.h:8:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
+  void   log_info(t_log* logger, const char* message, ...);
+         ^
+../src/Gamecard.c:282:29: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
+    log_info("Cantidad: %d", new_recv->cantidad);
+                             ^
+In file included from ../src/Gamecard.h:8:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
+  void   log_info(t_log* logger, const char* message, ...);
+         ^
+../src/Gamecard.c:283:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+    log_info("Nombre Pokemon: %s", new_recv->nombrePokemon);
+             ^
+In file included from ../src/Gamecard.h:8:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
+  void   log_info(t_log* logger, const char* message, ...);
+         ^
+../src/Gamecard.c:284:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+    log_info("Largo Nombre: %d", new_recv->sizeNombre);
+             ^
+In file included from ../src/Gamecard.h:8:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
+  void   log_info(t_log* logger, const char* message, ...);
+         ^
+../src/Gamecard.c:284:33: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
+    log_info("Largo Nombre: %d", new_recv->sizeNombre);
+                                 ^
+In file included from ../src/Gamecard.h:8:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
+  void   log_info(t_log* logger, const char* message, ...);
+         ^
+../src/Gamecard.c:285:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+    log_info("Posicion X: %d", new_recv->posicionEjeX);
+             ^
+In file included from ../src/Gamecard.h:8:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
+  void   log_info(t_log* logger, const char* message, ...);
+         ^
+../src/Gamecard.c:285:31: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
+    log_info("Posicion X: %d", new_recv->posicionEjeX);
+                               ^
+In file included from ../src/Gamecard.h:8:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
+  void   log_info(t_log* logger, const char* message, ...);
+         ^
+../src/Gamecard.c:286:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+    log_info("Posicion Y: %d", new_recv->posicionEjeY);
+             ^
+In file included from ../src/Gamecard.h:8:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
+  void   log_info(t_log* logger, const char* message, ...);
+         ^
+../src/Gamecard.c:286:31: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
+    log_info("Posicion Y: %d", new_recv->posicionEjeY);
+                               ^
+In file included from ../src/Gamecard.h:8:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
+  void   log_info(t_log* logger, const char* message, ...);
+         ^
+../src/Gamecard.c:288:21: warning: passing argument 1 of ‘createNewPokemon’ from incompatible pointer type [-Wincompatible-pointer-types]
+    createNewPokemon(new_recv);
+                     ^
+In file included from ../src/Gamecard.h:27:0,
+                 from ../src/Gamecard.c:1:
+../src/gm_filesystem.h:26:6: note: expected ‘new_pokemon * {aka struct <anonymous> *}’ but argument is of type ‘new_pokemon_enviar * {aka struct <anonymous> *}’
+ void createNewPokemon(new_pokemon* newPokemon);
+      ^
+../src/Gamecard.c:303:40: error: ‘process_new_and_send_appeared’ undeclared (first use in this function)
+    pthread_create(&tid1, NULL, (void*) process_new_and_send_appeared,
+                                        ^
+../src/Gamecard.c:303:40: note: each undeclared identifier is reported only once for each function it appears in
+../src/Gamecard.c:313:34: warning: initialization makes pointer from integer without a cast [-Wint-conversion]
+    get_pokemon_enviar *get_rcv = utils_receive_and_deserialize(client_fd, msg);
+                                  ^
+../src/Gamecard.c:315:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+    log_info("ID correlacional: %d", get_rcv->id_correlacional);
+             ^
+In file included from ../src/Gamecard.h:8:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
+  void   log_info(t_log* logger, const char* message, ...);
+         ^
+../src/Gamecard.c:315:37: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
+    log_info("ID correlacional: %d", get_rcv->id_correlacional);
+                                     ^
+In file included from ../src/Gamecard.h:8:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
+  void   log_info(t_log* logger, const char* message, ...);
+         ^
+../src/Gamecard.c:316:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
     log_info("Nombre Pokemon: %s", get_rcv->nombrePokemon);
              ^
 In file included from ../src/Gamecard.h:8:0,
@@ -261,7 +268,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:283:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+../src/Gamecard.c:317:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
     log_info("Largo nombre: %d", get_rcv->sizeNombre);
              ^
 In file included from ../src/Gamecard.h:8:0,
@@ -269,7 +276,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:283:33: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
+../src/Gamecard.c:317:33: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
     log_info("Largo nombre: %d", get_rcv->sizeNombre);
                                  ^
 In file included from ../src/Gamecard.h:8:0,
@@ -277,7 +284,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:284:16: warning: passing argument 1 of ‘getAPokemon’ from incompatible pointer type [-Wincompatible-pointer-types]
+../src/Gamecard.c:318:16: warning: passing argument 1 of ‘getAPokemon’ from incompatible pointer type [-Wincompatible-pointer-types]
     getAPokemon(get_rcv);
                 ^
 In file included from ../src/Gamecard.h:27:0,
@@ -285,10 +292,13 @@ In file included from ../src/Gamecard.h:27:0,
 ../src/gm_filesystem.h:27:9: note: expected ‘get_pokemon * {aka struct <anonymous> *}’ but argument is of type ‘get_pokemon_enviar * {aka struct <anonymous> *}’
  t_list* getAPokemon(get_pokemon* getPokemon);
          ^
-../src/Gamecard.c:309:38: warning: initialization makes pointer from integer without a cast [-Wint-conversion]
+../src/Gamecard.c:333:40: error: ‘process_get_and_send_localized’ undeclared (first use in this function)
+    pthread_create(&tid3, NULL, (void*) process_get_and_send_localized,
+                                        ^
+../src/Gamecard.c:343:38: warning: initialization makes pointer from integer without a cast [-Wint-conversion]
     catch_pokemon_enviar *catch_rcv = utils_receive_and_deserialize(client_fd, msg);
                                       ^
-../src/Gamecard.c:311:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+../src/Gamecard.c:345:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
     log_info("ID correlacional: %d", catch_rcv->id_correlacional);
              ^
 In file included from ../src/Gamecard.h:8:0,
@@ -296,7 +306,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:311:37: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
+../src/Gamecard.c:345:37: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
     log_info("ID correlacional: %d", catch_rcv->id_correlacional);
                                      ^
 In file included from ../src/Gamecard.h:8:0,
@@ -304,7 +314,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:312:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+../src/Gamecard.c:346:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
     log_info("Nombre Pokemon: %s", catch_rcv->nombrePokemon);
              ^
 In file included from ../src/Gamecard.h:8:0,
@@ -312,7 +322,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:313:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+../src/Gamecard.c:347:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
     log_info("Largo nombre: %d",catch_rcv->sizeNombre);
              ^
 In file included from ../src/Gamecard.h:8:0,
@@ -320,7 +330,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:313:32: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
+../src/Gamecard.c:347:32: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
     log_info("Largo nombre: %d",catch_rcv->sizeNombre);
                                 ^
 In file included from ../src/Gamecard.h:8:0,
@@ -328,7 +338,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:314:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+../src/Gamecard.c:348:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
     log_info("Posicion X: %d", catch_rcv->posicionEjeX);
              ^
 In file included from ../src/Gamecard.h:8:0,
@@ -336,7 +346,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:314:31: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
+../src/Gamecard.c:348:31: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
     log_info("Posicion X: %d", catch_rcv->posicionEjeX);
                                ^
 In file included from ../src/Gamecard.h:8:0,
@@ -344,7 +354,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:315:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
+../src/Gamecard.c:349:13: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
     log_info("Posicion Y: %d", catch_rcv->posicionEjeY);
              ^
 In file included from ../src/Gamecard.h:8:0,
@@ -352,7 +362,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:315:31: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
+../src/Gamecard.c:349:31: warning: passing argument 2 of ‘log_info’ makes pointer from integer without a cast [-Wint-conversion]
     log_info("Posicion Y: %d", catch_rcv->posicionEjeY);
                                ^
 In file included from ../src/Gamecard.h:8:0,
@@ -360,7 +370,7 @@ In file included from ../src/Gamecard.h:8:0,
 /usr/include/commons/log.h:79:9: note: expected ‘const char *’ but argument is of type ‘uint32_t {aka unsigned int}’
   void   log_info(t_log* logger, const char* message, ...);
          ^
-../src/Gamecard.c:317:18: warning: passing argument 1 of ‘catchAPokemon’ from incompatible pointer type [-Wincompatible-pointer-types]
+../src/Gamecard.c:351:18: warning: passing argument 1 of ‘catchAPokemon’ from incompatible pointer type [-Wincompatible-pointer-types]
     catchAPokemon(catch_rcv);
                   ^
 In file included from ../src/Gamecard.h:27:0,
@@ -368,41 +378,54 @@ In file included from ../src/Gamecard.h:27:0,
 ../src/gm_filesystem.h:28:5: note: expected ‘catch_pokemon * {aka struct <anonymous> *}’ but argument is of type ‘catch_pokemon_enviar * {aka struct <anonymous> *}’
  int catchAPokemon(catch_pokemon* catchPokemon);
      ^
-../src/Gamecard.c:327:71: error: ‘catch_pokemon_enviar {aka struct <anonymous>}’ has no member named ‘idCorrelativo’
+../src/Gamecard.c:361:71: error: ‘catch_pokemon_enviar {aka struct <anonymous>}’ has no member named ‘idCorrelativo’
      pthread_create(&tid4, NULL, (void*) enviar_ack, (void*) &catch_rcv->idCorrelativo);
                                                                        ^
+../src/Gamecard.c:367:40: error: ‘process_catch_and_send_caught’ undeclared (first use in this function)
+    pthread_create(&tid5, NULL, (void*) process_catch_and_send_caught,
+                                        ^
 ../src/Gamecard.c: In function ‘enviar_ack’:
-../src/Gamecard.c:350:18: warning: implicit declaration of function ‘socket_connect_to_server’ [-Wimplicit-function-declaration]
+../src/Gamecard.c:385:18: warning: implicit declaration of function ‘socket_connect_to_server’ [-Wimplicit-function-declaration]
   int client_fd = socket_connect_to_server(ipBroker, puertoBroker);
                   ^
-../src/Gamecard.c:353:3: warning: implicit declaration of function ‘utils_serialize_and_send’ [-Wimplicit-function-declaration]
+../src/Gamecard.c:388:3: warning: implicit declaration of function ‘utils_serialize_and_send’ [-Wimplicit-function-declaration]
    utils_serialize_and_send(client_fd, ack_send, susc);
    ^
-../src/Gamecard.c:357:2: warning: implicit declaration of function ‘socket_close_conection’ [-Wimplicit-function-declaration]
+../src/Gamecard.c:392:2: warning: implicit declaration of function ‘socket_close_conection’ [-Wimplicit-function-declaration]
   socket_close_conection(client_fd);
   ^
-../src/Gamecard.c:346:6: warning: unused variable ‘id’ [-Wunused-variable]
+../src/Gamecard.c:381:6: warning: unused variable ‘id’ [-Wunused-variable]
   int id = *((int*) arg);
       ^
-../src/Gamecard.c: In function ‘process_new_and_send_appeared’:
-../src/Gamecard.c:370:40: error: ‘new_pokemon {aka struct <anonymous>}’ has no member named ‘id_mensaje’
+../src/Gamecard.c: In function ‘procesar_new_enviar_appeared’:
+../src/Gamecard.c:405:40: error: ‘new_pokemon {aka struct <anonymous>}’ has no member named ‘id_mensaje’
   appeared_snd->idCorrelativo = new_recv->id_mensaje;
                                         ^
-../src/Gamecard.c:373:14: error: ‘appeared_pokemon {aka struct <anonymous>}’ has no member named ‘cantidad’
+../src/Gamecard.c:408:14: error: ‘appeared_pokemon {aka struct <anonymous>}’ has no member named ‘cantidad’
   appeared_snd->cantidad = new_recv->cantidad;
               ^
-../src/Gamecard.c:366:11: warning: unused variable ‘appeared’ [-Wunused-variable]
+../src/Gamecard.c:401:11: warning: unused variable ‘appeared’ [-Wunused-variable]
   t_header appeared = APPEARED_POKEMON;
            ^
-../src/Gamecard.c: In function ‘process_get_and_send_localized’:
-../src/Gamecard.c:403:40: error: ‘get_pokemon {aka struct <anonymous>}’ has no member named ‘id_mensaje’
+../src/Gamecard.c: In function ‘procesar_get_enviar_localized’:
+../src/Gamecard.c:438:40: error: ‘get_pokemon {aka struct <anonymous>}’ has no member named ‘id_mensaje’
   localized_snd->idCorrelativo = get_rcv->id_mensaje;
                                         ^
-../src/Gamecard.c:407:28: error: incompatible types when assigning to type ‘t_list {aka struct <anonymous>}’ from type ‘t_list * {aka struct <anonymous> *}’
+../src/Gamecard.c:442:28: error: incompatible types when assigning to type ‘t_list {aka struct <anonymous>}’ from type ‘t_list * {aka struct <anonymous> *}’
   localized_snd->posiciones = posiciones;
                             ^
-../src/Gamecard.c: In function ‘process_catch_and_send_caught’:
-../src/Gamecard.c:428:39: error: ‘catch_pokemon {aka struct <anonymous>}’ has no member named ‘id_mensaje’
+../src/Gamecard.c: In function ‘procesar_catch_enviar_caught’:
+../src/Gamecard.c:462:39: error: ‘catch_pokemon {aka struct <anonymous>}’ has no member named ‘id_mensaje’
   caught_snd->idCorrelativo = catch_rcv->id_mensaje;
                                        ^
+../src/Gamecard.c: In function ‘gm_exit’:
+../src/Gamecard.c:477:25: error: ‘game_card_fd’ undeclared (first use in this function)
+  socket_close_conection(game_card_fd);
+                         ^
+../src/Gamecard.c:479:2: warning: implicit declaration of function ‘game_card_config_free’ [-Wimplicit-function-declaration]
+  game_card_config_free();
+  ^
+../src/Gamecard.c:480:2: warning: implicit declaration of function ‘game_card_logger_destroy’ [-Wimplicit-function-declaration]
+  game_card_logger_destroy();
+  ^
 make: *** [src/Gamecard.o] Error 1

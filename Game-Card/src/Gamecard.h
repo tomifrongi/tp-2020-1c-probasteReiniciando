@@ -31,6 +31,8 @@
 
 #define MAX_CLIENTS 128
 
+//------------------------------------ESTRUCTURAS--------------------------------------------//
+
 bool is_conn;
 
 typedef struct{
@@ -41,42 +43,51 @@ typedef struct{
 	int cantidad;
 }t_linea;
 
+
+//METADATA(no lo uso aca, sino que lo uso en gm_metadata//
 typedef struct{
 	uint32_t block_size;
 	uint32_t blocks;
 	char* magic_number;
 }t_principal;
 
+
+//HANDLE CONNECTION//
 typedef struct{
-	char* bool_val;
+	char* valor;
 	uint32_t fd;
 }t_handle_connection;
 
+
+//POSICIONES//
 typedef struct {
 	uint32_t posicionEjeX;
 	uint32_t posicionEjeY;
 }t_posiciones;
-//-----------------------------------------CONEXIONES-------------------------------------------------//
+
+//CONEXIONES//
 int tiempoReintentoConexion;
 int tiempoReintentoOperacion;
 int tiempoRetardoOperacion;
 char* puntoMontaje;
 char* ipBroker;
 int puertoBroker;
-//----------------------------------------------------------------------------------------------------//
 
+
+//-----------------------------------FUNCIONES DECLARADAS-------------------------------------------//
+
+void reintentar_conexion(void* arg);
+void iniciar_config_logger();
 void* handler_suscripciones(uint32_t cola);
-void initConfigLogger();
-void gm_retry_connect(void* arg);
-void game_card_init_as_server();
-void *recv_gamecard(int fd, int send_to);
-void game_card_exit();
-//void subscribe_to(void *arg);
-//static void *handle_conn(void *arg);
+void gm_init();
+static void *handle_conexion_server(void *arg);
+void *recibir_msgs_gamecard(int fd, int send_to);
 void enviar_ack(void* arg);
-void process_new_and_send_appeared(void* arg);
-void process_get_and_send_localized(void* arg);
-void process_catch_and_send_caught(void* arg);
+void procesar_new_enviar_appeared(void* arg);
+void procesar_get_enviar_localized(void* arg);
+void procesar_catch_enviar_caught(void* arg);
+void gm_exit();
+
 
 #endif
 /* GAMECARD_H_ */
