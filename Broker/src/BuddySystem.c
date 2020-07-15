@@ -331,7 +331,7 @@ particion_buddy_memoria* cargarDatosParticionBuddy(particion_buddy_memoria* part
 		return particion;
 
 }
-//TODO corregir gameboy
+
 
 t_list* sacarParticionesLibresBuddy(){
 	bool particionLibre(void* particion){

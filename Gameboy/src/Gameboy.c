@@ -1,12 +1,11 @@
 #include "Gameboy.h"
 
-
+//TODO revisar que esten todos y bien todos los logs
 
  int main(void) {
 
 	config = config_create("Gameboy.config");
 	logger =  log_create("Gameboy.log", "Gameboy", 1, LOG_LEVEL_INFO);
-//	TODO Llegada de un nuevo mensaje a una cola de mensajes.
 
 	imprimirOpciones();
 
@@ -28,7 +27,7 @@
 		ejecutarModoGamecard();
 		break;
 	}
-//TODO modoSuscriptor
+
 	case 4: {
 		ejecutarModoSuscriptor();
 		break;

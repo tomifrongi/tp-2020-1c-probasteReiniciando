@@ -13,6 +13,13 @@
 pthread_mutex_t mutexId;
 pthread_mutex_t mutexLogger;
 
+//TODO dump de la cache
+//TODO Recibir ACK de los suscriptores
+//TODO Enviar id/confirmacion cuando publisher envia un mensaje
+//TODO poner bien todos los logs
+//TODO hacer config
+//TODO agregar semaforos donde falten
+
 int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
 	PUERTO_BROKER = 8080;

@@ -21,6 +21,7 @@ void ejecutarModoSuscriptor()
 	time_t time1,time2;
 	double diferencia;
 	time1 = time(&time1);
+	//TODO sleep y proceso hijo
 	while(diferencia<duracion){
 		t_message* mensajeRecibido = recv_message(socketGame);
 		log_info(logger, "MENSAJE %s RECIBIDO",nombreCola);
