@@ -105,6 +105,7 @@ void deserializarAppeared(void* content){
 	bytesLeidos+=(sizeof(mensaje.idCorrelativo));
 	memcpy(&mensaje.sizeNombre,content+bytesLeidos,sizeof(mensaje.sizeNombre));
 	bytesLeidos+=(sizeof(mensaje.sizeNombre));
+	mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
 	memcpy(mensaje.nombrePokemon,content+bytesLeidos,mensaje.sizeNombre);
 	bytesLeidos+=mensaje.sizeNombre;
 	memcpy(&mensaje.posicionEjeX,content+bytesLeidos,sizeof(mensaje.posicionEjeX));
@@ -116,6 +117,7 @@ void deserializarAppeared(void* content){
 	log_info(logger,"NOMBRE POKEMON: %s",mensaje.nombrePokemon);
 	log_info(logger,"POSICION EJE X: %d",mensaje.posicionEjeX);
 	log_info(logger,"POSICION EJE Y: %d",mensaje.posicionEjeY);
+	free(mensaje.nombrePokemon);
 }
 
 void deserializarCatch(void* content){
@@ -126,6 +128,7 @@ void deserializarCatch(void* content){
 	bytesLeidos+=(sizeof(mensaje.id_mensaje));
 	memcpy(&mensaje.sizeNombre,content+bytesLeidos,sizeof(mensaje.sizeNombre));
 	bytesLeidos+=(sizeof(mensaje.sizeNombre));
+	mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
 	memcpy(mensaje.nombrePokemon,content+bytesLeidos,mensaje.sizeNombre);
 	bytesLeidos+=mensaje.sizeNombre;
 	memcpy(&mensaje.posicionEjeX,content+bytesLeidos,sizeof(mensaje.posicionEjeX));
@@ -136,6 +139,7 @@ void deserializarCatch(void* content){
 	log_info(logger,"NOMBRE POKEMON: %s",mensaje.nombrePokemon);
 	log_info(logger,"POSICION EJE X: %d",mensaje.posicionEjeX);
 	log_info(logger,"POSICION EJE Y: %d",mensaje.posicionEjeY);
+	free(mensaje.nombrePokemon);
 }
 
 void deserializarCaught(void* content){
@@ -164,10 +168,12 @@ void deserializarGet(void* content){
 	bytesLeidos+=(sizeof(mensaje.id_mensaje));
 	memcpy(&mensaje.sizeNombre,content+bytesLeidos,sizeof(mensaje.sizeNombre));
 	bytesLeidos+=(sizeof(mensaje.sizeNombre));
+	mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
 	memcpy(mensaje.nombrePokemon,content+bytesLeidos,mensaje.sizeNombre);
 
 	log_info(logger,"ID MENSAJE: %d",mensaje.id_mensaje);
 	log_info(logger,"NOMBRE POKEMON: %s",mensaje.nombrePokemon);
+	free(mensaje.nombrePokemon);
 }
 
 void deserializarLocalized(void* content){
@@ -180,6 +186,7 @@ void deserializarLocalized(void* content){
 	bytesLeidos+=(sizeof(mensaje.idCorrelativo));
 	memcpy(&mensaje.sizeNombre,content+bytesLeidos,sizeof(mensaje.sizeNombre));
 	bytesLeidos+=(sizeof(mensaje.sizeNombre));
+	mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
 	memcpy(mensaje.nombrePokemon,content+bytesLeidos,mensaje.sizeNombre);
 	bytesLeidos+=mensaje.sizeNombre;
 	memcpy(&mensaje.cantidadPosiciones,content+bytesLeidos,sizeof(mensaje.cantidadPosiciones));
@@ -200,4 +207,5 @@ void deserializarLocalized(void* content){
 		log_info(logger,"POSICION: (%d,%d)",posiciones[index],posiciones[index+1]);
 		index+=2;
 	}
+	free(mensaje.nombrePokemon);
 }
