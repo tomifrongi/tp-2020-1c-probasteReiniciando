@@ -11,11 +11,14 @@
 #include <commons/collections/list.h>
 #include "Gamecard.h"
 
+//-----------------------------------------------------ESTRUCTURAS-------------------------------------------------//
 typedef struct {
 	uint32_t blockSize;
 	char* blocks;
 	char* isOpen;
 } t_pokemon_metadata;
+
+//-----------------------------------------------------FUNCIONES--------------------------------------------------//
 
 int es_char(const char* str, char chr);
 int split_path(const char* path, char** super_path, char** name);

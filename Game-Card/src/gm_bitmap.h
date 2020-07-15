@@ -6,7 +6,6 @@
 #include <commons/bitarray.h>
 #include <commons/txt.h>
 #include <stdbool.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h> /* mmap() is defined in this header */
@@ -16,6 +15,8 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
+//----------------------------FUNCIONES--------------------------------------//
+
 void mostrar_bitarray(t_bitarray* bitmap);
 void conf_bloq_in_pos(t_bitarray* bitmap, off_t pos);
 void conf_liberar_bloq_in_pos(t_bitarray* bitmap, off_t pos);
@@ -23,4 +24,4 @@ bool testear_bloq_lib_in_pos(t_bitarray* bitmap, int pos);
 int obtener_conf_free_block(t_bitarray* bitmap, unsigned int blocks);
 int liberar_blocks(int metadataBlocks, t_bitarray* bitmap);
 
-#endif GM_BITMAP_H
+#endif

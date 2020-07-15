@@ -36,14 +36,6 @@
 bool is_conn;
 int gamecard_fd;
 
-//METADATA(no lo uso aca, sino que lo uso en gm_metadata//
-typedef struct{
-	uint32_t block_size;
-	uint32_t blocks;
-	char* magic_number;
-}t_principal;
-
-
 //HANDLE CONNECTION//
 typedef struct{
 	char* valor;

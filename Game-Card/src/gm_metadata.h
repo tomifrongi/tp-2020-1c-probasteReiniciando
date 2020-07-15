@@ -13,6 +13,8 @@
 
 #include "gm_bitmap.h"
 
+//-----------------------------------------ESTRUCTURAS---------------------------------------------//
+
 typedef enum {
 	METADATA,
 	FILES,
@@ -24,12 +26,11 @@ typedef enum {
 typedef struct {
 	unsigned int block_size, blocks;
 	char* magic_number;
-}Metadata;
+} Metadata;
 
 Metadata metadata;
 
 t_config* config_metadata;
-
 t_config* config_table_metadata;
 
 t_bitarray* bitmap;
@@ -42,13 +43,16 @@ char* puntoMontaje;
 char* ipBroker;
 int puertoBroker;
 
+//----------------------------------------------------FUNCIONES----------------------------------------------------//
+
 void crear_root_files();
 void conf_metadata();
 void conf_files();
 void crear_blocks();
 void crear_bitmap(char* bitmapBin);
 void crear_metadata_file(char* metadataBin);
-void leer_bitmap(char* bitmapBin);
 void leer_metadata(char* metadataPath);
+void leer_bitmap(char* bitmapBin);
+
 
 #endif GM_METADATA_H

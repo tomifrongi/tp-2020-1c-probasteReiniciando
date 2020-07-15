@@ -15,33 +15,31 @@
 #include "Gamecard.h"
 #include "gm_metadata.h"
 
+//------------------------ESTRUCTURAS-----------------------------------------------------------//
+
 pthread_mutex_t MUTEX_METADATA;
 
-char* formatToMetadataBlocks(t_list* blocks);
-void updatePokemonMetadata(const char* fullPath, const char* directory, const char* size, const char* blocks, const char* open);
-int createRecursiveDirectory(const char* path);
-int createFile(const char* fullPath);
-void initSemaphore();
+//--------------------------------------FUNCIONES---------------------------------------------------------------------//
 
-void createNewPokemon(new_pokemon* newPokemon);
-t_list* getAPokemon(get_pokemon* getPokemon);
-int catchAPokemon(catch_pokemon* catchPokemon);
-
-void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int freeBlocks);
-t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath);
-int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath);
-
+void gm_structs_fs();
+void init_semaphore();
+int directorio_recursivo(const char* path);
+int crear_archivo(const char* fullPath);
+void actualizar_pokemon_metadata(const char* fullPath, const char* directory, const char* size, const char* blocks, const char* open);
+void updateOpenFileState(const char* fullPath, const char* open);
 int coordinateExists(unsigned int posX, unsigned int posY, t_list* pokemonLines);
 void addTotalPokemonIfCoordinateExist(new_pokemon* newPokemon, t_list* pokemonLines);
 void deletePokemonTotalIfCoordinateExist(catch_pokemon* catchPokemon, t_list* pokemonLines);
 t_list* requestFreeBlocks(int extraBlocksNeeded);
+char* formatToMetadataBlocks(t_list* blocks);
+void gm_liberar_bitmaps();
+void liberar_block_line(blockLine* newLineBlock);
+void createNewPokemon(new_pokemon* newPokemon);
+int catchAPokemon(catch_pokemon* catchPokemon);
+t_list* getAPokemon(get_pokemon* getPokemon);
+void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int freeBlocks);
+t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath);
+int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath);
 
-int calcualarBloques(int tamanio);
-int cuantosBloquesOcupa(char* value);
-char* crearPathBloque(int bloque, char* montajeBloques);
-void updateOpenFileState(const char* fullPath, const char* open);
 
-void gcfsCreateStructs();
-void gcfsFreeBitmaps();
-void freeBlockLine(blockLine* newLineBlock);
 #endif /* FILE_SYSTEM_GAME_CARD_FILE_SYSTEM_H_ */
