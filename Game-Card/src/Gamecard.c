@@ -273,7 +273,7 @@ void *recibir_msgs_gamecard(int fd, int respond_to) {
 
 		// From Broker or GB
 		case NEW_POKEMON: {
-			printf("NEW received");
+			log_info(log, "NEW received");
 			new_pokemon_enviar *new_recv= utils_receive_and_deserialize(client_fd, msg);
 
 			log_info(new_recv->id_mensaje, "ID recibido: %d");
@@ -306,7 +306,7 @@ void *recibir_msgs_gamecard(int fd, int respond_to) {
 
 			// From broker or GB
 		case GET_POKEMON: {
-			printf("GET received");
+			log_info(log, "GET received");
 			get_pokemon_enviar *get_rcv = utils_receive_and_deserialize(client_fd, msg);
 
 			log_info(get_rcv->id_correlacional, "ID correlacional: %d");
@@ -335,7 +335,7 @@ void *recibir_msgs_gamecard(int fd, int respond_to) {
 
 			// From broker or GB
 		case CATCH_POKEMON: {
-			printf("CATCH received");
+			log_info(log, "CATCH received");
 			catch_pokemon_enviar *catch_rcv = utils_receive_and_deserialize(client_fd, msg);
 
 			log_info(catch_rcv->id_correlacional, "ID correlacional: %d");
@@ -397,7 +397,7 @@ void procesar_new_enviar_appeared(void* arg) {
 
 	appeared_snd->nombrePokemon = new_recv->nombrePokemon;
 	appeared_snd->sizeNombre = new_recv->sizeNombre;
-	appeared_snd->id_correlacional = new_recv->id_mensaje;
+	appeared_snd->idCorrelativo = new_recv->id_mensaje;
 	appeared_snd->posicionEjeX = new_recv->posicionEjeX;
 	appeared_snd->posicionEjeY = new_recv->posicionEjeY;
 	appeared_snd->cantidad = new_recv->cantidad;
@@ -414,7 +414,7 @@ void procesar_new_enviar_appeared(void* arg) {
 
 //----------------------------Procesar GET y enviar LOCALIZED------------------------------------------//
 void procesar_get_enviar_localized(void* arg) {
-	get_pokemon* get_rcv = (get_pokemon*) arg;
+	get_pokemon* get_rcv = (get_pokemon*) arg; //recibo GET y t_header es CONFIRMACION, para tener el id_mensaje
 	localized_pokemon* localized_snd = malloc(sizeof(localized_pokemon));
 	t_list* posiciones = list_create();
 	t_posiciones *posicion = malloc(sizeof(t_posiciones));
@@ -454,7 +454,7 @@ void procesar_catch_enviar_caught(void* arg) {
 
 	// Process Catch and send Caught to broker
 
-	caught_snd->id_correlacional = catch_rcv->id_mensaje;
+	caught_snd->idCorrelativo = catch_rcv->id_mensaje;
 	caught_snd->pokemonAtrapado = 1;
 	t_header caught = CAUGHT_POKEMON;
 
@@ -469,11 +469,10 @@ void procesar_catch_enviar_caught(void* arg) {
 
 //-----------------------------------FINALIZACION DEL GAMECARD------------------------------------//
 void gm_exit() {
-	socket_close_conection(game_card_fd);
+	socket_close_conection(gamecard_fd);
 	//gcfsFreeBitmaps();
-	game_card_config_free();
-	log_destroy()
-	game_card_logger_destroy();
+	free(gamecard_fd);
+	log_destroy(gamecard_fd);
 
 	free(struct_paths[METADATA]);
 	free(struct_paths[FILES]);

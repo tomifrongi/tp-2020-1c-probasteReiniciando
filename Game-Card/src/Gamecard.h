@@ -34,6 +34,7 @@
 //------------------------------------ESTRUCTURAS--------------------------------------------//
 
 bool is_conn;
+int gamecard_fd;
 
 typedef struct{
 	int cord_x;

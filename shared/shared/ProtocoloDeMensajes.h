@@ -173,7 +173,7 @@ typedef struct {
 	uint32_t id_mensaje;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
-}get_pokemon;
+}get_pokemon_enviar;
 //t_header = GET_POKEMON
 
 //Subscriber envia:
