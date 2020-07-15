@@ -2,36 +2,60 @@
 
 
 void crearEstructurasAdministrativas (){
-	get_admin.queue = queue_create();
-	localized_admin.queue = queue_create();
-	catch_admin.queue = queue_create();
-	caught_admin.queue = queue_create();
-	new_admin.queue = queue_create();
-	appeared_admin.queue = queue_create();
+	get_admin = malloc(sizeof(estructuraAdministrativa));
+	localized_admin  = malloc(sizeof(estructuraAdministrativa));
+	catch_admin  = malloc(sizeof(estructuraAdministrativa));
+	caught_admin  = malloc(sizeof(estructuraAdministrativa));
+	new_admin = malloc(sizeof(estructuraAdministrativa));
+	appeared_admin = malloc(sizeof(estructuraAdministrativa));
 
-	get_admin.suscriptores = list_create();
-	localized_admin.suscriptores = list_create();
-	catch_admin.suscriptores = list_create();
-	caught_admin.suscriptores = list_create();
-	new_admin.suscriptores = list_create();
-	appeared_admin.suscriptores = list_create();
+	get_admin->queue = list_create();
+	localized_admin->queue = list_create();
+	catch_admin->queue = list_create();
+	caught_admin->queue = list_create();
+	new_admin->queue = list_create();
+	appeared_admin->queue = list_create();
+
+	get_admin->suscriptores = list_create();
+	localized_admin->suscriptores = list_create();
+	catch_admin->suscriptores = list_create();
+	caught_admin->suscriptores = list_create();
+	new_admin->suscriptores = list_create();
+	appeared_admin->suscriptores = list_create();
 
 
 }
 
 void destruirEstructurasAdministrativas(){
-	queue_destroy(get_admin.queue);
-	queue_destroy(localized_admin.queue);
-	queue_destroy(catch_admin.queue);
-	queue_destroy(new_admin.queue);
-	queue_destroy(appeared_admin.queue);
-	queue_destroy(caught_admin.queue);
+	list_destroy_and_destroy_elements(get_admin->queue,(void*)borrarElementoCola);
+	list_destroy_and_destroy_elements(localized_admin->queue,(void*)borrarElementoCola);
+	list_destroy_and_destroy_elements(catch_admin->queue,(void*)borrarElementoCola);
+	list_destroy_and_destroy_elements(new_admin->queue,(void*)borrarElementoCola);
+	list_destroy_and_destroy_elements(appeared_admin->queue,(void*)borrarElementoCola);
+	list_destroy_and_destroy_elements(caught_admin->queue,(void*)borrarElementoCola);
 
-	list_destroy(get_admin.suscriptores);
-	list_destroy(localized_admin.suscriptores);
-	list_destroy(catch_admin.suscriptores);
-	list_destroy(new_admin.suscriptores);
-	list_destroy(appeared_admin.suscriptores);
-	list_destroy(caught_admin.suscriptores);
+	list_destroy_and_destroy_elements(get_admin->suscriptores,(void*)borrarSuscriptor);
+	list_destroy_and_destroy_elements(localized_admin->suscriptores,(void*)borrarSuscriptor);
+	list_destroy_and_destroy_elements(catch_admin->suscriptores,(void*)borrarSuscriptor);
+	list_destroy_and_destroy_elements(new_admin->suscriptores,(void*)borrarSuscriptor);
+	list_destroy_and_destroy_elements(appeared_admin->suscriptores,(void*)borrarSuscriptor);
+	list_destroy_and_destroy_elements(caught_admin->suscriptores,(void*)borrarSuscriptor);
 }
 
+suscriptor* crearSuscriptor(suscriptor suscriptorNuevo){
+	suscriptor* suscriptorNuevoCreado = malloc(sizeof(suscriptor));
+	suscriptorNuevoCreado->idSuscriptor = suscriptorNuevo.idSuscriptor;
+	suscriptorNuevoCreado->socket = suscriptorNuevo.socket;
+	return suscriptorNuevoCreado;
+}
+void borrarSuscriptor(suscriptor* suscriptor){
+	free(suscriptor);
+}
+
+uint32_t* crearElementoCola(uint32_t elemento){
+	uint32_t* elementoCreado = malloc(sizeof(uint32_t));
+	return elementoCreado;
+}
+void borrarElementoCola(uint32_t* elemento){
+	free(elemento);
+}

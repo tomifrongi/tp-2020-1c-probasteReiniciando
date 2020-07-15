@@ -1,7 +1,7 @@
 /*
  ============================================================================
  Name        : Broker.c
- Author      : Tomas
+ Author      : Tomas y Juan
  Version     :
  Copyright   : Your copyright notice
  Description : Hello World in C, Ansi-style
@@ -17,9 +17,18 @@ int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
 	PUERTO_BROKER = 8080;
 	ID_INICIAL = 0;
+	TAMANO_MEMORIA =2048;
+	TAMANO_MINIMO_PARTICION = 4;
+	ALGORITMO_MEMORIA = "BS";
+	ALGORITMO_REEMPLAZO ="FIFO";
+	ALGORITMO_PARTICION_LIBRE ="FF";
+	FRECUENCIA_COMPACTACION = 1;
+
 	crearEstructurasAdministrativas();
 	iniciarMutexs();
 	iniciarListasIds();
+	inicializarMemoriaBuddy();
+
 	init_broker_server();
 	return EXIT_SUCCESS;
 }
@@ -45,7 +54,6 @@ void init_broker_server() {
 
 void* handler_clients(void* socket){
 	int broker_sock = (int) (socket);
-	char* id_cliente; //Id del cliente actual
 	bool executing = true;
 	while(executing){
 		t_message* message = recv_message(broker_sock);
@@ -75,23 +83,32 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
-				cachearMensaje(&mensaje);
-				free(mensaje.nombrePokemon);
+
+				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensaje(&mensaje,NEW);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensajeBuddy(&mensaje,NEW);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+
 				//QUEUE PUSH (POSICION MENSAJE)
-				log_info(logger,"%s", mensaje.nombrePokemon);
 
-
-
-				log_info(logger,"el size es: %d",mensaje.sizeNombre);
-				log_info(logger,"la cantidad es: %d",mensaje.cantidad);
-				log_info(logger,"la posicion x es: %d",mensaje.posicionEjeX);
-				log_info(logger,"la posicion y es: %d",mensaje.posicionEjeY);
 
 				pthread_mutex_lock(&mutexQueueNew);
-				queue_push(new_admin.queue, &mensaje);
+				uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
+				list_add(new_admin->queue,idNuevo);
 				pthread_mutex_unlock(&mutexQueueNew);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
+				free(mensaje.nombrePokemon);
 				break;
 			}
 			case APPEARED_POKEMON:{
@@ -106,7 +123,8 @@ void* handler_clients(void* socket){
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
@@ -122,12 +140,31 @@ void* handler_clients(void* socket){
 				log_info(logger,"%d", mensaje.sizeNombre);
 				pthread_mutex_lock(&mutexQueueAppeared);
 				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
-					queue_push(appeared_admin.queue, &mensaje);
-					list_add(idsCorrelativosAppeared,&mensaje.idCorrelativo);
+
+
+					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
+					*idCorrelativoLista = mensaje.idCorrelativo;
+					list_add(idsCorrelativosAppeared,idCorrelativoLista);
 					log_info(logger,"mensaje agregado a la cola");
+					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensaje(&mensaje,APPEARED);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
+
+					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensajeBuddy(&mensaje,APPEARED);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
+					uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
+					list_add(appeared_admin->queue,idNuevo);
 				}
 				pthread_mutex_unlock(&mutexQueueAppeared);
 
+				free(mensaje.nombrePokemon);
 
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
@@ -143,8 +180,11 @@ void* handler_clients(void* socket){
 				catch_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
+				log_info(logger,"NOMBRE CATCH: %s",mensaje.nombrePokemon);
+				//log_info(logger,"",mensaje.)
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
@@ -154,11 +194,26 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
+				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensaje(&mensaje,CATCH);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensajeBuddy(&mensaje,CATCH);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
 				pthread_mutex_lock(&mutexQueueCatch);
-				queue_push(catch_admin.queue, &mensaje);
+				uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
+				list_add(catch_admin->queue,idNuevo);
 				pthread_mutex_unlock(&mutexQueueCatch);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
-
+				free(mensaje.nombrePokemon);
 				break;
 			}
 			case CAUGHT_POKEMON:{
@@ -173,17 +228,35 @@ void* handler_clients(void* socket){
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.pokemonAtrapado,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
 
 				pthread_mutex_lock(&mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
+
+
 				pthread_mutex_lock(&mutexQueueCaught);
-				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
-					queue_push(caught_admin.queue, &mensaje);
-					list_add(idsCorrelativosCaught,&mensaje.idCorrelativo);
+				if(buscarIdCorrelativo(idsCorrelativosCaught,mensaje.idCorrelativo)==NULL){
+					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
+					*idCorrelativoLista = mensaje.idCorrelativo;
+					list_add(idsCorrelativosCaught,idCorrelativoLista);
+					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensaje(&mensaje,CAUGHT);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
+
+					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensajeBuddy(&mensaje,CAUGHT);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
+
+					uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
+					list_add(caught_admin->queue,idNuevo);
 				}
 				pthread_mutex_unlock(&mutexQueueCaught);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
@@ -200,6 +273,7 @@ void* handler_clients(void* socket){
 				get_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
 				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 
 				pthread_mutex_lock(&mutexId);
@@ -207,9 +281,25 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
+				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensaje(&mensaje,GET);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
+				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+				{
+					pthread_mutex_lock(&mutexMemoria);
+					cachearMensajeBuddy(&mensaje,GET);
+					pthread_mutex_unlock(&mutexMemoria);
+				}
+
 				pthread_mutex_lock(&mutexQueueGet);
-				queue_push(get_admin.queue, &mensaje);
+				uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
+				list_add(get_admin->queue,idNuevo);
 				pthread_mutex_unlock(&mutexQueueGet);
+				free(mensaje.nombrePokemon);
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
@@ -222,23 +312,19 @@ void* handler_clients(void* socket){
 
 				void *aux = message->content;
 				localized_pokemon_enviar mensaje;
-				uint32_t largoLista;
-				uint32_t *posicion;
+
+				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
+				aux+=sizeof(uint32_t);
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&mensaje.nombrePokemon,aux,mensaje.sizeNombre);
+				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
+				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
 				memcpy(&mensaje.cantidadPosiciones,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
-				memcpy(&largoLista,aux,sizeof(uint32_t)); //primero nos mandan el largo de la lista
-				aux += sizeof(uint32_t);
-				for(int i=0;i < largoLista;i++){
-					memcpy(posicion,aux,sizeof(uint32_t));
-					aux += sizeof(uint32_t);
-					list_add(&mensaje.posiciones, &posicion);
-				}
-				aux += sizeof(uint32_t);
-				memcpy(&mensaje.idCorrelativo,aux,sizeof(uint32_t));
+				size_t tamanioLista = sizeof(uint32_t)*2*mensaje.cantidadPosiciones;
+				mensaje.posiciones = malloc(tamanioLista);
+				memcpy(mensaje.posiciones,aux,tamanioLista);
 
 				pthread_mutex_lock(&mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
@@ -246,21 +332,44 @@ void* handler_clients(void* socket){
 				pthread_mutex_unlock(&mutexId);
 
 				pthread_mutex_lock(&mutexQueueLocalized);
-				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
-					queue_push(localized_admin.queue, &mensaje);
-					list_add(idsCorrelativosLocalized,&mensaje.idCorrelativo);
+				if(buscarIdCorrelativo(idsCorrelativosLocalized,mensaje.idCorrelativo)==NULL){
+					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
+					*idCorrelativoLista = mensaje.idCorrelativo;
+					list_add(idsCorrelativosLocalized,idCorrelativoLista);
+					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensaje(&mensaje,LOCALIZED);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
+
+					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+					{
+						pthread_mutex_lock(&mutexMemoria);
+						cachearMensajeBuddy(&mensaje,LOCALIZED);
+						pthread_mutex_unlock(&mutexMemoria);
+					}
+					uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
+					list_add(localized_admin->queue,idNuevo);
 				}
 				pthread_mutex_unlock(&mutexQueueLocalized);
+				free(mensaje.nombrePokemon);
+				free(mensaje.posiciones);
 
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
 			}
 			case SUSCRIPCION:{
-				uint32_t id_cola;
+				suscripcion mensajeSuscripcion;
 				void *aux = message->content;
-				memcpy(&id_cola,aux,sizeof(uint32_t));
-				agregarSuscripcion(id_cola,broker_sock);
+				memcpy(&mensajeSuscripcion.idCola,aux,sizeof(uint32_t));
+				aux +=sizeof(uint32_t);
+				memcpy(&mensajeSuscripcion.idSuscriptor,aux,sizeof(pid_t));
+				agregarSuscripcion(mensajeSuscripcion,broker_sock);
+				enviarUltimosMensajesRecibidos(mensajeSuscripcion,broker_sock);
+				log_info(logger,"NUEVA SUSCRIPCION");
+
 				break;
 			}
 
@@ -293,37 +402,736 @@ void enviarConfirmacion(uint32_t id, int broker_sock){
 	send_message(broker_sock, CONFIRMACION,content,size);
 }
 
-void agregarSuscripcion (uint32_t id_cola, int broker_sock){
-	switch(id_cola){
-	case NEW:
-		list_add(new_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+suscriptor* buscarSuscriptor(estructuraAdministrativa* estAdm,pid_t idSuscriptor){
+	bool algo (void* suscriptorLista){
+		suscriptor* suscriptorCasteado = suscriptorLista;
+		return idSuscriptor == suscriptorCasteado->idSuscriptor;
+	}
+
+	return list_find(estAdm->suscriptores,algo);
+
+}
+
+
+void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
+	switch(mensajeSuscripcion.idCola){
+	case NEW:{
+		suscriptor* suscriptorEncontrado;
+		suscriptorEncontrado = buscarSuscriptor(new_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(new_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case APPEARED:
-		list_add(appeared_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA APPEARED",broker_sock);
+	}
+	case APPEARED:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(appeared_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(appeared_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case GET:
-		list_add(get_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA GET",broker_sock);
+	}
+	case GET:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(get_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(get_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case LOCALIZED:
-		list_add(localized_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA LOCALIZED",broker_sock);
+	}
+
+	case LOCALIZED:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(localized_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(localized_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case CATCH:
-		list_add(catch_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA CATCH",broker_sock);
+	}
+	case CATCH:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(catch_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(catch_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
-	case CAUGHT:
-		list_add(caught_admin.suscriptores,&broker_sock);
-		log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA CAUGHT",broker_sock);
+	}
+	case CAUGHT:{
+		suscriptor* suscriptorEncontrado = buscarSuscriptor(caught_admin,mensajeSuscripcion.idSuscriptor);
+		if(suscriptorEncontrado == NULL)
+		{
+			suscriptor suscriptorNuevo;
+			suscriptorNuevo.socket = broker_sock;
+			suscriptorNuevo.idSuscriptor = mensajeSuscripcion.idSuscriptor;
+			suscriptor* suscriptorNuevoCreado = crearSuscriptor(suscriptorNuevo);
+			list_add(caught_admin->suscriptores,suscriptorNuevoCreado);
+			log_info(logger, "SE AGREGO EL SUSCRIPTOR %d A LA COLA NEW",broker_sock);
+		}
+		else{
+			suscriptorEncontrado->socket = broker_sock;
+		}
+
 		break;
+	}
 	default:
 		break;
 
 	}
 }
+
+void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
+	estructuraAdministrativa* estructuraAuxiliar;
+	switch(suscripcion.idCola){
+	case NEW:{
+		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+		{
+			estructuraAuxiliar = new_admin;
+			int sizeCola = list_size(estructuraAuxiliar->queue);
+			int index = 0;
+			while(index<sizeCola){
+				uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+				particion_dinamica_memoria* particion = encontrarParticionDinamicaPorID(*idMensaje);
+
+				if(particion != NULL){
+					bool igualSuscriptor(void* suscriptorACK){
+						suscriptor* suscriptorACKCasteado = suscriptorACK;
+						return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+					}
+					suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+
+					if (suscriptorEncontrado == NULL){
+						//ENVIAR
+						new_pokemon_enviar npEnviar;
+						size_t sizeNew = sizeof(npEnviar.id_mensaje) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+						void* content = malloc(sizeNew);
+						int bytesEscritos = 0;
+						int bytesLeidosMemoria = particion->posicionParticion;
+
+						memcpy(content+bytesEscritos,idMensaje,sizeof(npEnviar.id_mensaje));
+						bytesEscritos+= sizeof(npEnviar.id_mensaje);
+						memcpy(&npEnviar.sizeNombre,principioMemoria+bytesLeidosMemoria,sizeof(npEnviar.sizeNombre));
+						npEnviar.sizeNombre++;
+						memcpy(content+bytesEscritos,&npEnviar.sizeNombre,sizeof(npEnviar.sizeNombre));
+						bytesEscritos+=sizeof(npEnviar.sizeNombre);
+						bytesLeidosMemoria+=sizeof(npEnviar.sizeNombre);
+						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(npEnviar.sizeNombre-1));
+						bytesEscritos+=npEnviar.sizeNombre;
+						bytesLeidosMemoria+=(npEnviar.sizeNombre-1);
+						char caracterNulo= '\0';
+						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
+						bytesEscritos+=sizeof(caracterNulo);
+						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,3*sizeof(uint32_t));
+
+						send_message(socket, NEW_POKEMON,content,sizeNew);
+						free(content);
+
+					}
+				}
+				index++;
+			}
+		}
+
+			else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+			{
+				estructuraAuxiliar = new_admin;
+				int sizeCola = list_size(estructuraAuxiliar->queue);
+				int index = 0;
+				while(index<sizeCola){
+					uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+					particion_buddy_memoria* particion = encontrarParticionBuddyPorID(*idMensaje);
+
+					if(particion != NULL){
+						bool igualSuscriptor(void* suscriptorACK){
+							suscriptor* suscriptorACKCasteado = suscriptorACK;
+							return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+						}
+						suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+
+						if (suscriptorEncontrado == NULL){
+							//ENVIAR
+							new_pokemon_enviar npEnviar;
+							size_t sizeNew = sizeof(npEnviar.id_mensaje) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+							void* content = malloc(sizeNew);
+							int bytesEscritos = 0;
+							int bytesLeidosMemoria = particion->posicionParticion;
+
+							memcpy(content+bytesEscritos,idMensaje,sizeof(npEnviar.id_mensaje));
+							bytesEscritos+= sizeof(npEnviar.id_mensaje);
+							memcpy(&npEnviar.sizeNombre,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(npEnviar.sizeNombre));
+							npEnviar.sizeNombre++;
+							memcpy(content+bytesEscritos,&npEnviar.sizeNombre,sizeof(npEnviar.sizeNombre));
+							bytesEscritos+=sizeof(npEnviar.sizeNombre);
+							bytesLeidosMemoria+=sizeof(npEnviar.sizeNombre);
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(npEnviar.sizeNombre-1));
+							bytesEscritos+=npEnviar.sizeNombre;
+							bytesLeidosMemoria+=(npEnviar.sizeNombre-1);
+							char caracterNulo= '\0';
+							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
+							bytesEscritos+=sizeof(caracterNulo);
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,3*sizeof(uint32_t));
+
+							send_message(socket, NEW_POKEMON,content,sizeNew);
+							free(content);
+						}
+
+					}
+					index++;
+				}
+			}
+		break;
+		}
+
+	case APPEARED:{
+		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+		{
+			estructuraAuxiliar = appeared_admin;
+			int sizeCola = list_size(estructuraAuxiliar->queue);
+			int index = 0;
+			while(index<sizeCola){
+				uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+				particion_dinamica_memoria* particion = encontrarParticionDinamicaPorID(*idMensaje);
+
+				if(particion != NULL){
+					bool igualSuscriptor(void* suscriptorACK){
+						suscriptor* suscriptorACKCasteado = suscriptorACK;
+						return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+					}
+					suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+
+					if (suscriptorEncontrado == NULL){
+						//ENVIAR
+						appeared_pokemon_enviar apEnviar;
+						size_t sizeAppeared = sizeof(apEnviar.id_mensaje)+sizeof(apEnviar.idCorrelativo) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+						void* content = malloc(sizeAppeared);
+						int bytesEscritos = 0;
+						int bytesLeidosMemoria = particion->posicionParticion;
+
+						memcpy(content+bytesEscritos,idMensaje,sizeof(apEnviar.id_mensaje));
+						bytesEscritos+= sizeof(apEnviar.id_mensaje);
+						apEnviar.idCorrelativo = particion->idCorrelativo;
+						memcpy(content+bytesEscritos,&apEnviar.idCorrelativo,sizeof(apEnviar.idCorrelativo));
+						bytesEscritos+= sizeof(apEnviar.idCorrelativo);
+						memcpy(&apEnviar.sizeNombre,principioMemoria+bytesLeidosMemoria,sizeof(apEnviar.sizeNombre));
+						apEnviar.sizeNombre++;
+						memcpy(content+bytesEscritos,&apEnviar.sizeNombre,sizeof(apEnviar.sizeNombre));
+						bytesEscritos+=sizeof(apEnviar.sizeNombre);
+						bytesLeidosMemoria+=sizeof(apEnviar.sizeNombre);
+						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(apEnviar.sizeNombre-1));
+						bytesEscritos+=apEnviar.sizeNombre;
+						bytesLeidosMemoria+=(apEnviar.sizeNombre-1);
+						char caracterNulo= '\0';
+						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
+						bytesEscritos+=sizeof(caracterNulo);
+						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,2*sizeof(uint32_t));
+
+						send_message(socket, APPEARED_POKEMON,content,sizeAppeared);
+						free(content);
+
+					}
+
+				}
+				index++;
+			}
+		}
+
+			else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+			{
+				estructuraAuxiliar = appeared_admin;
+				int sizeCola = list_size(estructuraAuxiliar->queue);
+				int index = 0;
+				while(index<sizeCola){
+					uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+					particion_buddy_memoria* particion = encontrarParticionBuddyPorID(*idMensaje);
+
+					if(particion != NULL){
+						bool igualSuscriptor(void* suscriptorACK){
+							suscriptor* suscriptorACKCasteado = suscriptorACK;
+							return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+						}
+						suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+
+						if (suscriptorEncontrado == NULL){
+							//ENVIAR
+							appeared_pokemon_enviar apEnviar;
+							size_t sizeAppeared = sizeof(apEnviar.id_mensaje)+sizeof(apEnviar.idCorrelativo) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+							void* content = malloc(sizeAppeared);
+							int bytesEscritos = 0;
+							int bytesLeidosMemoria = particion->posicionParticion;
+
+							memcpy(content+bytesEscritos,idMensaje,sizeof(apEnviar.id_mensaje));
+							bytesEscritos+= sizeof(apEnviar.id_mensaje);
+							apEnviar.idCorrelativo = particion->idCorrelativo;
+							memcpy(content+bytesEscritos,&apEnviar.idCorrelativo,sizeof(apEnviar.idCorrelativo));
+							bytesEscritos+= sizeof(apEnviar.idCorrelativo);
+							memcpy(&apEnviar.sizeNombre,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(apEnviar.sizeNombre));
+							apEnviar.sizeNombre++;
+							memcpy(content+bytesEscritos,&apEnviar.sizeNombre,sizeof(apEnviar.sizeNombre));
+							bytesEscritos+=sizeof(apEnviar.sizeNombre);
+							bytesLeidosMemoria+=sizeof(apEnviar.sizeNombre);
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(apEnviar.sizeNombre-1));
+							bytesEscritos+=apEnviar.sizeNombre;
+							bytesLeidosMemoria+=(apEnviar.sizeNombre-1);
+							char caracterNulo= '\0';
+							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
+							bytesEscritos+=sizeof(caracterNulo);
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,2*sizeof(uint32_t));
+
+							send_message(socket, APPEARED_POKEMON,content,sizeAppeared);
+							free(content);
+						}
+
+					}
+					index++;
+				}
+			}
+		break;
+		}
+
+	case GET:{
+		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+		{
+			estructuraAuxiliar = get_admin;
+			int sizeCola = list_size(estructuraAuxiliar->queue);
+			int index = 0;
+			while(index<sizeCola){
+				uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+				particion_dinamica_memoria* particion = encontrarParticionDinamicaPorID(*idMensaje);
+
+				if(particion != NULL){
+					bool igualSuscriptor(void* suscriptorACK){
+						suscriptor* suscriptorACKCasteado = suscriptorACK;
+						return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+					}
+					suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+
+					if (suscriptorEncontrado == NULL){
+						//ENVIAR
+						get_pokemon_enviar gpEnviar;
+						size_t sizeGet = sizeof(gpEnviar.id_mensaje) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+						void* content = malloc(sizeGet);
+						int bytesEscritos = 0;
+						int bytesLeidosMemoria = particion->posicionParticion;
+
+						memcpy(content+bytesEscritos,idMensaje,sizeof(gpEnviar.id_mensaje));
+						bytesEscritos+= sizeof(gpEnviar.id_mensaje);
+						memcpy(&gpEnviar.sizeNombre,principioMemoria+bytesLeidosMemoria,sizeof(gpEnviar.sizeNombre));
+						gpEnviar.sizeNombre++;
+						memcpy(content+bytesEscritos,&gpEnviar.sizeNombre,sizeof(gpEnviar.sizeNombre));
+						bytesEscritos+=sizeof(gpEnviar.sizeNombre);
+						bytesLeidosMemoria+=sizeof(gpEnviar.sizeNombre);
+						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(gpEnviar.sizeNombre-1));
+						bytesEscritos+=gpEnviar.sizeNombre;
+						bytesLeidosMemoria+=(gpEnviar.sizeNombre-1);
+						char caracterNulo= '\0';
+						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
+						bytesEscritos+=sizeof(caracterNulo);
+
+						send_message(socket, GET_POKEMON,content,sizeGet);
+						free(content);
+
+					}
+
+				}
+				index++;
+			}
+		}
+
+			else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+			{
+				estructuraAuxiliar = get_admin;
+				int sizeCola = list_size(estructuraAuxiliar->queue);
+				int index = 0;
+				while(index<sizeCola){
+					uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+					particion_buddy_memoria* particion = encontrarParticionBuddyPorID(*idMensaje);
+
+					if(particion != NULL){
+						bool igualSuscriptor(void* suscriptorACK){
+							suscriptor* suscriptorACKCasteado = suscriptorACK;
+							return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+						}
+						suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+
+						if (suscriptorEncontrado == NULL){
+							//ENVIAR
+							get_pokemon_enviar gpEnviar;
+							size_t sizeGet = sizeof(gpEnviar.id_mensaje) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+							void* content = malloc(sizeGet);
+							int bytesEscritos = 0;
+							int bytesLeidosMemoria = particion->posicionParticion;
+
+							memcpy(content+bytesEscritos,idMensaje,sizeof(gpEnviar.id_mensaje));
+							bytesEscritos+= sizeof(gpEnviar.id_mensaje);
+							memcpy(&gpEnviar.sizeNombre,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(gpEnviar.sizeNombre));
+							gpEnviar.sizeNombre++;
+							memcpy(content+bytesEscritos,&gpEnviar.sizeNombre,sizeof(gpEnviar.sizeNombre));
+							bytesEscritos+=sizeof(gpEnviar.sizeNombre);
+							bytesLeidosMemoria+=sizeof(gpEnviar.sizeNombre);
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(gpEnviar.sizeNombre-1));
+							bytesEscritos+=gpEnviar.sizeNombre;
+							bytesLeidosMemoria+=(gpEnviar.sizeNombre-1);
+							char caracterNulo= '\0';
+							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
+							bytesEscritos+=sizeof(caracterNulo);
+
+							send_message(socket, GET_POKEMON,content,sizeGet);
+							free(content);
+						}
+
+					}
+					index++;
+				}
+			}
+		break;
+		}
+
+
+	case LOCALIZED:{
+		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+		{
+			estructuraAuxiliar = localized_admin;
+			int sizeCola = list_size(estructuraAuxiliar->queue);
+			int index = 0;
+			while(index<sizeCola){
+				uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+				particion_dinamica_memoria* particion = encontrarParticionDinamicaPorID(*idMensaje);
+
+				if(particion != NULL){
+					bool igualSuscriptor(void* suscriptorACK){
+						suscriptor* suscriptorACKCasteado = suscriptorACK;
+						return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+					}
+					suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+
+					if (suscriptorEncontrado == NULL){
+						//ENVIAR
+						localized_pokemon_enviar lpEnviar;
+						size_t sizeLocalized = sizeof(lpEnviar.id_mensaje)+sizeof(lpEnviar.idCorrelativo) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+						void* content = malloc(sizeLocalized);
+						int bytesEscritos = 0;
+						int bytesLeidosMemoria = particion->posicionParticion;
+
+						memcpy(content+bytesEscritos,idMensaje,sizeof(lpEnviar.id_mensaje));
+						bytesEscritos+= sizeof(lpEnviar.id_mensaje);
+						lpEnviar.idCorrelativo = particion->idCorrelativo;
+						memcpy(content+bytesEscritos,&lpEnviar.idCorrelativo,sizeof(lpEnviar.idCorrelativo));
+						bytesEscritos+= sizeof(lpEnviar.idCorrelativo);
+						memcpy(&lpEnviar.sizeNombre,principioMemoria+bytesLeidosMemoria,sizeof(lpEnviar.sizeNombre));
+						lpEnviar.sizeNombre++;
+						memcpy(content+bytesEscritos,&lpEnviar.sizeNombre,sizeof(lpEnviar.sizeNombre));
+						bytesEscritos+=sizeof(lpEnviar.sizeNombre);
+						bytesLeidosMemoria+=sizeof(lpEnviar.sizeNombre);
+						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(lpEnviar.sizeNombre-1));
+						bytesEscritos+=lpEnviar.sizeNombre;
+						bytesLeidosMemoria+=(lpEnviar.sizeNombre-1);
+						char caracterNulo= '\0';
+						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
+						bytesEscritos+=sizeof(caracterNulo);
+						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,sizeof(lpEnviar.cantidadPosiciones));
+						memcpy(&lpEnviar.cantidadPosiciones,principioMemoria+bytesLeidosMemoria,sizeof(lpEnviar.cantidadPosiciones));
+						bytesEscritos+=sizeof(lpEnviar.posiciones);
+						bytesLeidosMemoria+=sizeof(lpEnviar.posiciones);
+						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,sizeof(uint32_t)*2*lpEnviar.cantidadPosiciones);
+
+						send_message(socket, LOCALIZED_POKEMON,content,sizeLocalized);
+						free(content);
+					}
+
+				}
+				index++;
+			}
+		}
+
+			else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+			{
+				estructuraAuxiliar = localized_admin;
+				int sizeCola = list_size(estructuraAuxiliar->queue);
+				int index = 0;
+				while(index<sizeCola){
+					uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+					particion_buddy_memoria* particion = encontrarParticionBuddyPorID(*idMensaje);
+
+					if(particion != NULL){
+						bool igualSuscriptor(void* suscriptorACK){
+							suscriptor* suscriptorACKCasteado = suscriptorACK;
+							return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+						}
+						suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+
+						if (suscriptorEncontrado == NULL){
+							//ENVIAR
+							localized_pokemon_enviar lpEnviar;
+							size_t sizeLocalized = sizeof(lpEnviar.id_mensaje)+sizeof(lpEnviar.idCorrelativo) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+							void* content = malloc(sizeLocalized);
+							int bytesEscritos = 0;
+							int bytesLeidosMemoria = particion->posicionParticion;
+
+							memcpy(content+bytesEscritos,idMensaje,sizeof(lpEnviar.id_mensaje));
+							bytesEscritos+= sizeof(lpEnviar.id_mensaje);
+							lpEnviar.idCorrelativo = particion->idCorrelativo;
+							memcpy(content+bytesEscritos,&lpEnviar.idCorrelativo,sizeof(lpEnviar.idCorrelativo));
+							bytesEscritos+= sizeof(lpEnviar.idCorrelativo);
+							memcpy(&lpEnviar.sizeNombre,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(lpEnviar.sizeNombre));
+							lpEnviar.sizeNombre++;
+							memcpy(content+bytesEscritos,&lpEnviar.sizeNombre,sizeof(lpEnviar.sizeNombre));
+							bytesEscritos+=sizeof(lpEnviar.sizeNombre);
+							bytesLeidosMemoria+=sizeof(lpEnviar.sizeNombre);
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(lpEnviar.sizeNombre-1));
+							bytesEscritos+=lpEnviar.sizeNombre;
+							bytesLeidosMemoria+=(lpEnviar.sizeNombre-1);
+							char caracterNulo= '\0';
+							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
+							bytesEscritos+=sizeof(caracterNulo);
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(lpEnviar.cantidadPosiciones));
+							memcpy(&lpEnviar.cantidadPosiciones,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(lpEnviar.cantidadPosiciones));
+							bytesEscritos+=sizeof(lpEnviar.posiciones);
+							bytesLeidosMemoria+=sizeof(lpEnviar.posiciones);
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(uint32_t)*2*lpEnviar.cantidadPosiciones);
+
+							send_message(socket, LOCALIZED_POKEMON,content,sizeLocalized);
+							free(content);
+						}
+
+					}
+					index++;
+				}
+			}
+		break;
+		}
+
+	case CATCH:{
+		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+		{
+			estructuraAuxiliar = catch_admin;
+			int sizeCola = list_size(estructuraAuxiliar->queue);
+			int index = 0;
+			while(index<sizeCola){
+				uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+				particion_dinamica_memoria* particion = encontrarParticionDinamicaPorID(*idMensaje);
+
+				if(particion != NULL){
+					bool igualSuscriptor(void* suscriptorACK){
+						suscriptor* suscriptorACKCasteado = suscriptorACK;
+						return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+					}
+					suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+
+					if (suscriptorEncontrado == NULL){
+						//ENVIAR
+						catch_pokemon_enviar cpEnviar;
+						size_t sizeCatch = sizeof(cpEnviar.id_mensaje) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+						void* content = malloc(sizeCatch);
+						int bytesEscritos = 0;
+						int bytesLeidosMemoria = particion->posicionParticion;
+
+						memcpy(content+bytesEscritos,idMensaje,sizeof(cpEnviar.id_mensaje));
+						bytesEscritos+= sizeof(cpEnviar.id_mensaje);
+						memcpy(&cpEnviar.sizeNombre,principioMemoria+bytesLeidosMemoria,sizeof(cpEnviar.sizeNombre));
+						cpEnviar.sizeNombre++;
+						memcpy(content+bytesEscritos,&cpEnviar.sizeNombre,sizeof(cpEnviar.sizeNombre));
+						bytesEscritos+=sizeof(cpEnviar.sizeNombre);
+						bytesLeidosMemoria+=sizeof(cpEnviar.sizeNombre);
+						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(cpEnviar.sizeNombre-1));
+						bytesEscritos+=cpEnviar.sizeNombre;
+						bytesLeidosMemoria+=(cpEnviar.sizeNombre-1);
+						char caracterNulo= '\0';
+						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
+						bytesEscritos+=sizeof(caracterNulo);
+						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,2*sizeof(uint32_t));
+
+						send_message(socket, CATCH_POKEMON,content,sizeCatch);
+						free(content);
+					}
+
+				}
+				index++;
+			}
+		}
+
+			else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+			{
+				estructuraAuxiliar = catch_admin;
+				int sizeCola = list_size(estructuraAuxiliar->queue);
+				int index = 0;
+				while(index<sizeCola){
+					uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+					particion_buddy_memoria* particion = encontrarParticionBuddyPorID(*idMensaje);
+
+					if(particion != NULL){
+						bool igualSuscriptor(void* suscriptorACK){
+							suscriptor* suscriptorACKCasteado = suscriptorACK;
+							return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+						}
+						suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+
+						if (suscriptorEncontrado == NULL){
+							//ENVIAR
+							catch_pokemon_enviar cpEnviar;
+							size_t sizeCatch = sizeof(cpEnviar.id_mensaje) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+							void* content = malloc(sizeCatch);
+							int bytesEscritos = 0;
+							int bytesLeidosMemoria = particion->posicionParticion;
+
+							memcpy(content+bytesEscritos,idMensaje,sizeof(cpEnviar.id_mensaje));
+							bytesEscritos+= sizeof(cpEnviar.id_mensaje);
+							memcpy(&cpEnviar.sizeNombre,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(cpEnviar.sizeNombre));
+							cpEnviar.sizeNombre++;
+							memcpy(content+bytesEscritos,&cpEnviar.sizeNombre,sizeof(cpEnviar.sizeNombre));
+							bytesEscritos+=sizeof(cpEnviar.sizeNombre);
+							bytesLeidosMemoria+=sizeof(cpEnviar.sizeNombre);
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(cpEnviar.sizeNombre-1));
+							bytesEscritos+=cpEnviar.sizeNombre;
+							bytesLeidosMemoria+=(cpEnviar.sizeNombre-1);
+							char caracterNulo= '\0';
+							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
+							bytesEscritos+=sizeof(caracterNulo);
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,2*sizeof(uint32_t));
+
+							send_message(socket, CATCH_POKEMON,content,sizeCatch);
+							free(content);
+						}
+
+					}
+					index++;
+				}
+			}
+		break;
+		}
+
+
+	case CAUGHT:{
+		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
+		{
+			estructuraAuxiliar = caught_admin;
+			int sizeCola = list_size(estructuraAuxiliar->queue);
+			int index = 0;
+			while(index<sizeCola){
+				uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+				particion_dinamica_memoria* particion = encontrarParticionDinamicaPorID(*idMensaje);
+
+				if(particion != NULL){
+					bool igualSuscriptor(void* suscriptorACK){
+						suscriptor* suscriptorACKCasteado = suscriptorACK;
+						return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+					}
+					suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+
+					if (suscriptorEncontrado == NULL){
+						//ENVIAR
+						caught_pokemon_enviar cpEnviar;
+						size_t sizeCaught = sizeof(cpEnviar.id_mensaje)+sizeof(cpEnviar.idCorrelativo) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+						void* content = malloc(sizeCaught);
+						int bytesEscritos = 0;
+						int bytesLeidosMemoria = particion->posicionParticion;
+
+						memcpy(content+bytesEscritos,idMensaje,sizeof(cpEnviar.id_mensaje));
+						bytesEscritos+= sizeof(cpEnviar.id_mensaje);
+						cpEnviar.idCorrelativo = particion->idCorrelativo;
+						memcpy(content+bytesEscritos,&cpEnviar.idCorrelativo,sizeof(cpEnviar.idCorrelativo));
+						bytesEscritos+= sizeof(cpEnviar.idCorrelativo);
+						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,sizeof(uint32_t));
+
+						send_message(socket, CAUGHT_POKEMON,content,sizeCaught);
+						free(content);
+					}
+
+				}
+				index++;
+			}
+		}
+
+			else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
+			{
+				estructuraAuxiliar = caught_admin;
+				int sizeCola = list_size(estructuraAuxiliar->queue);
+				int index = 0;
+				while(index<sizeCola){
+					uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+					particion_buddy_memoria* particion = encontrarParticionBuddyPorID(*idMensaje);
+
+					if(particion != NULL){
+						bool igualSuscriptor(void* suscriptorACK){
+							suscriptor* suscriptorACKCasteado = suscriptorACK;
+							return suscriptorACKCasteado->idSuscriptor == suscripcion.idSuscriptor;
+						}
+						suscriptor* suscriptorEncontrado = list_find(particion->suscriptoresACK,igualSuscriptor);
+
+						if (suscriptorEncontrado == NULL){
+							//ENVIAR
+							caught_pokemon_enviar cpEnviar;
+							size_t sizeCaught = sizeof(cpEnviar.id_mensaje)+sizeof(cpEnviar.idCorrelativo) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+							void* content = malloc(sizeCaught);
+							int bytesEscritos = 0;
+							int bytesLeidosMemoria = particion->posicionParticion;
+
+							memcpy(content+bytesEscritos,idMensaje,sizeof(cpEnviar.id_mensaje));
+							bytesEscritos+= sizeof(cpEnviar.id_mensaje);
+							cpEnviar.idCorrelativo = particion->idCorrelativo;
+							memcpy(content+bytesEscritos,&cpEnviar.idCorrelativo,sizeof(cpEnviar.idCorrelativo));
+							bytesEscritos+= sizeof(cpEnviar.idCorrelativo);
+							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(uint32_t));
+
+							send_message(socket, CAUGHT_POKEMON,content,sizeCaught);
+							free(content);
+						}
+
+					}
+					index++;
+				}
+			}
+		break;
+		}
+	}
+
+}
+
+
 
 void iniciarMutexs(){
 	pthread_mutex_init(&mutexId,NULL);

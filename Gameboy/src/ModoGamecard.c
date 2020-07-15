@@ -13,6 +13,7 @@ void ejecutarModoGamecard(){
 	t_message mensajeGamecard = obtenerMensajeGamecard(opcionMensaje);
 	if(mensajeGamecard.head != ERROR_MESSAGE)
 	send_message(socketGame, mensajeGamecard.head,mensajeGamecard.content, mensajeGamecard.size);
+	free(mensajeGamecard.content);
 	}
 }
 
@@ -21,27 +22,69 @@ t_message obtenerMensajeGamecard(int opcionMensaje){
 	switch(opcionMensaje){
 	case 1:{
 		new_pokemon_gamecard parametros;
-		parametros = obtenerParametrosNewGamecard();
+
+		printf("Ingrese el nombre del pokemon:\n");
+		char nombrePokemon[30];
+		scanf("%s", nombrePokemon);
+		parametros.nombrePokemon = &nombrePokemon[0];
+		parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
+
+		printf("Ingrese la posicion X:\n");
+		scanf("%d",&parametros.posicionEjeX);
+
+		printf("Ingrese la posicion Y:\n");
+		scanf("%d",&parametros.posicionEjeY);
+
+		printf("Ingrese la cantidad:\n");
+		scanf("%d", &parametros.cantidad);
+
+		printf("Ingrese el id_mensaje mayor a 10000:\n");
+		scanf("%d", &parametros.id_mensaje);
+
 		mensaje.content = serializarNewContentGamecard(parametros);
 		mensaje.head = NEW_POKEMON;
-		mensaje.size = sizeof(new_pokemon_gamecard);
+		mensaje.size = sizeof(uint32_t)*5+parametros.sizeNombre;
 		break;
 	}
 	case 2:{
 		catch_pokemon_gamecard parametros;
-		parametros = obtenerParametrosCatchGamecard();
+
+		printf("Ingrese el nombre del pokemon:\n");
+		char nombrePokemon[30];
+		scanf("%s", nombrePokemon);
+		parametros.nombrePokemon = &nombrePokemon[0];
+		parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
+
+		printf("Ingrese la posicion X:\n");
+		scanf("%d",&parametros.posicionEjeX);
+
+		printf("Ingrese la posicion Y:\n");
+		scanf("%d",&parametros.posicionEjeY);
+
+		printf("Ingrese el id_mensaje mayor a 10000:\n");
+		scanf("%d", &parametros.id_mensaje);
+
 		mensaje.content = serializarCatchContentGamecard(parametros);
 		mensaje.head = CATCH_POKEMON;
-		mensaje.size = sizeof(catch_pokemon_gamecard);
+		mensaje.size = sizeof(uint32_t)*4+parametros.sizeNombre;
 		break;
 
 	}
 	case 3:{
 		get_pokemon_gamecard parametros;
-		parametros = obtenerParametrosGetGamecard();
+
+		printf("Ingrese el nombre del pokemon:\n");
+		char nombrePokemon[30];
+		scanf("%s", nombrePokemon);
+		parametros.nombrePokemon = &nombrePokemon[0];
+		parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
+
+		printf("Ingrese el id_mensaje mayor a 10000:\n");
+		scanf("%d", &parametros.id_mensaje);
+
 		mensaje.content = serializarGetContentGamecard(parametros);
 		mensaje.head = GET_POKEMON;
-		mensaje.size = sizeof(get_pokemon_gamecard);
+		mensaje.size = sizeof(uint32_t)*2+parametros.sizeNombre;
 		break;
 	}
 	default:{

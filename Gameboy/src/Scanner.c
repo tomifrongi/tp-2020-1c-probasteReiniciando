@@ -29,7 +29,7 @@ appeared_pokemon_broker obtenerParametrosAppearedBroker(){
 	printf("Ingrese el nombre del pokemon:\n");
 	char nombrePokemon[30];
 	scanf("%s", nombrePokemon);
-	parametros.nombrePokemon = nombrePokemon;
+	parametros.nombrePokemon = &nombrePokemon[0];
 	parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
 
 	printf("Ingrese la posicion X:\n");
@@ -50,7 +50,7 @@ catch_pokemon_broker obtenerParametrosCatchBroker(){
 	printf("Ingrese el nombre del pokemon:\n");
 	char nombrePokemon[30];
 	scanf("%s", nombrePokemon);
-	parametros.nombrePokemon = nombrePokemon;
+	parametros.nombrePokemon = &nombrePokemon[0];
 	parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
 
 	printf("Ingrese la posicion X:\n");
@@ -80,7 +80,7 @@ get_pokemon_broker obtenerParametrosGetBroker(){
 	printf("Ingrese el nombre del pokemon:\n");
 	char nombrePokemon[30];
 	scanf("%s", nombrePokemon);
-	parametros.nombrePokemon = nombrePokemon;
+	parametros.nombrePokemon = &nombrePokemon[0];
 	parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
 
 	return parametros;
@@ -93,7 +93,7 @@ new_pokemon_gamecard obtenerParametrosNewGamecard(){
 	printf("Ingrese el nombre del pokemon:\n");
 	char nombrePokemon[30];
 	scanf("%s", nombrePokemon);
-	parametros.nombrePokemon = nombrePokemon;
+	parametros.nombrePokemon = &nombrePokemon[0];
 	parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
 
 	printf("Ingrese la posicion X:\n");
@@ -117,7 +117,7 @@ catch_pokemon_gamecard obtenerParametrosCatchGamecard(){
 	printf("Ingrese el nombre del pokemon:\n");
 	char nombrePokemon[30];
 	scanf("%s", nombrePokemon);
-	parametros.nombrePokemon = nombrePokemon;
+	parametros.nombrePokemon = &nombrePokemon[0];
 	parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
 
 	printf("Ingrese la posicion X:\n");
@@ -138,7 +138,7 @@ get_pokemon_gamecard obtenerParametrosGetGamecard(){
 	printf("Ingrese el nombre del pokemon:\n");
 	char nombrePokemon[30];
 	scanf("%s", nombrePokemon);
-	parametros.nombrePokemon = nombrePokemon;
+	parametros.nombrePokemon = &nombrePokemon[0];
 	parametros.sizeNombre = strlen(parametros.nombrePokemon)+1;
 
 	printf("Ingrese el id_mensaje mayor a 10000:\n");

@@ -10,6 +10,7 @@
 #include <commons/string.h>
 #include <commons/collections/queue.h>
 #include "ProtocoloDeMensajes.h"
+#include "funcionesEnvio.h"
 
 #include "tiposMensajesEnMemoria.h"
 #include "Configuracion.h"
@@ -33,40 +34,40 @@ t_list* particionesEnMemoria;
 void* principioMemoria;
 t_queue* colaMensajesMemoria;
 int CONTADORLRU;
-
+//TESTS-----------------------------------
 void ejecutarPruebaBaseBroker();
 void ejecutarPruebaBaseBroker2();
 void ejecutarPruebaConsolidacionBroker();
 void ejecutarPruebaConsolidacionBroker2();
 void ejecutarPruebaCompactacionMio();
-particion_dinamica_memoria* crear_particion_dinamica_memoria(particion_dinamica_memoria particion);
-void borrar_particion_dinamica_memoria(particion_dinamica_memoria* particion);
 
+//FUNCIONES PRINCIPALES-------------------
 void inicializarMemoria();
-
+void cachearMensaje(void* mensaje,id_cola id);
+void ejecutarCicloNormal(void* mensaje,id_cola id);
+void ejecutarCicloAlternativo(void* mensaje,id_cola id);
 bool buscarParticionLibre(uint32_t tamanioMensaje);
 void almacenarMensaje(void* mensaje,id_cola id);
+particion_dinamica_memoria* buscarPrimerParticionLibre(uint32_t tamanioMensaje);
+particion_dinamica_memoria* buscarMejorParticionLibre(uint32_t tamanioMensaje);
 void eliminarParticion();
 void actualizarBusquedasFallidas(int* busquedasFallidas);
 void compactarMemoria();
 void consolidarMemoria();
+
+//FUNCIONES SECUNDARIAS-------------------
+void sacarBarraCero(void* mensaje,id_cola id);
 void ordenarParticionesPorPosicion();
-particion_dinamica_memoria* buscarPrimerParticionLibre(uint32_t tamanioMensaje);
-particion_dinamica_memoria* buscarMejorParticionLibre(uint32_t tamanioMensaje);
-
-
-
 void agregarParticionContigua(particion_dinamica_memoria* particion,uint32_t tamanioParticionAntigua);
-
-void ejecutarCicloNormal(void* mensaje,id_cola id);
-void ejecutarCicloAlternativo(void* mensaje,id_cola id);
+particion_dinamica_memoria* crear_particion_dinamica_memoria(particion_dinamica_memoria particion);
+void borrar_particion_dinamica_memoria(particion_dinamica_memoria* particion);
 bool particionesOcupadas();
-void cachearMensaje(void* mensaje,id_cola id);
-
 particion_dinamica_memoria* cargarDatosParticion(particion_dinamica_memoria* particion,void* mensaje,id_cola id);
 t_list* sacarParticionesLibres();
+t_list* sacarParticionesOcupadas();
 int* crear_elemento_colaMensajesMemoria(int idMensaje);
 particion_dinamica_memoria* removerPorPosicion(int posicion);
 void borrar_elemento_colaMensajesMemoria(int* idMensaje);
+particion_dinamica_memoria* encontrarParticionDinamicaPorID(int idMensaje);
 
 #endif /* PARTICIONESDINAMICAS_H_ */

@@ -1,18 +1,22 @@
 
 #ifndef TEAM_H_
 #define TEAM_H_
-#define MAP_SIZE 10
+
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <commons/collections/list.h>
-#include <stdbool.h>
 #include <commons/string.h>
 #include <math.h>
  #include "entrenadores.h"
 
-
+typedef enum {
+	FIFO,
+	RR,
+	SJF_CD,
+	SJF_SD
+}t_planificador;
 
 typedef struct{
 	char* especie;
@@ -41,6 +45,12 @@ typedef struct{
 	t_list* objetivo_global;
 	//t_list*mapa [MAP_SIZE][MAP_SIZE];
 	t_list*pokemones_sueltos;
+	//logfile
+	int ip_broker;
+	int puerto_broker;
+	int tiempo_reconexion;
+	int retardo_ciclo_cpu;
+	t_planificador planificador;
 }t_team;
 
 t_list*lista_teams=list_create();

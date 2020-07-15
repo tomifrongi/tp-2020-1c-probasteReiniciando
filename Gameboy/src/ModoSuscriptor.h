@@ -8,11 +8,13 @@
 #include "MensajesSuscripcion.h"
 #include "Scanner.h"
 #include "stdbool.h"
-#include "commons/temporal.h"
+#include <time.h>
+#include <unistd.h>
+
+
 
 void ejecutarModoSuscriptor();
 t_message obtenerMensajeSuscripcion(id_cola id);
 int obtenerTiempo();
-bool compararTiempo(int duracion,char*tiempoInicio);
 
 #endif /* MODOSUSCRIPTOR_H_ */

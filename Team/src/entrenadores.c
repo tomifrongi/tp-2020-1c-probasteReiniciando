@@ -1,7 +1,4 @@
-
- #include "entrenadores.h"
-
-
+#include "entrenadores.h"
 
 /*-----------------------------------------------------------INICIALIZACION----------------------*/
 
@@ -48,7 +45,7 @@ void mostrar_entrenador(t_entrenador*entrenador) { //closure
 	printf("estado: %d\n", entrenador->estado);
 	printf("posicion x: %d\n", entrenador->posicion_x);
 	printf("posicion y: %d\n", entrenador->posicion_y);
-	printf("\npokemones capturados:\n\n");
+	printf("\npokemones capturados:\n\n"); //
 
 	mostrar_pokemones(entrenador->pokemones_capturados);
 	printf("\npokemones buscados:\n\n");
@@ -73,15 +70,15 @@ void cambiar_estado(t_entrenador* entrenador, t_state estado) {
 void entrenador_bloquear(t_entrenador *entrenador) { //para mas claridad
 	cambiar_estado(entrenador, BLOCK);
 }
-bool entrenador_cumplio_objetivos(t_entrenador *entrenador){
-	return list_size(entrenador_pokemones_faltantes)==0;
+bool entrenador_cumplio_objetivos(t_entrenador *entrenador) {
+	return list_size(entrenador_pokemones_faltantes) == 0;
 
 }
 int entrenador_finalizar(t_entrenador *entrenador) { //o si no finalizo,1 si finalizo ok //ver que onda por que esta funcion me hizo agregar el id en struct team y entrenador,si se usa solo aca,buscarle la vuelta por otro lado
-	if(entrenador_cumplio_objetivos(entrenador)){
-	cambiar_estado(entrenador, EXIT);
-	team_verificar_finalizacion(entrenador->team);
-	return 1;
+	if (entrenador_cumplio_objetivos(entrenador)) {
+		cambiar_estado(entrenador, EXIT);
+		team_verificar_finalizacion(entrenador->team);
+		return 1;
 	}
 	return 0;
 }
@@ -89,40 +86,41 @@ int entrenador_finalizar(t_entrenador *entrenador) { //o si no finalizo,1 si fin
 bool entrenador_finalizo(t_entrenador*entrenador) {
 	return entrenador->estado == EXIT;
 }
-bool esta_disponible(t_entrenador*entrenador) { //y si esta new??
-return entrenador->estado==READY ;
+bool entrenador_desocupado(t_entrenador*entrenador) {
+	if (entrenador->estado == BLOCK) {
+		//todo esta bloqueado por que no tiene nada para hacer
+		return true;
+	} else {
+		return false;
+	}
+
+}
+bool disponible_para_planificar(t_entrenador*entrenador) {
+	return (entrenador->estado == NEW || entrenador_desocupado(entrenador)); //lo dice en el video en 11:00
 }
 
 //funciones de objetivos
 t_list * entrenador_pokemones_faltantes(t_entrenador*entrenador) { //los que le faltan por encontrar a cada entrenador
 
-return  intersect_listas_pokemones(entrenador->pokemones_buscados, entrenador->pokemones_capturados);
+	return intersect_listas_pokemones(entrenador->pokemones_buscados, entrenador->pokemones_capturados);
 }
 
 t_list* entrenador_pokemones_sobrantes(t_entrenador*entrenador) {
-t_list*lista = entrenador->pokemones_capturados; //a los capturados les saco los que son el objetivo personal y me da los que no necesito...?mmm
-intersect_listas_pokemones(lista, entrenador_pokemones_faltantes(entrenador));
+	t_list*lista = entrenador->pokemones_capturados; //a los capturados les saco los que son el objetivo personal y me da los que no necesito...?mmm
+	intersect_listas_pokemones(lista, entrenador_pokemones_faltantes(entrenador));
 
-return lista;
+	return lista;
 }
 int entrenador_cantidad_objetivos(t_entrenador *entrenador) {
 
-return list_size(entrenador->pokemones_buscados);
+	return list_size(entrenador->pokemones_buscados);
 }
 //funciones de captura?
 int entrenador_cantidad_capturados(t_entrenador *entrenador) {
 
-return list_size(entrenador->pokemones_capturados);
+	return list_size(entrenador->pokemones_capturados);
 }
 bool entrenador_puede_capturar(t_entrenador*entrenador) {
-return cantidad_objetivos(entrenador) > cantidad_capturados(entrenador); //si tenia que capturar 3 no puede mas de 3 por mas que no sean los suyos
+	return cantidad_objetivos(entrenador) > cantidad_capturados(entrenador); //si tenia que capturar 3 no puede mas de 3 por mas que no sean los suyos
 }
-
-
-
-/*//ver de que resiva el struct intercambio directamente
-bool entrenador_intercambio_altera_objetivo(t_entrenador*entrenador, t_entrenador*entrenador2, t_pokemon*pokemon1,t_pokemon*pokemon1) { //los dos que van a intercambiar, y que tipo de pokemon
-t_list * objetivo_previo_e1 = objetivo_personal(entrenador);
-t_list * objetivo_previo_e2 = objetivo_personal(entrenador2); ver si puedo usar una lista sin create
-}*/
 

@@ -2,19 +2,45 @@
 
 void borrar_suscriptorBuddy(void* algo){}
 
+void inicializarMemoriaBuddy(){
+	principioMemoriaBuddy = malloc(TAMANO_MEMORIA);
 
+		particion_buddy_memoria particionInicial;
+		particionInicial.posicionParticion = 0;
+		particionInicial.libre = 1;
+		particionInicial.tamanio = TAMANO_MEMORIA;
+		particionInicial.cola = -1;
+		particionInicial.idCorrelativo = -1;
+		particionInicial.idMensaje = -1;
+		particionInicial.tamanioMensaje = -1;
+		particionInicial.contadorLRU = -1;
+
+		particion_buddy_memoria* particionInicialCreada = crear_particion_buddy_memoria(particionInicial);
+
+		particionesEnMemoriaBuddy = list_create();
+		list_add(particionesEnMemoriaBuddy,particionInicialCreada);
+
+		if(string_equals_ignore_case(ALGORITMO_REEMPLAZO,"FIFO"))
+			colaMensajesMemoriaBuddy = queue_create();
+		if(string_equals_ignore_case(ALGORITMO_REEMPLAZO,"LRU"))
+			CONTADORLRUBUDDY = 0;
+}
 void cachearMensajeBuddy(void* mensaje,id_cola id){
-	while(1)
-	{
-		if(almacenarMensajeBuddy(mensaje,id))
-			break;
-		else{
-			eliminarParticionBuddy();
-			consolidarMemoriaBuddy();
+	sacarBarraCeroBuddy(mensaje,id);
+	if(obtenerTamanioMensaje(mensaje,id)<=TAMANO_MEMORIA){
+		while(1)
+		{
+			if(almacenarMensajeBuddy(mensaje,id))
+				break;
+			else{
+				eliminarParticionBuddy();
+				consolidarMemoriaBuddy();
+			}
 		}
 	}
+	else
+		log_info(logger,"MENSAJE NO CACHEADO DEBIDO A QUE LA LONGITUD SUPERA EL TAMAÑO DE LA MEMORIA");
 }
-
 void sacarBarraCeroBuddy(void* mensaje,id_cola id){
 	switch(id){
 		case NEW: {
@@ -51,7 +77,7 @@ void sacarBarraCeroBuddy(void* mensaje,id_cola id){
 
 bool almacenarMensajeBuddy(void* mensaje,id_cola id){
 
-	sacarBarraCeroBuddy(mensaje,id);
+
 	uint32_t tamanioMensaje = obtenerTamanioMensaje(mensaje,id);
 	void* mensajeSerializado = serializarMensaje(mensaje,id);
 	particion_buddy_memoria* particion;
@@ -72,14 +98,20 @@ bool almacenarMensajeBuddy(void* mensaje,id_cola id){
 
 	int posicionParticion = particion->posicionParticion;
 	particion = cargarDatosParticionBuddy(particion,mensaje,id);
-	list_add(particionesEnMemoria,particion);
+	list_add(particionesEnMemoriaBuddy,particion);
 
 	if(string_equals_ignore_case(ALGORITMO_REEMPLAZO,"FIFO")){
 		int* idMensaje = crear_elemento_colaMensajesMemoriaBuddy(particion->idMensaje);
-		queue_push(colaMensajesMemoria,idMensaje);
+		queue_push(colaMensajesMemoriaBuddy,idMensaje);
 	}
 
-	memcpy(principioMemoria+posicionParticion,mensajeSerializado,tamanioMensaje);
+	memcpy(principioMemoriaBuddy+posicionParticion,mensajeSerializado,tamanioMensaje);
+
+	if(!particion->libre){
+		printf("ID MENSAJE: %d \n",particion->idMensaje);
+		printf("POSICION: %d \n",particion->posicionParticion);
+	}
+
 	free(mensajeSerializado);
 
 	return true;
@@ -90,6 +122,7 @@ bool almacenarMensajeBuddy(void* mensaje,id_cola id){
 }
 
 particion_buddy_memoria* buscarPrimerParticionLibreBuddy(uint32_t tamanioMensaje){
+	ordenarParticionesPorPosicionBuddy();
 
 	bool particionLibre(void* particion){
 		particion_buddy_memoria* particionCasteada = particion;
@@ -98,7 +131,7 @@ particion_buddy_memoria* buscarPrimerParticionLibreBuddy(uint32_t tamanioMensaje
 		else
 			return (tamanioMensaje<=(particionCasteada->tamanio) && particionCasteada->libre);
 	}
-	return list_remove_by_condition(particionesEnMemoria,particionLibre);
+	return list_remove_by_condition(particionesEnMemoriaBuddy,particionLibre);
 }
 
 particion_buddy_memoria* buscarMejorParticionLibreBuddy(uint32_t tamanioMensaje){
@@ -110,7 +143,7 @@ particion_buddy_memoria* buscarMejorParticionLibreBuddy(uint32_t tamanioMensaje)
 			return (tamanioMensaje<=(particionCasteada->tamanio) && particionCasteada->libre);
 		}
 
-	t_list* particionesLibres = list_filter(particionesEnMemoria,particionLibre);
+	t_list* particionesLibres = list_filter(particionesEnMemoriaBuddy,particionLibre);
 
 	bool comparadorParticionesLibres(void* particion1,void* particion2){
 		particion_buddy_memoria* particion1Casteada = particion1;
@@ -121,14 +154,14 @@ particion_buddy_memoria* buscarMejorParticionLibreBuddy(uint32_t tamanioMensaje)
 
 	particion_buddy_memoria* mejorParticionAuxiliar = list_remove(particionesLibres,0);
 	list_destroy(particionesLibres);
-	int idMejorParticion = mejorParticionAuxiliar->idMensaje;
-	borrar_particion_buddy_memoria(mejorParticionAuxiliar);
+	int posicionMejorParticion = mejorParticionAuxiliar->posicionParticion;
+//	borrar_particion_buddy_memoria(mejorParticionAuxiliar);
 
 	bool particionMismoIdMensaje(void* particion){
 		particion_buddy_memoria* particionCasteada = particion;
-		return (particionCasteada->idMensaje) == idMejorParticion;
+		return (particionCasteada->posicionParticion) == posicionMejorParticion;
 	}
-	particion_buddy_memoria* mejorParticion = list_remove_by_condition(particionesEnMemoria,particionMismoIdMensaje);
+	particion_buddy_memoria* mejorParticion = list_remove_by_condition(particionesEnMemoriaBuddy,particionMismoIdMensaje);
 	return mejorParticion;
 
 }
@@ -152,7 +185,8 @@ void agregarBuddy(particion_buddy_memoria* particion){
 	particionBuddy.tamanio = particion->tamanio;
 	particionBuddy.posicionParticion = particion->posicionParticion + particion->tamanio;
 	particion_buddy_memoria* particionBuddyCreada = crear_particion_buddy_memoria(particionBuddy);
-	list_add(particionesEnMemoria,particionBuddyCreada);
+	list_add(particionesEnMemoriaBuddy,particionBuddyCreada);
+	log_info(logger,"POSICION BUDDY NUEVO: %d",particionBuddyCreada->posicionParticion);
 
 }
 
@@ -197,10 +231,10 @@ particion_buddy_memoria* cargarDatosParticionBuddy(particion_buddy_memoria* part
 				particion->tamanio = TAMANO_MINIMO_PARTICION;
 			else
 				particion->tamanio = buscarPotenciaDeDosMasCercana(particion->tamanioMensaje);
-			CONTADORLRU++;
-			particion->contadorLRU = CONTADORLRU;
-			list_clean_and_destroy_elements(particion->suscriptoresACK,borrar_suscriptorBuddy);
-			list_clean_and_destroy_elements(particion->suscriptoresMensajeEnviado,borrar_suscriptorBuddy);
+			CONTADORLRUBUDDY++;
+			particion->contadorLRU = CONTADORLRUBUDDY;
+			list_clean(particion->suscriptoresACK);
+			list_clean(particion->suscriptoresMensajeEnviado);
 			break;
 		}
 		case APPEARED: {
@@ -215,10 +249,10 @@ particion_buddy_memoria* cargarDatosParticionBuddy(particion_buddy_memoria* part
 				particion->tamanio = TAMANO_MINIMO_PARTICION;
 			else
 				particion->tamanio = buscarPotenciaDeDosMasCercana(particion->tamanioMensaje);
-			CONTADORLRU++;
-			particion->contadorLRU = CONTADORLRU;
-			list_clean_and_destroy_elements(particion->suscriptoresACK,borrar_suscriptorBuddy);
-			list_clean_and_destroy_elements(particion->suscriptoresMensajeEnviado,borrar_suscriptorBuddy);
+			CONTADORLRUBUDDY++;
+			particion->contadorLRU = CONTADORLRUBUDDY;
+			list_clean(particion->suscriptoresACK);
+			list_clean(particion->suscriptoresMensajeEnviado);
 			break;
 		}
 		case GET: {
@@ -233,10 +267,10 @@ particion_buddy_memoria* cargarDatosParticionBuddy(particion_buddy_memoria* part
 				particion->tamanio = TAMANO_MINIMO_PARTICION;
 			else
 				particion->tamanio = buscarPotenciaDeDosMasCercana(particion->tamanioMensaje);
-			CONTADORLRU++;
-			particion->contadorLRU = CONTADORLRU;
-			list_clean_and_destroy_elements(particion->suscriptoresACK,borrar_suscriptorBuddy);
-			list_clean_and_destroy_elements(particion->suscriptoresMensajeEnviado,borrar_suscriptorBuddy);
+			CONTADORLRUBUDDY++;
+			particion->contadorLRU = CONTADORLRUBUDDY;
+			list_clean(particion->suscriptoresACK);
+			list_clean(particion->suscriptoresMensajeEnviado);
 			break;
 		}
 		case LOCALIZED: {
@@ -251,10 +285,10 @@ particion_buddy_memoria* cargarDatosParticionBuddy(particion_buddy_memoria* part
 				particion->tamanio = TAMANO_MINIMO_PARTICION;
 			else
 				particion->tamanio = buscarPotenciaDeDosMasCercana(particion->tamanioMensaje);
-			CONTADORLRU++;
-			particion->contadorLRU = CONTADORLRU;
-			list_clean_and_destroy_elements(particion->suscriptoresACK,borrar_suscriptorBuddy);
-			list_clean_and_destroy_elements(particion->suscriptoresMensajeEnviado,borrar_suscriptorBuddy);
+			CONTADORLRUBUDDY++;
+			particion->contadorLRU = CONTADORLRUBUDDY;
+			list_clean(particion->suscriptoresACK);
+			list_clean(particion->suscriptoresMensajeEnviado);
 			break;
 		}
 		case CATCH:{
@@ -269,10 +303,10 @@ particion_buddy_memoria* cargarDatosParticionBuddy(particion_buddy_memoria* part
 				particion->tamanio = TAMANO_MINIMO_PARTICION;
 			else
 				particion->tamanio = buscarPotenciaDeDosMasCercana(particion->tamanioMensaje);
-			CONTADORLRU++;
-			particion->contadorLRU = CONTADORLRU;
-			list_clean_and_destroy_elements(particion->suscriptoresACK,borrar_suscriptorBuddy);
-			list_clean_and_destroy_elements(particion->suscriptoresMensajeEnviado,borrar_suscriptorBuddy);
+			CONTADORLRUBUDDY++;
+			particion->contadorLRU = CONTADORLRUBUDDY;
+			list_clean(particion->suscriptoresACK);
+			list_clean(particion->suscriptoresMensajeEnviado);
 			break;
 		}
 		case CAUGHT:{
@@ -287,10 +321,10 @@ particion_buddy_memoria* cargarDatosParticionBuddy(particion_buddy_memoria* part
 				particion->tamanio = TAMANO_MINIMO_PARTICION;
 			else
 				particion->tamanio = particion->tamanioMensaje;
-			CONTADORLRU++;
-			particion->contadorLRU = CONTADORLRU;
-			list_clean_and_destroy_elements(particion->suscriptoresACK,borrar_suscriptorBuddy);
-			list_clean_and_destroy_elements(particion->suscriptoresMensajeEnviado,borrar_suscriptorBuddy);
+			CONTADORLRUBUDDY++;
+			particion->contadorLRU = CONTADORLRUBUDDY;
+			list_clean(particion->suscriptoresACK);
+			list_clean(particion->suscriptoresMensajeEnviado);
 			break;
 		}
 		}
@@ -304,7 +338,7 @@ t_list* sacarParticionesLibresBuddy(){
 		particion_buddy_memoria* particionCasteada = particion;
 		return !(particionCasteada->libre);
 	}
-	 return list_filter(particionesEnMemoria,particionLibre);
+	 return list_filter(particionesEnMemoriaBuddy,particionLibre);
 
 };
 
@@ -313,16 +347,19 @@ void eliminarParticionBuddy(){
 
 	if(string_equals_ignore_case(ALGORITMO_REEMPLAZO,"FIFO"))
 		{
-			int* idMensaje = queue_pop(colaMensajesMemoria);
+			int* idMensaje = queue_pop(colaMensajesMemoriaBuddy);
 			int idMensajeAuxiliar = *idMensaje;
 			borrar_elemento_colaMensajesMemoriaBuddy(idMensaje);
 
 			void cambiarALibre(void* particion){
 				particion_buddy_memoria* particionCasteada = particion;
-				if((particionCasteada->idMensaje) == idMensajeAuxiliar)
+				if((particionCasteada->idMensaje) == idMensajeAuxiliar){
 					particionCasteada->libre = true;
+					log_info(logger,"POSICION VICTIMA: %d",particionCasteada->posicionParticion);
+				}
+
 			}
-			list_iterate(particionesEnMemoria, cambiarALibre);
+			list_iterate(particionesEnMemoriaBuddy, cambiarALibre);
 		}
 	else if(string_equals_ignore_case(ALGORITMO_REEMPLAZO,"LRU"))
 		{
@@ -345,7 +382,7 @@ void eliminarParticionBuddy(){
 					particionCasteada->libre = true;
 
 			}
-			list_iterate(particionesEnMemoria, cambiarALibre);
+			list_iterate(particionesEnMemoriaBuddy, cambiarALibre);
 		}
 
 }
@@ -353,23 +390,24 @@ void eliminarParticionBuddy(){
 void consolidarMemoriaBuddy(){
 
     ordenarParticionesPorPosicionBuddy();
-        int sizeLista = list_size(particionesEnMemoria);
+        int sizeLista = list_size(particionesEnMemoriaBuddy);
         int index = 0;
         int indexAdyacente = index+1;
         while(indexAdyacente<sizeLista){
-            particion_buddy_memoria* particion = list_get(particionesEnMemoria,index);
-            particion_buddy_memoria* particionAdyacente = list_get(particionesEnMemoria,indexAdyacente);
+            particion_buddy_memoria* particion = list_get(particionesEnMemoriaBuddy,index);
+            particion_buddy_memoria* particionAdyacente = list_get(particionesEnMemoriaBuddy,indexAdyacente);
 
             if(particion->libre && particionAdyacente->libre){
 
                 if(particion->tamanio == particionAdyacente->tamanio){
+                	log_info(logger,"POSICION %d Y POSICION %d CONSOLIDADA",particion->posicionParticion,particionAdyacente->posicionParticion);
                     particion->tamanio+=particionAdyacente->tamanio;
                     int posicion = particionAdyacente->posicionParticion;
                     particionAdyacente = removerPorPosicionBuddy(posicion);
 
                     borrar_particion_buddy_memoria(particionAdyacente);
 
-                    sizeLista = list_size(particionesEnMemoria);
+                    sizeLista = list_size(particionesEnMemoriaBuddy);
                     index --;
                     indexAdyacente --;
                 }
@@ -401,7 +439,7 @@ particion_buddy_memoria* removerPorPosicionBuddy(int posicion){
 		return particionCasteada->posicionParticion == posicion;
 	}
 
-	return list_remove_by_condition(particionesEnMemoria,compararPorId);
+	return list_remove_by_condition(particionesEnMemoriaBuddy,compararPorId);
 }
 
 void ordenarParticionesPorPosicionBuddy(){
@@ -410,5 +448,15 @@ void ordenarParticionesPorPosicionBuddy(){
 		particion_buddy_memoria* particion2Casteada = particion2;
 		return (particion1Casteada->posicionParticion)<(particion2Casteada->posicionParticion);
 	}
-	list_sort(particionesEnMemoria, comparadorParticionesPorPosicion);
+	list_sort(particionesEnMemoriaBuddy, comparadorParticionesPorPosicion);
+}
+
+particion_buddy_memoria* encontrarParticionBuddyPorID(int idMensaje){
+	bool particionIgualID(void* particion){
+		particion_buddy_memoria* particionCasteada = particion;
+
+		return (particionCasteada->idMensaje == idMensaje) && !(particionCasteada->libre);
+	}
+
+	return list_find(particionesEnMemoriaBuddy,particionIgualID);
 }
