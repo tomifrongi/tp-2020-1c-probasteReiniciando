@@ -289,8 +289,7 @@ void enviar_ack(void* arg) {
 }
 
 //----------------------------Procesar NEW y enviar APPEARED--------------------------------------------//
-void procesar_new_enviar_appeared(void* arg)
-{
+void procesar_new_enviar_appeared(void* arg) {
 	new_pokemon* new_recv = (new_pokemon*) arg;
 
 	appeared_pokemon* appeared_snd = malloc(sizeof(appeared_pokemon_enviar));
@@ -304,8 +303,7 @@ void procesar_new_enviar_appeared(void* arg)
 	appeared_snd->posicionEjeY = new_recv->posicionEjeY;
 	appeared_snd->cantidad = new_recv->cantidad;
 	int client_fd = socket_connect_to_server(ipBroker, puertoBroker);
-	if (client_fd > 0)
-	{
+	if (client_fd > 0) {
 		utils_serialize_and_send(client_fd, APPEARED, appeared_snd);
 		log_info(log, "El mensaje APPEARED fué enviado al BROKER");
 	}
@@ -315,8 +313,7 @@ void procesar_new_enviar_appeared(void* arg)
 }
 
 //----------------------------Procesar GET y enviar LOCALIZED------------------------------------------//
-void procesar_get_enviar_localized(void* arg)
-{
+void procesar_get_enviar_localized(void* arg) {
 	get_pokemon* get_rcv = (get_pokemon*) arg; //recibo GET y t_header es CONFIRMACION, para tener el id_mensaje
 	localized_pokemon* localized_snd = malloc(sizeof(localized_pokemon));
 	t_list* posiciones = list_create();
