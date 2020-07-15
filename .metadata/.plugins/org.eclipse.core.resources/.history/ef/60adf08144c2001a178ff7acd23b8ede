@@ -1,0 +1,39 @@
+#include "gamecard_config.h"
+
+void read_config(t_config* config_file);
+void print_config();
+
+void gamecard_config_free()
+{
+	free(gamecard_config->punto_montaje_tallgrass);
+	free(gamecard_config->ip_broker);
+	free(gamecard_config);
+}
+
+void read_config(t_config* config_file)
+{
+	gamecard_config = malloc(sizeof(t_gamecard_config));
+	gamecard_config->tiempo_de_reintento_conexion = config_get_int_value(config_file, "TIEMPO_DE_REINTENTO_CONEXION");
+	gamecard_config->tiempo_de_reintento_operacion = config_get_int_value(config_file, "TIEMPO_DE_REINTENTO_OPERACION");
+	gamecard_config->tiempo_retardo_operacion = config_get_string_value(config_file, "TIEMPO_RETARDO_OPERACION"); //¿?
+	gamecard_config->punto_montaje_tallgrass = malloc(sizeof(char*));
+	gamecard_config->punto_montaje_tallgrass = string_duplicate(config_get_string_value(config_file, "PUNTO_MONTAJE_TALLGRASS"));
+	gamecard_config->ip_broker = string_duplicate(config_get_string_value(config_file, "IP_BROKER"));
+	gamecard_config->puerto_broker = config_get_int_value(config_file, "PUERTO_BROKER");
+	gamecard_config->ip_game_card = string_duplicate(config_get_string_value(config_file, "IP_GAME_CARD"));
+	gamecard_config->puerto_game_card = config_get_int_value(config_file, "PUERTO_GAME_CARD");
+
+}
+
+
+void print_config()
+{
+	gamecard_logger_info("TIEMPO_DE_REINTENTO_CONEXION: %d", gamecard_config->tiempo_de_reintento_conexion);
+	gamecard_logger_info("TIEMPO_DE_REINTENTO_OPERACION: %d", gamecard_config->tiempo_de_reintento_operacion);
+	gamecard_logger_info("TIEMPO_RETARDO_OPERACION: %s", gamecard_config->tiempo_retardo_operacion);//
+	gamecard_logger_info("PUNTO_MONTAJE_TALLGRASS: %s", gamecard_config->punto_montaje_tallgrass);
+	gamecard_logger_info("IP_BROKER: %s", gamecard_config->ip_broker);
+	gamecard_logger_info("PUERTO_BROKER: %d", gamecard_config->puerto_broker);
+	gamecard_logger_info("IP_GAME_CARD: %s", gamecard_config->ip_game_card);
+	gamecard_logger_info("PUERTO_GAME_CARD: %d", gamecard_config->puerto_game_card);
+}
