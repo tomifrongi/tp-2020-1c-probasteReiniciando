@@ -54,6 +54,7 @@ void borrarSuscriptor(suscriptor* suscriptor){
 
 uint32_t* crearElementoCola(uint32_t elemento){
 	uint32_t* elementoCreado = malloc(sizeof(uint32_t));
+	*elementoCreado = elemento;
 	return elementoCreado;
 }
 void borrarElementoCola(uint32_t* elemento){

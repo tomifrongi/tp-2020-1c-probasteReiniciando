@@ -64,7 +64,6 @@ void* handler_clients(void* socket){
 				log_info(logger, "NEW POKEMON RECIBIDO");
 				pthread_mutex_unlock(&mutexLogger);
 
-//				char* nombrePrueba = malloc(10);
 				void*aux=message->content;
 				new_pokemon_enviar mensaje;
 				memcpy(&mensaje.sizeNombre,aux,sizeof(uint32_t));
@@ -82,6 +81,7 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
+				uint32_t idMenCola = mensaje.id_mensaje;
 
 
 				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
@@ -98,14 +98,11 @@ void* handler_clients(void* socket){
 					pthread_mutex_unlock(&mutexMemoria);
 				}
 
-
-				//QUEUE PUSH (POSICION MENSAJE)
-
-
 				pthread_mutex_lock(&mutexQueueNew);
-				uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
+				uint32_t* idNuevo = crearElementoCola(idMenCola);
 				list_add(new_admin->queue,idNuevo);
 				pthread_mutex_unlock(&mutexQueueNew);
+
 				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				free(mensaje.nombrePokemon);
@@ -136,8 +133,6 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
-				log_info(logger,"%s", &mensaje.nombrePokemon);
-				log_info(logger,"%d", mensaje.sizeNombre);
 				pthread_mutex_lock(&mutexQueueAppeared);
 				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
 
@@ -183,8 +178,6 @@ void* handler_clients(void* socket){
 				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
 				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 				aux += mensaje.sizeNombre;
-				log_info(logger,"NOMBRE CATCH: %s",mensaje.nombrePokemon);
-				//log_info(logger,"",mensaje.)
 				memcpy(&mensaje.posicionEjeX,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
@@ -561,12 +554,14 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						bytesEscritos+=sizeof(npEnviar.sizeNombre);
 						bytesLeidosMemoria+=sizeof(npEnviar.sizeNombre);
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(npEnviar.sizeNombre-1));
-						bytesEscritos+=npEnviar.sizeNombre;
+						bytesEscritos+=(npEnviar.sizeNombre-1);
 						bytesLeidosMemoria+=(npEnviar.sizeNombre-1);
 						char caracterNulo= '\0';
 						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 						bytesEscritos+=sizeof(caracterNulo);
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,3*sizeof(uint32_t));
+
+
 
 						send_message(socket, NEW_POKEMON,content,sizeNew);
 						free(content);
@@ -609,12 +604,44 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							bytesEscritos+=sizeof(npEnviar.sizeNombre);
 							bytesLeidosMemoria+=sizeof(npEnviar.sizeNombre);
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(npEnviar.sizeNombre-1));
-							bytesEscritos+=npEnviar.sizeNombre;
+							bytesEscritos+=(npEnviar.sizeNombre-1);
 							bytesLeidosMemoria+=(npEnviar.sizeNombre-1);
 							char caracterNulo= '\0';
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 							bytesEscritos+=sizeof(caracterNulo);
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,3*sizeof(uint32_t));
+
+
+//							new_pokemon_enviar imprimir;
+//	//						uint32_t sizeNombre;
+//	//							char* nombrePokemon;
+//	//							uint32_t cantidad;
+//	//							uint32_t posicionEjeX;
+//	//							uint32_t posicionEjeY;
+//							imprimir.id_mensaje = particion->idMensaje;
+//							void* posImprimir = principioMemoriaBuddy + particion->posicionParticion;
+//							int bytesImprimir = 0;
+//							memcpy(&imprimir.sizeNombre,posImprimir+bytesImprimir,sizeof(uint32_t));
+//							bytesImprimir+=sizeof(uint32_t);
+//							uint32_t sizeImprimirAux = imprimir.sizeNombre;
+//							imprimir.sizeNombre++;
+//							imprimir.nombrePokemon = malloc(imprimir.sizeNombre);
+//							memcpy(imprimir.nombrePokemon,posImprimir+bytesImprimir,sizeImprimirAux);
+//							memcpy(imprimir.nombrePokemon+sizeImprimirAux,&caracterNulo,sizeof(char));
+//							bytesImprimir+=sizeImprimirAux;
+//							memcpy(&imprimir.cantidad,posImprimir+bytesImprimir,sizeof(uint32_t));
+//							bytesImprimir+=sizeof(uint32_t);
+//							memcpy(&imprimir.posicionEjeX,posImprimir+bytesImprimir,sizeof(uint32_t));
+//							bytesImprimir+=sizeof(uint32_t);
+//							memcpy(&imprimir.posicionEjeY,posImprimir+bytesImprimir,sizeof(uint32_t));
+//							bytesImprimir+=sizeof(uint32_t);
+//
+//							log_info(logger,"MENSAJE RECIENTE MANDADO");
+//							log_info(logger,"NOMBRE: %s",imprimir.nombrePokemon);
+//							log_info(logger,"CANTIDAD: %d",imprimir.cantidad);
+//							log_info(logger,"POSICION EJE X: %d", imprimir.posicionEjeX);
+//							log_info(logger,"POSICION EJE Y: %d", imprimir.posicionEjeY);
+
 
 							send_message(socket, NEW_POKEMON,content,sizeNew);
 							free(content);
@@ -663,7 +690,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						bytesEscritos+=sizeof(apEnviar.sizeNombre);
 						bytesLeidosMemoria+=sizeof(apEnviar.sizeNombre);
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(apEnviar.sizeNombre-1));
-						bytesEscritos+=apEnviar.sizeNombre;
+						bytesEscritos+=(apEnviar.sizeNombre-1);
 						bytesLeidosMemoria+=(apEnviar.sizeNombre-1);
 						char caracterNulo= '\0';
 						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
@@ -715,7 +742,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							bytesEscritos+=sizeof(apEnviar.sizeNombre);
 							bytesLeidosMemoria+=sizeof(apEnviar.sizeNombre);
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(apEnviar.sizeNombre-1));
-							bytesEscritos+=apEnviar.sizeNombre;
+							bytesEscritos+=(apEnviar.sizeNombre-1);
 							bytesLeidosMemoria+=(apEnviar.sizeNombre-1);
 							char caracterNulo= '\0';
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
@@ -766,7 +793,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						bytesEscritos+=sizeof(gpEnviar.sizeNombre);
 						bytesLeidosMemoria+=sizeof(gpEnviar.sizeNombre);
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(gpEnviar.sizeNombre-1));
-						bytesEscritos+=gpEnviar.sizeNombre;
+						bytesEscritos+=(gpEnviar.sizeNombre-1);
 						bytesLeidosMemoria+=(gpEnviar.sizeNombre-1);
 						char caracterNulo= '\0';
 						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
@@ -814,7 +841,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							bytesEscritos+=sizeof(gpEnviar.sizeNombre);
 							bytesLeidosMemoria+=sizeof(gpEnviar.sizeNombre);
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(gpEnviar.sizeNombre-1));
-							bytesEscritos+=gpEnviar.sizeNombre;
+							bytesEscritos+=(gpEnviar.sizeNombre-1);
 							bytesLeidosMemoria+=(gpEnviar.sizeNombre-1);
 							char caracterNulo= '\0';
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
@@ -868,7 +895,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						bytesEscritos+=sizeof(lpEnviar.sizeNombre);
 						bytesLeidosMemoria+=sizeof(lpEnviar.sizeNombre);
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(lpEnviar.sizeNombre-1));
-						bytesEscritos+=lpEnviar.sizeNombre;
+						bytesEscritos+=(lpEnviar.sizeNombre-1);
 						bytesLeidosMemoria+=(lpEnviar.sizeNombre-1);
 						char caracterNulo= '\0';
 						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
@@ -923,7 +950,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							bytesEscritos+=sizeof(lpEnviar.sizeNombre);
 							bytesLeidosMemoria+=sizeof(lpEnviar.sizeNombre);
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(lpEnviar.sizeNombre-1));
-							bytesEscritos+=lpEnviar.sizeNombre;
+							bytesEscritos+=(lpEnviar.sizeNombre-1);
 							bytesLeidosMemoria+=(lpEnviar.sizeNombre-1);
 							char caracterNulo= '\0';
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
@@ -978,7 +1005,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						bytesEscritos+=sizeof(cpEnviar.sizeNombre);
 						bytesLeidosMemoria+=sizeof(cpEnviar.sizeNombre);
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,(cpEnviar.sizeNombre-1));
-						bytesEscritos+=cpEnviar.sizeNombre;
+						bytesEscritos+=(cpEnviar.sizeNombre-1);
 						bytesLeidosMemoria+=(cpEnviar.sizeNombre-1);
 						char caracterNulo= '\0';
 						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
@@ -1026,7 +1053,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							bytesEscritos+=sizeof(cpEnviar.sizeNombre);
 							bytesLeidosMemoria+=sizeof(cpEnviar.sizeNombre);
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,(cpEnviar.sizeNombre-1));
-							bytesEscritos+=cpEnviar.sizeNombre;
+							bytesEscritos+=(cpEnviar.sizeNombre-1);
 							bytesLeidosMemoria+=(cpEnviar.sizeNombre-1);
 							char caracterNulo= '\0';
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
