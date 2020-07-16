@@ -35,7 +35,7 @@ int main(void) {
 	iniciarMutexs();
 	iniciarListasIds();
 	inicializarMemoriaBuddy();
-
+	signal(SIGUSR1, imprimirEstadoActualMemoria);
 	init_broker_server();
 	return EXIT_SUCCESS;
 }
@@ -1218,5 +1218,132 @@ void* buscarIdCorrelativo(t_list* lista,uint32_t idCorrelativo){
 		return *idLista == idCorrelativo;
 	}
 	return list_find(lista,(void*) compararMensajesPorId);
+}
+
+//Será requerimiento del motor de administración de memoria que éste pueda depositar en un archivo
+//el estado actual de la memoria en la caché según el esquema seleccionado. Para solicitar dicho dump,
+//se enviará una señal SIGUSR1 que deberá ser manejada e inicializada.
+//No se pretende ver el contenido de la información almacenada, sino las particiones asignadas/libres,
+//indicando su dirección de comienzo y fin, su tamaño en bytes, tiempos de LRU, el tipo de cola de
+//mensajes que pertenece y su identificador.
+
+//-----------------------------------------------------------------------------------------------------------------------------
+//Dump: 14/07/2012 10:11:12
+//Partición 1: 0x000 - 0x3FF.	[X]	Size: 1024b	LRU:<VALOR>	Cola:<COLA>   ID:<ID>
+//Partición 2: 0x400 - 0x409. 	[L]	Size: 9b
+//Partición 3: 0x40A - 0x40B. 	[L] 	Size: 1b
+//-----------------------------------------------------------------------------------------------------------------------------
+
+
+void imprimirEstadoActualMemoria(int senial){
+	if(senial == SIGUSR1)
+	{
+		FILE* archivoTxt = txt_open_for_append("./EstadoMemoria.txt");
+		txt_write_in_file(archivoTxt, "-----------------------------------------------------------------------------------------------------------------------------\n");
+		char* fecha = temporal_get_string_time();
+		txt_write_in_file(archivoTxt,fecha);
+		txt_write_in_file(archivoTxt,"\n");
+		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES")){
+			ordenarParticionesPorPosicion();
+			int index = 0;
+			int sizeLista = list_size(particionesEnMemoria);
+			while(index<sizeLista){
+				particion_dinamica_memoria* particion = list_get(particionesEnMemoria,index);
+				int numeroParticion = index+1;
+				fprintf(archivoTxt, "Particion: %d ", numeroParticion);
+				fflush(archivoTxt);
+
+				void* direccionDeComienzo = principioMemoria + particion->posicionParticion;
+				void* direccionDeFin = direccionDeComienzo + particion->tamanio - 1;
+				fprintf(archivoTxt, "%p - %p   ",direccionDeComienzo,direccionDeFin);
+				fflush(archivoTxt);
+				int libre = particion->libre;
+				int tamanio = particion->tamanio;
+
+				if(libre){
+					fprintf(archivoTxt,"   [L] Size: %db",tamanio);
+					fflush(archivoTxt);
+				}
+				else{
+					fprintf(archivoTxt,"   [X] Size: %db",tamanio);
+					fflush(archivoTxt);
+					int lru = particion->contadorLRU;
+					char* nombreCola = obtenerNombreCola(particion->cola);
+					int id = particion->idMensaje;
+					fprintf(archivoTxt,"   LRU: %d   Cola: %s   ID: %d",lru,nombreCola,id);
+					fflush(archivoTxt);
+				}
+				fprintf(archivoTxt,"\n");
+				fflush(archivoTxt);
+				index++;
+			}
+		}
+
+		else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS")){
+			ordenarParticionesPorPosicionBuddy();
+			int index = 0;
+			int sizeLista = list_size(particionesEnMemoriaBuddy);
+			while(index<sizeLista){
+				{
+					particion_buddy_memoria* particion = list_get(particionesEnMemoriaBuddy,index);
+					int numeroParticion = index+1;
+					fprintf(archivoTxt, "Particion: %d ", numeroParticion);
+					fflush(archivoTxt);
+
+					void* direccionDeComienzo = principioMemoriaBuddy + particion->posicionParticion;
+					void* direccionDeFin = direccionDeComienzo + particion->tamanio - 1;
+					fprintf(archivoTxt, "%p - %p   ",direccionDeComienzo,direccionDeFin);
+					fflush(archivoTxt);
+					int libre = particion->libre;
+					int tamanio = particion->tamanio;
+
+					if(libre){
+						fprintf(archivoTxt,"   [L] Size: %db",tamanio);
+						fflush(archivoTxt);
+					}
+					else{
+						fprintf(archivoTxt,"   [X] Size: %db",tamanio);
+						fflush(archivoTxt);
+						int lru = particion->contadorLRU;
+						char* nombreCola = obtenerNombreCola(particion->cola);
+						int id = particion->idMensaje;
+						fprintf(archivoTxt,"   LRU: %d   Cola: %s   ID: %d",lru,nombreCola,id);
+						fflush(archivoTxt);
+					}
+					fprintf(archivoTxt,"\n");
+					fflush(archivoTxt);
+					index++;
+				}
+			}
+		}
+		txt_write_in_file(archivoTxt, "-----------------------------------------------------------------------------------------------------------------------------\n");
+		txt_close_file(archivoTxt);
+	}
+}
+
+char* obtenerNombreCola(id_cola id){
+	switch(id){
+	case NEW:{
+		return "NEW";
+	}
+	case APPEARED:{
+		return "APPEARED";
+	}
+	case GET:{
+		return "GET";
+	}
+	case LOCALIZED:{
+		return "LOCALIZED";
+	}
+	case CATCH:{
+		return "CATCH";
+	}
+	case CAUGHT:{
+		return "CAUGHT";
+	}
+	default:{
+		return "NULL";
+	}
+	}
 }
 

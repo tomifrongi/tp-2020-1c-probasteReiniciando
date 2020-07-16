@@ -1,0 +1,38 @@
+
+-----------------------------------------------------------------------------------------------------------------------------
+15:42:41:132
+Particion: 1 0x81a32e0 - 0x81a32ff	[X] Size: 32bLRU: 1	Cola: NEW ID:0
+Particion: 2 0x81a3300 - 0x81a330f	[X] Size: 16bLRU: 2	Cola: GET ID:1
+Particion: 3 0x81a3310 - 0x81a3313	[X] Size: 4bLRU: 4	Cola: CAUGHT ID:3
+Particion: 4 0x81a3314 - 0x81a3317	[L] Size: 4b
+Particion: 5 0x81a3318 - 0x81a331f	[L] Size: 8b
+Particion: 6 0x81a3320 - 0x81a333f	[X] Size: 32bLRU: 3	Cola: CATCH ID:2
+Particion: 7 0x81a3340 - 0x81a335f	[L] Size: 32b
+Particion: 8 0x81a3360 - 0x81a33df	[L] Size: 128b
+Particion: 9 0x81a33e0 - 0x81a34df	[L] Size: 256b
+Particion: 10 0x81a34e0 - 0x81a36df	[L] Size: 512b
+Particion: 11 0x81a36e0 - 0x81a3adf	[L] Size: 1024b
+-----------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------
+15:44:56:37
+Particion: 1 0x9cac2e0 - 0x9cac2ff    [X] Size: 32b LRU: 1 Cola: NEW ID:0
+Particion: 2 0x9cac300 - 0x9cac31f    [X] Size: 32b LRU: 2 Cola: NEW ID:1
+Particion: 3 0x9cac320 - 0x9cac33f    [X] Size: 32b LRU: 3 Cola: CATCH ID:2
+Particion: 4 0x9cac340 - 0x9cac35f    [X] Size: 32b LRU: 4 Cola: CATCH ID:3
+Particion: 5 0x9cac360 - 0x9cac3df    [L] Size: 128b
+Particion: 6 0x9cac3e0 - 0x9cac4df    [L] Size: 256b
+Particion: 7 0x9cac4e0 - 0x9cac6df    [L] Size: 512b
+Particion: 8 0x9cac6e0 - 0x9cacadf    [L] Size: 1024b
+-----------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------
+15:47:46:842
+Particion: 1 0x97df2e0 - 0x97df2ff      [X] Size: 32b   LRU: 1   Cola: NEW   ID: 0
+Particion: 2 0x97df300 - 0x97df31f      [X] Size: 32b   LRU: 2   Cola: NEW   ID: 1
+Particion: 3 0x97df320 - 0x97df32f      [X] Size: 16b   LRU: 3   Cola: GET   ID: 2
+Particion: 4 0x97df330 - 0x97df33f      [L] Size: 16b
+Particion: 5 0x97df340 - 0x97df35f      [X] Size: 32b   LRU: 4   Cola: CATCH   ID: 3
+Particion: 6 0x97df360 - 0x97df3df      [L] Size: 128b
+Particion: 7 0x97df3e0 - 0x97df4df      [L] Size: 256b
+Particion: 8 0x97df4e0 - 0x97df6df      [L] Size: 512b
+Particion: 9 0x97df6e0 - 0x97dfadf      [L] Size: 1024b
+-----------------------------------------------------------------------------------------------------------------------------

@@ -23,6 +23,8 @@
 #include <sys/mman.h>
 #include <pthread.h>
 #include <commons/collections/queue.h>
+#include <commons/txt.h>
+#include <commons/temporal.h>
 
 #include "colasDeMensajes.h"
 #include "funcionesEnvio.h"
@@ -62,4 +64,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket);
 void iniciarMutexs();
 void iniciarListasIds();
 void* buscarIdCorrelativo(t_list* lista,uint32_t idCorrelativo);
+
+void imprimirEstadoActualMemoria(int senial);
+char* obtenerNombreCola(id_cola id);
+
 #endif
