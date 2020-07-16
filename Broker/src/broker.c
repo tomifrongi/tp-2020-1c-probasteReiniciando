@@ -13,7 +13,7 @@
 pthread_mutex_t mutexId;
 pthread_mutex_t mutexLogger;
 
-//TODO dump de la cache
+
 //TODO Recibir ACK de los suscriptores
 //TODO Enviar id/confirmacion cuando publisher envia un mensaje
 //TODO poner bien todos los logs
@@ -91,7 +91,7 @@ void* handler_clients(void* socket){
 				uint32_t idMenCola = mensaje.id_mensaje;
 
 
-
+				//TODO agregar sucriptor a suscriptoresMensajeEnviado????
 				t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
 				mensajeAEnviar->mensajeEnvio = malloc(sizeof(t_message));
 				void* envio = malloc(message->size + sizeof(uint32_t));
@@ -396,6 +396,48 @@ void* handler_clients(void* socket){
 				break;
 			}
 
+			case CONFIRMACION:{
+				typedef struct {
+					uint32_t id_mensaje;
+					pid_t idSuscriptor;
+				}mensajeACK;
+				//t_header = CONFIRMACION
+
+				mensajeACK mensajeConf;
+				void *aux = message->content;
+				memcpy(&mensajeConf.id_mensaje,aux,sizeof(uint32_t));
+				aux +=sizeof(uint32_t);
+				memcpy(&mensajeConf.idSuscriptor,aux,sizeof(pid_t));
+
+				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES")){
+					particion_dinamica_memoria* particionConfirmacion = encontrarParticionDinamicaPorID(mensajeConf.id_mensaje);
+					if(particionConfirmacion != NULL){
+						bool igualSuscriptor(void* suscriptorMensajeEnviado){
+							suscriptor* suscriptorMensajeEnviadoCasteado = suscriptorMensajeEnviado;
+							return suscriptorMensajeEnviadoCasteado->idSuscriptor == mensajeConf.idSuscriptor;
+						}
+						suscriptor* suscriptorEncontrado = list_find(particionConfirmacion->suscriptoresMensajeEnviado,igualSuscriptor);
+						list_add(particionConfirmacion->suscriptoresACK,suscriptorEncontrado);
+					}
+
+				}
+				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS")){
+					particion_buddy_memoria* particionConfirmacion = encontrarParticionBuddyPorID(mensajeConf.id_mensaje);
+					if(particionConfirmacion != NULL){
+						bool igualSuscriptor(void* suscriptorMensajeEnviado){
+							suscriptor* suscriptorMensajeEnviadoCasteado = suscriptorMensajeEnviado;
+							return suscriptorMensajeEnviadoCasteado->idSuscriptor == mensajeConf.idSuscriptor;
+						}
+						suscriptor* suscriptorEncontrado = list_find(particionConfirmacion->suscriptoresMensajeEnviado,igualSuscriptor);
+						list_add(particionConfirmacion->suscriptoresACK,suscriptorEncontrado);
+					}
+
+				}
+
+
+				break;
+			}
+
 			case NO_CONNECTION:
 				log_info(logger, "CLIENTE DESCONECTADO");
 				free_t_message(message);
@@ -599,6 +641,11 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 
 
 						send_message(socket, NEW_POKEMON,content,sizeNew);
+						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
+						if(suscriptorEncontradoEnviado == NULL){
+							suscriptor* suscriptorEncontradoCola = list_find(new_admin->suscriptores,igualSuscriptor);
+							list_add(particion->suscriptoresMensajeEnviado,suscriptorEncontradoCola);
+						}
 						free(content);
 
 					}
@@ -679,6 +726,11 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 
 
 							send_message(socket, NEW_POKEMON,content,sizeNew);
+							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
+							if(suscriptorEncontradoEnviado == NULL){
+								suscriptor* suscriptorEncontradoCola = list_find(new_admin->suscriptores,igualSuscriptor);
+								list_add(particion->suscriptoresMensajeEnviado,suscriptorEncontradoCola);
+							}
 							free(content);
 						}
 
@@ -733,6 +785,11 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,2*sizeof(uint32_t));
 
 						send_message(socket, APPEARED_POKEMON,content,sizeAppeared);
+						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
+						if(suscriptorEncontradoEnviado == NULL){
+							suscriptor* suscriptorEncontradoCola = list_find(appeared_admin->suscriptores,igualSuscriptor);
+							list_add(particion->suscriptoresMensajeEnviado,suscriptorEncontradoCola);
+						}
 						free(content);
 
 					}
@@ -785,6 +842,11 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,2*sizeof(uint32_t));
 
 							send_message(socket, APPEARED_POKEMON,content,sizeAppeared);
+							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
+							if(suscriptorEncontradoEnviado == NULL){
+								suscriptor* suscriptorEncontradoCola = list_find(appeared_admin->suscriptores,igualSuscriptor);
+								list_add(particion->suscriptoresMensajeEnviado,suscriptorEncontradoCola);
+							}
 							free(content);
 						}
 
@@ -835,6 +897,11 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						bytesEscritos+=sizeof(caracterNulo);
 
 						send_message(socket, GET_POKEMON,content,sizeGet);
+						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
+						if(suscriptorEncontradoEnviado == NULL){
+							suscriptor* suscriptorEncontradoCola = list_find(get_admin->suscriptores,igualSuscriptor);
+							list_add(particion->suscriptoresMensajeEnviado,suscriptorEncontradoCola);
+						}
 						free(content);
 
 					}
@@ -883,6 +950,11 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							bytesEscritos+=sizeof(caracterNulo);
 
 							send_message(socket, GET_POKEMON,content,sizeGet);
+							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
+							if(suscriptorEncontradoEnviado == NULL){
+								suscriptor* suscriptorEncontradoCola = list_find(get_admin->suscriptores,igualSuscriptor);
+								list_add(particion->suscriptoresMensajeEnviado,suscriptorEncontradoCola);
+							}
 							free(content);
 						}
 
@@ -942,6 +1014,11 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,sizeof(uint32_t)*2*lpEnviar.cantidadPosiciones);
 
 						send_message(socket, LOCALIZED_POKEMON,content,sizeLocalized);
+						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
+						if(suscriptorEncontradoEnviado == NULL){
+							suscriptor* suscriptorEncontradoCola = list_find(localized_admin->suscriptores,igualSuscriptor);
+							list_add(particion->suscriptoresMensajeEnviado,suscriptorEncontradoCola);
+						}
 						free(content);
 					}
 
@@ -997,6 +1074,11 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(uint32_t)*2*lpEnviar.cantidadPosiciones);
 
 							send_message(socket, LOCALIZED_POKEMON,content,sizeLocalized);
+							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
+							if(suscriptorEncontradoEnviado == NULL){
+								suscriptor* suscriptorEncontradoCola = list_find(localized_admin->suscriptores,igualSuscriptor);
+								list_add(particion->suscriptoresMensajeEnviado,suscriptorEncontradoCola);
+							}
 							free(content);
 						}
 
@@ -1048,6 +1130,11 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,2*sizeof(uint32_t));
 
 						send_message(socket, CATCH_POKEMON,content,sizeCatch);
+						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
+						if(suscriptorEncontradoEnviado == NULL){
+							suscriptor* suscriptorEncontradoCola = list_find(catch_admin->suscriptores,igualSuscriptor);
+							list_add(particion->suscriptoresMensajeEnviado,suscriptorEncontradoCola);
+						}
 						free(content);
 					}
 
@@ -1096,6 +1183,11 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,2*sizeof(uint32_t));
 
 							send_message(socket, CATCH_POKEMON,content,sizeCatch);
+							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
+							if(suscriptorEncontradoEnviado == NULL){
+								suscriptor* suscriptorEncontradoCola = list_find(catch_admin->suscriptores,igualSuscriptor);
+								list_add(particion->suscriptoresMensajeEnviado,suscriptorEncontradoCola);
+							}
 							free(content);
 						}
 
@@ -1140,6 +1232,11 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,sizeof(uint32_t));
 
 						send_message(socket, CAUGHT_POKEMON,content,sizeCaught);
+						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
+						if(suscriptorEncontradoEnviado == NULL){
+							suscriptor* suscriptorEncontradoCola = list_find(caught_admin->suscriptores,igualSuscriptor);
+							list_add(particion->suscriptoresMensajeEnviado,suscriptorEncontradoCola);
+						}
 						free(content);
 					}
 
@@ -1180,6 +1277,11 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(uint32_t));
 
 							send_message(socket, CAUGHT_POKEMON,content,sizeCaught);
+							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
+							if(suscriptorEncontradoEnviado == NULL){
+								suscriptor* suscriptorEncontradoCola = list_find(caught_admin->suscriptores,igualSuscriptor);
+								list_add(particion->suscriptoresMensajeEnviado,suscriptorEncontradoCola);
+							}
 							free(content);
 						}
 
@@ -1204,7 +1306,9 @@ void iniciarMutexs(){
 	pthread_mutex_init(&mutexQueueLocalized,NULL);
 	pthread_mutex_init(&mutexQueueCatch,NULL);
 	pthread_mutex_init(&mutexQueueCaught,NULL);
-	pthread_mutex_unlock(&mutexQueueLocalized);
+	pthread_mutex_init(&mutexQueueLocalized,NULL);
+	pthread_mutex_init(&mutexMemoria,NULL);
+
 
 }
 void iniciarListasIds(){

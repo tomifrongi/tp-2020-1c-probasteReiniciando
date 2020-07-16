@@ -43,6 +43,13 @@ typedef struct {
 	uint32_t id_mensaje;
 }id_mensaje;
 //t_header = CONFIRMACION
+
+typedef struct {
+	uint32_t id_mensaje;
+	pid_t idSuscriptor;
+}mensajeACK;
+//t_header = CONFIRMACION
+
 //-------------------------------
 
 //--------------------------------------------------------------------------------------------------------------------------------------

@@ -107,9 +107,9 @@ typedef struct {
 
 //Subscriber envia
 typedef struct {
-	uint32_t id_mensaje; //Devuelve el mismo id que recibe en new_pokemon para confirmar
-						//que recibio el mensaje
-}id_mensaje;
+	uint32_t id_mensaje;
+	pid_t idSuscriptor;
+}mensajeACK;
 //t_header = CONFIRMACION
 
 //------------------------------------
@@ -146,9 +146,9 @@ typedef struct {
 
 //Subscriber envia
 typedef struct {
-	uint32_t id_mensaje; //Devuelve el mismo id que recibe en appeared_pokemon para confirmar
-						//que recibio el mensaje
-}id_mensaje;
+	uint32_t id_mensaje;
+	pid_t idSuscriptor;
+}mensajeACK;
 //t_header = CONFIRMACION
 
 //------------------------------------
@@ -179,11 +179,10 @@ typedef struct {
 
 //Subscriber envia:
 typedef struct {
-	uint32_t id_mensaje; //Devuelve el mismo id que recibe en get_pokemon para confirmar
-						//que recibio el mensaje
-}id_mensaje;
+	uint32_t id_mensaje;
+	pid_t idSuscriptor;
+}mensajeACK;
 //t_header = CONFIRMACION
-
 //------------------------------------
 
 //MENSAJE: localized_pokemon----------
@@ -217,12 +216,11 @@ typedef struct {
 }localized_pokemon;
 //t_header = LOCALIZED_POKEMON
 
-//Subscriber envia:
 typedef struct {
 	uint32_t id_mensaje;
-}id_mensaje;
+	pid_t idSuscriptor;
+}mensajeACK;
 //t_header = CONFIRMACION
-
 //------------------------------------
 
 //MENSAJE: catch_pokemon--------------
@@ -255,9 +253,9 @@ typedef struct {
 
 //Subscriber envia:
 typedef struct {
-	uint32_t id_mensaje; //Devuelve el mismo id que recibe en catch_pokemon para confirmar
-						//que recibio el mensaje
-}id_mensaje;
+	uint32_t id_mensaje;
+	pid_t idSuscriptor;
+}mensajeACK;
 //t_header = CONFIRMACION
 
 //------------------------------------
@@ -288,9 +286,9 @@ typedef struct {
 
 //Subscriber envia
 typedef struct {
-	uint32_t id_mensaje; //Devuelve el mismo id que recibe en caught_pokemon para confirmar
-						//que recibio el mensaje
-}id_mensaje;
+	uint32_t id_mensaje;
+	pid_t idSuscriptor;
+}mensajeACK;
 //t_header = CONFIRMACION
 
 //------------------------------------
