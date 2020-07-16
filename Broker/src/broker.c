@@ -91,6 +91,28 @@ void* handler_clients(void* socket){
 				uint32_t idMenCola = mensaje.id_mensaje;
 
 
+
+				t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
+				mensajeAEnviar->mensajeEnvio = malloc(sizeof(t_message));
+				void* envio = malloc(message->size + sizeof(uint32_t));
+				memcpy(envio,&mensaje.id_mensaje,sizeof(uint32_t));
+				envio += sizeof(uint32_t);
+				memcpy(envio,message->content,message->size);
+				mensajeAEnviar->mensajeEnvio->head = message->head;
+				mensajeAEnviar->mensajeEnvio->content = envio;
+				mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
+				int sizeCola = list_size(new_admin->suscriptores);
+				int indice = 0;
+				while(indice<sizeCola){
+					suscriptor* suscriptor = list_get(new_admin->suscriptores,indice);
+					mensajeAEnviar->socketEnvio = suscriptor->socket;
+					pthread_t envioMensajes;
+					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
+					pthread_detach(envioMensajes);
+					indice++;
+				}
+
+
 				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 				{
 					pthread_mutex_lock(&mutexMemoria);
@@ -369,7 +391,8 @@ void* handler_clients(void* socket){
 				agregarSuscripcion(mensajeSuscripcion,broker_sock);
 				enviarUltimosMensajesRecibidos(mensajeSuscripcion,broker_sock);
 				log_info(logger,"NUEVA SUSCRIPCION");
-
+				pthread_exit(NULL);
+				return NULL;
 				break;
 			}
 
@@ -393,7 +416,12 @@ void* handler_clients(void* socket){
 	return NULL;
 }
 
-
+void* handler_envio_mensajes(void* mensajeAEnviar){
+	t_message_envio* mensaje = (t_message_envio*) mensajeAEnviar;
+	send_message(mensaje->socketEnvio, mensaje->mensajeEnvio->head,mensaje->mensajeEnvio->content,mensaje->mensajeEnvio->size);
+	//TODO falta recibir el ACK
+	return NULL;
+}
 void enviarConfirmacion(uint32_t id, int broker_sock){
 
 	void* content = malloc(sizeof(id_mensaje));

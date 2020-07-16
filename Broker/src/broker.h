@@ -51,7 +51,7 @@ t_list* idsCorrelativosCaught;
 
 int listener_socket;
 
-
+void* handler_envio_mensajes(void* mensajeAEnviar);
 void* handler_clients(void* socket);
 void init_broker_server();
 

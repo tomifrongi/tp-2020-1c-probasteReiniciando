@@ -50,6 +50,11 @@ typedef struct{
 	void* content;
 }t_message;
 
+typedef struct{
+	t_message* mensajeEnvio;
+	int socketEnvio;
+}t_message_envio;
+
 #define MAX_CLIENTS 128 //Queda por definir
 
 

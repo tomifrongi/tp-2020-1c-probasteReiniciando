@@ -18,21 +18,22 @@ void ejecutarModoSuscriptor()
 	char* nombreCola= obtenerNombreCola(id);
 	log_info(logger, "SUSCRIPCION EXITOSA A LA COLA %s\n",nombreCola);
 
-	time_t time1,time2;
-	double diferencia;
-	time1 = time(&time1);
-	//TODO sleep y proceso hijo
-	while(diferencia<duracion){
-		t_message* mensajeRecibido = recv_message(socketGame);
-		log_info(logger, "MENSAJE %s RECIBIDO",nombreCola);
-		deserializarMensaje(mensajeRecibido);
-		free_t_message(mensajeRecibido);
-		time2 = time(&time2);
-		diferencia = difftime(time2,time1);
+	pthread_t gameListen;
+	pthread_create(&gameListen, NULL, handler_envios,(void*) (socketGame));
+	//pthread_detach(gameListen);
+	sleep(duracion);
 
-		}
 }
 
+void* handler_envios(void* socket){
+	int socketGame = (int) (socket);
+	while(1){
+		t_message* mensajeRecibido = recv_message(socketGame);
+		//log_info(logger, "MENSAJE %s RECIBIDO",mensajeRecibido->head);
+		deserializarMensaje(mensajeRecibido);
+		free_t_message(mensajeRecibido);
+	}
+}
 
 t_message obtenerMensajeSuscripcion(id_cola id){
 

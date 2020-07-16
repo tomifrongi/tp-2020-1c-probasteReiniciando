@@ -10,11 +10,13 @@
 #include "stdbool.h"
 #include <time.h>
 #include <unistd.h>
+#include <pthread.h>
 
 
 
 void ejecutarModoSuscriptor();
 t_message obtenerMensajeSuscripcion(id_cola id);
 int obtenerTiempo();
+void* handler_envios(void* socket);
 
 #endif /* MODOSUSCRIPTOR_H_ */
