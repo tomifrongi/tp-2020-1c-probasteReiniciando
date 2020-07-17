@@ -9,7 +9,7 @@
 //INCLUDES
 #include "ProtocoloDeMensajes.h"
 #include <commons/collections/queue.h>
-
+#include "broker.h"
 //ESTRUCTURAS
 
 
@@ -38,6 +38,7 @@ void crearEstructurasAdministrativas ();
 void destruirEstructurasAdministrativas();
 suscriptor* crearSuscriptor(suscriptor suscriptorNuevo);
 void borrarSuscriptor(suscriptor* suscriptor);
+void eliminarIdCola(uint32_t idMensaje,id_cola idCola);
 
 uint32_t* crearElementoCola(uint32_t elemento);
 void borrarElementoCola(uint32_t* elemento);

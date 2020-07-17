@@ -356,6 +356,7 @@ void eliminarParticionBuddy(){
 				if((particionCasteada->idMensaje) == idMensajeAuxiliar){
 					particionCasteada->libre = true;
 					log_info(logger,"POSICION VICTIMA: %d",particionCasteada->posicionParticion);
+					eliminarIdCola(particionCasteada->idMensaje,particionCasteada->cola);
 				}
 
 			}
@@ -378,8 +379,12 @@ void eliminarParticionBuddy(){
 			list_destroy(particionesOcupadas);
 			void cambiarALibre(void* particion){
 				particion_buddy_memoria* particionCasteada = particion;
-				if((particionCasteada->idMensaje) == idMensaje)
+				if((particionCasteada->idMensaje) == idMensaje){
 					particionCasteada->libre = true;
+					log_info(logger,"POSICION VICTIMA: %d",particionCasteada->posicionParticion);
+					eliminarIdCola(particionCasteada->idMensaje,particionCasteada->cola);
+				}
+
 
 			}
 			list_iterate(particionesEnMemoriaBuddy, cambiarALibre);

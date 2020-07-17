@@ -32,7 +32,7 @@
 
 
 
-//TODO cuando elimino una paricion, tengo borrar el id de la cola. IDEM  para buddy.
+
 
 void borrar_suscriptor(void* algo){}
 
@@ -697,12 +697,14 @@ void eliminarParticion(){
 			if((particionCasteada->idMensaje) == idMensajeAuxiliar){
 				particionCasteada->libre = true;
 				log_info(logger,"POSICION VICTIMA: %d",particionCasteada->posicionParticion);
+				eliminarIdCola(particionCasteada->idMensaje,particionCasteada->cola);
 
 			}
 
 
 		}
 		list_iterate(particionesEnMemoria, cambiarALibre);
+
 	}
 	if(string_equals_ignore_case(ALGORITMO_REEMPLAZO,"LRU"))
 	{
@@ -724,6 +726,7 @@ void eliminarParticion(){
 			if((particionCasteada->idMensaje) == idMensaje){
 				particionCasteada->libre = true;
 				log_info(logger,"POSICION VICTIMA: %d",particionCasteada->posicionParticion);
+				eliminarIdCola(particionCasteada->idMensaje,particionCasteada->cola);
 			}
 		}
 		list_iterate(particionesEnMemoria, cambiarALibre);

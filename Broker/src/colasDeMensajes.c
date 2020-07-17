@@ -60,3 +60,48 @@ uint32_t* crearElementoCola(uint32_t elemento){
 void borrarElementoCola(uint32_t* elemento){
 	free(elemento);
 }
+
+void eliminarIdCola(uint32_t idMensaje,id_cola idCola){
+	bool igualIdMensaje(void* elementoCola){
+		uint32_t* idMensajeCola = elementoCola;
+		return *idMensajeCola == idMensaje;
+	}
+	switch(idCola){
+	case NEW:{
+		pthread_mutex_lock(&mutexQueueNew);
+		list_remove_and_destroy_by_condition(new_admin->queue,igualIdMensaje,(void*) borrarElementoCola);
+		pthread_mutex_unlock(&mutexQueueNew);
+		break;
+	}
+	case APPEARED:{
+		pthread_mutex_lock(&mutexQueueAppeared);
+		list_remove_and_destroy_by_condition(appeared_admin->queue,igualIdMensaje,(void*) borrarElementoCola);
+		pthread_mutex_unlock(&mutexQueueAppeared);
+		break;
+	}
+	case GET: {
+		pthread_mutex_lock(&mutexQueueGet);
+		list_remove_and_destroy_by_condition(get_admin->queue,igualIdMensaje,(void*) borrarElementoCola);
+		pthread_mutex_unlock(&mutexQueueGet);
+		break;
+	}
+	case LOCALIZED: {
+		pthread_mutex_lock(&mutexQueueLocalized);
+		list_remove_and_destroy_by_condition(localized_admin->queue,igualIdMensaje,(void*) borrarElementoCola);
+		pthread_mutex_unlock(&mutexQueueLocalized);
+		break;
+	}
+	case CATCH: {
+		pthread_mutex_lock(&mutexQueueCatch);
+		list_remove_and_destroy_by_condition(catch_admin->queue,igualIdMensaje,(void*) borrarElementoCola);
+		pthread_mutex_unlock(&mutexQueueCatch);
+		break;
+	}
+	case CAUGHT: {
+		pthread_mutex_lock(&mutexQueueCaught);
+		list_remove_and_destroy_by_condition(caught_admin->queue,igualIdMensaje,(void*) borrarElementoCola);
+		pthread_mutex_unlock(&mutexQueueCaught);
+		break;
+	}
+	}
+}

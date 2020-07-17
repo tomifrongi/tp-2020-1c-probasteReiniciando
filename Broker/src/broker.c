@@ -104,8 +104,13 @@ void* handler_clients(void* socket){
 					mensajeAEnviar->mensajeEnvio->head = message->head;
 					mensajeAEnviar->mensajeEnvio->content = envio;
 					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
+
+					pthread_mutex_lock(&mutexSuscriptoresNew);
 					suscriptor* suscriptor = list_get(new_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptor->socket;
+					pthread_mutex_unlock(&mutexSuscriptoresNew);
+
+
 					pthread_t envioMensajes;
 					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
 					pthread_detach(envioMensajes);
@@ -175,8 +180,12 @@ void* handler_clients(void* socket){
 					mensajeAEnviar->mensajeEnvio->head = message->head;
 					mensajeAEnviar->mensajeEnvio->content = envio;
 					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
+
+					pthread_mutex_lock(&mutexSuscriptoresAppeared);
 					suscriptor* suscriptor = list_get(appeared_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptor->socket;
+					pthread_mutex_unlock(&mutexSuscriptoresAppeared);
+
 					pthread_t envioMensajes;
 					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
 					pthread_detach(envioMensajes);
@@ -251,8 +260,12 @@ void* handler_clients(void* socket){
 					mensajeAEnviar->mensajeEnvio->head = message->head;
 					mensajeAEnviar->mensajeEnvio->content = envio;
 					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
+
+					pthread_mutex_lock(&mutexSuscriptoresCatch);
 					suscriptor* suscriptor = list_get(catch_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptor->socket;
+					pthread_mutex_unlock(&mutexSuscriptoresCatch);
+
 					pthread_t envioMensajes;
 					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
 					pthread_detach(envioMensajes);
@@ -312,8 +325,12 @@ void* handler_clients(void* socket){
 					mensajeAEnviar->mensajeEnvio->head = message->head;
 					mensajeAEnviar->mensajeEnvio->content = envio;
 					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
+
+					pthread_mutex_lock(&mutexSuscriptoresCaught);
 					suscriptor* suscriptor = list_get(caught_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptor->socket;
+					pthread_mutex_unlock(&mutexSuscriptoresCaught);
+
 					pthread_t envioMensajes;
 					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
 					pthread_detach(envioMensajes);
@@ -378,8 +395,12 @@ void* handler_clients(void* socket){
 					mensajeAEnviar->mensajeEnvio->head = message->head;
 					mensajeAEnviar->mensajeEnvio->content = envio;
 					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
+
+					pthread_mutex_lock(&mutexSuscriptoresGet);
 					suscriptor* suscriptor = list_get(get_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptor->socket;
+					pthread_mutex_unlock(&mutexSuscriptoresGet);
+
 					pthread_t envioMensajes;
 					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
 					pthread_detach(envioMensajes);
@@ -449,8 +470,12 @@ void* handler_clients(void* socket){
 					mensajeAEnviar->mensajeEnvio->head = message->head;
 					mensajeAEnviar->mensajeEnvio->content = envio;
 					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
+
+					pthread_mutex_lock(&mutexSuscriptoresLocalized);
 					suscriptor* suscriptor = list_get(localized_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptor->socket;
+					pthread_mutex_unlock(&mutexSuscriptoresLocalized);
+
 					pthread_t envioMensajes;
 					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
 					pthread_detach(envioMensajes);
@@ -493,7 +518,9 @@ void* handler_clients(void* socket){
 				aux +=sizeof(uint32_t);
 				memcpy(&mensajeSuscripcion.idSuscriptor,aux,sizeof(pid_t));
 				agregarSuscripcion(mensajeSuscripcion,broker_sock);
+				pthread_mutex_lock(&mutexMemoria);
 				enviarUltimosMensajesRecibidos(mensajeSuscripcion,broker_sock);
+				pthread_mutex_unlock(&mutexMemoria);
 				log_info(logger,"NUEVA SUSCRIPCION");
 				break;
 			}
@@ -586,6 +613,7 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 	switch(mensajeSuscripcion.idCola){
 	case NEW:{
 		suscriptor* suscriptorEncontrado;
+		pthread_mutex_lock(&mutexSuscriptoresNew);
 		suscriptorEncontrado = buscarSuscriptor(new_admin,mensajeSuscripcion.idSuscriptor);
 		if(suscriptorEncontrado == NULL)
 		{
@@ -599,10 +627,11 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 		else{
 			suscriptorEncontrado->socket = broker_sock;
 		}
-
+		pthread_mutex_unlock(&mutexSuscriptoresNew);
 		break;
 	}
 	case APPEARED:{
+		pthread_mutex_lock(&mutexSuscriptoresAppeared);
 		suscriptor* suscriptorEncontrado = buscarSuscriptor(appeared_admin,mensajeSuscripcion.idSuscriptor);
 		if(suscriptorEncontrado == NULL)
 		{
@@ -616,10 +645,11 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 		else{
 			suscriptorEncontrado->socket = broker_sock;
 		}
-
+		pthread_mutex_unlock(&mutexSuscriptoresAppeared);
 		break;
 	}
 	case GET:{
+		pthread_mutex_lock(&mutexSuscriptoresGet);
 		suscriptor* suscriptorEncontrado = buscarSuscriptor(get_admin,mensajeSuscripcion.idSuscriptor);
 		if(suscriptorEncontrado == NULL)
 		{
@@ -633,11 +663,12 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 		else{
 			suscriptorEncontrado->socket = broker_sock;
 		}
-
+		pthread_mutex_unlock(&mutexSuscriptoresGet);
 		break;
 	}
 
 	case LOCALIZED:{
+		pthread_mutex_lock(&mutexSuscriptoresLocalized);
 		suscriptor* suscriptorEncontrado = buscarSuscriptor(localized_admin,mensajeSuscripcion.idSuscriptor);
 		if(suscriptorEncontrado == NULL)
 		{
@@ -651,10 +682,11 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 		else{
 			suscriptorEncontrado->socket = broker_sock;
 		}
-
+		pthread_mutex_unlock(&mutexSuscriptoresLocalized);
 		break;
 	}
 	case CATCH:{
+		pthread_mutex_lock(&mutexSuscriptoresCatch);
 		suscriptor* suscriptorEncontrado = buscarSuscriptor(catch_admin,mensajeSuscripcion.idSuscriptor);
 		if(suscriptorEncontrado == NULL)
 		{
@@ -668,10 +700,11 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 		else{
 			suscriptorEncontrado->socket = broker_sock;
 		}
-
+		pthread_mutex_unlock(&mutexSuscriptoresCatch);
 		break;
 	}
 	case CAUGHT:{
+		pthread_mutex_lock(&mutexSuscriptoresCaught);
 		suscriptor* suscriptorEncontrado = buscarSuscriptor(caught_admin,mensajeSuscripcion.idSuscriptor);
 		if(suscriptorEncontrado == NULL)
 		{
@@ -685,7 +718,7 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 		else{
 			suscriptorEncontrado->socket = broker_sock;
 		}
-
+		pthread_mutex_unlock(&mutexSuscriptoresCaught);
 		break;
 	}
 	default:
@@ -698,13 +731,17 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 	estructuraAdministrativa* estructuraAuxiliar;
 	switch(suscripcion.idCola){
 	case NEW:{
+		pthread_mutex_lock(&mutexSuscriptoresNew);
+		pthread_mutex_lock(&mutexQueueNew);
 		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 		{
 			estructuraAuxiliar = new_admin;
 			int sizeCola = list_size(estructuraAuxiliar->queue);
 			int index = 0;
 			while(index<sizeCola){
+
 				uint32_t* idMensaje = list_get(estructuraAuxiliar->queue,index);
+
 				particion_dinamica_memoria* particion = encontrarParticionDinamicaPorID(*idMensaje);
 
 				if(particion != NULL){
@@ -837,10 +874,14 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
+		pthread_mutex_unlock(&mutexSuscriptoresNew);
+		pthread_mutex_unlock(&mutexQueueNew);
 		break;
 		}
 
 	case APPEARED:{
+		pthread_mutex_lock(&mutexSuscriptoresAppeared);
+		pthread_mutex_lock(&mutexQueueAppeared);
 		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 		{
 			estructuraAuxiliar = appeared_admin;
@@ -953,10 +994,14 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
+		pthread_mutex_unlock(&mutexSuscriptoresAppeared);
+		pthread_mutex_unlock(&mutexQueueAppeared);
 		break;
 		}
 
 	case GET:{
+		pthread_mutex_lock(&mutexSuscriptoresGet);
+		pthread_mutex_lock(&mutexQueueGet);
 		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 		{
 			estructuraAuxiliar = get_admin;
@@ -1061,11 +1106,15 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
+		pthread_mutex_ulock(&mutexSuscriptoresGet);
+		pthread_mutex_unlock(&mutexQueueGet);
 		break;
 		}
 
 
 	case LOCALIZED:{
+		pthread_mutex_lock(&mutexSuscriptoresLocalized);
+		pthread_mutex_lock(&mutexQueueLocalized);
 		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 		{
 			estructuraAuxiliar = localized_admin;
@@ -1185,10 +1234,14 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
+		pthread_mutex_unlock(&mutexSuscriptoresLocalized);
+		pthread_mutex_unlock(&mutexQueueLocalized);
 		break;
 		}
 
 	case CATCH:{
+		pthread_mutex_lock(&mutexSuscriptoresCatch);
+		pthread_mutex_lock(&mutexQueueCatch);
 		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 		{
 			estructuraAuxiliar = catch_admin;
@@ -1294,11 +1347,15 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
+		pthread_mutex_unlock(&mutexSuscriptoresCatch);
+		pthread_mutex_unlock(&mutexQueueCatch);
 		break;
 		}
 
 
 	case CAUGHT:{
+		pthread_mutex_lock(&mutexSuscriptoresCaught);
+		pthread_mutex_lock(&mutexQueueCaught);
 		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 		{
 			estructuraAuxiliar = caught_admin;
@@ -1388,6 +1445,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
+		pthread_mutex_unlock(&mutexSuscriptoresCaught);
+		pthread_mutex_unlock(&mutexQueueCaught);
 		break;
 		}
 	}
@@ -1408,6 +1467,12 @@ void iniciarMutexs(){
 	pthread_mutex_init(&mutexQueueLocalized,NULL);
 	pthread_mutex_init(&mutexMemoria,NULL);
 
+	pthread_mutex_init(&mutexSuscriptoresNew,NULL);
+	pthread_mutex_init(&mutexSuscriptoresAppeared,NULL);
+	pthread_mutex_init(&mutexSuscriptoresGet,NULL);
+	pthread_mutex_init(&mutexSuscriptoresLocalized,NULL);
+	pthread_mutex_init(&mutexSuscriptoresCatch,NULL);
+	pthread_mutex_init(&mutexSuscriptoresCaught,NULL);
 
 }
 void iniciarListasIds(){

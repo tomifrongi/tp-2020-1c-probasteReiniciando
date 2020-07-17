@@ -11,6 +11,7 @@
 #include <commons/collections/queue.h>
 #include "ProtocoloDeMensajes.h"
 #include "funcionesEnvio.h"
+#include "colasDeMensajes.h"
 
 #include "tiposMensajesEnMemoria.h"
 #include "Configuracion.h"
