@@ -90,20 +90,20 @@ void* handler_clients(void* socket){
 				pthread_mutex_unlock(&mutexId);
 				uint32_t idMenCola = mensaje.id_mensaje;
 
-
 				//TODO agregar sucriptor a suscriptoresMensajeEnviado????
-				t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
-				mensajeAEnviar->mensajeEnvio = malloc(sizeof(t_message));
-				void* envio = malloc(message->size + sizeof(uint32_t));
-				memcpy(envio,&mensaje.id_mensaje,sizeof(uint32_t));
-				envio += sizeof(uint32_t);
-				memcpy(envio,message->content,message->size);
-				mensajeAEnviar->mensajeEnvio->head = message->head;
-				mensajeAEnviar->mensajeEnvio->content = envio;
-				mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
 				int sizeCola = list_size(new_admin->suscriptores);
 				int indice = 0;
 				while(indice<sizeCola){
+					t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
+					mensajeAEnviar->mensajeEnvio = malloc(sizeof(t_message));
+					void* envio = malloc(message->size + sizeof(uint32_t));
+					int desplazamientoEnvio = 0;
+					memcpy(envio + desplazamientoEnvio,&mensaje.id_mensaje,sizeof(uint32_t));
+					desplazamientoEnvio += sizeof(uint32_t);
+					memcpy(envio + desplazamientoEnvio,message->content,message->size);
+					mensajeAEnviar->mensajeEnvio->head = message->head;
+					mensajeAEnviar->mensajeEnvio->content = envio;
+					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
 					suscriptor* suscriptor = list_get(new_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptor->socket;
 					pthread_t envioMensajes;
@@ -162,6 +162,27 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
+				int sizeCola = list_size(appeared_admin->suscriptores);
+				int indice = 0;
+				while(indice<sizeCola){
+					t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
+					mensajeAEnviar->mensajeEnvio = malloc(sizeof(t_message));
+					void* envio = malloc(message->size + sizeof(uint32_t));
+					int desplazamientoEnvio = 0;
+					memcpy(envio + desplazamientoEnvio,&mensaje.id_mensaje,sizeof(uint32_t));
+					desplazamientoEnvio += sizeof(uint32_t);
+					memcpy(envio + desplazamientoEnvio,message->content,message->size);
+					mensajeAEnviar->mensajeEnvio->head = message->head;
+					mensajeAEnviar->mensajeEnvio->content = envio;
+					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
+					suscriptor* suscriptor = list_get(appeared_admin->suscriptores,indice);
+					mensajeAEnviar->socketEnvio = suscriptor->socket;
+					pthread_t envioMensajes;
+					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
+					pthread_detach(envioMensajes);
+					indice++;
+				}
+
 				pthread_mutex_lock(&mutexQueueAppeared);
 				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
 
@@ -187,6 +208,7 @@ void* handler_clients(void* socket){
 					list_add(appeared_admin->queue,idNuevo);
 				}
 				pthread_mutex_unlock(&mutexQueueAppeared);
+
 
 				free(mensaje.nombrePokemon);
 
@@ -215,6 +237,27 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
+
+				int sizeCola = list_size(catch_admin->suscriptores);
+				int indice = 0;
+				while(indice<sizeCola){
+					t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
+					mensajeAEnviar->mensajeEnvio = malloc(sizeof(t_message));
+					void* envio = malloc(message->size + sizeof(uint32_t));
+					int desplazamientoEnvio = 0;
+					memcpy(envio + desplazamientoEnvio,&mensaje.id_mensaje,sizeof(uint32_t));
+					desplazamientoEnvio += sizeof(uint32_t);
+					memcpy(envio + desplazamientoEnvio,message->content,message->size);
+					mensajeAEnviar->mensajeEnvio->head = message->head;
+					mensajeAEnviar->mensajeEnvio->content = envio;
+					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
+					suscriptor* suscriptor = list_get(catch_admin->suscriptores,indice);
+					mensajeAEnviar->socketEnvio = suscriptor->socket;
+					pthread_t envioMensajes;
+					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
+					pthread_detach(envioMensajes);
+					indice++;
+				}
 
 				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 				{
@@ -256,7 +299,26 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
-
+				int sizeCola = list_size(caught_admin->suscriptores);
+				int indice = 0;
+				while(indice<sizeCola){
+					t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
+					mensajeAEnviar->mensajeEnvio = malloc(sizeof(t_message));
+					void* envio = malloc(message->size + sizeof(uint32_t));
+					int desplazamientoEnvio = 0;
+					memcpy(envio + desplazamientoEnvio,&mensaje.id_mensaje,sizeof(uint32_t));
+					desplazamientoEnvio += sizeof(uint32_t);
+					memcpy(envio + desplazamientoEnvio,message->content,message->size);
+					mensajeAEnviar->mensajeEnvio->head = message->head;
+					mensajeAEnviar->mensajeEnvio->content = envio;
+					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
+					suscriptor* suscriptor = list_get(caught_admin->suscriptores,indice);
+					mensajeAEnviar->socketEnvio = suscriptor->socket;
+					pthread_t envioMensajes;
+					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
+					pthread_detach(envioMensajes);
+					indice++;
+				}
 
 				pthread_mutex_lock(&mutexQueueCaught);
 				if(buscarIdCorrelativo(idsCorrelativosCaught,mensaje.idCorrelativo)==NULL){
@@ -302,6 +364,27 @@ void* handler_clients(void* socket){
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
+
+				int sizeCola = list_size(get_admin->suscriptores);
+				int indice = 0;
+				while(indice<sizeCola){
+					t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
+					mensajeAEnviar->mensajeEnvio = malloc(sizeof(t_message));
+					void* envio = malloc(message->size + sizeof(uint32_t));
+					int desplazamientoEnvio = 0;
+					memcpy(envio + desplazamientoEnvio,&mensaje.id_mensaje,sizeof(uint32_t));
+					desplazamientoEnvio += sizeof(uint32_t);
+					memcpy(envio + desplazamientoEnvio,message->content,message->size);
+					mensajeAEnviar->mensajeEnvio->head = message->head;
+					mensajeAEnviar->mensajeEnvio->content = envio;
+					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
+					suscriptor* suscriptor = list_get(get_admin->suscriptores,indice);
+					mensajeAEnviar->socketEnvio = suscriptor->socket;
+					pthread_t envioMensajes;
+					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
+					pthread_detach(envioMensajes);
+					indice++;
+				}
 
 				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 				{
@@ -353,6 +436,27 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
+				int sizeCola = list_size(localized_admin->suscriptores);
+				int indice = 0;
+				while(indice<sizeCola){
+					t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
+					mensajeAEnviar->mensajeEnvio = malloc(sizeof(t_message));
+					void* envio = malloc(message->size + sizeof(uint32_t));
+					int desplazamientoEnvio = 0;
+					memcpy(envio + desplazamientoEnvio,&mensaje.id_mensaje,sizeof(uint32_t));
+					desplazamientoEnvio += sizeof(uint32_t);
+					memcpy(envio + desplazamientoEnvio,message->content,message->size);
+					mensajeAEnviar->mensajeEnvio->head = message->head;
+					mensajeAEnviar->mensajeEnvio->content = envio;
+					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
+					suscriptor* suscriptor = list_get(localized_admin->suscriptores,indice);
+					mensajeAEnviar->socketEnvio = suscriptor->socket;
+					pthread_t envioMensajes;
+					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
+					pthread_detach(envioMensajes);
+					indice++;
+				}
+
 				pthread_mutex_lock(&mutexQueueLocalized);
 				if(buscarIdCorrelativo(idsCorrelativosLocalized,mensaje.idCorrelativo)==NULL){
 					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
@@ -391,18 +495,10 @@ void* handler_clients(void* socket){
 				agregarSuscripcion(mensajeSuscripcion,broker_sock);
 				enviarUltimosMensajesRecibidos(mensajeSuscripcion,broker_sock);
 				log_info(logger,"NUEVA SUSCRIPCION");
-				pthread_exit(NULL);
-				return NULL;
 				break;
 			}
 
 			case CONFIRMACION:{
-				typedef struct {
-					uint32_t id_mensaje;
-					pid_t idSuscriptor;
-				}mensajeACK;
-				//t_header = CONFIRMACION
-
 				mensajeACK mensajeConf;
 				void *aux = message->content;
 				memcpy(&mensajeConf.id_mensaje,aux,sizeof(uint32_t));
@@ -461,6 +557,9 @@ void* handler_clients(void* socket){
 void* handler_envio_mensajes(void* mensajeAEnviar){
 	t_message_envio* mensaje = (t_message_envio*) mensajeAEnviar;
 	send_message(mensaje->socketEnvio, mensaje->mensajeEnvio->head,mensaje->mensajeEnvio->content,mensaje->mensajeEnvio->size);
+	free(mensaje->mensajeEnvio->content);
+	free(mensaje->mensajeEnvio);
+	free(mensaje);
 	//TODO falta recibir el ACK
 	return NULL;
 }

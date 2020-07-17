@@ -39,7 +39,7 @@ t_message obtenerMensajeSuscripcion(id_cola id){
 
 	t_message mensaje;
 	suscripcion content;
-	content.idSuscriptor= getppid();
+	content.idSuscriptor= getpid();
 	content.idCola = id;
 
 	mensaje.content = serializarSuscripcionContent(content);
