@@ -15,10 +15,9 @@ pthread_mutex_t mutexLogger;
 
 
 //TODO Recibir ACK de los suscriptores
-//TODO Enviar id/confirmacion cuando publisher envia un mensaje
 //TODO poner bien todos los logs
 //TODO hacer config
-//TODO agregar semaforos donde falten
+
 
 int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
@@ -137,7 +136,7 @@ void* handler_clients(void* socket){
 				list_add(new_admin->queue,idNuevo);
 				pthread_mutex_unlock(&mutexQueueNew);
 
-				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
+				enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				free(mensaje.nombrePokemon);
 				break;
@@ -221,7 +220,7 @@ void* handler_clients(void* socket){
 
 				free(mensaje.nombrePokemon);
 
-				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
+				enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
 			}
@@ -290,7 +289,7 @@ void* handler_clients(void* socket){
 				uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
 				list_add(catch_admin->queue,idNuevo);
 				pthread_mutex_unlock(&mutexQueueCatch);
-				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
+				enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 				free(mensaje.nombrePokemon);
 				break;
 			}
@@ -360,7 +359,7 @@ void* handler_clients(void* socket){
 					list_add(caught_admin->queue,idNuevo);
 				}
 				pthread_mutex_unlock(&mutexQueueCaught);
-				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
+				enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
 			}
@@ -426,7 +425,7 @@ void* handler_clients(void* socket){
 				list_add(get_admin->queue,idNuevo);
 				pthread_mutex_unlock(&mutexQueueGet);
 				free(mensaje.nombrePokemon);
-				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
+				enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
 			}
@@ -507,7 +506,7 @@ void* handler_clients(void* socket){
 				free(mensaje.nombrePokemon);
 				free(mensaje.posiciones);
 
-				//enviarConfirmacion(mensaje.id_mensaje,broker_sock);
+				enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
 			}
@@ -1106,7 +1105,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
-		pthread_mutex_ulock(&mutexSuscriptoresGet);
+		pthread_mutex_unlock(&mutexSuscriptoresGet);
 		pthread_mutex_unlock(&mutexQueueGet);
 		break;
 		}
@@ -1455,26 +1454,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 
 
 
-void iniciarMutexs(){
-	pthread_mutex_init(&mutexId,NULL);
-	pthread_mutex_init(&mutexLogger,NULL);
-	pthread_mutex_init(&mutexQueueNew,NULL);
-	pthread_mutex_init(&mutexQueueAppeared,NULL);
-	pthread_mutex_init(&mutexQueueGet,NULL);
-	pthread_mutex_init(&mutexQueueLocalized,NULL);
-	pthread_mutex_init(&mutexQueueCatch,NULL);
-	pthread_mutex_init(&mutexQueueCaught,NULL);
-	pthread_mutex_init(&mutexQueueLocalized,NULL);
-	pthread_mutex_init(&mutexMemoria,NULL);
 
-	pthread_mutex_init(&mutexSuscriptoresNew,NULL);
-	pthread_mutex_init(&mutexSuscriptoresAppeared,NULL);
-	pthread_mutex_init(&mutexSuscriptoresGet,NULL);
-	pthread_mutex_init(&mutexSuscriptoresLocalized,NULL);
-	pthread_mutex_init(&mutexSuscriptoresCatch,NULL);
-	pthread_mutex_init(&mutexSuscriptoresCaught,NULL);
-
-}
 void iniciarListasIds(){
 	idsCorrelativosAppeared = list_create();
 	idsCorrelativosLocalized = list_create();

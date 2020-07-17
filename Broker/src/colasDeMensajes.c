@@ -105,3 +105,24 @@ void eliminarIdCola(uint32_t idMensaje,id_cola idCola){
 	}
 	}
 }
+
+void iniciarMutexs(){
+	pthread_mutex_init(&mutexId,NULL);
+	pthread_mutex_init(&mutexLogger,NULL);
+	pthread_mutex_init(&mutexQueueNew,NULL);
+	pthread_mutex_init(&mutexQueueAppeared,NULL);
+	pthread_mutex_init(&mutexQueueGet,NULL);
+	pthread_mutex_init(&mutexQueueLocalized,NULL);
+	pthread_mutex_init(&mutexQueueCatch,NULL);
+	pthread_mutex_init(&mutexQueueCaught,NULL);
+	pthread_mutex_init(&mutexQueueLocalized,NULL);
+	pthread_mutex_init(&mutexMemoria,NULL);
+
+	pthread_mutex_init(&mutexSuscriptoresNew,NULL);
+	pthread_mutex_init(&mutexSuscriptoresAppeared,NULL);
+	pthread_mutex_init(&mutexSuscriptoresGet,NULL);
+	pthread_mutex_init(&mutexSuscriptoresLocalized,NULL);
+	pthread_mutex_init(&mutexSuscriptoresCatch,NULL);
+	pthread_mutex_init(&mutexSuscriptoresCaught,NULL);
+
+}

@@ -35,21 +35,6 @@
 
 //Parametros a recibir desde el config
 uint32_t ID_INICIAL;
-pthread_mutex_t mutexQueueNew;
-pthread_mutex_t mutexQueueAppeared;
-pthread_mutex_t mutexQueueGet;
-pthread_mutex_t mutexQueueLocalized;
-pthread_mutex_t mutexQueueCatch;
-pthread_mutex_t mutexQueueCaught;
-pthread_mutex_t mutexId;
-pthread_mutex_t mutexLogger;
-pthread_mutex_t mutexMemoria;
-pthread_mutex_t mutexSuscriptoresNew;
-pthread_mutex_t mutexSuscriptoresAppeared;
-pthread_mutex_t mutexSuscriptoresGet;
-pthread_mutex_t mutexSuscriptoresLocalized;
-pthread_mutex_t mutexSuscriptoresCatch;
-pthread_mutex_t mutexSuscriptoresCaught;
 
 //TODO crear y destruir elemento de estas listas
 t_list* idsCorrelativosAppeared;
@@ -64,9 +49,11 @@ void init_broker_server();
 
 void enviarConfirmacion(uint32_t id, int broker_sock);
 void agregarSuscripcion(suscripcion mensajeSuscripcion,int broker_sock);
-suscriptor* buscarSuscriptor(estructuraAdministrativa* estAdm,pid_t idSuscriptor);
+
+
+suscriptor *buscarSuscriptor(estructuraAdministrativa* estAdm,pid_t idSuscriptor);
 void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket);
-void iniciarMutexs();
+
 void iniciarListasIds();
 void* buscarIdCorrelativo(t_list* lista,uint32_t idCorrelativo);
 
