@@ -1,6 +1,7 @@
 #include "Gamecard.h"
 
 pthread_mutex_t mutexLogger;
+
 t_log* log;
 
 int main(void)
@@ -371,10 +372,10 @@ void procesar_catch_enviar_caught(void* arg) {
 
 //-----------------------------------FINALIZACION DEL GAMECARD------------------------------------//
 void gm_exit() {
-	socket_close_conection(gamecard_fd);
+	socket_close_conection(log);
 	//gcfsFreeBitmaps();
-	free(gamecard_fd);
-	log_destroy(gamecard_fd);
+	free(log);
+	log_destroy(log);
 
 	free(struct_paths[METADATA]);
 	free(struct_paths[FILES]);
