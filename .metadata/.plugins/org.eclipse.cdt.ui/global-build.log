@@ -1,4 +1,4 @@
-13:44:47 **** Incremental Build of configuration Debug for project GameCard ****
+14:21:10 **** Incremental Build of configuration Debug for project GameCard ****
 make all 
 Building file: ../src/Gamecard.c
 Invoking: GCC C Compiler
@@ -44,6 +44,7 @@ In file included from ../src/funcionesEnvio.h:20:0,
             ^
 ../src/Gamecard.c: In function ‘reintentar_conexion’:
 ../src/Gamecard.c:56:26: warning: passing argument 1 of ‘handler_suscripciones’ makes integer from pointer without a cast [-Wint-conversion]
+src/subdir.mk:36: recipe for target 'src/Gamecard.o' failed
    handler_suscripciones (retryConn);
                           ^
 In file included from ../src/Gamecard.c:1:0:
@@ -62,7 +63,6 @@ In file included from ../src/Gamecard.c:1:0:
                             ^
 ../src/Gamecard.c:70:26: warning: assignment makes integer from pointer without a cast [-Wint-conversion]
    tiempoRetardoOperacion = config_get_string_value(config, "TIEMPO_RETARDO_OPERACION");
-src/subdir.mk:36: recipe for target 'src/Gamecard.o' failed
                           ^
 ../src/Gamecard.c: In function ‘handler_suscripciones’:
 ../src/Gamecard.c:92:16: warning: assignment makes integer from pointer without a cast [-Wint-conversion]
