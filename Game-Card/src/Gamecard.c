@@ -2,8 +2,6 @@
 
 pthread_mutex_t mutexLogger;
 
-t_log* log;
-
 int main(void)
 {
 	iniciar_config_logger();
@@ -21,22 +19,22 @@ int main(void)
 	t_queue get_queue;*/
 
 
-	log_info(log, "Se crea un hilo para subscribirse a NEW_POKEMON del BROKER");
+	log_info(logger, "Se crea un hilo para subscribirse a NEW_POKEMON del BROKER");
 	pthread_create(&new_thread, NULL, (void*) reintentar_conexion, (uint32_t) (NEW));
 	pthread_detach(new_thread);
 	usleep(600000);
 
-	log_info(log, "Se crea un hilo para subscribirse a CATCH_POKEMON del BROKER");
+	log_info(logger, "Se crea un hilo para subscribirse a CATCH_POKEMON del BROKER");
 	pthread_create(&catch_thread, NULL, (void*) reintentar_conexion, (uint32_t) (CATCH));
 	pthread_detach(catch_thread);
 	usleep(600000);
 
-	log_info(log, "Se crea un hilo para subscribirse a GET_POKEMON del BROKER");
+	log_info(logger, "Se crea un hilo para subscribirse a GET_POKEMON del BROKER");
 	pthread_create(&get_thread, NULL, (void*) reintentar_conexion, (uint32_t) (GET));
 	pthread_detach(get_thread);
 	usleep(600000);
 
-	log_info(log, "Creando un hilo para poner al GAMECARD en modo Servidor");
+	log_info(logger, "Creando un hilo para poner al GAMECARD en modo Servidor");
 	gm_init();
 	usleep(500000);
 
@@ -61,7 +59,7 @@ void reintentar_conexion(void* arg)
 void iniciar_config_logger()
 
 {
-		log =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
+	logger =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
 
 		t_config * config = config_create("GameCard.config");
 
@@ -83,12 +81,12 @@ void* handler_suscripciones(uint32_t cola_subs)
 		if(socketBroker != -errno)
 		{
 			pthread_mutex_lock(&mutexLogger);
-			log_info(log, "CONEXION EXITOSA CON EL BROKER");
+			log_info(logger, "CONEXION EXITOSA CON EL BROKER");
 			pthread_mutex_unlock(&mutexLogger);
 
 			t_subscribe* sub_snd = malloc(sizeof(t_subscribe));
 
-			log_info(log, "Proceso Gamecard");
+			log_info(logger, "Proceso Gamecard");
 			sub_snd->ip = string_duplicate(LOCAL_IP);
 			sub_snd->puerto = LOCAL_PORT;
 			sub_snd->cola = cola_subs;
@@ -107,10 +105,10 @@ void gm_init()
 	int gm_socket = socket_create_listener(LOCAL_IP, LOCAL_PORT);
 	if (gm_socket < 0)
 	{
-		log_info(log, "Error al levantar GAMECARD server");
+		log_info(logger, "Error al levantar GAMECARD server");
 	}
 
-	log_info(log, "SERVER creado correctamente. Esperando conexión del GAMEBOY");
+	log_info(logger, "SERVER creado correctamente. Esperando conexión del GAMEBOY");
 
 	struct sockaddr_in client_info;
 	socklen_t addrlen = sizeof client_info;
@@ -136,7 +134,7 @@ void gm_init()
 		}
 		else
 		{
-			log_error("Error al conectar con un cliente", log);
+			log_error("Error al conectar con un cliente", logger);
 		}
 	}
 }
@@ -164,7 +162,7 @@ void *recibir_msgs_gamecard(int fd, int respond_to)
 
 		if (received_bytes <= 0)
 		{
-			log_error(log, "Error al recibir mensaje");
+			log_error(logger, "Error al recibir mensaje");
 			return NULL;
 		}
 		switch (msg)
@@ -172,7 +170,7 @@ void *recibir_msgs_gamecard(int fd, int respond_to)
 
 		// En los 3 casos de mensajes pueden llegar del BROKER o GAMEBOY
 		case NEW_POKEMON: {
-			log_info(log, "NEW received");
+			log_info(logger, "NEW received");
 			new_pokemon_enviar *new_recv= utils_receive_and_deserialize(client_fd, msg);
 
 			log_info("ID recibido: %d", new_recv->id_mensaje);
@@ -205,7 +203,7 @@ void *recibir_msgs_gamecard(int fd, int respond_to)
 		}
 
 		case GET_POKEMON: {
-			log_info(log, "GET received");
+			log_info(logger, "GET received");
 			get_pokemon_enviar *get_rcv = utils_receive_and_deserialize(client_fd, msg);
 
 			log_info("ID correlacional: %d", get_rcv->id_correlacional);
@@ -235,7 +233,7 @@ void *recibir_msgs_gamecard(int fd, int respond_to)
 		}
 
 		case CATCH_POKEMON: {
-			log_info(log, "CATCH received");
+			log_info(logger, "CATCH received");
 			catch_pokemon_enviar *catch_rcv = utils_receive_and_deserialize(client_fd, msg);
 
 			log_info("ID correlacional: %d", catch_rcv->id_correlacional);
@@ -282,9 +280,9 @@ void enviar_ack(void* arg) {
 	if (client_fd > 0)
 	{
 		utils_serialize_and_send(client_fd, ack_send, susc);
-		log_info("ACK enviado al BROKER", log);
+		log_info("ACK enviado al BROKER", logger);
 	}
-	log_info(log, "La conexión con el BROKER se cerrará");
+	log_info(logger, "La conexión con el BROKER se cerrará");
 	socket_close_conection(client_fd);
 }
 
@@ -308,10 +306,10 @@ void procesar_new_enviar_appeared(void* arg)
 	if (client_fd > 0)
 	{
 		utils_serialize_and_send(client_fd, APPEARED, appeared_snd);
-		log_info(log, "El mensaje APPEARED fué enviado al BROKER");
+		log_info(logger, "El mensaje APPEARED fué enviado al BROKER");
 	}
 	usleep(500000);
-	log_info(log, "Cerrando la conexión con el BROKER");
+	log_info(logger, "Cerrando la conexión con el BROKER");
 	socket_close_conection(client_fd);
 }
 
@@ -345,7 +343,7 @@ void procesar_get_enviar_localized(void* arg)
 	if (client_fd > 0)
 	{
 		utils_serialize_and_send(client_fd, localized, localized_snd);
-		log_info(log, "El mensaje LOCALIZED fué enviado al BROKER");
+		log_info(logger, "El mensaje LOCALIZED fué enviado al BROKER");
 	}
 	usleep(50000);
 	socket_close_conection(client_fd);
@@ -364,7 +362,7 @@ void procesar_catch_enviar_caught(void* arg) {
 	if (client_fd > 0)
 	{
 		utils_serialize_and_send(client_fd, caught, caught_snd);
-		log_info(log, "El mensaje CAUGHT fue enviado al BROKER");
+		log_info(logger, "El mensaje CAUGHT fue enviado al BROKER");
 	}
 	usleep(500000);
 	socket_close_conection(client_fd);
@@ -372,10 +370,10 @@ void procesar_catch_enviar_caught(void* arg) {
 
 //-----------------------------------FINALIZACION DEL GAMECARD------------------------------------//
 void gm_exit() {
-	socket_close_conection(log);
+	socket_close_conection(logger);
 	//gcfsFreeBitmaps();
-	free(log);
-	log_destroy(log);
+	free(logger);
+	log_destroy(logger);
 
 	free(struct_paths[METADATA]);
 	free(struct_paths[FILES]);

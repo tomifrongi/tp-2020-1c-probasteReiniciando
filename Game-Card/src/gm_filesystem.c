@@ -1,6 +1,5 @@
 #include "gm_filesystem.h"
 
-t_log* log;
 
 void gm_structs_fs() //Estructuras del File System
 {
@@ -241,12 +240,12 @@ void createNewPokemon(new_pokemon* newPokemon)
 	// Existe Pokemon
 	if (access(completePath, F_OK) != -1)
 	{
-		log_info(log, "Pokemon existe dentro del FS!.");
+		log_info(logger, "Pokemon existe dentro del FS!.");
 		operateNewPokemonFile(newPokemon, completePath, freeBlocks);
 	}
 	else
 	{
-		log_info(log, "No existe ese Pokemon. Se crean y escriben las estructuras.");
+		log_info(logger, "No existe ese Pokemon. Se crean y escriben las estructuras.");
 		char* super_path = (char*) malloc(strlen(newPokemon->nombrePokemon) +1);
 		char* pokemonDirectory = (char*) malloc(strlen(newPokemon->nombrePokemon)+1);
 	
@@ -283,7 +282,7 @@ void createNewPokemon(new_pokemon* newPokemon)
 			FILE* blockFile = fopen(pathBloque,"wr");
 			fwrite(pokemonPerPosition, 1 , pokemonPerPositionLength, blockFile);
 			actualizar_pokemon_metadata(newPokemon->nombrePokemon, "N", stringLength, metadataBlocks, "N");
-			log_info(log, "Operacion NEW_POKEMON terminada correctamente");
+			log_info(logger, "Operacion NEW_POKEMON terminada correctamente");
 			
 			fclose(blockFile);
 			free(metadataBlocks);
@@ -294,7 +293,7 @@ void createNewPokemon(new_pokemon* newPokemon)
 		  }
 		  else
 		  {
-			log_error(log, "No hay bloques disponibles. No se puede hacer la operacion");
+			log_error(logger, "No hay bloques disponibles. No se puede hacer la operacion");
 		  }
 		}
 		else if(metadata.block_size < pokemonPerPositionLength)
@@ -314,14 +313,14 @@ void createNewPokemon(new_pokemon* newPokemon)
 			writeBlocks(stringToWrite, listBlocks);
 			char* metadataBlocks = formatToMetadataBlocks(listBlocks);
 			actualizar_pokemon_metadata(newPokemon->nombrePokemon, "N", stringLength, metadataBlocks, "N");
-			log_info(log, "Operacion NEW_POKEMON terminada correctamente");
+			log_info(logger, "Operacion NEW_POKEMON terminada correctamente");
 
 			list_destroy(listBlocks);
 			free(metadataBlocks);
 		  }
 		  else
 		  {
-			  log_error(log, "No hay bloques disponibles. No se puede hacer la operacion");
+			  log_error(logger, "No hay bloques disponibles. No se puede hacer la operacion");
 		  }
 		  
 		  list_destroy_and_destroy_elements(pokemonLines, liberar_block_line);
@@ -346,12 +345,12 @@ int catchAPokemon(catch_pokemon* catchPokemon)
 
 	if (access(completePath, F_OK) != -1)
 	{
-		log_info(log, "Existe el pokemon, se leen las estructuras");
+		log_info(logger, "Existe el pokemon, se leen las estructuras");
 		res = operateCatchPokemonFile(catchPokemon, completePath);
 	}
 	else
 	{
-		log_error(log, "No existe ese Pokemon en el filesystem.");
+		log_error(logger, "No existe ese Pokemon en el filesystem.");
 	}
 
 	free(completePath);
@@ -369,12 +368,12 @@ t_list* getAPokemon(get_pokemon* getPokemon)
 
 	if (access(completePath, F_OK) != -1)
 	{
-		log_info(log, "Existe el pokemon, se leen las estructuras");
+		log_info(logger, "Existe el pokemon, se leen las estructuras");
 		res = operateGetPokemonFile(getPokemon, completePath);
 	}
 	else
 	{
-		log_error(log, "No existe ese Pokemon en el filesystem.");
+		log_error(logger, "No existe ese Pokemon en el filesystem.");
 	}
 
 	free(completePath);
@@ -425,12 +424,12 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 			actualizar_pokemon_metadata(newPokemon->nombrePokemon, "N", stringLength, metadataBlocks, "N");
 			pthread_mutex_unlock(&MUTEX_METADATA);
 
-			log_info(log, "Operacion NEW_POKEMON terminada correctamente");
+			log_info(logger, "Operacion NEW_POKEMON terminada correctamente");
 			free(metadataBlocks);
 		}
 		else
 		{
-			log_error(log, "No hay bloques disponibles. No se puede hacer la operacion");
+			log_error(logger, "No hay bloques disponibles. No se puede hacer la operacion");
 		}
 
 		list_destroy_and_destroy_elements(pokemonLines, liberar_block_line);
@@ -468,7 +467,7 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
 		updateOpenFileState(getPokemon->nombrePokemon, "N");
 		pthread_mutex_unlock(&MUTEX_METADATA);
 
-		log_info(log, "Operacion GET_POKEMON terminada correctamente");
+		log_info(logger, "Operacion GET_POKEMON terminada correctamente");
 	}
 	else
 	{
@@ -489,7 +488,7 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 
 	if (string_equals_ignore_case(pokemonMetadata->isOpen, "N"))
 	{
-		log_info(log, "El archivo no esta abierto por ningun proceso, se procede a abrir el mismo.");
+		log_info(logger, "El archivo no esta abierto por ningun proceso, se procede a abrir el mismo.");
 		
 		pthread_mutex_lock(&MUTEX_METADATA);
 		updateOpenFileState(catchPokemon->nombrePokemon, "Y");
@@ -555,14 +554,14 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 				free(metadataBlocks);
 			}
 			res = 1;
-			log_info(log, "Operacion CATCH_POKEMON terminada correctamente");
+			log_info(logger, "Operacion CATCH_POKEMON terminada correctamente");
 
 			free(stringToWrite);
 			free(stringLength);
 		}
 		else
 		{
-			log_error(log, "No existen las coordenadas para ese pokemon, no se puede completar la operacion.");
+			log_error(logger, "No existen las coordenadas para ese pokemon, no se puede completar la operacion.");
 		}
 
 		list_destroy_and_destroy_elements(pokemonLines, liberar_block_line);

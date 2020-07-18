@@ -1,6 +1,5 @@
 #include "gm_metadata.h"
 
-t_log* log;
 
 void crear_root_files()
 {
@@ -27,12 +26,12 @@ void crear_root_files()
 	{
 		// Creo carpetas
 		mkdir(dir_metadata, 0777);
-		log_info(log, "Creada carpeta Metadata/");
+		log_info(logger, "Creada carpeta Metadata/");
 		mkdir(archivos, 0777);
-		log_info(log, "Creada carpeta Files/");
+		log_info(logger, "Creada carpeta Files/");
 		log_info("Creada carpeta Files/ %s", dir_bloques);
 		mkdir(dir_bloques, 0777);
-		log_info(log, "Creada carpeta Bloques/");
+		log_info(logger, "Creada carpeta Bloques/");
 	}
 
 	struct_paths[METADATA] = dir_metadata;
@@ -96,7 +95,7 @@ void conf_files()
 	t_config* pokemonConfigMetadata = config_create(pokemonBaseBin);
 	config_set_value(pokemonConfigMetadata, "DIRECTORY", "Y");
 	config_save(pokemonConfigMetadata);
-	log_info(log, "Creado directorio base /Pokemon y su Metadata.bin");
+	log_info(logger, "Creado directorio base /Pokemon y su Metadata.bin");
 	fclose(pokemonMetadata);
 
 	free(pokemonBasePath);
@@ -105,7 +104,7 @@ void conf_files()
 
 void crear_blocks()
 {
-	log_info(log, "Creando bloques en el path /Bloques");
+	log_info(logger, "Creando bloques en el path /Bloques");
 	FILE* newBloque;
 	for(int i=0; i <= metadata.blocks-1; i++){
         char* pathBloque = obtener_path_nro_bloque(i);
@@ -117,7 +116,7 @@ void crear_blocks()
 
 void crear_bitmap(char* bitmapBin)
 {
-	log_info(log, "Creando el Bitmap.bin por primera vez");
+	log_info(logger, "Creando el Bitmap.bin por primera vez");
 	bitmap_file = fopen(bitmapBin, "wb+");
 	char* bitarray_limpio_temp = malloc(/*1, */ceiling(metadata.blocks, 8));
 	fwrite((void*) bitarray_limpio_temp, ceiling(metadata.blocks, 8), 1, bitmap_file);
@@ -127,7 +126,7 @@ void crear_bitmap(char* bitmapBin)
 
 void crear_metadata_file(char* metadataBin)
 {
-	log_info(log, "Creando Metadata.bin por primera vez");
+	log_info(logger, "Creando Metadata.bin por primera vez");
 	FILE* metadata = fopen(metadataBin, "w+b");
 	config_metadata = config_create(metadataBin);
 	config_set_value(config_metadata, "BLOCK_SIZE", "64");
@@ -141,7 +140,7 @@ void crear_metadata_file(char* metadataBin)
 
 void leer_metadata(char* metadataPath)
 {
-	log_info(log, "Leyendo Metadata.bin");
+	log_info(logger, "Leyendo Metadata.bin");
 	t_config* metadataFile = config_create(metadataPath);
 	metadata.blocks = config_get_int_value(metadataFile,"BLOCKS");
 	metadata.magic_number = string_duplicate(config_get_string_value(metadataFile,"MAGIC_NUMBER"));
@@ -151,7 +150,7 @@ void leer_metadata(char* metadataPath)
 
 void leer_bitmap(char* bitmapBin)
 {
-	log_info(log, "Leyendo Bitmap.bin");
+	log_info(logger, "Leyendo Bitmap.bin");
 	bitmap_file = fopen(bitmapBin, "rb+");
 	fseek(bitmap_file, 0, SEEK_END);
 	int file_size = ftell(bitmap_file);

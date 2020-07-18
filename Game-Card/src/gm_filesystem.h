@@ -14,6 +14,7 @@
 #include "gm_handler.h"
 #include "Gamecard.h"
 #include "gm_metadata.h"
+#include "funcionesEnvio.c"
 
 //------------------------ESTRUCTURAS-----------------------------------------------------------//
 

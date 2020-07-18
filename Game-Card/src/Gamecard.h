@@ -29,12 +29,13 @@
 #include <sys/socket.h>
 #include <commons/collections/queue.h>
 
+
 #define MAX_CLIENTS 128
 
 //------------------------------------ESTRUCTURAS--------------------------------------------//
 
 bool is_conn;
-
+//t_log* log;
 
 //HANDLE CONNECTION//
 typedef struct{
