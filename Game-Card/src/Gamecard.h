@@ -34,7 +34,7 @@
 //------------------------------------ESTRUCTURAS--------------------------------------------//
 
 bool is_conn;
-t_log* gamecard_fd;
+
 
 //HANDLE CONNECTION//
 typedef struct{
