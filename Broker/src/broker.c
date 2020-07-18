@@ -14,10 +14,11 @@ pthread_mutex_t mutexId;
 pthread_mutex_t mutexLogger;
 
 
-//TODO Recibir ACK de los suscriptores
+//TODO Probar ACK en el select de confirmacion
 //TODO poner bien todos los logs
 //TODO hacer config
-
+//TODO scripts de pruebas
+//TODO Test de LRU
 
 int main(void) {
 	inicializarLogger("./Debug"); //logea ok!!
