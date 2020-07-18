@@ -14,27 +14,29 @@ pthread_mutex_t mutexId;
 pthread_mutex_t mutexLogger;
 
 
-//TODO Probar ACK en el select de confirmacion
 //TODO poner bien todos los logs
-//TODO hacer config
 //TODO scripts de pruebas
-//TODO Test de LRU
 
 int main(void) {
-	inicializarLogger("./Debug"); //logea ok!!
-	PUERTO_BROKER = 8080;
-	ID_INICIAL = 0;
-	TAMANO_MEMORIA =2048;
-	TAMANO_MINIMO_PARTICION = 4;
-	ALGORITMO_MEMORIA = "BS";
-	ALGORITMO_REEMPLAZO ="FIFO";
-	ALGORITMO_PARTICION_LIBRE ="FF";
-	FRECUENCIA_COMPACTACION = 1;
+	cargarConfiguracion();
+	inicializarLogger(LOG_FILE); //logea ok!!
+//	PUERTO_BROKER = 8080;
+//	ID_INICIAL = 0;
+//	TAMANO_MEMORIA =2048;
+//	TAMANO_MINIMO_PARTICION = 4;
+//	ALGORITMO_MEMORIA = "BS";
+//	ALGORITMO_REEMPLAZO ="FIFO";
+//	ALGORITMO_PARTICION_LIBRE ="FF";
+//	FRECUENCIA_COMPACTACION = 1;
 
 	crearEstructurasAdministrativas();
 	iniciarMutexs();
 	iniciarListasIds();
-	inicializarMemoriaBuddy();
+	if(string_equals_ignore_case(ALGORITMO_MEMORIA, "PARTICIONES"))
+		inicializarMemoria();
+	else if(string_equals_ignore_case(ALGORITMO_MEMORIA, "BS"))
+		inicializarMemoriaBuddy();
+
 	signal(SIGUSR1, imprimirEstadoActualMemoria);
 	init_broker_server();
 	return EXIT_SUCCESS;
@@ -89,10 +91,6 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 				uint32_t idMenCola = mensaje.id_mensaje;
-
-				//TODO agregar sucriptor a suscriptoresMensajeEnviado????
-
-
 
 				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 				{
@@ -262,7 +260,7 @@ void* handler_clients(void* socket){
 						{
 							pthread_mutex_lock(&mutexMemoria);
 							particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
-							suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
+							suscriptor* sub = list_find(appeared_admin->suscriptores,mismoSocket);
 							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 							pthread_mutex_unlock(&mutexMemoria);
 
@@ -272,7 +270,7 @@ void* handler_clients(void* socket){
 						{
 							pthread_mutex_lock(&mutexMemoria);
 							particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
-							suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
+							suscriptor* sub = list_find(appeared_admin->suscriptores,mismoSocket);
 							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 							pthread_mutex_unlock(&mutexMemoria);
 						}
@@ -361,7 +359,7 @@ void* handler_clients(void* socket){
 						pthread_mutex_lock(&mutexMemoria);
 						particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
 						pthread_mutex_lock(&mutexQueueCatch);
-						suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
+						suscriptor* sub = list_find(catch_admin->suscriptores,mismoSocket);
 						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 						pthread_mutex_unlock(&mutexQueueCatch);
 						pthread_mutex_unlock(&mutexMemoria);
@@ -373,7 +371,7 @@ void* handler_clients(void* socket){
 						pthread_mutex_lock(&mutexMemoria);
 						particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
 						pthread_mutex_lock(&mutexQueueCatch);
-						suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
+						suscriptor* sub = list_find(catch_admin->suscriptores,mismoSocket);
 						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 						pthread_mutex_unlock(&mutexQueueCatch);
 						pthread_mutex_unlock(&mutexMemoria);
@@ -463,7 +461,7 @@ void* handler_clients(void* socket){
 							pthread_mutex_lock(&mutexMemoria);
 							particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
 
-							suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
+							suscriptor* sub = list_find(caught_admin->suscriptores,mismoSocket);
 							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 
 							pthread_mutex_unlock(&mutexMemoria);
@@ -475,7 +473,7 @@ void* handler_clients(void* socket){
 							pthread_mutex_lock(&mutexMemoria);
 							particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
 
-							suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
+							suscriptor* sub = list_find(caught_admin->suscriptores,mismoSocket);
 							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 
 							pthread_mutex_unlock(&mutexMemoria);
@@ -554,7 +552,7 @@ void* handler_clients(void* socket){
 						pthread_mutex_lock(&mutexMemoria);
 						particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
 						pthread_mutex_lock(&mutexQueueGet);
-						suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
+						suscriptor* sub = list_find(get_admin->suscriptores,mismoSocket);
 						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 						pthread_mutex_unlock(&mutexQueueGet);
 						pthread_mutex_unlock(&mutexMemoria);
@@ -566,7 +564,7 @@ void* handler_clients(void* socket){
 						pthread_mutex_lock(&mutexMemoria);
 						particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
 						pthread_mutex_lock(&mutexQueueGet);
-						suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
+						suscriptor* sub = list_find(get_admin->suscriptores,mismoSocket);
 						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 						pthread_mutex_unlock(&mutexQueueGet);
 						pthread_mutex_unlock(&mutexMemoria);
@@ -664,7 +662,7 @@ void* handler_clients(void* socket){
 							pthread_mutex_lock(&mutexMemoria);
 							particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
 
-							suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
+							suscriptor* sub = list_find(localized_admin->suscriptores,mismoSocket);
 							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 
 							pthread_mutex_unlock(&mutexMemoria);
@@ -676,7 +674,7 @@ void* handler_clients(void* socket){
 							pthread_mutex_lock(&mutexMemoria);
 							particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
 
-							suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
+							suscriptor* sub = list_find(localized_admin->suscriptores,mismoSocket);
 							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 
 							pthread_mutex_unlock(&mutexMemoria);
@@ -773,7 +771,6 @@ void* handler_envio_mensajes(void* mensajeAEnviar){
 	free(mensaje->mensajeEnvio->content);
 	free(mensaje->mensajeEnvio);
 	free(mensaje);
-	//TODO falta recibir el ACK
 	return NULL;
 }
 void enviarConfirmacion(uint32_t id, int broker_sock){
@@ -959,8 +956,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 						bytesEscritos+=sizeof(caracterNulo);
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,3*sizeof(uint32_t));
-
-
+						CONTADORLRU++;
+						particion->contadorLRU = CONTADORLRU;
 
 						send_message(socket, NEW_POKEMON,content,sizeNew);
 						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
@@ -1018,7 +1015,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 							bytesEscritos+=sizeof(caracterNulo);
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,3*sizeof(uint32_t));
-
+							CONTADORLRUBUDDY++;
+							particion->contadorLRU = CONTADORLRUBUDDY;
 
 //							new_pokemon_enviar imprimir;
 //	//						uint32_t sizeNombre;
@@ -1117,6 +1115,9 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 						bytesEscritos+=sizeof(caracterNulo);
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,2*sizeof(uint32_t));
+						CONTADORLRU++;
+						particion->contadorLRU = CONTADORLRU;
+
 
 						send_message(socket, APPEARED_POKEMON,content,sizeAppeared);
 						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
@@ -1174,7 +1175,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 							bytesEscritos+=sizeof(caracterNulo);
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,2*sizeof(uint32_t));
-
+							CONTADORLRUBUDDY++;
+							particion->contadorLRU = CONTADORLRUBUDDY;
 							send_message(socket, APPEARED_POKEMON,content,sizeAppeared);
 							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 							if(suscriptorEncontradoEnviado == NULL){
@@ -1233,6 +1235,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						char caracterNulo= '\0';
 						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 						bytesEscritos+=sizeof(caracterNulo);
+						CONTADORLRU++;
+						particion->contadorLRU = CONTADORLRU;
 
 						send_message(socket, GET_POKEMON,content,sizeGet);
 						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
@@ -1286,7 +1290,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							char caracterNulo= '\0';
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 							bytesEscritos+=sizeof(caracterNulo);
-
+							CONTADORLRUBUDDY++;
+							particion->contadorLRU = CONTADORLRUBUDDY;
 							send_message(socket, GET_POKEMON,content,sizeGet);
 							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 							if(suscriptorEncontradoEnviado == NULL){
@@ -1354,7 +1359,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						bytesEscritos+=sizeof(lpEnviar.posiciones);
 						bytesLeidosMemoria+=sizeof(lpEnviar.posiciones);
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,sizeof(uint32_t)*2*lpEnviar.cantidadPosiciones);
-
+						CONTADORLRU++;
+						particion->contadorLRU = CONTADORLRU;
 						send_message(socket, LOCALIZED_POKEMON,content,sizeLocalized);
 						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 						if(suscriptorEncontradoEnviado == NULL){
@@ -1414,7 +1420,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							bytesEscritos+=sizeof(lpEnviar.posiciones);
 							bytesLeidosMemoria+=sizeof(lpEnviar.posiciones);
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(uint32_t)*2*lpEnviar.cantidadPosiciones);
-
+							CONTADORLRUBUDDY++;
+							particion->contadorLRU = CONTADORLRUBUDDY;
 							send_message(socket, LOCALIZED_POKEMON,content,sizeLocalized);
 							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 							if(suscriptorEncontradoEnviado == NULL){
@@ -1474,7 +1481,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 						bytesEscritos+=sizeof(caracterNulo);
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,2*sizeof(uint32_t));
-
+						CONTADORLRU++;
+						particion->contadorLRU = CONTADORLRU;
 						send_message(socket, CATCH_POKEMON,content,sizeCatch);
 						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 						if(suscriptorEncontradoEnviado == NULL){
@@ -1527,7 +1535,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							memcpy(content+bytesEscritos,&caracterNulo,sizeof(caracterNulo));
 							bytesEscritos+=sizeof(caracterNulo);
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,2*sizeof(uint32_t));
-
+							CONTADORLRUBUDDY++;
+							particion->contadorLRU = CONTADORLRUBUDDY;
 							send_message(socket, CATCH_POKEMON,content,sizeCatch);
 							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 							if(suscriptorEncontradoEnviado == NULL){
@@ -1580,7 +1589,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						memcpy(content+bytesEscritos,&cpEnviar.idCorrelativo,sizeof(cpEnviar.idCorrelativo));
 						bytesEscritos+= sizeof(cpEnviar.idCorrelativo);
 						memcpy(content+bytesEscritos,principioMemoria+bytesLeidosMemoria,sizeof(uint32_t));
-
+						CONTADORLRU++;
+						particion->contadorLRU = CONTADORLRU;
 						send_message(socket, CAUGHT_POKEMON,content,sizeCaught);
 						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 						if(suscriptorEncontradoEnviado == NULL){
@@ -1625,7 +1635,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							memcpy(content+bytesEscritos,&cpEnviar.idCorrelativo,sizeof(cpEnviar.idCorrelativo));
 							bytesEscritos+= sizeof(cpEnviar.idCorrelativo);
 							memcpy(content+bytesEscritos,principioMemoriaBuddy+bytesLeidosMemoria,sizeof(uint32_t));
-
+							CONTADORLRUBUDDY++;
+							particion->contadorLRU = CONTADORLRUBUDDY;
 							send_message(socket, CAUGHT_POKEMON,content,sizeCaught);
 							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 							if(suscriptorEncontradoEnviado == NULL){

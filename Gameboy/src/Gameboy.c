@@ -1,9 +1,8 @@
 #include "Gameboy.h"
 
 //TODO revisar que esten todos y bien todos los logs
-//TODO envio del ACK al broker
 //TODO caso de error de conexion con alguno de los modulos.
-
+//TODO revisar configs
  int main(void) {
 
 	config = config_create("Gameboy.config");
