@@ -80,6 +80,7 @@ typedef struct {
 	char* nombrePokemon;
 	uint32_t posicionEjeX;
 	uint32_t posicionEjeY;
+	uint32_t cantidad;
 }appeared_pokemon;
 //t_header = APPEARED_POKEMON
 
