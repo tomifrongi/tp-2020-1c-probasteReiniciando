@@ -15,6 +15,10 @@ void ejecutarModoBroker(){
 		if(mensajeBroker.head != ERROR_MESSAGE)
 			send_message(socketGame, mensajeBroker.head,mensajeBroker.content, mensajeBroker.size);
 		free(mensajeBroker.content);
+		t_message* mensajeConfirmacionID =recv_message(socketGame);
+		uint32_t idConf;
+		memcpy(&idConf,mensajeConfirmacionID->content,sizeof(uint32_t));
+		log_info(logger,"ACK %d RECIBIDO DEL BROKER",idConf);
 	}
 }
 
