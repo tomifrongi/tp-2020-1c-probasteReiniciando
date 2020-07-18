@@ -42,4 +42,4 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath);
 int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath);
 
 
-#endif /* FILE_SYSTEM_GAME_CARD_FILE_SYSTEM_H_ */
+#endif

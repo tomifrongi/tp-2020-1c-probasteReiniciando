@@ -1,4 +1,4 @@
-12:28:15 **** Incremental Build of configuration Debug for project GameCard ****
+12:41:13 **** Incremental Build of configuration Debug for project GameCard ****
 make all 
 Building file: ../src/Gamecard.c
 Invoking: GCC C Compiler
@@ -34,7 +34,6 @@ In file included from ../src/funcionesEnvio.h:20:0,
 In file included from ../src/funcionesEnvio.h:20:0,
                  from ../src/ProtocoloDeMensajes.h:16,
                  from ../src/Gamecard.h:12,
-src/subdir.mk:36: recipe for target 'src/Gamecard.o' failed
                  from ../src/Gamecard.c:1:
 /usr/include/pthread.h:233:12: note: expected ‘void * restrict’ but argument is of type ‘unsigned int’
  extern int pthread_create (pthread_t *__restrict __newthread,
@@ -45,6 +44,7 @@ src/subdir.mk:36: recipe for target 'src/Gamecard.o' failed
                           ^
 In file included from ../src/Gamecard.c:1:0:
 ../src/Gamecard.h:71:7: note: expected ‘uint32_t {aka unsigned int}’ but argument is of type ‘void *’
+src/subdir.mk:36: recipe for target 'src/Gamecard.o' failed
  void* handler_suscripciones(uint32_t cola);
        ^
 ../src/Gamecard.c:56:3: warning: implicit declaration of function ‘utils_delay’ [-Wimplicit-function-declaration]
@@ -418,22 +418,4 @@ In file included from ../src/Gamecard.h:8:0,
 ../src/Gamecard.c:354:36: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
   catch_pokemon_enviar* catch_rcv = (catch_pokemon*) arg;
                                     ^
-../src/Gamecard.c: In function ‘gm_exit’:
-../src/Gamecard.c:375:7: warning: passing argument 1 of ‘free’ makes pointer from integer without a cast [-Wint-conversion]
-  free(gamecard_fd);
-       ^
-In file included from ../src/ProtocoloDeMensajes.h:14:0,
-                 from ../src/Gamecard.h:12,
-                 from ../src/Gamecard.c:1:
-/usr/include/stdlib.h:483:13: note: expected ‘void *’ but argument is of type ‘int’
- extern void free (void *__ptr) __THROW;
-             ^
-../src/Gamecard.c:376:14: warning: passing argument 1 of ‘log_destroy’ makes pointer from integer without a cast [-Wint-conversion]
-  log_destroy(gamecard_fd);
-              ^
-In file included from ../src/Gamecard.h:8:0,
-                 from ../src/Gamecard.c:1:
-/usr/include/commons/log.h:52:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘int’
-  void   log_destroy(t_log* logger);
-         ^
 make: *** [src/Gamecard.o] Error 1

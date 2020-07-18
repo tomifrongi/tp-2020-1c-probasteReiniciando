@@ -1,3 +1,6 @@
+#ifndef GM_HANDLER_H
+#define GM_HANDLER_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -25,3 +28,5 @@ int split_path(const char* path, char** super_path, char** name);
 int _mkpath(char* file_path, mode_t mode);
 char* obtener_path_nro_bloque(int numeroDeBloque);
 t_pokemon_metadata leer_metadata_pokemon(char* pokemonPath);
+
+#endif

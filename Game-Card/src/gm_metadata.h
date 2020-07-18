@@ -10,7 +10,6 @@
 #include <commons/config.h>
 #include <commons/bitarray.h>
 #include <commons/collections/list.h>
-
 #include "gm_bitmap.h"
 
 //-----------------------------------------ESTRUCTURAS---------------------------------------------//

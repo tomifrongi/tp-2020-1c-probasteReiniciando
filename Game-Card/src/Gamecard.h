@@ -34,7 +34,7 @@
 //------------------------------------ESTRUCTURAS--------------------------------------------//
 
 bool is_conn;
-int gamecard_fd;
+t_log* gamecard_fd;
 
 //HANDLE CONNECTION//
 typedef struct{
@@ -80,7 +80,6 @@ void gm_exit();
 
 
 #endif
-/* GAMECARD_H_ */
 
 
 
