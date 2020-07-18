@@ -27,7 +27,7 @@
 #include "gm_filesystem.h"
 #include <sys/queue.h>
 #include <sys/socket.h>
-
+#include <commons/collections/queue.h>
 
 #define MAX_CLIENTS 128
 
@@ -61,7 +61,7 @@ int puertoBroker;
 typedef struct {
 	uint32_t ip;
 	uint32_t puerto;
-	t_queue cola;
+	t_queue* cola;
 }t_subscribe;
 
 //-----------------------------------FUNCIONES DECLARADAS-------------------------------------------//

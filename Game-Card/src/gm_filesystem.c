@@ -383,9 +383,9 @@ t_list* getAPokemon(get_pokemon* getPokemon)
 
 void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int freeBlocks)
 {
-	t_pokemon_metadata pokemonMetadata = readPokemonMetadata(completePath);
+	t_pokemon_metadata* pokemonMetadata = readPokemonMetadata(completePath);
 
-	if(string_equals_ignore_case(pokemonMetadata.isOpen, "N"))
+	if(string_equals_ignore_case(pokemonMetadata->isOpen, "N"))
 	{
 		printf("El archivo no esta abierto por ningun proceso, se procede a abrir el mismo.");
 		
@@ -393,7 +393,7 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 		updateOpenFileState(newPokemon->nombrePokemon, "Y");
 		pthread_mutex_unlock(&MUTEX_METADATA);
 		
-		t_list* listBlocks = stringBlocksToList(pokemonMetadata.blocks);
+		t_list* listBlocks = stringBlocksToList(pokemonMetadata->blocks);
 		t_list* pokemonLines = readPokemonLines(listBlocks);
 		if (coordinateExists(newPokemon->posicionEjeX, newPokemon->posicionEjeY, pokemonLines) == 1)
 		{
@@ -444,16 +444,16 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 		operateNewPokemonFile(newPokemon, completePath, freeBlocks);
 	}
 
-	free(pokemonMetadata.blocks);
-	free(pokemonMetadata.isOpen);
+	free(pokemonMetadata->blocks);
+	free(pokemonMetadata->isOpen);
 }
 
 
 t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
-	t_pokemon_metadata pokemonMetadata = readPokemonMetadata(completePath);
+	t_pokemon_metadata* pokemonMetadata = readPokemonMetadata(completePath);
 	t_list* res;
 
-	if (string_equals_ignore_case(pokemonMetadata.isOpen, "N"))
+	if (string_equals_ignore_case(pokemonMetadata->isOpen, "N"))
 	{
 		printf("El archivo no esta abierto por ningun proceso, se procede a abrir el mismo.");
 		
@@ -461,7 +461,7 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
 		updateOpenFileState(getPokemon->nombrePokemon, "Y");
 		pthread_mutex_unlock(&MUTEX_METADATA);
 
-		t_list* listBlocks = stringBlocksToList(pokemonMetadata.blocks);
+		t_list* listBlocks = stringBlocksToList(pokemonMetadata->blocks);
 		res = readPokemonLines(listBlocks);
 		
 		pthread_mutex_lock(&MUTEX_METADATA);
@@ -477,17 +477,17 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
 		operateGetPokemonFile(getPokemon, completePath);
 	}
 
-	free(pokemonMetadata.blocks);
-	free(pokemonMetadata.isOpen);
+	free(pokemonMetadata->blocks);
+	free(pokemonMetadata->isOpen);
 	return res;
 }
 
 int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 {
-	t_pokemon_metadata pokemonMetadata = readPokemonMetadata(completePath);
+	t_pokemon_metadata* pokemonMetadata = readPokemonMetadata(completePath);
 	int res = 0;
 
-	if (string_equals_ignore_case(pokemonMetadata.isOpen, "N"))
+	if (string_equals_ignore_case(pokemonMetadata->isOpen, "N"))
 	{
 		log_info(log, "El archivo no esta abierto por ningun proceso, se procede a abrir el mismo.");
 		
@@ -495,7 +495,7 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 		updateOpenFileState(catchPokemon->nombrePokemon, "Y");
 		pthread_mutex_unlock(&MUTEX_METADATA);
 
-		t_list* listBlocks = stringBlocksToList(pokemonMetadata.blocks);
+		t_list* listBlocks = stringBlocksToList(pokemonMetadata->blocks);
 		t_list* pokemonLines = readPokemonLines(listBlocks);
 
 		if (coordinateExists(catchPokemon->posicionEjeX, catchPokemon->posicionEjeY, pokemonLines) == 1)
@@ -532,7 +532,7 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 					
 					// Limpio estructuras que ya no uso
 					setear_bloque_libre_en_posicion(bitmap, lastBlockUsing);
-					fclose(fopen(obtenerPathDelNumeroDeBloque(lastBlockUsing), "w"));
+					fclose(fopen(obtener_path_nro_bloque(lastBlockUsing), "w"));
 					free(metadataBlocks);
 				}
 			} 
@@ -550,7 +550,7 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 				pthread_mutex_unlock(&MUTEX_METADATA);
 					
 				// Limpio estructuras que ya no uso
-				fclose(fopen(obtenerPathDelNumeroDeBloque(blockUsed), "w"));
+				fclose(fopen(obtener_path_nro_bloque(blockUsed), "w"));
 				free(zeroLength);
 				free(metadataBlocks);
 			}
@@ -574,8 +574,8 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 		operateCatchPokemonFile(catchPokemon, completePath);
 	}
 
-	free(pokemonMetadata.blocks);
-	free(pokemonMetadata.isOpen);
+	free(pokemonMetadata->blocks);
+	free(pokemonMetadata->isOpen);
 
 	return res;
 }

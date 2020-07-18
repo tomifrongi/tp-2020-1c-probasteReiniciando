@@ -3,7 +3,7 @@
 void mostrar_bitarray(t_bitarray* bitmap)
 {
 	for(int k =0;k<(bitarray_get_max_bit(bitmap));k++)
-	log_info("test bit posicion, es  %d en posicion %d \n", bitarray_test_bit(bitmap,k),k);
+	log_info("test bit posicion, es  %d en posicion %d \n", bitarray_test_bit(bitmap,k)/*,k*/);
 }
 
 void conf_bloq_in_pos(t_bitarray* bitmap, off_t pos)
@@ -25,8 +25,8 @@ bool testear_bloq_lib_in_pos(t_bitarray* bitmap, int pos)
 int obtener_conf_free_block(t_bitarray* bitmap, unsigned int blocks)
 {
 	int j;
-	for(j =0; test_bloq_free_in_pos(bitmap, j); j++); // Hasta un bloque libre
-	set_bloq_occ_in_pos(bitmap, j);
+	for(j =0; testear_bloq_lib_in_pos(bitmap, j); j++); // Hasta un bloque libre
+	conf_bloq_in_pos(bitmap, j);
 	return j;
 }
 

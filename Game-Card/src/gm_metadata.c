@@ -51,12 +51,12 @@ void conf_metadata()
 
 	if(access(metadataBin, F_OK) != -1)
 	{
-        readMetaData(metadataBin);
+		leer_metadata(metadataBin);
     }
 	else
 	{
-        createMetaDataFile(metadataBin);
-        readMetaData(metadataBin);
+		crear_metadata_file(metadataBin);
+        leer_metadata(metadataBin);
     }
 	
 	string_append(&bitmapBin, struct_paths[METADATA]);
@@ -64,14 +64,14 @@ void conf_metadata()
 
 	if(access(bitmapBin, F_OK) != -1)
 	{
-        readBitmap(bitmapBin);
+		leer_bitmap(bitmapBin);
     }
 	else
 	{
         // Creo bloques + bitmap
-        createBitmap(bitmapBin);
-        readBitmap(bitmapBin);
-        createBlocks();
+		crear_bitmap(bitmapBin);
+		leer_bitmap(bitmapBin);
+		crear_blocks();
     }
 
 	free(metadataBin);
@@ -108,7 +108,7 @@ void crear_blocks()
 	log_info(log, "Creando bloques en el path /Bloques");
 	FILE* newBloque;
 	for(int i=0; i <= metadata.blocks-1; i++){
-        char* pathBloque = obtenerPathDelNumeroDeBloque(i);
+        char* pathBloque = obtener_path_nro_bloque(i);
         newBloque = fopen(pathBloque,"w+b");
         fclose(newBloque);
 		free(pathBloque);
@@ -119,7 +119,7 @@ void crear_bitmap(char* bitmapBin)
 {
 	log_info(log, "Creando el Bitmap.bin por primera vez");
 	bitmap_file = fopen(bitmapBin, "wb+");
-	char* bitarray_limpio_temp = calloc(1, ceiling(metadata.blocks, 8));
+	char* bitarray_limpio_temp = malloc(/*1, */ceiling(metadata.blocks, 8));
 	fwrite((void*) bitarray_limpio_temp, ceiling(metadata.blocks, 8), 1, bitmap_file);
 	fflush(bitmap_file);
 	free(bitarray_limpio_temp);

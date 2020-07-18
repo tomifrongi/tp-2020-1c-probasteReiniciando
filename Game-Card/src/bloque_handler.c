@@ -3,7 +3,7 @@
 int blocks_ocupados(char* value) //bloques ocupados
 {
     int tamanio = string_length(value);
-    return get_blocks(tamanio);
+    return obtener_blocks(tamanio);
 }
 
 int obtener_blocks(int tamanio) //obtener bloques
@@ -20,7 +20,7 @@ void escribir_blocks(char* value, t_list* bloques) //escribir bloques
 
     for(int i = 0; i < list_size(bloques) && limite > 0; i++)
     {
-        char* pathBloque = obtenerPathDelNumeroDeBloque((int) list_get(bloques, i));
+        char* pathBloque = obtener_path_nro_bloque((int) list_get(bloques, i));
 
         FILE * bloque = fopen(pathBloque, "w+");
 
@@ -93,14 +93,14 @@ t_list* leer_pokemons(t_list* blocks)
 			else if(isBreakFile == 1)
 			{
 				string_append(&previousLastLine, line);
-				blockLine = formatStringToBlockLine(previousLastLine);
+				blockLine = estructura_block_line(previousLastLine);
 				isBreakFile = 0;
 				previousLastLine = string_new();
 				list_add(retList, blockLine);
 			}
 			else
 			{
-				blockLine = formatStringToBlockLine(line);
+				blockLine = estructura_block_line(line);
 				list_add(retList, blockLine);
 			}
 		}
@@ -158,7 +158,7 @@ char* block_lines_string(t_list* pokemonLines)
 	for(int j=0; j<list_size(pokemonLines); j++)
 	{
 		blockLine* newLineBlock = list_get(pokemonLines, j);
-		string_append(&retChar, formatToBlockLine(newLineBlock->posX, newLineBlock->posY, newLineBlock->cantidad));
+		string_append(&retChar, formatear_block_lines(newLineBlock->posX, newLineBlock->posY, newLineBlock->cantidad));
 	}
 	return retChar;
 }
@@ -200,7 +200,6 @@ void mostrar_lista_pokemons(t_list* pokemonLines)
 	{
 		blockLine* newLineBlock = list_get(pokemonLines, i);
 		log_info("Elemento i %d:", i);
-		log_info("Linea del Pokemon %s:", formatToBlockLine(newLineBlock->posX, newLineBlock->posY, newLineBlock->cantidad));
 	}
 }
 

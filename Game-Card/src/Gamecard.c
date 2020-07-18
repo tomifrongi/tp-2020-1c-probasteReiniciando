@@ -72,7 +72,7 @@ void iniciar_config_logger()
 		puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
 }
 
-void* handler_suscripciones(uint32_t cola)
+void* handler_suscripciones(uint32_t cola_subs)
 {
 	int socketBroker = connect_to_server(ipBroker, puertoBroker, NULL);
 	t_message* message;
@@ -86,10 +86,11 @@ void* handler_suscripciones(uint32_t cola)
 			pthread_mutex_unlock(&mutexLogger);
 
 			t_subscribe* sub_snd = malloc(sizeof(t_subscribe));
+
 			log_info(log, "Proceso Gamecard");
 			sub_snd->ip = string_duplicate(LOCAL_IP);
 			sub_snd->puerto = LOCAL_PORT;
-			sub_snd->cola = cola;
+			sub_snd->cola = cola_subs;
 			utils_serialize_and_send(socketBroker, SUSCRIPCION, sub_snd);
 			recibir_msgs_gamecard(socketBroker, 0);
 			is_conn = true;
@@ -335,7 +336,7 @@ void procesar_get_enviar_localized(void* arg)
 	localized_snd->nombrePokemon = get_rcv->nombrePokemon;
 	localized_snd->sizeNombre = strlen(localized_snd->nombrePokemon) + 1;
 	localized_snd->cantidadPosiciones = list_size(posiciones_list);
-	localized_snd->posiciones = posiciones_list;
+	/*localized_snd->posiciones = posiciones_list;*/
 
 	t_header localized = LOCALIZED_POKEMON;
 

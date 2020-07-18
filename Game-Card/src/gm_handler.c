@@ -30,7 +30,7 @@ int split_path(const char* path, char** super_path, char** name)
 	strcpy(*super_path, path);
 	strcpy(*name, path);
 	// Obtiene y acomoda el nombre del archivo.
-	if (lastchar(path, '/'))
+	if (es_char(path, '/'))
 	{
 		(*name)[strlen(*name)-1] = '\0';
 	}
@@ -38,7 +38,7 @@ int split_path(const char* path, char** super_path, char** name)
 	*name = *name + 1; // Acomoda el nombre, ya que el primer digito siempre es '/'
 
 	// Acomoda el super_path
-	if (lastchar(*super_path, '/'))
+	if (es_char(*super_path, '/'))
 	{
 		(*super_path)[strlen(*super_path)-1] = '\0';
 	}
