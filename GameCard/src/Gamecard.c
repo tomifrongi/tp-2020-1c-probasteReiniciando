@@ -139,7 +139,7 @@ void gm_init()
 	}
 }
 
-static void *handle_conexion_server(void *arg)
+void *handle_conexion_server(void *arg)
 {
 	t_handle_connection* conexion = (t_handle_connection *) arg;
 	int client_fd = conexion->fd;

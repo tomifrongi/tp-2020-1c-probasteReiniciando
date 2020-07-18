@@ -29,7 +29,6 @@
 #include <sys/socket.h>
 #include <commons/collections/queue.h>
 
-
 #define MAX_CLIENTS 128
 
 //------------------------------------ESTRUCTURAS--------------------------------------------//
@@ -71,7 +70,7 @@ void reintentar_conexion(void* arg);
 void iniciar_config_logger();
 void* handler_suscripciones(uint32_t cola);
 void gm_init();
-static void *handle_conexion_server(void *arg);
+void *handle_conexion_server(void *arg);
 void *recibir_msgs_gamecard(int fd, int send_to);
 void enviar_ack(void* arg);
 void procesar_new_enviar_appeared(void* arg);

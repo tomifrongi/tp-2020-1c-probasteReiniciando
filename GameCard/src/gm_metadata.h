@@ -13,7 +13,7 @@
 #include "gm_bitmap.h"
 #include "commons/log.h"
 #include <math.h>
-#include "funcionesEnvio.c"
+#include "funcionesEnvio.h"
 
 //-----------------------------------------ESTRUCTURAS---------------------------------------------//
 

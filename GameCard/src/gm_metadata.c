@@ -20,7 +20,7 @@ void crear_root_files()
 
 	if(_mkpath(puntoMontaje, 0755) == -1)
 	{
-		log_error(log, "_mkpath");
+		log_error(logger, "_mkpath");
 	}
 	else
 	{
@@ -118,10 +118,10 @@ void crear_bitmap(char* bitmapBin)
 {
 	log_info(logger, "Creando el Bitmap.bin por primera vez");
 	bitmap_file = fopen(bitmapBin, "wb+");
-	char* bitarray_limpio_temp = malloc(/*1, */ceiling(metadata.blocks, 8));
-	fwrite((void*) bitarray_limpio_temp, ceiling(metadata.blocks, 8), 1, bitmap_file);
+	char* bit_arr = malloc(/*1, */ceiling(metadata.blocks, 8));
+	fwrite((void*) bit_arr, ceiling(metadata.blocks, 8), 1, bitmap_file);
 	fflush(bitmap_file);
-	free(bitarray_limpio_temp);
+	free(bit_arr);
 }
 
 void crear_metadata_file(char* metadataBin)
@@ -158,7 +158,7 @@ void leer_bitmap(char* bitmapBin)
 	char* bitarray_str = (char*) mmap(NULL, file_size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED, fileno(bitmap_file), 0);
 	if(bitarray_str == (char*) -1)
 	{
-		log_error("Fallo el mmap: %s", strerror(errno));
+		log_error(logger, "Fallo el mmap: %s");
 	}
 	fread((void*) bitarray_str, sizeof(char), file_size, bitmap_file);
 	bitmap = bitarray_create_with_mode(bitarray_str, file_size, MSB_FIRST);
