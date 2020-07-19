@@ -535,8 +535,9 @@ void cachearMensaje(void* mensaje,id_cola id){
 		else
 			ejecutarCicloNormal(mensaje,id);
 	}
-	else
-		log_info(logger,"MENSAJE NO CACHEADO DEBIDO A QUE LA LONGITUD SUPERA EL TAMAÑO DE LA MEMORIA");
+
+		//log_info(logger,"MENSAJE NO CACHEADO DEBIDO A QUE LA LONGITUD SUPERA EL TAMAÑO DE LA MEMORIA");
+
 }
 
 void ejecutarCicloNormal(void* mensaje,id_cola id){
@@ -659,7 +660,8 @@ void almacenarMensaje(void* mensaje,id_cola id){
 		queue_push(colaMensajesMemoria,idMensaje);
 	}
 
-	log_info(logger,"POSICION NUEVO MENSAJE: %d",particion->posicionParticion);
+	char* nombreCola = obtenerNombreColaParticiones(particion->cola);
+	log_info(logger,"MENSAJE %s ALMACENADO EN LA POSICION %d",nombreCola,particion->posicionParticion);
 
 	memcpy(principioMemoria+posicionParticion,mensajeSerializado,tamanioMensaje);
 	free(mensajeSerializado);
@@ -696,7 +698,7 @@ void eliminarParticion(){
 			particion_dinamica_memoria* particionCasteada = particion;
 			if((particionCasteada->idMensaje) == idMensajeAuxiliar){
 				particionCasteada->libre = true;
-				log_info(logger,"POSICION VICTIMA: %d",particionCasteada->posicionParticion);
+				log_info(logger,"PARTICION ELIMINADA CUYA POSICION ES: %d",particionCasteada->posicionParticion);
 				eliminarIdCola(particionCasteada->idMensaje,particionCasteada->cola);
 
 			}
@@ -725,7 +727,7 @@ void eliminarParticion(){
 			particion_dinamica_memoria* particionCasteada = particion;
 			if((particionCasteada->idMensaje) == idMensaje){
 				particionCasteada->libre = true;
-				log_info(logger,"POSICION VICTIMA: %d",particionCasteada->posicionParticion);
+				log_info(logger,"PARTICION ELIMINADA CUYA POSICION ES: %d",particionCasteada->posicionParticion);
 				eliminarIdCola(particionCasteada->idMensaje,particionCasteada->cola);
 			}
 		}
@@ -769,12 +771,8 @@ void compactarMemoria(){
 	}
 
 	ordenarParticionesPorPosicion();
-	void imprimirInfo(void* particion){
-		particion_dinamica_memoria* particionCasteada = particion;
-		log_info(logger,"POSICION: %d LIBRE: %d TAMANIO: %d",particionCasteada->posicionParticion,particionCasteada->libre,particionCasteada->tamanio);
-	}
-	log_info(logger,"ESTADO MEMORIA");
-	list_iterate(particionesEnMemoria,imprimirInfo);
+	log_info(logger,"SE EJECUTO LA COMPACTACION DE LA MEMORIA");
+
 
 
 
@@ -799,7 +797,7 @@ void consolidarMemoria(){
 		particion_dinamica_memoria* particionAdyacente = list_get(particionesEnMemoria,indexAdyacente);
 
 		if(particion->libre && particionAdyacente->libre){
-			log_info(logger,"POSICION %d y POSICION %d CONSOLIDADA",particion->posicionParticion,particionAdyacente->posicionParticion);
+			log_info(logger,"PARTICION CON POSICION %d Y PARTICION CO POSICION %d CONSOLIDADAS",particion->posicionParticion,particionAdyacente->posicionParticion);
 			int posicion = particion->posicionParticion;
 			particion = removerPorPosicion(posicion);
 			posicion = particionAdyacente->posicionParticion;
@@ -1081,5 +1079,29 @@ particion_dinamica_memoria* encontrarParticionDinamicaPorID(int idMensaje){
 }
 
 
-
+char* obtenerNombreColaParticiones(id_cola id){
+	switch(id){
+	case NEW:{
+		return "NEW";
+	}
+	case APPEARED:{
+		return "APPEARED";
+	}
+	case GET:{
+		return "GET";
+	}
+	case LOCALIZED:{
+		return "LOCALIZED";
+	}
+	case CATCH:{
+		return "CATCH";
+	}
+	case CAUGHT:{
+		return "CAUGHT";
+	}
+	default:{
+		return "NULL";
+	}
+	}
+}
 

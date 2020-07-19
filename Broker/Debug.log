@@ -25820,3 +25820,7 @@
 [INFO] 19:59:55:707 broker/(14695:14716): POSICION VICTIMA: 16
 [INFO] 19:59:55:708 broker/(14695:14716): POSICION 0 Y POSICION 16 CONSOLIDADA
 [INFO] 20:02:06:496 broker/(14695:14716): CLIENTE DESCONECTADO
+[INFO] 18:00:30:445 broker/(6431:6431): Servidor levantado! Escuchando en 8080
+[INFO] 18:02:58:328 broker/(6541:6541): Servidor levantado! Escuchando en 8080
+[INFO] 18:05:16:319 broker/(6628:6628): Servidor levantado! Escuchando en 8080
+[INFO] 18:05:33:3 broker/(6660:6660): Servidor levantado! Escuchando en 8080

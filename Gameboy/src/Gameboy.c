@@ -1,9 +1,7 @@
 #include "Gameboy.h"
 
-//TODO revisar que esten todos y bien todos los logs
 //TODO caso de error de conexion con alguno de los modulos.
-//TODO revisar configs
- int main(void) {
+ int main(int argc, char *argv[]) {
 
 	config = config_create("Gameboy.config");
 	logger =  log_create("Gameboy.log", "Gameboy", 1, LOG_LEVEL_INFO);

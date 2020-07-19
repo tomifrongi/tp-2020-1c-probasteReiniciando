@@ -69,5 +69,5 @@ int* crear_elemento_colaMensajesMemoria(int idMensaje);
 particion_dinamica_memoria* removerPorPosicion(int posicion);
 void borrar_elemento_colaMensajesMemoria(int* idMensaje);
 particion_dinamica_memoria* encontrarParticionDinamicaPorID(int idMensaje);
-
+char* obtenerNombreColaParticiones(id_cola id);
 #endif /* PARTICIONESDINAMICAS_H_ */

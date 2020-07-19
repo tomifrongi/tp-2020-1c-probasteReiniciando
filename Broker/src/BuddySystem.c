@@ -1,6 +1,6 @@
 #include "BuddySystem.h"
 
-void borrar_suscriptorBuddy(void* algo){}
+
 
 void inicializarMemoriaBuddy(){
 	principioMemoriaBuddy = malloc(TAMANO_MEMORIA);
@@ -38,8 +38,9 @@ void cachearMensajeBuddy(void* mensaje,id_cola id){
 			}
 		}
 	}
-	else
-		log_info(logger,"MENSAJE NO CACHEADO DEBIDO A QUE LA LONGITUD SUPERA EL TAMAÑO DE LA MEMORIA");
+
+		//log_info(logger,"MENSAJE NO CACHEADO DEBIDO A QUE LA LONGITUD SUPERA EL TAMAÑO DE LA MEMORIA");
+
 }
 void sacarBarraCeroBuddy(void* mensaje,id_cola id){
 	switch(id){
@@ -111,6 +112,8 @@ bool almacenarMensajeBuddy(void* mensaje,id_cola id){
 		printf("ID MENSAJE: %d \n",particion->idMensaje);
 		printf("POSICION: %d \n",particion->posicionParticion);
 	}
+	char* nombreCola = obtenerNombreColaBuddy(particion->cola);
+	log_info(logger,"MENSAJE %s ALMACENADO EN LA POSICION %d",nombreCola,particion->posicionParticion);
 
 	free(mensajeSerializado);
 
@@ -186,8 +189,6 @@ void agregarBuddy(particion_buddy_memoria* particion){
 	particionBuddy.posicionParticion = particion->posicionParticion + particion->tamanio;
 	particion_buddy_memoria* particionBuddyCreada = crear_particion_buddy_memoria(particionBuddy);
 	list_add(particionesEnMemoriaBuddy,particionBuddyCreada);
-	log_info(logger,"POSICION BUDDY NUEVO: %d",particionBuddyCreada->posicionParticion);
-
 }
 
 particion_buddy_memoria* crear_particion_buddy_memoria(particion_buddy_memoria particion){
@@ -210,8 +211,8 @@ particion_buddy_memoria* crear_particion_buddy_memoria(particion_buddy_memoria p
 void borrar_particion_buddy_memoria(particion_buddy_memoria* particion){
 
 
-	list_destroy_and_destroy_elements(particion->suscriptoresACK,borrar_suscriptorBuddy);
-	list_destroy_and_destroy_elements(particion->suscriptoresMensajeEnviado,borrar_suscriptorBuddy);
+	list_destroy(particion->suscriptoresACK);
+	list_destroy(particion->suscriptoresMensajeEnviado);
 
 	free(particion);
 }
@@ -355,7 +356,7 @@ void eliminarParticionBuddy(){
 				particion_buddy_memoria* particionCasteada = particion;
 				if((particionCasteada->idMensaje) == idMensajeAuxiliar){
 					particionCasteada->libre = true;
-					log_info(logger,"POSICION VICTIMA: %d",particionCasteada->posicionParticion);
+					log_info(logger,"PARTICION ELIMINADA CUYA POSICION ES: %d",particionCasteada->posicionParticion);
 					eliminarIdCola(particionCasteada->idMensaje,particionCasteada->cola);
 				}
 
@@ -381,7 +382,7 @@ void eliminarParticionBuddy(){
 				particion_buddy_memoria* particionCasteada = particion;
 				if((particionCasteada->idMensaje) == idMensaje){
 					particionCasteada->libre = true;
-					log_info(logger,"POSICION VICTIMA: %d",particionCasteada->posicionParticion);
+					log_info(logger,"PARTICION ELIMINADA CUYA POSICION ES: %d",particionCasteada->posicionParticion);
 					eliminarIdCola(particionCasteada->idMensaje,particionCasteada->cola);
 				}
 
@@ -405,7 +406,7 @@ void consolidarMemoriaBuddy(){
             if(particion->libre && particionAdyacente->libre){
 
                 if(particion->tamanio == particionAdyacente->tamanio){
-                	log_info(logger,"POSICION %d Y POSICION %d CONSOLIDADA",particion->posicionParticion,particionAdyacente->posicionParticion);
+                	log_info(logger,"PARTICION CON POSICION %d Y PARTICION CO POSICION %d CONSOLIDADAS",particion->posicionParticion,particionAdyacente->posicionParticion);
                     particion->tamanio+=particionAdyacente->tamanio;
                     int posicion = particionAdyacente->posicionParticion;
                     particionAdyacente = removerPorPosicionBuddy(posicion);
@@ -464,4 +465,30 @@ particion_buddy_memoria* encontrarParticionBuddyPorID(int idMensaje){
 	}
 
 	return list_find(particionesEnMemoriaBuddy,particionIgualID);
+}
+
+char* obtenerNombreColaBuddy(id_cola id){
+	switch(id){
+	case NEW:{
+		return "NEW";
+	}
+	case APPEARED:{
+		return "APPEARED";
+	}
+	case GET:{
+		return "GET";
+	}
+	case LOCALIZED:{
+		return "LOCALIZED";
+	}
+	case CATCH:{
+		return "CATCH";
+	}
+	case CAUGHT:{
+		return "CAUGHT";
+	}
+	default:{
+		return "NULL";
+	}
+	}
 }

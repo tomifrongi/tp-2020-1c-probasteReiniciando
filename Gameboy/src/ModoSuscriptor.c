@@ -29,7 +29,6 @@ void* handler_envios(void* socket){
 	int socketGame = (int) (socket);
 	while(1){
 		t_message* mensajeRecibido = recv_message(socketGame);
-		//log_info(logger, "MENSAJE %s RECIBIDO",mensajeRecibido->head);
 		deserializarMensaje(mensajeRecibido);
 		enviarACK(mensajeRecibido,socketGame);
 		free_t_message(mensajeRecibido);

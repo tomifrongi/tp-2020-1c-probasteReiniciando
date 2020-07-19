@@ -41,26 +41,32 @@ return "error";
 void deserializarMensaje(t_message* mensajeRecibido){
 	switch(mensajeRecibido->head){
 	case NEW_POKEMON:{
+		log_info(logger,"MENSAJE NEW RECIBIDO");
 		deserializarNew(mensajeRecibido->content);
 		break;
 	}
 	case APPEARED_POKEMON:{
+		log_info(logger,"MENSAJE APPEARED RECIBIDO");
 		deserializarAppeared(mensajeRecibido->content);
 		break;
 	}
 	case CATCH_POKEMON:{
+		log_info(logger,"MENSAJE CATCH RECIBIDO");
 		deserializarCatch(mensajeRecibido->content);
 		break;
 	}
 	case CAUGHT_POKEMON:{
+		log_info(logger,"MENSAJE CAUGHT RECIBIDO");
 		deserializarCaught(mensajeRecibido->content);
 		break;
 	}
 	case GET_POKEMON:{
+		log_info(logger,"MENSAJE GET RECIBIDO");
 		deserializarGet(mensajeRecibido->content);
 		break;
 	}
 	case LOCALIZED_POKEMON:{
+		log_info(logger,"MENSAJE LOCALIZED RECIBIDO");
 		deserializarLocalized(mensajeRecibido->content);
 		break;
 	}

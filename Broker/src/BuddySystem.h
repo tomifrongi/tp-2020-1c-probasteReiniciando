@@ -56,6 +56,6 @@ void borrar_elemento_colaMensajesMemoriaBuddy(int* idMensaje);
 void ordenarParticionesPorPosicionBuddy();
 particion_buddy_memoria* removerPorPosicionBuddy(int posicion);
 void sacarBarraCeroBuddy(void* mensaje,id_cola id);
-
+char* obtenerNombreColaBuddy(id_cola id);
 particion_buddy_memoria* encontrarParticionBuddyPorID(int idMensaje);
 #endif /* BUDDYSYSTEM_H_ */
