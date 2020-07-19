@@ -4,14 +4,6 @@
 #define LOCAL_IP "127.0.0.1"
 #define LOCAL_PORT 5001
 
-#include "commons/config.h"
-#include "commons/log.h"
-#include <commons/collections/list.h>
-#include <commons/string.h>
-#include <commons/bitarray.h>
-#include "ProtocoloDeMensajes.h"
-#include <pthread.h>
-#include "funcionesEnvio.h"
 #include "time.h"
 #include <unistd.h>
 #include <stdio.h>
@@ -24,17 +16,26 @@
 #include <stdint.h>
 #include <fcntl.h>
 #include <stdbool.h>
-#include "gm_filesystem.h"
-#include <sys/queue.h>
+#include <pthread.h>
 #include <sys/socket.h>
+
+#include "commons/config.h"
+#include "commons/log.h"
+#include <commons/collections/list.h>
+#include <commons/string.h>
+#include <commons/bitarray.h>
 #include <commons/collections/queue.h>
+
+#include "ProtocoloDeMensajes.h"
+#include "funcionesEnvio.h"
+#include "gm_filesystem.h"
+#include "mensajes.h"
 
 #define MAX_CLIENTS 128
 
 //------------------------------------ESTRUCTURAS--------------------------------------------//
 
 bool is_conn;
-//t_log* log;
 
 //HANDLE CONNECTION//
 typedef struct{

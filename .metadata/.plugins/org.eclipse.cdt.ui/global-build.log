@@ -1,69 +1,203 @@
-16:28:55 **** Incremental Build of configuration Debug for project GameCard ****
+12:54:05 **** Incremental Build of configuration Debug for project GameCard ****
 make all 
-Building file: ../src/gm_metadata.c
+Building file: ../src/Gamecard.c
 Invoking: GCC C Compiler
-gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/gm_metadata.d" -MT"src/gm_metadata.o" -o "src/gm_metadata.o" "../src/gm_metadata.c"
-In file included from ../src/gm_metadata.c:1:0:
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Gamecard.d" -MT"src/Gamecard.o" -o "src/Gamecard.o" "../src/Gamecard.c"
+In file included from ../src/bloque_handler.h:15:0,
+                 from ../src/gm_filesystem.h:13,
+                 from ../src/Gamecard.h:31,
+                 from ../src/Gamecard.c:1:
 ../src/gm_metadata.h:60:8: warning: extra tokens at end of #endif directive [-Wendif-labels]
  #endif GM_METADATA_H
         ^
-../src/gm_metadata.c: In function ‘crear_root_files’:
-../src/gm_metadata.c:21:5: warning: implicit declaration of function ‘_mkpath’ [-Wimplicit-function-declaration]
-  if(_mkpath(puntoMontaje, 0755) == -1)
-     ^
-../src/gm_metadata.c:32:12: warning: passing argument 1 of ‘log_info’ from incompatible pointer type [-Wincompatible-pointer-types]
-   log_info("Creada carpeta Files/ %s", dir_bloques);
+In file included from ../src/Gamecard.h:32:0,
+                 from ../src/Gamecard.c:1:
+../src/mensajes.h:16:2: error: conflicting types for ‘suscripcion’
+ }suscripcion;
+  ^
+In file included from ../src/Gamecard.h:29:0,
+                 from ../src/Gamecard.c:1:
+../src/ProtocoloDeMensajes.h:37:3: note: previous declaration of ‘suscripcion’ was here
+ } suscripcion;
+   ^
+../src/Gamecard.c: In function ‘main’:
+../src/Gamecard.c:19:67: warning: passing argument 4 of ‘pthread_create’ makes pointer from integer without a cast [-Wint-conversion]
+  pthread_create(&catch_thread, NULL, (void*) reintentar_conexion, (uint32_t) (CATCH));
+                                                                   ^
+In file included from ../src/Gamecard.h:19:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/pthread.h:233:12: note: expected ‘void * restrict’ but argument is of type ‘unsigned int’
+ extern int pthread_create (pthread_t *__restrict __newthread,
             ^
-In file included from ../src/gm_metadata.h:14:0,
-                 from ../src/gm_metadata.c:1:
-/usr/include/commons/log.h:79:9: note: expected ‘t_log * {aka struct <anonymous> *}’ but argument is of type ‘char *’
-  void   log_info(t_log* logger, const char* message, ...);
+../src/Gamecard.c:24:65: warning: passing argument 4 of ‘pthread_create’ makes pointer from integer without a cast [-Wint-conversion]
+  pthread_create(&get_thread, NULL, (void*) reintentar_conexion, (uint32_t) (GET));
+                                                                 ^
+In file included from ../src/Gamecard.h:19:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/pthread.h:233:12: note: expected ‘void * restrict’ but argument is of type ‘unsigned int’
+ extern int pthread_create (pthread_t *__restrict __newthread,
+            ^
+../src/Gamecard.c: In function ‘reintentar_conexion’:
+../src/Gamecard.c:45:26: warning: passing argument 1 of ‘handler_suscripciones’ makes integer from pointer without a cast [-Wint-conversion]
+src/subdir.mk:39: recipe for target 'src/Gamecard.o' failed
+   handler_suscripciones (retryConn);
+                          ^
+In file included from ../src/Gamecard.c:1:0:
+../src/Gamecard.h:72:7: note: expected ‘uint32_t {aka unsigned int}’ but argument is of type ‘void *’
+ void* handler_suscripciones(uint32_t cola);
+       ^
+../src/Gamecard.c:46:3: warning: implicit declaration of function ‘delay’ [-Wimplicit-function-declaration]
+   delay(tiempoReintentoConexion);//no se si es asi
+   ^
+../src/Gamecard.c: In function ‘iniciar_config_logger’:
+../src/Gamecard.c:56:26: warning: assignment makes integer from pointer without a cast [-Wint-conversion]
+  tiempoReintentoConexion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
+                          ^
+../src/Gamecard.c:57:27: warning: assignment makes integer from pointer without a cast [-Wint-conversion]
+  tiempoReintentoOperacion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_OPERACION");
+                           ^
+../src/Gamecard.c:58:25: warning: assignment makes integer from pointer without a cast [-Wint-conversion]
+  tiempoRetardoOperacion = config_get_string_value(config, "TIEMPO_RETARDO_OPERACION");
+                         ^
+../src/Gamecard.c: In function ‘handler_suscripciones’:
+../src/Gamecard.c:94:17: warning: comparison between pointer and integer
+      if(message == -1 || message == 0) {
+                 ^
+../src/Gamecard.c:100:7: warning: implicit declaration of function ‘deserializarNew’ [-Wimplicit-function-declaration]
+       deserializarNew(mensaje);
+       ^
+../src/Gamecard.c:106:24: warning: passing argument 1 of ‘createNewPokemon’ from incompatible pointer type [-Wincompatible-pointer-types]
+       createNewPokemon(&mensaje);
+                        ^
+In file included from ../src/Gamecard.h:31:0,
+                 from ../src/Gamecard.c:1:
+../src/gm_filesystem.h:38:6: note: expected ‘new_pokemon * {aka struct <anonymous> *}’ but argument is of type ‘new_pokemon_enviar * {aka struct <anonymous> *}’
+ void createNewPokemon(new_pokemon* newPokemon);
+      ^
+../src/Gamecard.c:114:7: error: cannot convert to a pointer type
+       pthread_create(&thread2, NULL, (void*) procesar_new_enviar_appeared,  (void*) mensaje);
+       ^
+../src/Gamecard.c:97:12: warning: unused variable ‘aux’ [-Wunused-variable]
+       void*aux=message->content;
+            ^
+../src/Gamecard.c:132:17: warning: comparison between pointer and integer
+      if(message == -1 || message == 0)
+                 ^
+../src/Gamecard.c:139:7: warning: implicit declaration of function ‘deserializarCatch’ [-Wimplicit-function-declaration]
+       deserializarCatch(mensaje);
+       ^
+../src/Gamecard.c:145:21: warning: passing argument 1 of ‘catchAPokemon’ from incompatible pointer type [-Wincompatible-pointer-types]
+       catchAPokemon(&mensaje);
+                     ^
+In file included from ../src/Gamecard.h:31:0,
+                 from ../src/Gamecard.c:1:
+../src/gm_filesystem.h:39:5: note: expected ‘catch_pokemon * {aka struct <anonymous> *}’ but argument is of type ‘catch_pokemon_enviar * {aka struct <anonymous> *}’
+ int catchAPokemon(catch_pokemon* catchPokemon);
+     ^
+../src/Gamecard.c:155:8: error: cannot convert to a pointer type
+        pthread_create(&thread6, NULL, (void*) procesar_catch_enviar_caught, (void*) mensaje);
+        ^
+../src/Gamecard.c:136:13: warning: unused variable ‘aux’ [-Wunused-variable]
+       void *aux = message->content;
+             ^
+../src/Gamecard.c:174:17: warning: comparison between pointer and integer
+      if(message == -1 || message == 0) {
+                 ^
+../src/Gamecard.c:180:9: warning: implicit declaration of function ‘deserializarGet’ [-Wimplicit-function-declaration]
+         deserializarGet(mensaje);
          ^
-../src/gm_metadata.c: In function ‘crear_blocks’:
-../src/gm_metadata.c:110:28: warning: implicit declaration of function ‘obtener_path_nro_bloque’ [-Wimplicit-function-declaration]
-         char* pathBloque = obtener_path_nro_bloque(i);
-                            ^
-../src/gm_metadata.c:110:28: warning: initialization makes pointer from integer without a cast [-Wint-conversion]
-../src/gm_metadata.c: In function ‘crear_bitmap’:
-../src/gm_metadata.c:121:32: warning: implicit declaration of function ‘ceiling’ [-Wimplicit-function-declaration]
-  char* bit_arr = malloc(/*1, */ceiling(metadata.blocks, 8));
+../src/Gamecard.c:186:21: warning: passing argument 1 of ‘getAPokemon’ from incompatible pointer type [-Wincompatible-pointer-types]
+         getAPokemon(&mensaje);
+                     ^
+In file included from ../src/Gamecard.h:31:0,
+                 from ../src/Gamecard.c:1:
+../src/gm_filesystem.h:40:9: note: expected ‘get_pokemon * {aka struct <anonymous> *}’ but argument is of type ‘get_pokemon_enviar * {aka struct <anonymous> *}’
+ t_list* getAPokemon(get_pokemon* getPokemon);
+         ^
+../src/Gamecard.c:196:10: error: cannot convert to a pointer type
+          pthread_create(&thread4, NULL, (void*) procesar_get_enviar_localized, (void*) mensaje);
+          ^
+../src/Gamecard.c:177:15: warning: unused variable ‘aux’ [-Wunused-variable]
+         void *aux = message->content;
+               ^
+../src/Gamecard.c: In function ‘gm_init’:
+../src/Gamecard.c:224:41: warning: passing argument 2 of ‘accept’ from incompatible pointer type [-Wincompatible-pointer-types]
+   int accept_gmcard = accept(gm_socket, &client_info, &addrlen);
+                                         ^
+In file included from ../src/Gamecard.h:20:0,
+                 from ../src/Gamecard.c:1:
+/usr/include/i386-linux-gnu/sys/socket.h:243:12: note: expected ‘struct sockaddr * restrict’ but argument is of type ‘struct sockaddr_in *’
+ extern int accept (int __fd, __SOCKADDR_ARG __addr,
+            ^
+../src/Gamecard.c: In function ‘handle_conexion_server’:
+../src/Gamecard.c:241:35: warning: passing argument 2 of ‘recibir_msgs_gamecard’ makes integer from pointer without a cast [-Wint-conversion]
+  recibir_msgs_gamecard(client_fd, conexion->valor);
+                                   ^
+In file included from ../src/Gamecard.c:1:0:
+../src/Gamecard.h:75:7: note: expected ‘int’ but argument is of type ‘char *’
+ void *recibir_msgs_gamecard(int fd, int send_to);
+       ^
+../src/Gamecard.c: In function ‘recibir_msgs_gamecard’:
+../src/Gamecard.c:253:6: warning: unused variable ‘is_server’ [-Wunused-variable]
+  int is_server = respond_to;
+      ^
+../src/Gamecard.c:250:11: warning: unused variable ‘msg’ [-Wunused-variable]
+  t_header msg;
+           ^
+../src/Gamecard.c:249:6: warning: unused variable ‘client_fd’ [-Wunused-variable]
+  int client_fd = fd;
+      ^
+../src/Gamecard.c:248:6: warning: unused variable ‘received_bytes’ [-Wunused-variable]
+  int received_bytes;
+      ^
+../src/Gamecard.c: In function ‘enviar_ack’:
+../src/Gamecard.c:265:3: warning: implicit declaration of function ‘serializarMensaje’ [-Wimplicit-function-declaration]
+   serializarMensaje(susc);
+   ^
+../src/Gamecard.c:271:2: warning: implicit declaration of function ‘close_conection’ [-Wimplicit-function-declaration]
+  close_conection(client_fd);
+  ^
+../src/Gamecard.c:259:12: warning: unused variable ‘ack_send’ [-Wunused-variable]
+  t_header* ack_send;//seria SUSCRIPCION
+            ^
+../src/Gamecard.c:258:6: warning: unused variable ‘id’ [-Wunused-variable]
+  int id = *((int*) arg);
+      ^
+../src/Gamecard.c: In function ‘procesar_new_enviar_appeared’:
+../src/Gamecard.c:277:33: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+  new_pokemon_enviar* new_recv = (new_pokemon*) arg;
+                                 ^
+../src/Gamecard.c:291:3: warning: implicit declaration of function ‘serializarAppeared’ [-Wimplicit-function-declaration]
+   serializarAppeared(appeared_snd);
+   ^
+../src/Gamecard.c:279:11: warning: unused variable ‘appeared’ [-Wunused-variable]
+  t_header appeared = APPEARED_POKEMON;
+           ^
+../src/Gamecard.c: In function ‘procesar_get_enviar_localized’:
+../src/Gamecard.c:303:32: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+  get_pokemon_enviar* get_rcv = (get_pokemon*) arg; //recibo GET y t_header es CONFIRMACION, para tener el id_mensaje
                                 ^
-Finished building: ../src/gm_metadata.c
- 
-Building target: GameCard
-Invoking: GCC C Linker
-gcc  -o "GameCard"  ./src/Gamecard.o ./src/bloque_handler.o ./src/funcionesEnvio.o ./src/gm_bitmap.o ./src/gm_filesystem.o ./src/gm_handler.o ./src/gm_metadata.o   -lcommons -lpthread
-makefile:30: recipe for target 'GameCard' failed
-./src/Gamecard.o: In function `reintentar_conexion':
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:55: undefined reference to `utils_delay'
-./src/Gamecard.o: In function `handler_suscripciones':
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:93: undefined reference to `utils_serialize_and_send'
-./src/Gamecard.o: In function `gm_init':
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:105: undefined reference to `socket_create_listener'
-./src/Gamecard.o: In function `recibir_msgs_gamecard':
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:174: undefined reference to `utils_receive_and_deserialize'
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:207: undefined reference to `utils_receive_and_deserialize'
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:237: undefined reference to `utils_receive_and_deserialize'
-./src/Gamecard.o: In function `enviar_ack':
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:279: undefined reference to `socket_connect_to_server'
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:282: undefined reference to `utils_serialize_and_send'
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:286: undefined reference to `socket_close_conection'
-./src/Gamecard.o: In function `procesar_new_enviar_appeared':
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:305: undefined reference to `socket_connect_to_server'
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:308: undefined reference to `utils_serialize_and_send'
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:313: undefined reference to `socket_close_conection'
-./src/Gamecard.o: In function `procesar_get_enviar_localized':
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:342: undefined reference to `socket_connect_to_server'
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:345: undefined reference to `utils_serialize_and_send'
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:349: undefined reference to `socket_close_conection'
-./src/Gamecard.o: In function `procesar_catch_enviar_caught':
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:361: undefined reference to `socket_connect_to_server'
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:364: undefined reference to `utils_serialize_and_send'
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:368: undefined reference to `socket_close_conection'
-./src/Gamecard.o: In function `gm_exit':
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/Gamecard.c:373: undefined reference to `socket_close_conection'
-./src/gm_metadata.o: In function `crear_bitmap':
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/gm_metadata.c:121: undefined reference to `ceiling'
-/home/utnso/tp-2020-1c-probasteReiniciando/GameCard/Debug/../src/gm_metadata.c:122: undefined reference to `ceiling'
-collect2: error: ld returned 1 exit status
-make: *** [GameCard] Error 1
+../src/Gamecard.c:328:3: warning: implicit declaration of function ‘serializarLocalized’ [-Wimplicit-function-declaration]
+   serializarLocalized(localized_snd);
+   ^
+../src/Gamecard.c:308:11: warning: unused variable ‘localized’ [-Wunused-variable]
+  t_header localized = LOCALIZED_POKEMON;
+           ^
+../src/Gamecard.c: In function ‘procesar_catch_enviar_caught’:
+../src/Gamecard.c:338:36: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+  catch_pokemon_enviar* catch_rcv = (catch_pokemon*) arg;
+                                    ^
+../src/Gamecard.c:349:3: warning: implicit declaration of function ‘serializarCaught’ [-Wimplicit-function-declaration]
+   serializarCaught(caught_snd);
+   ^
+../src/Gamecard.c:341:11: warning: unused variable ‘caught’ [-Wunused-variable]
+  t_header caught = CAUGHT_POKEMON;
+           ^
+../src/Gamecard.c:340:12: warning: unused variable ‘mensajeGamecard’ [-Wunused-variable]
+  t_message mensajeGamecard;
+            ^
+../src/Gamecard.c: In function ‘recibir_msgs_gamecard’:
+../src/Gamecard.c:254:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
+make: *** [src/Gamecard.o] Error 1

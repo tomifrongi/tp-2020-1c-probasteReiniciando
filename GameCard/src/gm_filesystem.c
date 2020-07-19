@@ -337,7 +337,7 @@ void createNewPokemon(new_pokemon* newPokemon)
 
 int catchAPokemon(catch_pokemon* catchPokemon)
 {
-	log_info("Catch Pokemon: %s", catchPokemon->nombrePokemon);
+	log_info(logger, "Catch Pokemon: %s", catchPokemon->nombrePokemon);
 	char* completePath = string_new();
 	int res;
 	string_append(&completePath, struct_paths[FILES]);
@@ -360,7 +360,7 @@ int catchAPokemon(catch_pokemon* catchPokemon)
 
 t_list* getAPokemon(get_pokemon* getPokemon)
 {
-	log_info("Get Pokemon: %s", getPokemon->nombrePokemon);
+	log_info(logger, "Get Pokemon: %s", getPokemon->nombrePokemon);
 	char* completePath = string_new();
 	string_append(&completePath, struct_paths[FILES]);
 	string_append(&completePath, getPokemon->nombrePokemon);
@@ -438,7 +438,7 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 	}
 	else
 	{
-		log_info(tiempoReintentoOperacion, "Archivo abierto, se procede a reintentar luego de %d segundos");
+		log_info(logger, "Archivo abierto, se procede a reintentar luego de %d segundos", tiempoReintentoOperacion);
 		sleep(tiempoReintentoOperacion);
 		operateNewPokemonFile(newPokemon, completePath, freeBlocks);
 	}
@@ -471,7 +471,7 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
 	}
 	else
 	{
-		log_info("Archivo abierto, se procede a reintentar luego de %d segundos", tiempoReintentoOperacion);
+		log_info(logger, "Archivo abierto, se procede a reintentar luego de %d segundos", tiempoReintentoOperacion);
 		sleep(tiempoReintentoOperacion);
 		operateGetPokemonFile(getPokemon, completePath);
 	}

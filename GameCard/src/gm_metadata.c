@@ -1,6 +1,6 @@
 #include "gm_metadata.h"
 
-
+//Creacion de tall grass
 void crear_root_files()
 {
 	char* dir_tallGrass = string_new();
