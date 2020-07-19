@@ -21,7 +21,9 @@ typedef struct {
 
 } t_intercambio;
 
-void matriz_adyacencia(t_team*);
 
+int quiere_algo_de(t_entrenador*,t_entrenador*);
+void* matriz_adyacencia(t_team*);
+int detectar_ciclos(t_team*);
 
 #endif /* SRC_DEADLOCK_H_ */
