@@ -31,6 +31,7 @@ void* handler_envios(void* socket){
 		t_message* mensajeRecibido = recv_message(socketGame);
 		//log_info(logger, "MENSAJE %s RECIBIDO",mensajeRecibido->head);
 		deserializarMensaje(mensajeRecibido);
+		enviarACK(mensajeRecibido,socketGame);
 		free_t_message(mensajeRecibido);
 	}
 }
@@ -56,6 +57,17 @@ int obtenerTiempo(){
 	scanf("%d",&tiempo);
 
 	return tiempo;
+}
+
+void enviarACK(t_message* mensajeRecibido,int socket){
+	void* content = mensajeRecibido->content;
+	void* contentEnviar = malloc(sizeof(mensajeACK));
+	int bytesEscritos = 0;
+	memcpy(contentEnviar+bytesEscritos,content,sizeof(uint32_t));
+	bytesEscritos+=sizeof(uint32_t);
+	pid_t id = getpid();
+	memcpy(contentEnviar+bytesEscritos,&id,sizeof(pid_t));
+	send_message(socket,CONFIRMACION,contentEnviar,sizeof(mensajeACK));
 }
 
 

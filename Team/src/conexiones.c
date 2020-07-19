@@ -78,3 +78,38 @@ t_message recibir_mensaje(int socket){
 	free(buffer);
 	return  mensaje;
 }
+
+void *suscribirseBrokerLocalized(){
+	int socketSuscripcion = crearConexion(teamConf->IP_BROKER,teamConf->PUERTO_BROKER,teamConf->TIEMPO_RECONEXION);
+
+	suscribirseLocalized(teamConf->NOMBRE_PROCESO,0,socketSuscripcion);
+	pthread_mutex_t mutexRecibir;
+	pthread_mutex_init(&mutexRecibir,NULL);
+
+	t_paquete *buffer;
+
+	int flag = 1;
+	while(flag){
+		pthread_mutex_lock(&mutexRecibir);
+		bufferLoco = recibirMensaje(socketSuscripcion);
+
+		if(bufferLoco != NULL){
+			pthread_mutex_lock(&mutex_bandeja);
+			queue_push(bandejaDeMensajes,(void*)bufferLoco);
+			pthread_mutex_unlock(&mutex_bandeja);
+			pthread_mutex_unlock(&mutexRecibir);
+			sem_post(&contadorBandeja);
+		}
+		else
+		{
+			socketSuscripcion = crearConexion(teamConf->IP_BROKER,teamConf->PUERTO_BROKER,teamConf->TIEMPO_RECONEXION);
+			suscribirseLocalized(teamConf->NOMBRE_PROCESO,0,socketSuscripcion);
+		}
+
+	}
+	return NULL;
+}
+
+
+
+
