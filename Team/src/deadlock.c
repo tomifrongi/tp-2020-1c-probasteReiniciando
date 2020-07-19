@@ -142,7 +142,7 @@ int detectar_ciclos(t_team* team){
 		for(int j = 0 ; j<list_size(team->entrenadores);j++){
 			if(i==j)
 				continue;
-			if(matriz[i][j] == matriz[j][i])
+			if(matriz[i][j] == 1 && matriz[j][i] == 1)
 				return 1;
 		}
 	}
