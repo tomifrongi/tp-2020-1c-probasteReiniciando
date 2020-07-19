@@ -1,18 +1,8 @@
-#include "team.h"
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 
 #include <deadlock.h>
 
-typedef struct {
-	t_entrenador*entrenador1;
-	t_pokemon*pokemon1; //donante ,pasara a estar en entrenador 2
-	t_entrenador*entrenador2;
-	t_pokemon*pokemon2;
 
-} t_intercambio;
 /*------------------------------------------------FUNCIONES DE DEADLOCK------------------------------------------------*/
 //si se agranda mucho mas hacer un source aparte
 /*
@@ -93,24 +83,92 @@ void intercambiar_pokemones(t_team*team,t_intercambio *intercambio ){
 	list_add(intercambio->entrenador1->pokemones_capturados,intercambio->pokemon2);
 	list_add(intercambio->entrenador2->pokemones_capturados,intercambio->pokemon1);
   //retiro los pokemones viejos
-	bool igual_al_pokemon1(t_pokemon*pokemon){
+	int igual_al_pokemon1(t_pokemon*pokemon){
 		return pokemones_es_misma_especie(pokemon,intercambio->pokemon1);
 	}
-	bool igual_al_pokemon2(t_pokemon*pokemon){
+	int igual_al_pokemon2(t_pokemon*pokemon){
 			return pokemones_es_misma_especie(pokemon,intercambio->pokemon2);
 		}
 	list_remove_by_condition(intercambio->entrenador1->pokemones_capturados,igual_al_pokemon1);//ver si no conviene usar el and_destroy
 	list_remove_by_condition(intercambio->entrenador2->pokemones_capturados,igual_al_pokemon2);
 	//substituyo los entrenadores por su copia
 
-	bool igual_al_entrenador1(t_entrenador*entrenador){
+	int igual_al_entrenador1(t_entrenador*entrenador){
 		return intercambio->entrenador1->id==entrenador->id;
 	}
-	bool igual_al_entrenador2(t_entrenador*entrenador){
+	int igual_al_entrenador2(t_entrenador*entrenador){
 		return intercambio->entrenador2->id==entrenador->id;
 	}
 	list_remove_by_condition(team->entrenadores,igual_al_entrenador1);
-	list_remove_by_condition(team->entrenadores,igual_al_entrenador1);
+	list_remove_by_condition(team->entrenadores,igual_al_entrenador2);
 	list_add(team->entrenadores,intercambio->entrenador1);
 	list_add(team->entrenadores,intercambio->entrenador2);
 }
+
+int quiere_algo_de(t_entrenador* entrenador1,t_entrenador* entrenador2){
+	int i,j = 0;
+	t_pokemon* pokemon1,pokemon2;
+	while(i<list_size(entrenador1->pokemones_buscados)){
+		while(j<list_size(entrenador2->pokemones_capturados)){
+			pokemon1 = list_get(entrenador1->pokemones_buscados,i);
+			pokemon2 = list_get(entrenador1->pokemones_capturados,j);
+			if(pokemon1->especie == pokemon2->especie)
+				return 1;
+			j++;
+		}
+		j=0;
+		i++;
+	}
+	return 0;
+}
+
+
+void* matriz_adyacencia(t_team* team){
+	 int n = list_size(team->entrenadores);
+	 int matriz[n][n];
+	 for(int i=0;i<n;i++){
+		 for(int j=0;j<n;j++){
+			 if(i==j)
+				 continue;
+			 matriz[i][j] = quiere_algo_de(&list_get(team->entrenadores,i),&list_get(team->entrenadores,j));
+		 }
+	 }
+	 return matriz;
+}
+
+int detectar_ciclos(t_team* team){
+	int matriz[][] = matriz_adyacencia(team);
+	for(int i = 0 ; i<list_size(team->entrenadores);i++){
+		for(int j = 0 ; j<list_size(team->entrenadores);j++){
+			if(i==j)
+				continue;
+			if(matriz[i][j] == matriz[j][i])
+				return 1;
+		}
+	}
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
