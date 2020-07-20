@@ -2,7 +2,6 @@
 #ifndef MODOSUSCRIPTOR_H_
 #define MODOSUSCRIPTOR_H_
 
-#include "Gameboy.h"
 #include "protocol.h"
 #include "Cliente.h"
 #include "MensajesSuscripcion.h"
@@ -11,13 +10,15 @@
 #include <time.h>
 #include <unistd.h>
 #include <pthread.h>
+#include "gameboy.h"
+#include "commons/collections/list.h"
 
 typedef struct {
 	uint32_t id_mensaje;
 	pid_t idSuscriptor;
 }mensajeACK;
 
-void ejecutarModoSuscriptor();
+void ejecutarModoSuscriptor(t_list* argumentos);
 t_message obtenerMensajeSuscripcion(id_cola id);
 int obtenerTiempo();
 void* handler_envios(void* socket);

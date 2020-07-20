@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "gameboy.h"
 #include "protocol.h"
-#include "Gameboy.h"
 
 #ifndef MENSAJESSUSCRIPCION_H_
 #define MENSAJESSUSCRIPCION_H_

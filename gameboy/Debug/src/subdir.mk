@@ -5,7 +5,6 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../src/Cliente.c \
-../src/Gameboy.c \
 ../src/Impresora.c \
 ../src/MensajesBroker.c \
 ../src/MensajesGamecard.c \
@@ -16,11 +15,11 @@ C_SRCS += \
 ../src/ModoSuscriptor.c \
 ../src/ModoTeam.c \
 ../src/Scanner.c \
+../src/gameboy.c \
 ../src/protocol.c 
 
 OBJS += \
 ./src/Cliente.o \
-./src/Gameboy.o \
 ./src/Impresora.o \
 ./src/MensajesBroker.o \
 ./src/MensajesGamecard.o \
@@ -31,11 +30,11 @@ OBJS += \
 ./src/ModoSuscriptor.o \
 ./src/ModoTeam.o \
 ./src/Scanner.o \
+./src/gameboy.o \
 ./src/protocol.o 
 
 C_DEPS += \
 ./src/Cliente.d \
-./src/Gameboy.d \
 ./src/Impresora.d \
 ./src/MensajesBroker.d \
 ./src/MensajesGamecard.d \
@@ -46,6 +45,7 @@ C_DEPS += \
 ./src/ModoSuscriptor.d \
 ./src/ModoTeam.d \
 ./src/Scanner.d \
+./src/gameboy.d \
 ./src/protocol.d 
 
 
