@@ -1,7 +1,7 @@
 #include "ModoSuscriptor.h"
 
 
-void ejecutarModoSuscriptor()
+void ejecutarModoSuscriptor(t_list* argumentos)
 {
 	char* ipBroker = config_get_string_value(config, "IP_BROKER");
 	int puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
@@ -10,9 +10,25 @@ void ejecutarModoSuscriptor()
 	if(socketGame != -errno)
 		log_info(logger, "CONEXION EXITOSA CON EL BROKER");
 
-	id_cola id = obtenerID();
+
+	id_cola id;
+	if(strcmp(list_get(argumentos,2),"NEW_POKEMON") == 0)
+		id = NEW;
+	if(strcmp(list_get(argumentos,2),"APPEARED_POKEMON") == 0)
+		id = APPEARED;
+	if(strcmp(list_get(argumentos,2),"CATCH_POKEMON") == 0)
+		id = CATCH;
+	if(strcmp(list_get(argumentos,2),"CAUGHT_POKEMON") == 0)
+		id = CAUGHT;
+	if(strcmp(list_get(argumentos,2),"GET_POKEMON") == 0)
+		id = GET;
+	if(strcmp(list_get(argumentos,2),"LOCALIZED_POKEMON") == 0)
+		id = LOCALIZED;
+
 	t_message mensajeSuscripcion = obtenerMensajeSuscripcion(id);
-	int duracion = obtenerTiempo();
+
+	int duracion;
+	duracion = atoi(list_get(argumentos,3));
 
 	send_message(socketGame, mensajeSuscripcion.head,mensajeSuscripcion.content, mensajeSuscripcion.size);
 	char* nombreCola= obtenerNombreCola(id);

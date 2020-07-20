@@ -8,14 +8,14 @@
 #ifndef MODOTEAM_H_
 #define MODOTEAM_H_
 
-#include "Gameboy.h"
 #include "protocol.h"
 #include "MensajesTeam.h"
 #include "Cliente.h"
+#include "gameboy.h"
 #include "Scanner.h"
-
-void ejecutarModoTeam();
-t_message obtenerMensajeTeam();
+#include "commons/collections/list.h"
+void ejecutarModoTeam(t_list* argumentos);
+t_message obtenerMensajeTeam(t_list* argumentos);
 
 
 #endif /* MODOTEAM_H_ */

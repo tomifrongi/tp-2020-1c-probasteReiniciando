@@ -10,6 +10,7 @@
 #include "ModoSuscriptor.h"
 #include "ModoGamecard.h"
 #include "ModoTeam.h"
+#include "commons/collections/list.h"
 
 t_config * config;
 t_log* logger;
