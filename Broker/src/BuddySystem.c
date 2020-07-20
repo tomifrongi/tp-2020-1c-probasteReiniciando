@@ -108,10 +108,6 @@ bool almacenarMensajeBuddy(void* mensaje,id_cola id){
 
 	memcpy(principioMemoriaBuddy+posicionParticion,mensajeSerializado,tamanioMensaje);
 
-	if(!particion->libre){
-		printf("ID MENSAJE: %d \n",particion->idMensaje);
-		printf("POSICION: %d \n",particion->posicionParticion);
-	}
 	char* nombreCola = obtenerNombreColaBuddy(particion->cola);
 	log_info(logger,"MENSAJE %s ALMACENADO EN LA POSICION %d",nombreCola,particion->posicionParticion);
 
