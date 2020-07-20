@@ -11,6 +11,7 @@ int main(void)
 	pthread_t new_thread;
 	pthread_t catch_thread;
 	pthread_t get_thread;
+	uint32_t cola;
 
 	log_info(logger, "Se crea un hilo para subscribirse a NEW_POKEMON del BROKER");
 	pthread_create(&new_thread, NULL, (void*) reintentar_conexion, (uint32_t) (NEW));
@@ -28,7 +29,14 @@ int main(void)
 	usleep(600000);
 
 	log_info(logger, "Creando un hilo para poner al GAMECARD en modo Servidor");
-	gm_init();
+	if (cola == new_thread)
+	{
+		handler_server(new_thread);
+	} else if (cola == catch_thread) {
+		handler_server(catch_thread);
+	} else {
+		handler_server(get_thread);
+	}
 	usleep(600000);
 
 	for(;;);
