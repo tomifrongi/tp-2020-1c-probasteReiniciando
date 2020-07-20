@@ -13,7 +13,7 @@
 typedef struct {
 	id_cola idCola;
 	uint32_t idSuscriptor;
-}suscripcion;
+} suscripcion;
 
 typedef struct {
 	uint32_t id_mensaje;

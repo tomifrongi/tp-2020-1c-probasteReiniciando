@@ -12,7 +12,6 @@
 #include <commons/collections/list.h>
 #include "gm_bitmap.h"
 #include "commons/log.h"
-#include <math.h>
 #include "funcionesEnvio.h"
 
 //-----------------------------------------ESTRUCTURAS---------------------------------------------//

@@ -1,4 +1,5 @@
 #include "gm_metadata.h"
+#include <math.h>
 
 //Creacion de tall grass
 void crear_root_files()

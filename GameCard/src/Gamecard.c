@@ -4,8 +4,10 @@ pthread_mutex_t mutexLogger;
 
 int main(void)
 {
-	iniciar_config_logger();
+	iniciar_config_logger(); //Inicia log y config
+	gm_structs_fs();//todo File System
 
+	//Hilos para susbscribirse a las colas de mensajes
 	pthread_t new_thread;
 	pthread_t catch_thread;
 	pthread_t get_thread;
@@ -61,13 +63,13 @@ void iniciar_config_logger()
 	puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
 }
 
+//------------------------------------------GAMECARD INICIANDO COMO CLIENT ESPERANDO CONEXION CON BROKER (SERVER)--------------------------------------------------//
 void* handler_suscripciones(uint32_t cola_subs)
 {
 	int socketBroker = connect_to_server(ipBroker, puertoBroker, NULL);
 	t_message* message;
 	void* content;
 	int salida = 0;
-	int is_server;//1 GB , 0 Broker
 
 	pthread_attr_t attrs;
 	pthread_attr_init(&attrs);
@@ -104,15 +106,11 @@ void* handler_suscripciones(uint32_t cola_subs)
 
 						//FILE SYSTEM
 						createNewPokemon(&mensaje);
-						if (is_server == 0) {
-							pthread_t thread;
-							pthread_create(&thread, NULL, (void*) enviar_ack, (void*) &mensaje.id_correlacional);
-							pthread_detach(thread);
-							}
 
-						pthread_t thread2;
-						pthread_create(&thread2, NULL, (void*) procesar_new_enviar_appeared,  (void*) mensaje);
-						pthread_detach(thread2);
+						pthread_t thread;
+						pthread_create(&thread, NULL, (void*) enviar_ack, (void*) &mensaje.id_correlacional);
+						pthread_detach(thread);
+
 					}
 				} while(salida != 1);
 				salida = 0;
@@ -145,15 +143,10 @@ void* handler_suscripciones(uint32_t cola_subs)
 						catchAPokemon(&mensaje);
 						usleep(50000);
 
-						if (is_server == 0) {
-							pthread_t thread5;
-							pthread_create(&thread5, NULL, (void*) enviar_ack, (void*) &mensaje.id_correlacional);
-							pthread_detach(thread5);
-							}
+						pthread_t thread5;
+						pthread_create(&thread5, NULL, (void*) enviar_ack, (void*) &mensaje.id_correlacional);
+						pthread_detach(thread5);
 
-							pthread_t thread6;
-							pthread_create(&thread6, NULL, (void*) procesar_catch_enviar_caught, (void*) mensaje);
-							pthread_detach(thread6);
 					}
 				}
 				while(salida != 1);
@@ -186,15 +179,11 @@ void* handler_suscripciones(uint32_t cola_subs)
 								getAPokemon(&mensaje);
 
 								usleep(50000);
-								if (is_server == 0) {
-									pthread_t thread3;
-									pthread_create(&thread3, NULL, (void*) enviar_ack, (void*) &mensaje.id_correlacional);
-									pthread_detach(thread3);
-									}
 
-									pthread_t thread4;
-									pthread_create(&thread4, NULL, (void*) procesar_get_enviar_localized, (void*) mensaje);
-									pthread_detach(thread4);
+								pthread_t thread3;
+								pthread_create(&thread3, NULL, (void*) enviar_ack, (void*) &mensaje.id_correlacional);
+								pthread_detach(thread3);
+
 								}
 					}
 					while(salida != 1);
@@ -210,47 +199,147 @@ void* handler_suscripciones(uint32_t cola_subs)
 	return NULL;
 }
 
-//--------------------------------GAMECARD iniciando como SERVER-------------------------------------------------//
-void gm_init()
+//------------------------------------------GAMECARD INICIANDO COMO SERVER ESPERANDO AL GAMEBOY (CLIENT)---------------------------------------------------//
+void* handler_server(uint32_t cola_subs)
 {
-	int gm_socket = init_server(LOCAL_PORT);
-	log_info(logger, "SERVER creado correctamente. Esperando conexión del GAMEBOY");
+	t_message* message;
+	void* content;
+	int salida = 0;
+
+	pthread_attr_t attrs;
+	pthread_attr_init(&attrs);
+	pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_JOINABLE);
+
+	//conexion server
+	int socketGamecard = init_server(LOCAL_PORT);
+	log_info(logger, "Server GAMECARD creado con exito. Esperando conexion del GAMEBOY...");
 
 	struct sockaddr_in client_info;
 	socklen_t addrlen = sizeof client_info;
-
-	do
-	{
-		int accept_gmcard = accept(gm_socket, &client_info, &addrlen);
+	do {
+		int accept_gmcard = accept(socketGamecard, &client_info, &addrlen);
 		if (accept_gmcard > 0){
 			log_info(logger, "Nueva conexión realizada!");
 			pthread_t thread;
-			pthread_create(&thread, NULL, (void*) handle_conexion_server, (void*) accept_gmcard);
+			pthread_create(&thread, NULL, (void*) cola_subs, (void*) accept_gmcard);
 			pthread_detach(thread);
 		}
 		else {
 			log_error(logger, "Error aceptando conexiones: %s", strerror(errno));
 		}
 	} while(1);
-}
 
-void *handle_conexion_server(void *arg)
-{
-	t_handle_connection* conexion = (t_handle_connection *) arg;
-	int client_fd = conexion->fd;
-	recibir_msgs_gamecard(client_fd, conexion->valor);
+	printf("Se comienza a analizar las colas de mensajes en modo SERVER GAMECARD...");
+	while(1){
+			switch(cola_subs){
+
+			case NEW:
+
+				content = malloc(sizeof(uint32_t));
+				uint32_t numeroNew = NEW;
+				memcpy(content, &numeroNew, sizeof(uint32_t));
+				send_message(socketGamecard, SUSCRIPCION, content, sizeof(uint32_t));
+				free(content);
+				do {
+					message = recv_message(socketGamecard);
+					if(message == -1 || message == 0) {
+						salida = 1;
+					} else {
+						void*aux=message->content;
+
+						new_pokemon_enviar mensaje;
+						deserializarNew(mensaje);
+
+						//ENVIO ACK AL BROKER
+						send_message(socketGamecard, CONFIRMACION, NULL, 0);
+
+						//FILE SYSTEM
+						createNewPokemon(&mensaje);
+						usleep(50000);
+
+						pthread_t thread2;
+						pthread_create(&thread2, NULL, (void*) procesar_new_enviar_appeared, (void*) mensaje);
+						pthread_detach(thread2);
+					}
+				} while(salida != 1);
+				salida = 0;
+				free_t_message(message);
+				break;
+
+			case CATCH:
+
+				content = malloc(sizeof(uint32_t));
+				uint32_t numeroCatch = CATCH;
+				memcpy (content, &numeroCatch, sizeof(uint32_t));
+				send_message(socketGamecard, SUSCRIPCION, content, sizeof(uint32_t));
+				free(content);
+				do
+				{
+					message = recv_message(socketGamecard);
+					if(message == -1 || message == 0)
+					{
+						salida = 1;
+					} else {
+						void *aux = message->content;
+
+						catch_pokemon_enviar mensaje;
+						deserializarCatch(mensaje);
+
+						//Envio de ACK hay que agregarselo al broker
+						send_message(socketGamecard, CONFIRMACION, NULL, 0);
+
+						//FILE SYSTEM
+						catchAPokemon(&mensaje);
+						usleep(50000);
+
+						pthread_t thread6;
+						pthread_create(&thread6, NULL, (void*) procesar_catch_enviar_caught, (void*) mensaje);
+						pthread_detach(thread6);
+					}
+				}
+				while(salida != 1);
+				salida = 0;
+				free_t_message(message);
+				break;
+
+			case GET:
+
+				content = malloc(sizeof(uint32_t));
+				uint32_t numeroGet = GET;
+				memcpy (content, &numeroGet, sizeof(uint32_t));
+
+				send_message(socketGamecard, SUSCRIPCION, content, sizeof(uint32_t));
+				free(content);
+				do {
+					message = recv_message(socketGamecard);
+					if(message == -1 || message == 0) {
+						salida = 1;
+						} else {
+								void *aux = message->content;
+
+								get_pokemon_enviar mensaje;
+								deserializarGet(mensaje);
+
+								//Envio de ACK hay que agregarselo al broker
+								send_message(socketGamecard, CONFIRMACION, NULL, 0);
+
+								//FILE SYSTEM
+								getAPokemon(&mensaje);
+								usleep(50000);
+
+								pthread_t thread4;
+								pthread_create(&thread4, NULL, (void*) procesar_get_enviar_localized, (void*) mensaje);
+								pthread_detach(thread4);
+								}
+					}
+					while(salida != 1);
+					salida = 0;
+					free_t_message(message);
+					break;
+			}
+		}
+
 	return NULL;
-}
-
-//-----------------------------------------RECIBIR MENSAJE AL GAMECARD-----------------------------------------//
-void *recibir_msgs_gamecard(int fd, int respond_to)
-{
-	int received_bytes;
-	int client_fd = fd;
-	t_header msg;
-
-	// 1 = Recibido del GAMEBOY; 0 = Recibido del BROKER
-	int is_server = respond_to;
 }
 
 //----------------------------------------ENVIAR ACK------------------------------------------------------//
