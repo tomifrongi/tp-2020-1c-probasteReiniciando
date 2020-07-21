@@ -29,6 +29,8 @@ typedef struct {
 	char* magic_number;
 } Metadata;
 
+//#define RUTA_BITMAP_GENERAL "/Metadata/Bitmap.bin"
+
 Metadata metadata;
 
 t_config* config_metadata;
@@ -50,10 +52,10 @@ void crear_root_files();
 void conf_metadata();
 void conf_files();
 void crear_blocks();
-void crear_bitmap(char* bitmapBin);
+t_bitarray* crear_bitmap(char* bitmapBin);
 void crear_metadata_file(char* metadataBin);
 void leer_metadata(char* metadataPath);
 void leer_bitmap(char* bitmapBin);
 
 
-#endif GM_METADATA_H
+#endif

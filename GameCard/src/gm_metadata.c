@@ -115,14 +115,42 @@ void crear_blocks()
     }
 }
 
-void crear_bitmap(char* bitmapBin)
-{
-	log_info(logger, "Creando el Bitmap.bin por primera vez");
-	bitmap_file = fopen(bitmapBin, "wb+");
-	char* bit_arr = malloc(/*1, */ceiling(metadata.blocks, 8));
-	fwrite((void*) bit_arr, ceiling(metadata.blocks, 8), 1, bitmap_file);
-	fflush(bitmap_file);
-	free(bit_arr);
+
+t_bitarray* crear_bitmap(char* bitmap_bin){
+	log_info(logger, "Creando el Bitmap.bin por primera vez...");
+	bitmap_file = crear_archivo(bitmap_bin);
+	int cantidadDeBloques = 5192;
+
+	int fd = open(bitmap_file, O_CREAT | O_RDWR, 0664);
+
+	if (fd == -1) {
+		perror("open file");
+		exit(1);
+	}
+
+	ftruncate(fd, cantidadDeBloques);
+
+	void* bmap = mmap(NULL, cantidadDeBloques, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+
+	if (bmap == MAP_FAILED) {
+		perror("mmap");
+		close(fd);
+		exit(1);
+	}
+
+	t_bitarray* bitmap = bitarray_create_with_mode((char*) bmap, cantidadDeBloques, LSB_FIRST);
+
+	size_t tope = bitarray_get_max_bit(bitmap);
+
+	for(int i = 0; i < tope; i++){
+
+		 bitarray_clean_bit(bitmap, i);
+	}
+	msync(bmap,64,MS_SYNC);
+
+	close(fd);
+
+	return bitmap;
 }
 
 void crear_metadata_file(char* metadataBin)
