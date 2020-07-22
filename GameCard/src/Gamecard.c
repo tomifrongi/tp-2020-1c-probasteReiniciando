@@ -28,16 +28,16 @@ int main(void)
 	pthread_detach(get_thread);
 	usleep(600000);
 
-	log_info(logger, "Creando un hilo para poner al GAMECARD en modo Servidor");
-	if (cola == new_thread)
-	{
-		handler_server(new_thread);
-	} else if (cola == catch_thread) {
-		handler_server(catch_thread);
-	} else {
-		handler_server(get_thread);
-	}
-	usleep(600000);
+	//log_info(logger, "Creando un hilo para poner al GAMECARD en modo Servidor");
+	//if (cola == new_thread)
+	//{
+	//	handler_server(new_thread);
+	//} else if (cola == catch_thread) {
+	//	handler_server(catch_thread);
+	//} else {
+	//	handler_server(get_thread);
+	//}
+	//usleep(600000);
 
 	for(;;);
 
@@ -53,7 +53,8 @@ void reintentar_conexion(void* arg)
 	{
 		is_conn = false;
 		handler_suscripciones (retryConn);
-		delay(tiempoReintentoConexion);//no se si es asi
+		usleep(tiempoReintentoConexion);
+		//delay(tiempoReintentoConexion);//no se si es asi
 	}
 }
 
@@ -113,7 +114,8 @@ void* handler_suscripciones(uint32_t cola_subs)
 						send_message(socketBroker, CONFIRMACION, NULL, 0);
 
 						//FILE SYSTEM
-						createNewPokemon(&mensaje);
+						new_pokemon_gamecard* new_pokemon;
+						createNewPokemon(new_pokemon);
 
 						pthread_t thread;
 						pthread_create(&thread, NULL, (void*) enviar_ack, (void*) &mensaje.id_correlacional);
@@ -208,7 +210,7 @@ void* handler_suscripciones(uint32_t cola_subs)
 }
 
 //------------------------------------------GAMECARD INICIANDO COMO SERVER ESPERANDO AL GAMEBOY (CLIENT)---------------------------------------------------//
-void* handler_server(uint32_t cola_subs)
+/*void* handler_server(uint32_t cola_subs)
 {
 	t_message* message;
 	void* content;
@@ -348,13 +350,14 @@ void* handler_server(uint32_t cola_subs)
 		}
 
 	return NULL;
-}
+}*/
 
 //----------------------------------------ENVIAR ACK------------------------------------------------------//
 void enviar_ack(void* arg) {
 	int id = *((int*) arg);
 	t_header* ack_send;//seria SUSCRIPCION
-	suscripcion susc; //contiene id_cola QUE ES EL TIPO DE MENSAJE(NEW, GET, CATCH)
+	t_suscripcion susc; //contiene id_cola QUE ES EL TIPO DE MENSAJE(NEW, GET, CATCH)
+	susc.idSuscriptor = getpid();
 
 	int client_fd = connect_to_server(ipBroker, puertoBroker, NULL);
 	if (client_fd > 0)
@@ -365,7 +368,7 @@ void enviar_ack(void* arg) {
 	}
 	usleep(500000);
 	log_info(logger, "La conexión con el BROKER se cerrará");
-	close_conection(client_fd);
+	close(client_fd);
 }
 
 //----------------------------Procesar NEW y enviar APPEARED--------------------------------------------//
@@ -373,7 +376,7 @@ void procesar_new_enviar_appeared(void* arg)
 {
 	new_pokemon_enviar* new_recv = (new_pokemon*) arg;
 	appeared_pokemon* appeared_snd = malloc(sizeof(appeared_pokemon_enviar));
-	t_header appeared = APPEARED_POKEMON;
+	//t_header appeared = APPEARED_POKEMON;
 
 	appeared_snd->nombrePokemon = new_recv->nombrePokemon;
 	appeared_snd->sizeNombre = new_recv->sizeNombre;
@@ -391,18 +394,18 @@ void procesar_new_enviar_appeared(void* arg)
 	}
 	usleep(500000);
 	log_info(logger, "Cerrando la conexión con el BROKER");
-	close_conection(client_fd);
+	close(client_fd);
 }
 
 //----------------------------Procesar GET y enviar LOCALIZED------------------------------------------//
 void procesar_get_enviar_localized(void* arg)
 {
 	get_pokemon_enviar* get_rcv = (get_pokemon*) arg; //recibo GET y t_header es CONFIRMACION, para tener el id_mensaje
-	localized_pokemon* localized_snd = malloc(sizeof(localized_pokemon));
+	localized_pokemon_suscripcion* localized_snd = malloc(sizeof(localized_pokemon_suscripcion));
 	t_list* posiciones_list = list_create();
 	t_posiciones *posicion = malloc(sizeof(t_posiciones));
 	t_posiciones *otraPosicion = malloc(sizeof(t_posiciones));
-	t_header localized = LOCALIZED_POKEMON;
+	//t_header localized = LOCALIZED_POKEMON;
 
 	posicion->posicionEjeX = 21;
 	posicion->posicionEjeY = 8;
@@ -427,15 +430,14 @@ void procesar_get_enviar_localized(void* arg)
 		log_info(logger, "El mensaje LOCALIZED fué enviado al BROKER");
 	}
 	usleep(50000);
-	close_conection(client_fd);
+	close(client_fd);
 }
 
 //----------------------------Procesar CATCH y enviar CAUGHT-----------------------------------------------//
 void procesar_catch_enviar_caught(void* arg) {
 	catch_pokemon_enviar* catch_rcv = (catch_pokemon*) arg;
 	caught_pokemon* caught_snd = malloc(sizeof(caught_pokemon));
-	t_message mensajeGamecard;
-	t_header caught = CAUGHT_POKEMON;
+	//t_header caught = CAUGHT_POKEMON;
 
 	caught_snd->idCorrelativo = catch_rcv->id_mensaje;
 	caught_snd->pokemonAtrapado = 1;
@@ -448,13 +450,12 @@ void procesar_catch_enviar_caught(void* arg) {
 		log_info(logger, "El mensaje CAUGHT fue enviado al BROKER");
 	}
 	usleep(500000);
-	close_conection(client_fd);
+	close(client_fd);
 }
 
 //-----------------------------------FINALIZACION DEL GAMECARD------------------------------------//
 void gm_exit() {
-	close_conection(logger);
-	//gcfsFreeBitmaps();
+	gcfsFreeBitmaps();
 	free(logger);
 	log_destroy(logger);
 	free(struct_paths[METADATA]);

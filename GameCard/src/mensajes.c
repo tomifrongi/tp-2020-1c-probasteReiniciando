@@ -72,22 +72,6 @@ void* serializarAppeared (appeared_pokemon_suscripcion parametros){
 	return content;
 }
 
-void* serializarCatch(catch_pokemon_gamecard parametros){
-	int bytes_escritos = 0;
-	void* content = malloc(sizeof(uint32_t)*3+parametros.sizeNombre);
-
-	memcpy (content + bytes_escritos, &parametros.sizeNombre, sizeof(uint32_t));
-	bytes_escritos += sizeof (uint32_t);
-	memcpy (content + bytes_escritos, parametros.nombrePokemon, parametros.sizeNombre);
-	bytes_escritos += parametros.sizeNombre;
-	memcpy (content + bytes_escritos, &parametros.posicionEjeX, sizeof(uint32_t));
-	bytes_escritos += sizeof (uint32_t);
-	memcpy (content + bytes_escritos, &parametros.posicionEjeY, sizeof(uint32_t));
-	bytes_escritos += sizeof (uint32_t);
-
-	return content;
-}
-
 void* serializarCaught(caught_pokemon_suscripcion parametros){
 	int bytes_escritos = 0;
 	void* content = malloc(sizeof(uint32_t)*2);
@@ -100,21 +84,9 @@ void* serializarCaught(caught_pokemon_suscripcion parametros){
 	return content;
 }
 
-void* serializarGet(get_pokemon_gamecard parametros){
+void* serializarMensaje (t_suscripcion contenidoMensaje){
 	int bytes_escritos = 0;
-	void* content = malloc(sizeof(uint32_t)+parametros.sizeNombre);
-
-	memcpy (content + bytes_escritos, &parametros.sizeNombre, sizeof(uint32_t));
-	bytes_escritos += sizeof (uint32_t);
-	memcpy (content + bytes_escritos, parametros.nombrePokemon, parametros.sizeNombre);
-	bytes_escritos += parametros.sizeNombre;
-
-	return content;
-}
-
-void* serializarMensaje (suscripcion contenidoMensaje){
-	int bytes_escritos = 0;
-		void* content = malloc(sizeof(suscripcion));
+		void* content = malloc(sizeof(t_suscripcion));
 
 		memcpy (content + bytes_escritos, &contenidoMensaje.idCola, sizeof(id_cola));
 		bytes_escritos += sizeof (uint32_t);
@@ -122,7 +94,59 @@ void* serializarMensaje (suscripcion contenidoMensaje){
 
 		return content;
 }
+
+void* serializarLocalized(localized_pokemon_suscripcion parametros)
+{
+	int bytes_escritos = 0;
+	void* content = malloc(sizeof(uint32_t)*4+parametros.sizeNombre);
+
+	memcpy (content + bytes_escritos, &parametros.idCorrelativo, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, &parametros.sizeNombre, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, parametros.nombrePokemon, parametros.sizeNombre);
+	bytes_escritos += parametros.sizeNombre;
+	memcpy (content + bytes_escritos, &parametros.cantidadPosiciones, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+}
 //Deserializar
+void deserializarMensaje(t_message* mensajeRecibido){
+	switch(mensajeRecibido->head){
+	case NEW_POKEMON:{
+		log_info(logger,"MENSAJE NEW RECIBIDO");
+		deserializarNew(mensajeRecibido->content);
+		break;
+	}
+	case APPEARED_POKEMON:{
+		log_info(logger,"MENSAJE APPEARED RECIBIDO");
+		deserializarAppeared(mensajeRecibido->content);
+		break;
+	}
+	case CATCH_POKEMON:{
+		log_info(logger,"MENSAJE CATCH RECIBIDO");
+		deserializarCatch(mensajeRecibido->content);
+		break;
+	}
+	case CAUGHT_POKEMON:{
+		log_info(logger,"MENSAJE CAUGHT RECIBIDO");
+		deserializarCaught(mensajeRecibido->content);
+		break;
+	}
+	case GET_POKEMON:{
+		log_info(logger,"MENSAJE GET RECIBIDO");
+		deserializarGet(mensajeRecibido->content);
+		break;
+	}
+	case LOCALIZED_POKEMON:{
+		log_info(logger,"MENSAJE LOCALIZED RECIBIDO");
+		deserializarLocalized(mensajeRecibido->content);
+		break;
+	}
+	default:{
+		break;
+	}
+	}
+}
 
 void deserializarNew(void* content){
 	new_pokemon_suscripcion mensaje;

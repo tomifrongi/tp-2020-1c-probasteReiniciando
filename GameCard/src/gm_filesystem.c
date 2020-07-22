@@ -7,7 +7,11 @@ void gm_structs_fs() //Estructuras del File System
 	conf_metadata();
 	init_semaphore();
 }
-
+void gcfsFreeBitmaps()
+{
+	free(bitmap->bitarray);
+	bitarray_destroy(bitmap);
+}
 void init_semaphore() //inicio semaforo
 {
 	pthread_mutex_init(&MUTEX_METADATA, NULL);
@@ -216,13 +220,6 @@ char* formatToMetadataBlocks(t_list* blocks)
 	string_append(&retBlocks, "]");
 	return retBlocks;
 }
-
-void gm_liberar_bitmaps()
-{
-	free(bitmap->bitarray);
-	bitarray_destroy(bitmap);
-}
-
 
 void liberar_block_line(blockLine* newLineBlock)
 {

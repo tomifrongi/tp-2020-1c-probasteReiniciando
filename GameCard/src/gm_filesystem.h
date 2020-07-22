@@ -33,7 +33,7 @@ void addTotalPokemonIfCoordinateExist(new_pokemon* newPokemon, t_list* pokemonLi
 void deletePokemonTotalIfCoordinateExist(catch_pokemon* catchPokemon, t_list* pokemonLines);
 t_list* requestFreeBlocks(int extraBlocksNeeded);
 char* formatToMetadataBlocks(t_list* blocks);
-void gm_liberar_bitmaps();
+void gcfsFreeBitmaps();
 void liberar_block_line(blockLine* newLineBlock);
 void createNewPokemon(new_pokemon* newPokemon);
 int catchAPokemon(catch_pokemon* catchPokemon);

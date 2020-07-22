@@ -12,8 +12,8 @@
 
 typedef struct {
 	id_cola idCola;
-	uint32_t idSuscriptor;
-} suscripcion;
+	pid_t idSuscriptor;
+} t_suscripcion;
 
 typedef struct {
 	uint32_t id_mensaje;
@@ -86,5 +86,12 @@ typedef struct {
 	uint32_t idCorrelativo;
 	uint32_t pokemonAtrapado;
 }caught_pokemon_suscripcion;
+
+typedef struct {
+	uint32_t sizeNombre;
+	uint32_t idCorrelativo;
+	char* nombrePokemon;
+	uint32_t cantidadPosiciones;
+}localized_pokemon_suscipcion;
 
 #endif
