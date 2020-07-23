@@ -18,9 +18,7 @@ t_list * team_get_objetivo_global(t_team*team) {
 	return objetivo;
 }
 
-void team_cargar_objetivo_global(t_team*team) {
-	team->objetivo_global = team_get_objetivo_global(team);
-}
+
 
 /*-----------------------------------------------------------VERIFICACION SI TEAM PUEDE PLANIFICAR ATRAPAR UN POKEMON  ----------------------*/
 
@@ -74,7 +72,11 @@ void team_verificar_finalizacion(t_team*team) { //la idea es que se lopee  despu
 	}
 }
 
-
+//
+void consumir_ciclos_cpu(t_team*team,int cantidad_ciclos){
+	team->cantidad_ciclos_cpu_ejecutados+=cantidad_ciclos;
+	//sleep ? TODO
+}
 
 
 
