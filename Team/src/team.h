@@ -45,24 +45,25 @@ typedef struct{
 	t_list* objetivo_global;
 	//t_list*mapa [MAP_SIZE][MAP_SIZE];
 	t_list*pokemones_sueltos;
-	//logfile
+	char*path_logfile;//logfile
 	int ip_broker;
 	int puerto_broker;
 	int tiempo_reconexion;
 	int retardo_ciclo_cpu;
+	int quantum;
 	t_planificador planificador;
+	t_list*entrenadores_planificados;
+	//contadores finales :
+	int cantidad_ciclos_cpu_ejecutados=0;
+	int cantidad_deadlocks=0;//mm hace falta
+	int cantidad_deadlocks_detectados=0;
+	int cantidad_deadlocks_solucionados=0;
 }t_team;
 
-t_list*lista_teams=list_create();
+t_list*lista_teams=list_create();//TODO al main
 
- typedef struct{
 
-	int cantidad_ciclos_cpu;
-	int cantidad_deadlocks;
-	int cantidad_deadlocks_detectados;
-	int cantidad_deadlocks_solucionados;
 
-}planificador;
 
 int cantidad_entrenadores(t_team*);
 void agregar_pokemon(t_entrenador* ,t_pokemon* );
