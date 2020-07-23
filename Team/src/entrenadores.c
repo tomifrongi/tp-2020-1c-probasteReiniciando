@@ -33,7 +33,7 @@ t_list * inicializar_entrenadores(t_team *team) {
 		t_entrenador *entrenador = iniciar_entrenador(id, posicion_x, posicion_y, get_pokemones(team, i, 0), get_pokemones(team, i, 1)); //el estado lo hago sin pasar parametro por ahora
 
 		list_add(entrenadores, entrenador);
-		printf("se cargo el entrenador: %d \n\n", i);
+		//printf("se cargo el entrenador: %d \n\n", i);
 
 	}
 
@@ -124,3 +124,22 @@ bool entrenador_puede_capturar(t_entrenador*entrenador) {
 	return cantidad_objetivos(entrenador) > cantidad_capturados(entrenador); //si tenia que capturar 3 no puede mas de 3 por mas que no sean los suyos
 }
 
+void mover_entrenador(t_entrenador*entrenador, int pos_dest_x, int pos_dest_y) {//si lo tengo que mover de a un paso cambiar los while por if
+
+
+	while (entrenador->posicion_x != pos_dest_x) {//primero lo pongo a la coorod en eje horizontal
+		if (entrenador->posicion_x < pos_dest_x) {
+			entrenador->posicion_x++;
+		} else {
+			entrenador->posicion_x--;
+		}
+	}
+	while (entrenador->posicion_y != pos_dest_y) {//ahora en el eje vertical
+		if (entrenador->posicion_y < pos_dest_y) {
+			entrenador->posicion_y++;
+		} else {
+			entrenador->posicion_y--;
+		}
+
+	}
+}
