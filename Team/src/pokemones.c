@@ -37,6 +37,7 @@ int cantidad_pokemones_especie(t_list* pokemones, char*mi_especie) {
 	return list_size(list_filter(pokemones, (t_pokemon *) _es_especie));
 
 }
+/*
 /*------------------------------------------------CARGA E INICIALIZACION DE LOS POKEMONES------------------------------------------------*/
 
 t_list*listar_pokemones(char**array) { //el string p1|p2|p3 lo pone cada uno en lista
@@ -52,7 +53,7 @@ t_list*listar_pokemones(char**array) { //el string p1|p2|p3 lo pone cada uno en 
 	return lista;
 }
 
-
+*/
 
 
 /*------------------------------------------------MUESTRA POR PANTALLA------------------------------------------------*/
