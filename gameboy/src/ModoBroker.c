@@ -31,6 +31,7 @@ void ejecutarModoBroker(t_list* argumentos){
 	t_message* mensajeConfirmacionID =recv_message(socketGame);
 	uint32_t idConf;
 	memcpy(&idConf,mensajeConfirmacionID->content,sizeof(uint32_t));
+	free_t_message(mensajeConfirmacionID);
 	//log_info(logger,"ACK %d RECIBIDO DEL BROKER",idConf);
 
 }
