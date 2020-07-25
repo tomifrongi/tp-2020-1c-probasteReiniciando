@@ -57,6 +57,7 @@ int tiempoRetardoOperacion;
 char* puntoMontaje;
 char* ipBroker;
 int puertoBroker;
+int puertoGameCard;
 
 //SUSCRIPCION//
 typedef struct {
@@ -67,9 +68,14 @@ typedef struct {
 
 //-----------------------------------FUNCIONES DECLARADAS-------------------------------------------//
 
-void reintentar_conexion(void* arg);
 void iniciar_config_logger();
-void* handler_suscripciones(uint32_t cola);
+
+void* handler_broker(void *cola); //maneja todas las conexiones al broker
+int listener_socket;
+void* handler_clients(void* socket); //se encarga del gameboy
+void init_gamecard_server(); //crea el server para el gameboy
+void handler_suscripciones(int socket);
+
 void gm_init();
 void *handle_conexion_server(void *arg);
 void *recibir_msgs_gamecard(int fd, int send_to);

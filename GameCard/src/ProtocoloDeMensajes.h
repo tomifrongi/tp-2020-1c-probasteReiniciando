@@ -28,20 +28,28 @@ typedef enum {
 	GET,
 	LOCALIZED,
 	CATCH,
-	CAUGHT,
-	SUBSCRIBE
+	CAUGHT
 }id_cola;
 
 typedef struct {
 	id_cola idCola;
+	pid_t idSuscriptor;
 } suscripcion;
 //t_header = SUSCRIPCION
+//-------------------------------
 
 //MENSAJE: confirmacion----------
 typedef struct {
 	uint32_t id_mensaje;
 }id_mensaje;
 //t_header = CONFIRMACION
+
+typedef struct {
+	uint32_t id_mensaje;
+	pid_t idSuscriptor;
+}mensajeACK;
+//t_header = CONFIRMACION
+
 //-------------------------------
 
 //--------------------------------------------------------------------------------------------------------------------------------------
@@ -61,7 +69,6 @@ typedef struct {
 //Subscriber recibe:
 typedef struct {
 	uint32_t id_mensaje;
-	uint32_t id_correlacional;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidad;
@@ -109,8 +116,7 @@ typedef struct {
 
 //Subscriber recibe:
 typedef struct {
-	uint32_t id_correlacional;
-	uint32_t id_mensaje;//ESTE NO SE SI VA.
+	uint32_t id_mensaje;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 }get_pokemon_enviar;
@@ -141,7 +147,7 @@ typedef struct {
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones; //cantidad de posiciones y no la cantidad de pokemones
-	t_list posiciones;
+	void* posiciones;
 }localized_pokemon_enviar;
 //t_header = LOCALIZED_POKEMON
 
@@ -160,8 +166,7 @@ typedef struct {
 
 //Subscriber recibe:
 typedef struct {
-	uint32_t id_mensaje; //ESTE NO SE SI VA.
-	uint32_t id_correlacional;
+	uint32_t id_mensaje;
 	uint32_t sizeNombre;
 	char* nombrePokemon;
 	uint32_t posicionEjeX;
