@@ -92,7 +92,7 @@ bool almacenarMensajeBuddy(void* mensaje,id_cola id){
 //--------------------------------------------------------------------------
 	int potenciaDeDosMasCercana = buscarPotenciaDeDosMasCercana(tamanioMensaje);
 
-	while(particion->tamanio>potenciaDeDosMasCercana){
+	while(particion->tamanio>potenciaDeDosMasCercana && particion->tamanio > TAMANO_MINIMO_PARTICION){
 		particion->tamanio = (particion->tamanio)/2;
 		agregarBuddy(particion);
 	}
@@ -143,6 +143,8 @@ particion_buddy_memoria* buscarMejorParticionLibreBuddy(uint32_t tamanioMensaje)
 		}
 
 	t_list* particionesLibres = list_filter(particionesEnMemoriaBuddy,particionLibre);
+	if(list_size(particionesLibres) == 0)
+		return NULL;
 
 	bool comparadorParticionesLibres(void* particion1,void* particion2){
 		particion_buddy_memoria* particion1Casteada = particion1;

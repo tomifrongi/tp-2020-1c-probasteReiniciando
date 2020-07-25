@@ -2,7 +2,7 @@
 
 
 void cargarConfiguracion(){ //Funcion para cargar el config que nos pasen
-	config = config_create("./broker.config");
+	config = config_create("./Debug/broker.config");
 
 	TAMANO_MEMORIA = config_get_int_value(config, "TAMANO_MEMORIA");
 	TAMANO_MINIMO_PARTICION =config_get_int_value(config, "TAMANO_MINIMO_PARTICION");

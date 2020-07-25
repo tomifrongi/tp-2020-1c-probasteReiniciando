@@ -1,0 +1,11 @@
+-----------------------------------------------------------------------------------------------------------------------------
+17:13:04:808
+Particion: 1 0x8058348 - 0x8058357      [X] Size: 16b   LRU: 10   Cola: CATCH   ID: 0
+Particion: 2 0x8058358 - 0x805835f      [X] Size: 8b   LRU: 15   Cola: GET   ID: 7
+Particion: 3 0x8058360 - 0x8058367      [L] Size: 8b
+Particion: 4 0x8058368 - 0x8058377      [X] Size: 16b   LRU: 11   Cola: CATCH   ID: 3
+Particion: 5 0x8058378 - 0x805837b      [X] Size: 4b   LRU: 12   Cola: CAUGHT   ID: 4
+Particion: 6 0x805837c - 0x805837f      [X] Size: 4b   LRU: 13   Cola: CAUGHT   ID: 5
+Particion: 7 0x8058380 - 0x8058383      [X] Size: 4b   LRU: 14   Cola: CAUGHT   ID: 6
+Particion: 8 0x8058384 - 0x8058387      [X] Size: 4b   LRU: 16   Cola: CAUGHT   ID: 8
+-----------------------------------------------------------------------------------------------------------------------------
