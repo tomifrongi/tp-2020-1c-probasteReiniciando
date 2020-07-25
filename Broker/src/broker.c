@@ -11,19 +11,11 @@
 
 #include "broker.h"
 
-//TODO scripts de pruebas
-
 int main(void) {
 	cargarConfiguracion();
 	inicializarLogger(LOG_FILE); //logea ok!!
-//	PUERTO_BROKER = 8080;
-//	ID_INICIAL = 0;
-//	TAMANO_MEMORIA =2048;
-//	TAMANO_MINIMO_PARTICION = 4;
-//	ALGORITMO_MEMORIA = "BS";
-//	ALGORITMO_REEMPLAZO ="FIFO";
-//	ALGORITMO_PARTICION_LIBRE ="FF";
-//	FRECUENCIA_COMPACTACION = 1;
+	ID_INICIAL = 0;
+
 
 	crearEstructurasAdministrativas();
 	iniciarMutexs();
@@ -119,11 +111,11 @@ void* handler_clients(void* socket){
 					pthread_mutex_lock(&mutexSuscriptoresNew);
 					suscriptor* suscriptorEnviar = list_get(new_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptorEnviar->socket;
+					mensajeAEnviar->idSuscriptor = suscriptorEnviar->idSuscriptor;
 					pthread_mutex_unlock(&mutexSuscriptoresNew);
 
 					pthread_t envioMensajes;
 					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
-					log_info(logger,"MENSAJE NEW CON ID %d ENVIADO AL SUSCRIPTOR %d",mensaje.id_mensaje ,suscriptorEnviar->idSuscriptor);
 					pthread_detach(envioMensajes);
 
 					bool mismoSocket(void* sus){
@@ -200,6 +192,7 @@ void* handler_clients(void* socket){
 				ID_INICIAL ++;
 				pthread_mutex_unlock(&mutexId);
 
+
 				//TODO podriamos cambiar este mutex de aca
 				pthread_mutex_lock(&mutexQueueAppeared);
 				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
@@ -241,11 +234,11 @@ void* handler_clients(void* socket){
 						pthread_mutex_lock(&mutexSuscriptoresAppeared);
 						suscriptor* suscriptorEnviar = list_get(appeared_admin->suscriptores,indice);
 						mensajeAEnviar->socketEnvio = suscriptorEnviar->socket;
+						mensajeAEnviar->idSuscriptor = suscriptorEnviar->idSuscriptor;
 						pthread_mutex_unlock(&mutexSuscriptoresAppeared);
 
 						pthread_t envioMensajes;
 						pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
-						log_info(logger,"MENSAJE APPEARED CON ID %d ENVIADO AL SUSCRIPTOR %d",mensaje.id_mensaje ,suscriptorEnviar->idSuscriptor);
 						pthread_detach(envioMensajes);
 
 						bool mismoSocket(void* sus){
@@ -341,11 +334,11 @@ void* handler_clients(void* socket){
 					pthread_mutex_lock(&mutexSuscriptoresCatch);
 					suscriptor* suscriptorEnvio = list_get(catch_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptorEnvio->socket;
+					mensajeAEnviar->idSuscriptor = suscriptorEnvio->idSuscriptor;
 					pthread_mutex_unlock(&mutexSuscriptoresCatch);
 
 					pthread_t envioMensajes;
 					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
-					log_info(logger,"MENSAJE CATCH CON ID %d ENVIADO AL SUSCRIPTOR %d",mensaje.id_mensaje ,suscriptorEnvio->idSuscriptor);
 					pthread_detach(envioMensajes);
 					bool mismoSocket(void* sus){
 						suscriptor* suscriptorCasteado = sus;
@@ -443,11 +436,11 @@ void* handler_clients(void* socket){
 						pthread_mutex_lock(&mutexSuscriptoresCaught);
 						suscriptor* suscriptorEnvio = list_get(caught_admin->suscriptores,indice);
 						mensajeAEnviar->socketEnvio = suscriptorEnvio->socket;
+						mensajeAEnviar->idSuscriptor = suscriptorEnvio->idSuscriptor;
 						pthread_mutex_unlock(&mutexSuscriptoresCaught);
 
 						pthread_t envioMensajes;
 						pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
-						log_info(logger,"MENSAJE CAUGHT CON ID %d ENVIADO AL SUSCRIPTOR %d",mensaje.id_mensaje ,suscriptorEnvio->idSuscriptor);
 						pthread_detach(envioMensajes);
 
 						bool mismoSocket(void* sus){
@@ -536,11 +529,11 @@ void* handler_clients(void* socket){
 					pthread_mutex_lock(&mutexSuscriptoresGet);
 					suscriptor* suscriptorEnviar = list_get(get_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptorEnviar->socket;
+					mensajeAEnviar->idSuscriptor = suscriptorEnviar->idSuscriptor;
 					pthread_mutex_unlock(&mutexSuscriptoresGet);
 
 					pthread_t envioMensajes;
 					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
-					log_info(logger,"MENSAJE GET CON ID %d ENVIADO AL SUSCRIPTOR %d",mensaje.id_mensaje ,suscriptorEnviar->idSuscriptor);
 					pthread_detach(envioMensajes);
 					bool mismoSocket(void* sus){
 						suscriptor* suscriptorCasteado = sus;
@@ -646,12 +639,13 @@ void* handler_clients(void* socket){
 
 						pthread_mutex_lock(&mutexSuscriptoresLocalized);
 						suscriptor* suscriptorEnviar = list_get(localized_admin->suscriptores,indice);
+
 						mensajeAEnviar->socketEnvio = suscriptorEnviar->socket;
+						mensajeAEnviar->idSuscriptor = suscriptorEnviar->idSuscriptor;
 						pthread_mutex_unlock(&mutexSuscriptoresLocalized);
 
 						pthread_t envioMensajes;
 						pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
-						log_info(logger,"MENSAJE LOCALIZED CON ID %d ENVIADO AL SUSCRIPTOR %d",mensaje.id_mensaje ,suscriptorEnviar->idSuscriptor);
 						pthread_detach(envioMensajes);
 						bool mismoSocket(void* sus){
 							suscriptor* suscriptorCasteado = sus;
@@ -771,7 +765,17 @@ void* handler_clients(void* socket){
 
 void* handler_envio_mensajes(void* mensajeAEnviar){
 	t_message_envio* mensaje = (t_message_envio*) mensajeAEnviar;
-	send_message(mensaje->socketEnvio, mensaje->mensajeEnvio->head,mensaje->mensajeEnvio->content,mensaje->mensajeEnvio->size);
+
+	int resultadoEnvio = send_message(mensaje->socketEnvio, mensaje->mensajeEnvio->head,mensaje->mensajeEnvio->content,mensaje->mensajeEnvio->size);
+
+	if(resultadoEnvio != (-errno)){
+		char* nombreCola = obtenerNombreColaHeader(mensaje->mensajeEnvio->head);
+		void* contenido = mensaje->mensajeEnvio->content;
+		int idLog;
+		memcpy(&idLog,contenido,sizeof(uint32_t));
+		log_info(logger,"MENSAJE %s CON ID %d ENVIADO AL SUSCRIPTOR %d ",nombreCola,idLog,mensaje->idSuscriptor);
+
+	}
 	free(mensaje->mensajeEnvio->content);
 	free(mensaje->mensajeEnvio);
 	free(mensaje);
@@ -958,7 +962,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						particion->contadorLRU = CONTADORLRU;
 
 						send_message(socket, NEW_POKEMON,content,sizeNew);
-						log_info(logger,"MENSAJE NEW CON ID %d ENVIADO AL SUSCRIPTOR %d",idMensaje ,suscripcion.idSuscriptor);
+						log_info(logger,"MENSAJE NEW CON ID %d ENVIADO AL SUSCRIPTOR %d",*idMensaje ,suscripcion.idSuscriptor);
 						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 						if(suscriptorEncontradoEnviado == NULL){
 							suscriptor* suscriptorEncontradoCola = list_find(new_admin->suscriptores,igualSuscriptor);
@@ -1018,7 +1022,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							particion->contadorLRU = CONTADORLRUBUDDY;
 
 							send_message(socket, NEW_POKEMON,content,sizeNew);
-							log_info(logger,"MENSAJE NEW CON ID %d ENVIADO AL SUSCRIPTOR %d",idMensaje ,suscripcion.idSuscriptor);
+							log_info(logger,"MENSAJE NEW CON ID %d ENVIADO AL SUSCRIPTOR %d",*idMensaje ,suscripcion.idSuscriptor);
 							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 							if(suscriptorEncontradoEnviado == NULL){
 								suscriptor* suscriptorEncontradoCola = list_find(new_admin->suscriptores,igualSuscriptor);
@@ -1085,7 +1089,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 
 
 						send_message(socket, APPEARED_POKEMON,content,sizeAppeared);
-						log_info(logger,"MENSAJE APPEARED CON ID %d ENVIADO AL SUSCRIPTOR %d",idMensaje ,suscripcion.idSuscriptor);
+						log_info(logger,"MENSAJE APPEARED CON ID %d ENVIADO AL SUSCRIPTOR %d",*idMensaje ,suscripcion.idSuscriptor);
 						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 						if(suscriptorEncontradoEnviado == NULL){
 							suscriptor* suscriptorEncontradoCola = list_find(appeared_admin->suscriptores,igualSuscriptor);
@@ -1144,7 +1148,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							CONTADORLRUBUDDY++;
 							particion->contadorLRU = CONTADORLRUBUDDY;
 							send_message(socket, APPEARED_POKEMON,content,sizeAppeared);
-							log_info(logger,"MENSAJE APPEARED CON ID %d ENVIADO AL SUSCRIPTOR %d",idMensaje ,suscripcion.idSuscriptor);
+							log_info(logger,"MENSAJE APPEARED CON ID %d ENVIADO AL SUSCRIPTOR %d",*idMensaje ,suscripcion.idSuscriptor);
 							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 							if(suscriptorEncontradoEnviado == NULL){
 								suscriptor* suscriptorEncontradoCola = list_find(appeared_admin->suscriptores,igualSuscriptor);
@@ -1206,7 +1210,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						particion->contadorLRU = CONTADORLRU;
 
 						send_message(socket, GET_POKEMON,content,sizeGet);
-						log_info(logger,"MENSAJE GET CON ID %d ENVIADO AL SUSCRIPTOR %d",idMensaje ,suscripcion.idSuscriptor);
+						log_info(logger,"MENSAJE GET CON ID %d ENVIADO AL SUSCRIPTOR %d",*idMensaje ,suscripcion.idSuscriptor);
 						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 						if(suscriptorEncontradoEnviado == NULL){
 							suscriptor* suscriptorEncontradoCola = list_find(get_admin->suscriptores,igualSuscriptor);
@@ -1261,7 +1265,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							CONTADORLRUBUDDY++;
 							particion->contadorLRU = CONTADORLRUBUDDY;
 							send_message(socket, GET_POKEMON,content,sizeGet);
-							log_info(logger,"MENSAJE GET CON ID %d ENVIADO AL SUSCRIPTOR %d",idMensaje ,suscripcion.idSuscriptor);
+							log_info(logger,"MENSAJE GET CON ID %d ENVIADO AL SUSCRIPTOR %d",*idMensaje ,suscripcion.idSuscriptor);
 							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 							if(suscriptorEncontradoEnviado == NULL){
 								suscriptor* suscriptorEncontradoCola = list_find(get_admin->suscriptores,igualSuscriptor);
@@ -1331,7 +1335,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						CONTADORLRU++;
 						particion->contadorLRU = CONTADORLRU;
 						send_message(socket, LOCALIZED_POKEMON,content,sizeLocalized);
-						log_info(logger,"MENSAJE LOCALIZED CON ID %d ENVIADO AL SUSCRIPTOR %d",idMensaje ,suscripcion.idSuscriptor);
+						log_info(logger,"MENSAJE LOCALIZED CON ID %d ENVIADO AL SUSCRIPTOR %d",*idMensaje ,suscripcion.idSuscriptor);
 						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 						if(suscriptorEncontradoEnviado == NULL){
 							suscriptor* suscriptorEncontradoCola = list_find(localized_admin->suscriptores,igualSuscriptor);
@@ -1393,7 +1397,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							CONTADORLRUBUDDY++;
 							particion->contadorLRU = CONTADORLRUBUDDY;
 							send_message(socket, LOCALIZED_POKEMON,content,sizeLocalized);
-							log_info(logger,"MENSAJE LOCALIZED CON ID %d ENVIADO AL SUSCRIPTOR %d",idMensaje ,suscripcion.idSuscriptor);
+							log_info(logger,"MENSAJE LOCALIZED CON ID %d ENVIADO AL SUSCRIPTOR %d",*idMensaje ,suscripcion.idSuscriptor);
 							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 							if(suscriptorEncontradoEnviado == NULL){
 								suscriptor* suscriptorEncontradoCola = list_find(localized_admin->suscriptores,igualSuscriptor);
@@ -1455,7 +1459,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						CONTADORLRU++;
 						particion->contadorLRU = CONTADORLRU;
 						send_message(socket, CATCH_POKEMON,content,sizeCatch);
-						log_info(logger,"MENSAJE CATCH CON ID %d ENVIADO AL SUSCRIPTOR %d",idMensaje ,suscripcion.idSuscriptor);
+						log_info(logger,"MENSAJE CATCH CON ID %d ENVIADO AL SUSCRIPTOR %d",*idMensaje ,suscripcion.idSuscriptor);
 						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 						if(suscriptorEncontradoEnviado == NULL){
 							suscriptor* suscriptorEncontradoCola = list_find(catch_admin->suscriptores,igualSuscriptor);
@@ -1510,7 +1514,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							CONTADORLRUBUDDY++;
 							particion->contadorLRU = CONTADORLRUBUDDY;
 							send_message(socket, CATCH_POKEMON,content,sizeCatch);
-							log_info(logger,"MENSAJE CATCH CON ID %d ENVIADO AL SUSCRIPTOR %d",idMensaje ,suscripcion.idSuscriptor);
+							log_info(logger,"MENSAJE CATCH CON ID %d ENVIADO AL SUSCRIPTOR %d",*idMensaje ,suscripcion.idSuscriptor);
 							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 							if(suscriptorEncontradoEnviado == NULL){
 								suscriptor* suscriptorEncontradoCola = list_find(catch_admin->suscriptores,igualSuscriptor);
@@ -1565,7 +1569,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						CONTADORLRU++;
 						particion->contadorLRU = CONTADORLRU;
 						send_message(socket, CAUGHT_POKEMON,content,sizeCaught);
-						log_info(logger,"MENSAJE CAUGHT CON ID %d ENVIADO AL SUSCRIPTOR %d",idMensaje ,suscripcion.idSuscriptor);
+						log_info(logger,"MENSAJE CAUGHT CON ID %d ENVIADO AL SUSCRIPTOR %d",*idMensaje ,suscripcion.idSuscriptor);
 						suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 						if(suscriptorEncontradoEnviado == NULL){
 							suscriptor* suscriptorEncontradoCola = list_find(caught_admin->suscriptores,igualSuscriptor);
@@ -1612,7 +1616,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 							CONTADORLRUBUDDY++;
 							particion->contadorLRU = CONTADORLRUBUDDY;
 							send_message(socket, CAUGHT_POKEMON,content,sizeCaught);
-							log_info(logger,"MENSAJE CAUGHT CON ID %d ENVIADO AL SUSCRIPTOR %d",idMensaje ,suscripcion.idSuscriptor);
+							log_info(logger,"MENSAJE CAUGHT CON ID %d ENVIADO AL SUSCRIPTOR %d",*idMensaje ,suscripcion.idSuscriptor);
 							suscriptor* suscriptorEncontradoEnviado = list_find(particion->suscriptoresMensajeEnviado,igualSuscriptor);
 							if(suscriptorEncontradoEnviado == NULL){
 								suscriptor* suscriptorEncontradoCola = list_find(caught_admin->suscriptores,igualSuscriptor);
@@ -1776,3 +1780,28 @@ char* obtenerNombreCola(id_cola id){
 	}
 }
 
+char* obtenerNombreColaHeader(t_header id){
+	switch(id){
+	case NEW_POKEMON:{
+		return "NEW";
+	}
+	case APPEARED_POKEMON:{
+		return "APPEARED";
+	}
+	case GET_POKEMON:{
+		return "GET";
+	}
+	case LOCALIZED_POKEMON:{
+		return "LOCALIZED";
+	}
+	case CATCH_POKEMON:{
+		return "CATCH";
+	}
+	case CAUGHT_POKEMON:{
+		return "CAUGHT";
+	}
+	default:{
+		return "NULL";
+	}
+	}
+}

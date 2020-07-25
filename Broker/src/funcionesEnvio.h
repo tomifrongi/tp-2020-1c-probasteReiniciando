@@ -53,6 +53,7 @@ typedef struct{
 typedef struct{
 	t_message* mensajeEnvio;
 	int socketEnvio;
+	pid_t idSuscriptor;
 }t_message_envio;
 
 #define MAX_CLIENTS 128 //Queda por definir

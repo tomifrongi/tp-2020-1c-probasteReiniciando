@@ -59,5 +59,5 @@ void* buscarIdCorrelativo(t_list* lista,uint32_t idCorrelativo);
 
 void imprimirEstadoActualMemoria(int senial);
 char* obtenerNombreCola(id_cola id);
-
+char* obtenerNombreColaHeader(t_header id);
 #endif
