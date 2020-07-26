@@ -5,8 +5,8 @@ void ejecutarModoBroker(t_list* argumentos){
 	char* ipBroker = config_get_string_value(config, "IP_BROKER");
 	int puertoBroker = config_get_int_value(config, "PUERTO_BROKER");;
 	int socketGame = connect_to_server(ipBroker, puertoBroker, NULL);
-	if(socketGame != -errno)
-		log_info(logger, "CONEXION EXITOSA CON EL BROKER");
+	if(socketGame != -errno){
+	log_info(logger, "CONEXION EXITOSA CON EL BROKER");
 
 //		imprimirOpcionesMensajeBroker();
 
@@ -33,7 +33,10 @@ void ejecutarModoBroker(t_list* argumentos){
 	memcpy(&idConf,mensajeConfirmacionID->content,sizeof(uint32_t));
 	free_t_message(mensajeConfirmacionID);
 	//log_info(logger,"ACK %d RECIBIDO DEL BROKER",idConf);
-
+	shutdown(socketGame,SHUT_RDWR);
+	}
+	else
+		log_info(logger,"ERROR AL CONECTARSE CON EL BROKER");
 }
 
 t_message obtenerMensajeBroker(int opcionMensaje,t_list* argumentos){

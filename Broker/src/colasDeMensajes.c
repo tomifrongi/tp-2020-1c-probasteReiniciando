@@ -68,61 +68,77 @@ void eliminarIdCola(uint32_t idMensaje,id_cola idCola){
 	}
 	switch(idCola){
 	case NEW:{
-		pthread_mutex_lock(&mutexQueueNew);
+		pthread_mutex_lock(mutexQueueNew);
 		list_remove_and_destroy_by_condition(new_admin->queue,igualIdMensaje,(void*) borrarElementoCola);
-		pthread_mutex_unlock(&mutexQueueNew);
+		pthread_mutex_unlock(mutexQueueNew);
 		break;
 	}
 	case APPEARED:{
-		pthread_mutex_lock(&mutexQueueAppeared);
+		pthread_mutex_lock(mutexQueueAppeared);
 		list_remove_and_destroy_by_condition(appeared_admin->queue,igualIdMensaje,(void*) borrarElementoCola);
-		pthread_mutex_unlock(&mutexQueueAppeared);
+		pthread_mutex_unlock(mutexQueueAppeared);
 		break;
 	}
 	case GET: {
-		pthread_mutex_lock(&mutexQueueGet);
+		pthread_mutex_lock(mutexQueueGet);
 		list_remove_and_destroy_by_condition(get_admin->queue,igualIdMensaje,(void*) borrarElementoCola);
-		pthread_mutex_unlock(&mutexQueueGet);
+		pthread_mutex_unlock(mutexQueueGet);
 		break;
 	}
 	case LOCALIZED: {
-		pthread_mutex_lock(&mutexQueueLocalized);
+		pthread_mutex_lock(mutexQueueLocalized);
 		list_remove_and_destroy_by_condition(localized_admin->queue,igualIdMensaje,(void*) borrarElementoCola);
-		pthread_mutex_unlock(&mutexQueueLocalized);
+		pthread_mutex_unlock(mutexQueueLocalized);
 		break;
 	}
 	case CATCH: {
-		pthread_mutex_lock(&mutexQueueCatch);
+		pthread_mutex_lock(mutexQueueCatch);
 		list_remove_and_destroy_by_condition(catch_admin->queue,igualIdMensaje,(void*) borrarElementoCola);
-		pthread_mutex_unlock(&mutexQueueCatch);
+		pthread_mutex_unlock(mutexQueueCatch);
 		break;
 	}
 	case CAUGHT: {
-		pthread_mutex_lock(&mutexQueueCaught);
+		pthread_mutex_lock(mutexQueueCaught);
 		list_remove_and_destroy_by_condition(caught_admin->queue,igualIdMensaje,(void*) borrarElementoCola);
-		pthread_mutex_unlock(&mutexQueueCaught);
+		pthread_mutex_unlock(mutexQueueCaught);
 		break;
 	}
 	}
 }
 
 void iniciarMutexs(){
-	pthread_mutex_init(&mutexId,NULL);
-	pthread_mutex_init(&mutexLogger,NULL);
-	pthread_mutex_init(&mutexQueueNew,NULL);
-	pthread_mutex_init(&mutexQueueAppeared,NULL);
-	pthread_mutex_init(&mutexQueueGet,NULL);
-	pthread_mutex_init(&mutexQueueLocalized,NULL);
-	pthread_mutex_init(&mutexQueueCatch,NULL);
-	pthread_mutex_init(&mutexQueueCaught,NULL);
-	pthread_mutex_init(&mutexQueueLocalized,NULL);
-	pthread_mutex_init(&mutexMemoria,NULL);
+	mutexId = malloc(sizeof(pthread_mutex_t));
+	mutexMemoria= malloc(sizeof(pthread_mutex_t));
 
-	pthread_mutex_init(&mutexSuscriptoresNew,NULL);
-	pthread_mutex_init(&mutexSuscriptoresAppeared,NULL);
-	pthread_mutex_init(&mutexSuscriptoresGet,NULL);
-	pthread_mutex_init(&mutexSuscriptoresLocalized,NULL);
-	pthread_mutex_init(&mutexSuscriptoresCatch,NULL);
-	pthread_mutex_init(&mutexSuscriptoresCaught,NULL);
+	mutexQueueNew = malloc(sizeof(pthread_mutex_t));
+	mutexQueueAppeared = malloc(sizeof(pthread_mutex_t));
+	mutexQueueGet= malloc(sizeof(pthread_mutex_t));
+	mutexQueueLocalized= malloc(sizeof(pthread_mutex_t));
+	mutexQueueCatch= malloc(sizeof(pthread_mutex_t));
+	mutexQueueCaught= malloc(sizeof(pthread_mutex_t));
+
+	mutexSuscriptoresNew= malloc(sizeof(pthread_mutex_t));
+	mutexSuscriptoresAppeared= malloc(sizeof(pthread_mutex_t));
+	mutexSuscriptoresGet= malloc(sizeof(pthread_mutex_t));
+	mutexSuscriptoresLocalized= malloc(sizeof(pthread_mutex_t));
+	mutexSuscriptoresCatch= malloc(sizeof(pthread_mutex_t));
+	mutexSuscriptoresCaught= malloc(sizeof(pthread_mutex_t));
+
+	pthread_mutex_init(mutexId,NULL);
+	pthread_mutex_init(mutexMemoria,NULL);
+
+	pthread_mutex_init(mutexQueueNew,NULL);
+	pthread_mutex_init(mutexQueueAppeared,NULL);
+	pthread_mutex_init(mutexQueueGet,NULL);
+	pthread_mutex_init(mutexQueueLocalized,NULL);
+	pthread_mutex_init(mutexQueueCatch,NULL);
+	pthread_mutex_init(mutexQueueCaught,NULL);
+
+	pthread_mutex_init(mutexSuscriptoresNew,NULL);
+	pthread_mutex_init(mutexSuscriptoresAppeared,NULL);
+	pthread_mutex_init(mutexSuscriptoresGet,NULL);
+	pthread_mutex_init(mutexSuscriptoresLocalized,NULL);
+	pthread_mutex_init(mutexSuscriptoresCatch,NULL);
+	pthread_mutex_init(mutexSuscriptoresCaught,NULL);
 
 }

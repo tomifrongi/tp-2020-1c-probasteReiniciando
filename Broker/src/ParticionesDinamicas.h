@@ -57,6 +57,7 @@ void consolidarMemoria();
 
 //FUNCIONES SECUNDARIAS-------------------
 void sacarBarraCero(void* mensaje,id_cola id);
+void agregarBarraCero(void* mensaje,id_cola id);
 void ordenarParticionesPorPosicion();
 void agregarParticionContigua(particion_dinamica_memoria* particion,uint32_t tamanioParticionAntigua);
 particion_dinamica_memoria* crear_particion_dinamica_memoria(particion_dinamica_memoria particion);

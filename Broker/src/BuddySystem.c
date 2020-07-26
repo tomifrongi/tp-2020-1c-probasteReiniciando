@@ -40,7 +40,7 @@ void cachearMensajeBuddy(void* mensaje,id_cola id){
 	}
 
 		//log_info(logger,"MENSAJE NO CACHEADO DEBIDO A QUE LA LONGITUD SUPERA EL TAMAÑO DE LA MEMORIA");
-
+	agregarBarraCeroBuddy(mensaje,id);
 }
 void sacarBarraCeroBuddy(void* mensaje,id_cola id){
 	switch(id){
@@ -76,6 +76,40 @@ void sacarBarraCeroBuddy(void* mensaje,id_cola id){
 
 }
 
+void agregarBarraCeroBuddy(void* mensaje,id_cola id){
+	switch(id){
+		case NEW: {
+			new_pokemon_enviar* np = mensaje;
+			np->sizeNombre +=1;
+			break;
+		}
+		case APPEARED: {
+			appeared_pokemon_enviar* ap = mensaje;
+			ap->sizeNombre +=1;
+			break;
+		}
+		case GET: {
+			get_pokemon_enviar* gp = mensaje;
+			gp->sizeNombre +=1;
+			break;
+		}
+		case LOCALIZED: {
+			localized_pokemon_enviar* lp = mensaje;
+			lp->sizeNombre +=1;
+			break;
+		}
+		case CATCH:{
+			catch_pokemon_enviar* catchp = mensaje;
+			catchp->sizeNombre +=1;
+			break;
+		}
+		case CAUGHT:{
+			break;
+		}
+		}
+
+}
+
 bool almacenarMensajeBuddy(void* mensaje,id_cola id){
 
 
@@ -87,8 +121,10 @@ bool almacenarMensajeBuddy(void* mensaje,id_cola id){
 		particion = buscarPrimerParticionLibreBuddy(tamanioMensaje);
 	else if(string_equals_ignore_case(ALGORITMO_PARTICION_LIBRE,"BF"))
 		particion = buscarMejorParticionLibreBuddy(tamanioMensaje);
-	if(particion==NULL)
+	if(particion==NULL){
+		free(mensajeSerializado);
 		return false;
+	}
 //--------------------------------------------------------------------------
 	int potenciaDeDosMasCercana = buscarPotenciaDeDosMasCercana(tamanioMensaje);
 
@@ -143,9 +179,10 @@ particion_buddy_memoria* buscarMejorParticionLibreBuddy(uint32_t tamanioMensaje)
 		}
 
 	t_list* particionesLibres = list_filter(particionesEnMemoriaBuddy,particionLibre);
-	if(list_size(particionesLibres) == 0)
+	if(list_size(particionesLibres) == 0){
+		list_destroy(particionesLibres);
 		return NULL;
-
+	}
 	bool comparadorParticionesLibres(void* particion1,void* particion2){
 		particion_buddy_memoria* particion1Casteada = particion1;
 		particion_buddy_memoria* particion2Casteada = particion2;

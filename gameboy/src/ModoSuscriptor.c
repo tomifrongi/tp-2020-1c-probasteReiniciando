@@ -7,7 +7,7 @@ void ejecutarModoSuscriptor(t_list* argumentos)
 	int puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
 	int socketGame = connect_to_server(ipBroker, puertoBroker, NULL);
 
-	if(socketGame != -errno)
+	if(socketGame != -errno){
 		log_info(logger, "CONEXION EXITOSA CON EL BROKER");
 
 
@@ -38,7 +38,10 @@ void ejecutarModoSuscriptor(t_list* argumentos)
 	pthread_create(&gameListen, NULL, handler_envios,(void*) (socketGame));
 	//pthread_detach(gameListen);
 	sleep(duracion);
-
+	shutdown(socketGame,SHUT_RDWR);
+	}
+	else
+		log_info(logger,"ERROR AL CONECTARSE CON EL BROKER");
 }
 
 void* handler_envios(void* socket){

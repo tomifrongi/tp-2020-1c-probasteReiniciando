@@ -8,13 +8,15 @@ void ejecutarModoTeam(t_list* argumentos){
 	char* ipTeam = config_get_string_value(config, "IP_TEAM");
 	int puertoTeam = config_get_int_value(config, "PUERTO_TEAM");;
 	int socketGame = connect_to_server(ipTeam, puertoTeam, NULL);
-	if(socketGame != -errno)
-		log_info(logger, "CONEXION EXITOSA CON EL PROCESO TEAM");
+	if(socketGame != -errno){
+	log_info(logger, "CONEXION EXITOSA CON EL PROCESO TEAM");
 //	while(1){
 	t_message mensajeTeam = obtenerMensajeTeam(argumentos);
 	send_message(socketGame, mensajeTeam.head,mensajeTeam.content, mensajeTeam.size);
 	free(mensajeTeam.content);
 //	}
+	}
+	log_info(logger,"ERROR AL CONECTARSE CON EL TEAM");
 }
 
 t_message obtenerMensajeTeam(t_list* argumentos){

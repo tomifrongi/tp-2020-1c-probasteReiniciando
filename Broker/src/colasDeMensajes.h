@@ -29,21 +29,25 @@ estructuraAdministrativa* caught_admin;
 estructuraAdministrativa* new_admin;
 estructuraAdministrativa* appeared_admin;
 
-pthread_mutex_t mutexQueueNew;
-pthread_mutex_t mutexQueueAppeared;
-pthread_mutex_t mutexQueueGet;
-pthread_mutex_t mutexQueueLocalized;
-pthread_mutex_t mutexQueueCatch;
-pthread_mutex_t mutexQueueCaught;
-pthread_mutex_t mutexId;
-pthread_mutex_t mutexLogger;
-pthread_mutex_t mutexMemoria;
-pthread_mutex_t mutexSuscriptoresNew;
-pthread_mutex_t mutexSuscriptoresAppeared;
-pthread_mutex_t mutexSuscriptoresGet;
-pthread_mutex_t mutexSuscriptoresLocalized;
-pthread_mutex_t mutexSuscriptoresCatch;
-pthread_mutex_t mutexSuscriptoresCaught;
+pthread_mutex_t* mutexQueueNew;
+pthread_mutex_t* mutexQueueAppeared;
+pthread_mutex_t* mutexQueueGet;
+pthread_mutex_t* mutexQueueLocalized;
+pthread_mutex_t* mutexQueueCatch;
+pthread_mutex_t* mutexQueueCaught;
+
+pthread_mutex_t* mutexId;
+
+
+
+pthread_mutex_t* mutexMemoria;
+
+pthread_mutex_t* mutexSuscriptoresNew;
+pthread_mutex_t* mutexSuscriptoresAppeared;
+pthread_mutex_t* mutexSuscriptoresGet;
+pthread_mutex_t* mutexSuscriptoresLocalized;
+pthread_mutex_t* mutexSuscriptoresCatch;
+pthread_mutex_t* mutexSuscriptoresCaught;
 
 
 

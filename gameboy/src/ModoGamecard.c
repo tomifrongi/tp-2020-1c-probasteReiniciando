@@ -4,8 +4,8 @@ void ejecutarModoGamecard(t_list* argumentos){
 	char* ipGamecard = config_get_string_value(config, "IP_GAMECARD");
 	int puertoGamecard = config_get_int_value(config, "PUERTO_GAMECARD");;
 	int socketGame = connect_to_server(ipGamecard, puertoGamecard, NULL);
-	if(socketGame != -errno)
-		log_info(logger, "CONEXION EXITOSA CON EL PROCESO GAMECARD");
+	if(socketGame != -errno){
+	log_info(logger, "CONEXION EXITOSA CON EL PROCESO GAMECARD");
 //	while(1){
 //	imprimirOpcionesMensajeGamecard();
 	int opcionMensaje;
@@ -21,6 +21,9 @@ void ejecutarModoGamecard(t_list* argumentos){
 	send_message(socketGame, mensajeGamecard.head,mensajeGamecard.content, mensajeGamecard.size);
 	free(mensajeGamecard.content);
 //	}
+	}
+	else
+		log_info(logger,"ERROR AL CONECTARSE CON EL GAMECARD");
 }
 
 t_message obtenerMensajeGamecard(int opcionMensaje,t_list* argumentos){

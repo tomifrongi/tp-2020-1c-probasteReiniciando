@@ -26,6 +26,8 @@ int main(void) {
 		inicializarMemoriaBuddy();
 
 	signal(SIGUSR1, imprimirEstadoActualMemoria);
+	if(signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+		log_info(logger,"PADRE NUESTRO QUE ESTAS EN EL CIELO, SANTIFICADO SEA TU NOMBRE. VENGA A NOSOTROS TU REINO");
 	init_broker_server();
 	return EXIT_SUCCESS;
 }
@@ -74,27 +76,30 @@ void* handler_clients(void* socket){
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
 
-				pthread_mutex_lock(&mutexId);
+				pthread_mutex_lock(mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
-				pthread_mutex_unlock(&mutexId);
+				pthread_mutex_unlock(mutexId);
 				uint32_t idMenCola = mensaje.id_mensaje;
 
 				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 				{
-					pthread_mutex_lock(&mutexMemoria);
+					pthread_mutex_lock(mutexMemoria);
 					cachearMensaje(&mensaje,NEW);
-					pthread_mutex_unlock(&mutexMemoria);
+					pthread_mutex_unlock(mutexMemoria);
 				}
 
 				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 				{
-					pthread_mutex_lock(&mutexMemoria);
+					pthread_mutex_lock(mutexMemoria);
 					cachearMensajeBuddy(&mensaje,NEW);
-					pthread_mutex_unlock(&mutexMemoria);
+					pthread_mutex_unlock(mutexMemoria);
 				}
 
+				pthread_mutex_lock(mutexSuscriptoresNew);
 				int sizeCola = list_size(new_admin->suscriptores);
+				pthread_mutex_unlock(mutexSuscriptoresNew);
+
 				int indice = 0;
 				while(indice<sizeCola){
 					t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
@@ -108,59 +113,59 @@ void* handler_clients(void* socket){
 					mensajeAEnviar->mensajeEnvio->content = envio;
 					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
 
-					pthread_mutex_lock(&mutexSuscriptoresNew);
+					pthread_mutex_lock(mutexSuscriptoresNew);
 					suscriptor* suscriptorEnviar = list_get(new_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptorEnviar->socket;
 					mensajeAEnviar->idSuscriptor = suscriptorEnviar->idSuscriptor;
-					pthread_mutex_unlock(&mutexSuscriptoresNew);
-
+					pthread_mutex_unlock(mutexSuscriptoresNew);
+					int socketSuscriptor = mensajeAEnviar->socketEnvio;
 					pthread_t envioMensajes;
 					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
 					pthread_detach(envioMensajes);
 
 					bool mismoSocket(void* sus){
 						suscriptor* suscriptorCasteado = sus;
-						return suscriptorCasteado->socket == mensajeAEnviar->socketEnvio;
+						return suscriptorCasteado->socket == socketSuscriptor;
 					}
 
 					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 					{
-						pthread_mutex_lock(&mutexMemoria);
+						pthread_mutex_lock(mutexMemoria);
 						particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
-						pthread_mutex_lock(&mutexQueueNew);
+						pthread_mutex_lock(mutexQueueNew);
 						suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
 //						suscriptor subAux;
 //						subAux.idSuscriptor = sub->idSuscriptor;
 //						subAux.socket = sub->socket;
 //						suscriptor* subAuxCreado = crearSuscriptor(subAux);
 						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-						pthread_mutex_unlock(&mutexQueueNew);
-						pthread_mutex_unlock(&mutexMemoria);
+						pthread_mutex_unlock(mutexQueueNew);
+						pthread_mutex_unlock(mutexMemoria);
 
 					}
 
 					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 					{
-						pthread_mutex_lock(&mutexMemoria);
+						pthread_mutex_lock(mutexMemoria);
 						particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
-						pthread_mutex_lock(&mutexQueueNew);
+						pthread_mutex_lock(mutexQueueNew);
 						suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
 						suscriptor subAux;
 						subAux.idSuscriptor = sub->idSuscriptor;
 						subAux.socket = sub->socket;
 						suscriptor* subAuxCreado = crearSuscriptor(subAux);
 						list_add(particionMenEnv->suscriptoresMensajeEnviado,subAuxCreado);
-						pthread_mutex_unlock(&mutexQueueNew);
-						pthread_mutex_unlock(&mutexMemoria);
+						pthread_mutex_unlock(mutexQueueNew);
+						pthread_mutex_unlock(mutexMemoria);
 					}
 
 					indice++;
 				}
 
-				pthread_mutex_lock(&mutexQueueNew);
+				pthread_mutex_lock(mutexQueueNew);
 				uint32_t* idNuevo = crearElementoCola(idMenCola);
 				list_add(new_admin->queue,idNuevo);
-				pthread_mutex_unlock(&mutexQueueNew);
+				pthread_mutex_unlock(mutexQueueNew);
 
 				enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
@@ -187,14 +192,14 @@ void* handler_clients(void* socket){
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 
-				pthread_mutex_lock(&mutexId);
+				pthread_mutex_lock(mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
-				pthread_mutex_unlock(&mutexId);
+				pthread_mutex_unlock(mutexId);
 
 
 				//TODO podriamos cambiar este mutex de aca
-				pthread_mutex_lock(&mutexQueueAppeared);
+				pthread_mutex_lock(mutexQueueAppeared);
 				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
 
 
@@ -203,21 +208,22 @@ void* handler_clients(void* socket){
 					list_add(idsCorrelativosAppeared,idCorrelativoLista);
 					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 					{
-						pthread_mutex_lock(&mutexMemoria);
+						pthread_mutex_lock(mutexMemoria);
 						cachearMensaje(&mensaje,APPEARED);
-						pthread_mutex_unlock(&mutexMemoria);
+						pthread_mutex_unlock(mutexMemoria);
 					}
 
 					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 					{
-						pthread_mutex_lock(&mutexMemoria);
+						pthread_mutex_lock(mutexMemoria);
 						cachearMensajeBuddy(&mensaje,APPEARED);
-						pthread_mutex_unlock(&mutexMemoria);
+						pthread_mutex_unlock(mutexMemoria);
 					}
 					uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
 					list_add(appeared_admin->queue,idNuevo);
-
+					pthread_mutex_lock(mutexSuscriptoresAppeared);
 					int sizeCola = list_size(appeared_admin->suscriptores);
+					pthread_mutex_unlock(mutexSuscriptoresAppeared);
 					int indice = 0;
 					while(indice<sizeCola){
 						t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
@@ -231,44 +237,44 @@ void* handler_clients(void* socket){
 						mensajeAEnviar->mensajeEnvio->content = envio;
 						mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
 
-						pthread_mutex_lock(&mutexSuscriptoresAppeared);
+						pthread_mutex_lock(mutexSuscriptoresAppeared);
 						suscriptor* suscriptorEnviar = list_get(appeared_admin->suscriptores,indice);
 						mensajeAEnviar->socketEnvio = suscriptorEnviar->socket;
 						mensajeAEnviar->idSuscriptor = suscriptorEnviar->idSuscriptor;
-						pthread_mutex_unlock(&mutexSuscriptoresAppeared);
-
+						pthread_mutex_unlock(mutexSuscriptoresAppeared);
+						int socketSuscriptor = mensajeAEnviar->socketEnvio;
 						pthread_t envioMensajes;
 						pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
 						pthread_detach(envioMensajes);
 
 						bool mismoSocket(void* sus){
 							suscriptor* suscriptorCasteado = sus;
-							return suscriptorCasteado->socket == suscriptorEnviar->socket;
+							return suscriptorCasteado->socket == socketSuscriptor;
 						}
 
 						if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 						{
-							pthread_mutex_lock(&mutexMemoria);
+							pthread_mutex_lock(mutexMemoria);
 							particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
 							suscriptor* sub = list_find(appeared_admin->suscriptores,mismoSocket);
 							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-							pthread_mutex_unlock(&mutexMemoria);
+							pthread_mutex_unlock(mutexMemoria);
 
 						}
 
 						else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 						{
-							pthread_mutex_lock(&mutexMemoria);
+							pthread_mutex_lock(mutexMemoria);
 							particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
 							suscriptor* sub = list_find(appeared_admin->suscriptores,mismoSocket);
 							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-							pthread_mutex_unlock(&mutexMemoria);
+							pthread_mutex_unlock(mutexMemoria);
 						}
 						indice++;
 					}
 
 				}
-				pthread_mutex_unlock(&mutexQueueAppeared);
+				pthread_mutex_unlock(mutexQueueAppeared);
 
 
 
@@ -296,26 +302,27 @@ void* handler_clients(void* socket){
 				aux += sizeof(uint32_t);
 				memcpy(&mensaje.posicionEjeY,aux,sizeof(uint32_t));
 
-				pthread_mutex_lock(&mutexId);
+				pthread_mutex_lock(mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
-				pthread_mutex_unlock(&mutexId);
+				pthread_mutex_unlock(mutexId);
 
+				pthread_mutex_lock(mutexSuscriptoresCatch);
 				int sizeCola = list_size(catch_admin->suscriptores);
-
+				pthread_mutex_unlock(mutexSuscriptoresCatch);
 
 				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 				{
-					pthread_mutex_lock(&mutexMemoria);
+					pthread_mutex_lock(mutexMemoria);
 					cachearMensaje(&mensaje,CATCH);
-					pthread_mutex_unlock(&mutexMemoria);
+					pthread_mutex_unlock(mutexMemoria);
 				}
 
 				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 				{
-					pthread_mutex_lock(&mutexMemoria);
+					pthread_mutex_lock(mutexMemoria);
 					cachearMensajeBuddy(&mensaje,CATCH);
-					pthread_mutex_unlock(&mutexMemoria);
+					pthread_mutex_unlock(mutexMemoria);
 				}
 
 				int indice = 0;
@@ -331,49 +338,51 @@ void* handler_clients(void* socket){
 					mensajeAEnviar->mensajeEnvio->content = envio;
 					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
 
-					pthread_mutex_lock(&mutexSuscriptoresCatch);
+					pthread_mutex_lock(mutexSuscriptoresCatch);
 					suscriptor* suscriptorEnvio = list_get(catch_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptorEnvio->socket;
 					mensajeAEnviar->idSuscriptor = suscriptorEnvio->idSuscriptor;
-					pthread_mutex_unlock(&mutexSuscriptoresCatch);
+					pthread_mutex_unlock(mutexSuscriptoresCatch);
+					int socketSuscriptor = mensajeAEnviar->socketEnvio;
 
 					pthread_t envioMensajes;
 					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
 					pthread_detach(envioMensajes);
 					bool mismoSocket(void* sus){
 						suscriptor* suscriptorCasteado = sus;
-						return suscriptorCasteado->socket == suscriptorEnvio->socket;
+						return suscriptorCasteado->socket == socketSuscriptor;
 					}
 
 					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 					{
-						pthread_mutex_lock(&mutexMemoria);
+						pthread_mutex_lock(mutexMemoria);
 						particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
-						pthread_mutex_lock(&mutexQueueCatch);
+						pthread_mutex_lock(mutexQueueCatch);
 						suscriptor* sub = list_find(catch_admin->suscriptores,mismoSocket);
 						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-						pthread_mutex_unlock(&mutexQueueCatch);
-						pthread_mutex_unlock(&mutexMemoria);
+						pthread_mutex_unlock(mutexQueueCatch);
+						pthread_mutex_unlock(mutexMemoria);
 
 					}
 
 					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 					{
-						pthread_mutex_lock(&mutexMemoria);
+						pthread_mutex_lock(mutexMemoria);
 						particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
-						pthread_mutex_lock(&mutexQueueCatch);
+						pthread_mutex_lock(mutexQueueCatch);
 						suscriptor* sub = list_find(catch_admin->suscriptores,mismoSocket);
-						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-						pthread_mutex_unlock(&mutexQueueCatch);
-						pthread_mutex_unlock(&mutexMemoria);
+						if(particionMenEnv != NULL)
+							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
+						pthread_mutex_unlock(mutexQueueCatch);
+						pthread_mutex_unlock(mutexMemoria);
 					}
 					indice++;
 				}
 
-				pthread_mutex_lock(&mutexQueueCatch);
+				pthread_mutex_lock(mutexQueueCatch);
 				uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
 				list_add(catch_admin->queue,idNuevo);
-				pthread_mutex_unlock(&mutexQueueCatch);
+				pthread_mutex_unlock(mutexQueueCatch);
 				enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 				free(mensaje.nombrePokemon);
 				break;
@@ -391,35 +400,37 @@ void* handler_clients(void* socket){
 				memcpy(&mensaje.pokemonAtrapado,aux,sizeof(uint32_t));
 				aux += sizeof(uint32_t);
 
-				pthread_mutex_lock(&mutexId);
+				pthread_mutex_lock(mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
-				pthread_mutex_unlock(&mutexId);
+				pthread_mutex_unlock(mutexId);
 
 
 
-				pthread_mutex_lock(&mutexQueueCaught);
+				pthread_mutex_lock(mutexQueueCaught);
 				if(buscarIdCorrelativo(idsCorrelativosCaught,mensaje.idCorrelativo)==NULL){
 					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
 					*idCorrelativoLista = mensaje.idCorrelativo;
 					list_add(idsCorrelativosCaught,idCorrelativoLista);
 					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 					{
-						pthread_mutex_lock(&mutexMemoria);
+						pthread_mutex_lock(mutexMemoria);
 						cachearMensaje(&mensaje,CAUGHT);
-						pthread_mutex_unlock(&mutexMemoria);
+						pthread_mutex_unlock(mutexMemoria);
 					}
 
 					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 					{
-						pthread_mutex_lock(&mutexMemoria);
+						pthread_mutex_lock(mutexMemoria);
 						cachearMensajeBuddy(&mensaje,CAUGHT);
-						pthread_mutex_unlock(&mutexMemoria);
+						pthread_mutex_unlock(mutexMemoria);
 					}
 
 					uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
 					list_add(caught_admin->queue,idNuevo);
+					pthread_mutex_lock(mutexSuscriptoresCaught);
 					int sizeCola = list_size(caught_admin->suscriptores);
+					pthread_mutex_unlock(mutexSuscriptoresCaught);
 					int indice = 0;
 					while(indice<sizeCola){
 						t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
@@ -433,47 +444,49 @@ void* handler_clients(void* socket){
 						mensajeAEnviar->mensajeEnvio->content = envio;
 						mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
 
-						pthread_mutex_lock(&mutexSuscriptoresCaught);
+						pthread_mutex_lock(mutexSuscriptoresCaught);
 						suscriptor* suscriptorEnvio = list_get(caught_admin->suscriptores,indice);
 						mensajeAEnviar->socketEnvio = suscriptorEnvio->socket;
 						mensajeAEnviar->idSuscriptor = suscriptorEnvio->idSuscriptor;
-						pthread_mutex_unlock(&mutexSuscriptoresCaught);
-
+						pthread_mutex_unlock(mutexSuscriptoresCaught);
+						int socketSuscriptor = mensajeAEnviar->socketEnvio;
 						pthread_t envioMensajes;
 						pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
 						pthread_detach(envioMensajes);
 
 						bool mismoSocket(void* sus){
 							suscriptor* suscriptorCasteado = sus;
-							return suscriptorCasteado->socket == suscriptorEnvio->socket;;
+							return suscriptorCasteado->socket == socketSuscriptor;
 						}
 
 						if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 						{
-							pthread_mutex_lock(&mutexMemoria);
+							pthread_mutex_lock(mutexMemoria);
 							particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
 
 							suscriptor* sub = list_find(caught_admin->suscriptores,mismoSocket);
-							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
+							if(sub != NULL)
+								list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 
-							pthread_mutex_unlock(&mutexMemoria);
+							pthread_mutex_unlock(mutexMemoria);
 
 						}
 
 						else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 						{
-							pthread_mutex_lock(&mutexMemoria);
+							pthread_mutex_lock(mutexMemoria);
 							particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
 
 							suscriptor* sub = list_find(caught_admin->suscriptores,mismoSocket);
-							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
+							if(sub != NULL)
+								list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 
-							pthread_mutex_unlock(&mutexMemoria);
+							pthread_mutex_unlock(mutexMemoria);
 						}
 						indice++;
 					}
 				}
-				pthread_mutex_unlock(&mutexQueueCaught);
+				pthread_mutex_unlock(mutexQueueCaught);
 				enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
 				break;
@@ -491,28 +504,29 @@ void* handler_clients(void* socket){
 				mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
 				memcpy(mensaje.nombrePokemon,aux,mensaje.sizeNombre);
 
-				pthread_mutex_lock(&mutexId);
+				pthread_mutex_lock(mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
-				pthread_mutex_unlock(&mutexId);
+				pthread_mutex_unlock(mutexId);
 
 
 
 				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 				{
-					pthread_mutex_lock(&mutexMemoria);
+					pthread_mutex_lock(mutexMemoria);
 					cachearMensaje(&mensaje,GET);
-					pthread_mutex_unlock(&mutexMemoria);
+					pthread_mutex_unlock(mutexMemoria);
 				}
 
 				else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 				{
-					pthread_mutex_lock(&mutexMemoria);
+					pthread_mutex_lock(mutexMemoria);
 					cachearMensajeBuddy(&mensaje,GET);
-					pthread_mutex_unlock(&mutexMemoria);
+					pthread_mutex_unlock(mutexMemoria);
 				}
-
+				pthread_mutex_lock(mutexSuscriptoresGet);
 				int sizeCola = list_size(get_admin->suscriptores);
+				pthread_mutex_unlock(mutexSuscriptoresGet);
 				int indice = 0;
 				while(indice<sizeCola){
 					t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
@@ -526,49 +540,49 @@ void* handler_clients(void* socket){
 					mensajeAEnviar->mensajeEnvio->content = envio;
 					mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
 
-					pthread_mutex_lock(&mutexSuscriptoresGet);
+					pthread_mutex_lock(mutexSuscriptoresGet);
 					suscriptor* suscriptorEnviar = list_get(get_admin->suscriptores,indice);
 					mensajeAEnviar->socketEnvio = suscriptorEnviar->socket;
 					mensajeAEnviar->idSuscriptor = suscriptorEnviar->idSuscriptor;
-					pthread_mutex_unlock(&mutexSuscriptoresGet);
-
+					pthread_mutex_unlock(mutexSuscriptoresGet);
+					int socketSuscriptor = mensajeAEnviar->socketEnvio;
 					pthread_t envioMensajes;
 					pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
 					pthread_detach(envioMensajes);
 					bool mismoSocket(void* sus){
 						suscriptor* suscriptorCasteado = sus;
-						return suscriptorCasteado->socket == suscriptorEnviar->socket;;
+						return suscriptorCasteado->socket == socketSuscriptor;
 					}
 
 					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 					{
-						pthread_mutex_lock(&mutexMemoria);
+						pthread_mutex_lock(mutexMemoria);
 						particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
-						pthread_mutex_lock(&mutexQueueGet);
+						pthread_mutex_lock(mutexQueueGet);
 						suscriptor* sub = list_find(get_admin->suscriptores,mismoSocket);
 						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-						pthread_mutex_unlock(&mutexQueueGet);
-						pthread_mutex_unlock(&mutexMemoria);
+						pthread_mutex_unlock(mutexQueueGet);
+						pthread_mutex_unlock(mutexMemoria);
 
 					}
 
 					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 					{
-						pthread_mutex_lock(&mutexMemoria);
+						pthread_mutex_lock(mutexMemoria);
 						particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
-						pthread_mutex_lock(&mutexQueueGet);
+						pthread_mutex_lock(mutexQueueGet);
 						suscriptor* sub = list_find(get_admin->suscriptores,mismoSocket);
 						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-						pthread_mutex_unlock(&mutexQueueGet);
-						pthread_mutex_unlock(&mutexMemoria);
+						pthread_mutex_unlock(mutexQueueGet);
+						pthread_mutex_unlock(mutexMemoria);
 					}
 					indice++;
 				}
 
-				pthread_mutex_lock(&mutexQueueGet);
+				pthread_mutex_lock(mutexQueueGet);
 				uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
 				list_add(get_admin->queue,idNuevo);
-				pthread_mutex_unlock(&mutexQueueGet);
+				pthread_mutex_unlock(mutexQueueGet);
 				free(mensaje.nombrePokemon);
 				enviarConfirmacion(mensaje.id_mensaje,broker_sock);
 
@@ -596,34 +610,36 @@ void* handler_clients(void* socket){
 				mensaje.posiciones = malloc(tamanioLista);
 				memcpy(mensaje.posiciones,aux,tamanioLista);
 
-				pthread_mutex_lock(&mutexId);
+				pthread_mutex_lock(mutexId);
 				mensaje.id_mensaje = ID_INICIAL;
 				ID_INICIAL ++;
-				pthread_mutex_unlock(&mutexId);
+				pthread_mutex_unlock(mutexId);
 
 
 
-				pthread_mutex_lock(&mutexQueueLocalized);
+				pthread_mutex_lock(mutexQueueLocalized);
 				if(buscarIdCorrelativo(idsCorrelativosLocalized,mensaje.idCorrelativo)==NULL){
 					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
 					*idCorrelativoLista = mensaje.idCorrelativo;
 					list_add(idsCorrelativosLocalized,idCorrelativoLista);
 					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 					{
-						pthread_mutex_lock(&mutexMemoria);
+						pthread_mutex_lock(mutexMemoria);
 						cachearMensaje(&mensaje,LOCALIZED);
-						pthread_mutex_unlock(&mutexMemoria);
+						pthread_mutex_unlock(mutexMemoria);
 					}
 
 					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 					{
-						pthread_mutex_lock(&mutexMemoria);
+						pthread_mutex_lock(mutexMemoria);
 						cachearMensajeBuddy(&mensaje,LOCALIZED);
-						pthread_mutex_unlock(&mutexMemoria);
+						pthread_mutex_unlock(mutexMemoria);
 					}
 					uint32_t* idNuevo = crearElementoCola(mensaje.id_mensaje);
 					list_add(localized_admin->queue,idNuevo);
+					pthread_mutex_lock(mutexSuscriptoresLocalized);
 					int sizeCola = list_size(localized_admin->suscriptores);
+					pthread_mutex_unlock(mutexSuscriptoresLocalized);
 					int indice = 0;
 					while(indice<sizeCola){
 						t_message_envio* mensajeAEnviar = malloc(sizeof(t_message_envio));
@@ -637,47 +653,47 @@ void* handler_clients(void* socket){
 						mensajeAEnviar->mensajeEnvio->content = envio;
 						mensajeAEnviar->mensajeEnvio->size = message->size + sizeof(uint32_t);
 
-						pthread_mutex_lock(&mutexSuscriptoresLocalized);
+						pthread_mutex_lock(mutexSuscriptoresLocalized);
 						suscriptor* suscriptorEnviar = list_get(localized_admin->suscriptores,indice);
 
 						mensajeAEnviar->socketEnvio = suscriptorEnviar->socket;
 						mensajeAEnviar->idSuscriptor = suscriptorEnviar->idSuscriptor;
-						pthread_mutex_unlock(&mutexSuscriptoresLocalized);
-
+						pthread_mutex_unlock(mutexSuscriptoresLocalized);
+						int socketSuscriptor = mensajeAEnviar->socketEnvio;
 						pthread_t envioMensajes;
 						pthread_create(&envioMensajes, NULL, handler_envio_mensajes,(void*) (mensajeAEnviar));
 						pthread_detach(envioMensajes);
 						bool mismoSocket(void* sus){
 							suscriptor* suscriptorCasteado = sus;
-							return suscriptorCasteado->socket == suscriptorEnviar->socket;;
+							return suscriptorCasteado->socket == socketSuscriptor;
 						}
 
 						if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 						{
-							pthread_mutex_lock(&mutexMemoria);
+							pthread_mutex_lock(mutexMemoria);
 							particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
 
 							suscriptor* sub = list_find(localized_admin->suscriptores,mismoSocket);
 							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 
-							pthread_mutex_unlock(&mutexMemoria);
+							pthread_mutex_unlock(mutexMemoria);
 
 						}
 
 						else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 						{
-							pthread_mutex_lock(&mutexMemoria);
+							pthread_mutex_lock(mutexMemoria);
 							particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
 
 							suscriptor* sub = list_find(localized_admin->suscriptores,mismoSocket);
 							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 
-							pthread_mutex_unlock(&mutexMemoria);
+							pthread_mutex_unlock(mutexMemoria);
 						}
 						indice++;
 					}
 				}
-				pthread_mutex_unlock(&mutexQueueLocalized);
+				pthread_mutex_unlock(mutexQueueLocalized);
 				free(mensaje.nombrePokemon);
 				free(mensaje.posiciones);
 
@@ -694,9 +710,9 @@ void* handler_clients(void* socket){
 				char* nombreCola = obtenerNombreCola(mensajeSuscripcion.idCola);
 				log_info(logger,"NUEVA SUSCRIPCION DEL PROCESO %d a la cola %s",mensajeSuscripcion.idSuscriptor,nombreCola);
 				agregarSuscripcion(mensajeSuscripcion,broker_sock);
-				pthread_mutex_lock(&mutexMemoria);
+				pthread_mutex_lock(mutexMemoria);
 				enviarUltimosMensajesRecibidos(mensajeSuscripcion,broker_sock);
-				pthread_mutex_unlock(&mutexMemoria);
+				pthread_mutex_unlock(mutexMemoria);
 
 				break;
 			}
@@ -709,7 +725,7 @@ void* handler_clients(void* socket){
 				memcpy(&mensajeConf.idSuscriptor,aux,sizeof(pid_t));
 				log_info(logger,"ACK RECIBIDO DEL SUSCRIPTOR %d REFERENCIANDO AL MENSAJE %d",mensajeConf.idSuscriptor,mensajeConf.id_mensaje);
 
-				pthread_mutex_lock(&mutexMemoria);
+				pthread_mutex_lock(mutexMemoria);
 				if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES")){
 					particion_dinamica_memoria* particionConfirmacion = encontrarParticionDinamicaPorID(mensajeConf.id_mensaje);
 					if(particionConfirmacion != NULL){
@@ -737,7 +753,7 @@ void* handler_clients(void* socket){
 					}
 
 				}
-				pthread_mutex_unlock(&mutexMemoria);
+				pthread_mutex_unlock(mutexMemoria);
 
 				break;
 			}
@@ -783,10 +799,11 @@ void* handler_envio_mensajes(void* mensajeAEnviar){
 }
 void enviarConfirmacion(uint32_t id, int broker_sock){
 
-	void* content = malloc(sizeof(id_mensaje));
+	void* content = malloc(sizeof(uint32_t));
 	size_t size = sizeof(uint32_t);
 	memcpy(content,&id,sizeof(uint32_t));
 	send_message(broker_sock, CONFIRMACION,content,size);
+	free(content);
 }
 
 suscriptor* buscarSuscriptor(estructuraAdministrativa* estAdm,pid_t idSuscriptor){
@@ -804,7 +821,7 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 	switch(mensajeSuscripcion.idCola){
 	case NEW:{
 		suscriptor* suscriptorEncontrado;
-		pthread_mutex_lock(&mutexSuscriptoresNew);
+		pthread_mutex_lock(mutexSuscriptoresNew);
 		suscriptorEncontrado = buscarSuscriptor(new_admin,mensajeSuscripcion.idSuscriptor);
 		if(suscriptorEncontrado == NULL)
 		{
@@ -817,11 +834,11 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 		else{
 			suscriptorEncontrado->socket = broker_sock;
 		}
-		pthread_mutex_unlock(&mutexSuscriptoresNew);
+		pthread_mutex_unlock(mutexSuscriptoresNew);
 		break;
 	}
 	case APPEARED:{
-		pthread_mutex_lock(&mutexSuscriptoresAppeared);
+		pthread_mutex_lock(mutexSuscriptoresAppeared);
 		suscriptor* suscriptorEncontrado = buscarSuscriptor(appeared_admin,mensajeSuscripcion.idSuscriptor);
 		if(suscriptorEncontrado == NULL)
 		{
@@ -834,11 +851,11 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 		else{
 			suscriptorEncontrado->socket = broker_sock;
 		}
-		pthread_mutex_unlock(&mutexSuscriptoresAppeared);
+		pthread_mutex_unlock(mutexSuscriptoresAppeared);
 		break;
 	}
 	case GET:{
-		pthread_mutex_lock(&mutexSuscriptoresGet);
+		pthread_mutex_lock(mutexSuscriptoresGet);
 		suscriptor* suscriptorEncontrado = buscarSuscriptor(get_admin,mensajeSuscripcion.idSuscriptor);
 		if(suscriptorEncontrado == NULL)
 		{
@@ -851,12 +868,12 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 		else{
 			suscriptorEncontrado->socket = broker_sock;
 		}
-		pthread_mutex_unlock(&mutexSuscriptoresGet);
+		pthread_mutex_unlock(mutexSuscriptoresGet);
 		break;
 	}
 
 	case LOCALIZED:{
-		pthread_mutex_lock(&mutexSuscriptoresLocalized);
+		pthread_mutex_lock(mutexSuscriptoresLocalized);
 		suscriptor* suscriptorEncontrado = buscarSuscriptor(localized_admin,mensajeSuscripcion.idSuscriptor);
 		if(suscriptorEncontrado == NULL)
 		{
@@ -869,11 +886,11 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 		else{
 			suscriptorEncontrado->socket = broker_sock;
 		}
-		pthread_mutex_unlock(&mutexSuscriptoresLocalized);
+		pthread_mutex_unlock(mutexSuscriptoresLocalized);
 		break;
 	}
 	case CATCH:{
-		pthread_mutex_lock(&mutexSuscriptoresCatch);
+		pthread_mutex_lock(mutexSuscriptoresCatch);
 		suscriptor* suscriptorEncontrado = buscarSuscriptor(catch_admin,mensajeSuscripcion.idSuscriptor);
 		if(suscriptorEncontrado == NULL)
 		{
@@ -886,11 +903,11 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 		else{
 			suscriptorEncontrado->socket = broker_sock;
 		}
-		pthread_mutex_unlock(&mutexSuscriptoresCatch);
+		pthread_mutex_unlock(mutexSuscriptoresCatch);
 		break;
 	}
 	case CAUGHT:{
-		pthread_mutex_lock(&mutexSuscriptoresCaught);
+		pthread_mutex_lock(mutexSuscriptoresCaught);
 		suscriptor* suscriptorEncontrado = buscarSuscriptor(caught_admin,mensajeSuscripcion.idSuscriptor);
 		if(suscriptorEncontrado == NULL)
 		{
@@ -903,7 +920,7 @@ void agregarSuscripcion (suscripcion mensajeSuscripcion, int broker_sock){
 		else{
 			suscriptorEncontrado->socket = broker_sock;
 		}
-		pthread_mutex_unlock(&mutexSuscriptoresCaught);
+		pthread_mutex_unlock(mutexSuscriptoresCaught);
 		break;
 	}
 	default:
@@ -916,8 +933,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 	estructuraAdministrativa* estructuraAuxiliar;
 	switch(suscripcion.idCola){
 	case NEW:{
-		pthread_mutex_lock(&mutexSuscriptoresNew);
-		pthread_mutex_lock(&mutexQueueNew);
+		pthread_mutex_lock(mutexSuscriptoresNew);
+		pthread_mutex_lock(mutexQueueNew);
 		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 		{
 			estructuraAuxiliar = new_admin;
@@ -1035,14 +1052,14 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
-		pthread_mutex_unlock(&mutexSuscriptoresNew);
-		pthread_mutex_unlock(&mutexQueueNew);
+		pthread_mutex_unlock(mutexSuscriptoresNew);
+		pthread_mutex_unlock(mutexQueueNew);
 		break;
 		}
 
 	case APPEARED:{
-		pthread_mutex_lock(&mutexSuscriptoresAppeared);
-		pthread_mutex_lock(&mutexQueueAppeared);
+		pthread_mutex_lock(mutexSuscriptoresAppeared);
+		pthread_mutex_lock(mutexQueueAppeared);
 		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 		{
 			estructuraAuxiliar = appeared_admin;
@@ -1161,14 +1178,14 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
-		pthread_mutex_unlock(&mutexSuscriptoresAppeared);
-		pthread_mutex_unlock(&mutexQueueAppeared);
+		pthread_mutex_unlock(mutexSuscriptoresAppeared);
+		pthread_mutex_unlock(mutexQueueAppeared);
 		break;
 		}
 
 	case GET:{
-		pthread_mutex_lock(&mutexSuscriptoresGet);
-		pthread_mutex_lock(&mutexQueueGet);
+		pthread_mutex_lock(mutexSuscriptoresGet);
+		pthread_mutex_lock(mutexQueueGet);
 		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 		{
 			estructuraAuxiliar = get_admin;
@@ -1278,15 +1295,15 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
-		pthread_mutex_unlock(&mutexSuscriptoresGet);
-		pthread_mutex_unlock(&mutexQueueGet);
+		pthread_mutex_unlock(mutexSuscriptoresGet);
+		pthread_mutex_unlock(mutexQueueGet);
 		break;
 		}
 
 
 	case LOCALIZED:{
-		pthread_mutex_lock(&mutexSuscriptoresLocalized);
-		pthread_mutex_lock(&mutexQueueLocalized);
+		pthread_mutex_lock(mutexSuscriptoresLocalized);
+		pthread_mutex_lock(mutexQueueLocalized);
 		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 		{
 			estructuraAuxiliar = localized_admin;
@@ -1410,14 +1427,14 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
-		pthread_mutex_unlock(&mutexSuscriptoresLocalized);
-		pthread_mutex_unlock(&mutexQueueLocalized);
+		pthread_mutex_unlock(mutexSuscriptoresLocalized);
+		pthread_mutex_unlock(mutexQueueLocalized);
 		break;
 		}
 
 	case CATCH:{
-		pthread_mutex_lock(&mutexSuscriptoresCatch);
-		pthread_mutex_lock(&mutexQueueCatch);
+		pthread_mutex_lock(mutexSuscriptoresCatch);
+		pthread_mutex_lock(mutexQueueCatch);
 		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 		{
 			estructuraAuxiliar = catch_admin;
@@ -1527,15 +1544,15 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
-		pthread_mutex_unlock(&mutexSuscriptoresCatch);
-		pthread_mutex_unlock(&mutexQueueCatch);
+		pthread_mutex_unlock(mutexSuscriptoresCatch);
+		pthread_mutex_unlock(mutexQueueCatch);
 		break;
 		}
 
 
 	case CAUGHT:{
-		pthread_mutex_lock(&mutexSuscriptoresCaught);
-		pthread_mutex_lock(&mutexQueueCaught);
+		pthread_mutex_lock(mutexSuscriptoresCaught);
+		pthread_mutex_lock(mutexQueueCaught);
 		if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 		{
 			estructuraAuxiliar = caught_admin;
@@ -1555,7 +1572,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					if (suscriptorEncontrado == NULL){
 						//ENVIAR
 						caught_pokemon_enviar cpEnviar;
-						size_t sizeCaught = sizeof(cpEnviar.id_mensaje)+sizeof(cpEnviar.idCorrelativo) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+						size_t sizeCaught = sizeof(cpEnviar.id_mensaje)+sizeof(cpEnviar.idCorrelativo) + particion->tamanioMensaje;
 						void* content = malloc(sizeCaught);
 						int bytesEscritos = 0;
 						int bytesLeidosMemoria = particion->posicionParticion;
@@ -1602,7 +1619,7 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 						if (suscriptorEncontrado == NULL){
 							//ENVIAR
 							caught_pokemon_enviar cpEnviar;
-							size_t sizeCaught = sizeof(cpEnviar.id_mensaje)+sizeof(cpEnviar.idCorrelativo) + particion->tamanioMensaje + 1;//+1 porque agrego el barra cero
+							size_t sizeCaught = sizeof(cpEnviar.id_mensaje)+sizeof(cpEnviar.idCorrelativo) + particion->tamanioMensaje;
 							void* content = malloc(sizeCaught);
 							int bytesEscritos = 0;
 							int bytesLeidosMemoria = particion->posicionParticion;
@@ -1629,8 +1646,8 @@ void enviarUltimosMensajesRecibidos(suscripcion suscripcion,int socket){
 					index++;
 				}
 			}
-		pthread_mutex_unlock(&mutexSuscriptoresCaught);
-		pthread_mutex_unlock(&mutexQueueCaught);
+		pthread_mutex_unlock(mutexSuscriptoresCaught);
+		pthread_mutex_unlock(mutexQueueCaught);
 		break;
 		}
 	}

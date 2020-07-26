@@ -537,7 +537,7 @@ void cachearMensaje(void* mensaje,id_cola id){
 	}
 
 		//log_info(logger,"MENSAJE NO CACHEADO DEBIDO A QUE LA LONGITUD SUPERA EL TAMAÑO DE LA MEMORIA");
-
+	agregarBarraCero(mensaje,id);
 }
 
 void ejecutarCicloNormal(void* mensaje,id_cola id){
@@ -627,6 +627,40 @@ void sacarBarraCero(void* mensaje,id_cola id){
 		case CATCH:{
 			catch_pokemon_enviar* catchp = mensaje;
 			catchp->sizeNombre -=1;
+			break;
+		}
+		case CAUGHT:{
+			break;
+		}
+		}
+
+}
+
+void agregarBarraCero(void* mensaje,id_cola id){
+	switch(id){
+		case NEW: {
+			new_pokemon_enviar* np = mensaje;
+			np->sizeNombre +=1;
+			break;
+		}
+		case APPEARED: {
+			appeared_pokemon_enviar* ap = mensaje;
+			ap->sizeNombre +=1;
+			break;
+		}
+		case GET: {
+			get_pokemon_enviar* gp = mensaje;
+			gp->sizeNombre +=1;
+			break;
+		}
+		case LOCALIZED: {
+			localized_pokemon_enviar* lp = mensaje;
+			lp->sizeNombre +=1;
+			break;
+		}
+		case CATCH:{
+			catch_pokemon_enviar* catchp = mensaje;
+			catchp->sizeNombre +=1;
 			break;
 		}
 		case CAUGHT:{
@@ -752,12 +786,15 @@ void compactarMemoria(){
 			particionLibre = removerPorPosicion(posicion);
 			posicion = particionOcupada->posicionParticion;
 			particionOcupada = removerPorPosicion(posicion);
-			//---------
-			//ACA ESTA EL PROBLEMA
+			void* particionAMover = malloc(particionOcupada->tamanio);
+			memcpy(particionAMover,principioMemoria+particionOcupada->posicionParticion,particionOcupada->tamanio);
 			particionOcupada->posicionParticion = particionLibre->posicionParticion; //la particion ocupada pasa a ser la no adyacente
 			particionLibre->posicionParticion = particionOcupada->posicionParticion + particionOcupada->tamanio; //la particion libre pasa a ser la adyacente
-			//---------
-			memcpy(principioMemoria+(particionOcupada->posicionParticion),principioMemoria+(particionLibre->posicionParticion),particionOcupada->tamanioMensaje);
+
+
+
+			memcpy(principioMemoria+(particionOcupada->posicionParticion),particionAMover,particionOcupada->tamanioMensaje);
+			free(particionAMover);
 
 			list_add(particionesEnMemoria,particionLibre);
 			list_add(particionesEnMemoria,particionOcupada);
