@@ -31,6 +31,7 @@ caught_pokemon deserializarCaught(void* content){
 	bytesLeidos+=(sizeof(mensaje.idCorrelativo));
 	memcpy(&mensaje.pokemonAtrapado,content+bytesLeidos,sizeof(mensaje.pokemonAtrapado));
 
+
 	return mensaje;
 }
 

@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <commons/collections/list.h>
 
 //MENSAJES-------------------------------------------------------------
@@ -15,7 +16,7 @@
 //DESCRIPCION: informar al broker a cual cola se quiere suscrbir el modulo
 
 typedef enum {
-	NEW,
+	NEWW, //con doble w porque ya hay un enum igual
 	APPEARED,
 	GET,
 	LOCALIZED,

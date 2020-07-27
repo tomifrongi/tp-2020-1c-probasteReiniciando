@@ -119,6 +119,7 @@ int connect_to_server(char* host,int port, void*(*callback)()) {
 }
 
 int init_server(int port){
+	if(signal(SIGPIPE, SIG_IGN) == SIG_ERR){}
 	int  socket, val = 1;
 	struct sockaddr_in servaddr;
 
@@ -154,123 +155,275 @@ int create_socket(){
 //------------------------
 
 
+//+CONEXIONES-------------
+
+
+void* handler_broker(void *cola){
+	uint32_t* colaSusc = cola;
+	uint32_t colaSuscriptor = *colaSusc;
+	while(1){
+		int socketTeam = connect_to_server(IP_BROKER, PUERTO_BROKER, NULL);
+		if(socketTeam != -errno){
+			log_info(log_team_oficial, "CONEXION EXITOSA CON EL BROKER");
+			t_message mensaje;
+			suscripcion content;
+			content.idSuscriptor= getpid();
+			content.idCola = colaSuscriptor;
+			mensaje.content = serializarSuscripcion(content);
+			mensaje.head = SUSCRIPCION;
+			mensaje.size = sizeof(suscripcion);
+			send_message(socketTeam, mensaje.head,mensaje.content, mensaje.size);
+			free(mensaje.content);
+			handler_suscripciones(socketTeam);
+		}
+		sleep(TIEMPO_RECONEXION);
+	}
+	return NULL;
+}
+
+void escuchar_mensajes_gameboy(int listener_socket){
+	log_info(log_team_oficial, "Servidor levantado! Escuchando en %i",PUERTO_TEAM);
+		struct sockaddr team_cli;
+		socklen_t len = sizeof(team_cli);
+		do {
+			int team_sock = accept(listener_socket, &team_cli, &len);
+			if (team_sock > 0) {
+				log_info(log_team_oficial, "NUEVA CONEXIÓN");
+				pthread_t team_cli_thread;
+				pthread_create(&team_cli_thread, NULL, handler_appeared,
+						(void*) (team_sock));
+				pthread_detach(team_cli_thread);
+			} else {
+				log_error(log_team_oficial, "Error aceptando conexiones: %s", strerror(errno));
+			}
+		} while (1);
+}
+
+void* handler_appeared(void* socket){
+	int socketEnvio = (int) (socket);
+	bool executing = true;
+	while(executing){
+		t_message* message = recv_message(socketEnvio);
+		if(message->head == APPEARED_POKEMON){
+			appeared_pokemon mensaje;
+			mensaje = deserializarAppeared(message->content);
+			suscripcion mensajeACK;
+			mensajeACK.idCola = APPEARED;
+			mensajeACK.idSuscriptor = getpid();
+			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
+			send_message(socketEnvio,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
+			free(mensajeACKSerializado);
+
+			//TODO hacer algo con este mensaje
+			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO DEL GAMEBOY");
+			log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje.idCorrelativo);
+			log_info(log_team_oficial,"ID MENSAJE: %d",mensaje.id_mensaje);
+			log_info(log_team_oficial,"SIZE NOMBRE: %d",mensaje.sizeNombre);
+			log_info(log_team_oficial,"NOMBRE: %s",mensaje.nombrePokemon);
+			log_info(log_team_oficial,"POSICION EJE X: %d",mensaje.posicionEjeX);
+			log_info(log_team_oficial,"POSICION EJE Y: %d",mensaje.posicionEjeY);
 
 
 
+		}
+		free_t_message(message);
+	}
+	return NULL;
+}
 
+void handler_suscripciones(int socketTeam){
 
+	while(1){
+		t_message* message = recv_message(socketTeam);
 
+		switch(message->head){
+		case APPEARED_POKEMON:{
+			appeared_pokemon mensaje = deserializarAppeared(message->content);
+			suscripcion mensajeACK;
+			mensajeACK.idCola = APPEARED;
+			mensajeACK.idSuscriptor = getpid();
+			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
+			send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
+			free(mensajeACKSerializado);
+			//TODO hacer algo con el mensaje
+			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO DEL BROKER");
+			log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje.idCorrelativo);
+			log_info(log_team_oficial,"ID MENSAJE: %d",mensaje.id_mensaje);
+			log_info(log_team_oficial,"SIZE NOMBRE: %d",mensaje.sizeNombre);
+			log_info(log_team_oficial,"NOMBRE: %s",mensaje.nombrePokemon);
+			log_info(log_team_oficial,"POSICION EJE X: %d",mensaje.posicionEjeX);
+			log_info(log_team_oficial,"POSICION EJE Y: %d",mensaje.posicionEjeY);
+			break;
+		}
+
+		case LOCALIZED_POKEMON:{
+			localized_pokemon mensaje = deserializarLocalized(message->content);
+			suscripcion mensajeACK;
+			mensajeACK.idCola = LOCALIZED;
+			mensajeACK.idSuscriptor = getpid();
+			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
+			send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
+			free(mensajeACKSerializado);
+			//TODO hacer algo con el mensaje
+			log_info(log_team_oficial,"MENSAJE LOCALIZED RECIBIDO DEL BROKER");
+			log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje.idCorrelativo);
+			log_info(log_team_oficial,"ID MENSAJE: %d",mensaje.id_mensaje);
+			log_info(log_team_oficial,"SIZE NOMBRE: %d",mensaje.sizeNombre);
+			log_info(log_team_oficial,"NOMBRE: %s",mensaje.nombrePokemon);
+			log_info(log_team_oficial,"CANTIDAD DE POSICIONES: %d",mensaje.cantidadPosiciones);
+
+			void logearPosiciones(void* posicion){
+				coordenada* posicionCasteada = posicion;
+				log_info(log_team_oficial,"POSICION EJE X: %d",posicionCasteada->posicionEjeX);
+				log_info(log_team_oficial,"POSICION EJE Y: %d",posicionCasteada->posicionEjeY);
+			}
+			list_iterate(mensaje.posiciones,logearPosiciones);
+
+			break;
+
+		}
+
+		case CAUGHT_POKEMON:{
+			caught_pokemon mensaje = deserializarCaught(message->content);
+			suscripcion mensajeACK;
+			mensajeACK.idCola = CAUGHT;
+			mensajeACK.idSuscriptor = getpid();
+			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
+			send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
+			free(mensajeACKSerializado);
+			//TODO hacer algo con el mensaje
+			log_info(log_team_oficial,"MENSAJE CAUGHT RECIBIDO DEL BROKER");
+			log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje.idCorrelativo);
+			log_info(log_team_oficial,"ID MENSAJE: %d",mensaje.id_mensaje);
+			log_info(log_team_oficial,"POKEMON ATRAPADO: %d",mensaje.pokemonAtrapado);
+			if(mensaje.pokemonAtrapado == 1)
+				log_info(log_team_oficial,"POKEMON FUE ATRAPADO");
+			else if (mensaje.pokemonAtrapado == 0)
+				log_info(log_team_oficial,"POKEMON NOOO FUE ATRAPADO");
+			break;
+		}
+
+		default:{
+			break;
+		}
+
+		}
+		free_t_message(message);
+	}
+}
+
+//------------------------
 
 
 
 
 
 //ESTABAN ANTES ----------
-int crear_servidor(int port) {
-	struct socktadrr_in direccion_servidor;
-	direccion_servidor.sin_family = AF_INET;
-	direccion_servidor.sin_addr.s_addr = INADDR_ANY; // por alguna razon no me toma el .s_addr
-	direccion_servidor.sin_port = htans(port);
-
-	int servidor = socket(AF_INET,SOCK_STREAM,0);
-
-	if(bind(servidor,(void*) &direccion_servidor,sizeof(direccion_servidor)) != 0){    // esto vuela en cualquier momento
-		perror("ERROR AL CONECTARSE AL SERVIDOR");
-		return 1;
-	}
-	listen(servidor,SOMAXCONN);
-	return 0;
-}
-
-int aceptar_cliente(struct socktadrr_in servidor){
-	struct socktadrr_in direccion_cliente;
-	unsigned int tamaño_direccion;
-	int cliente = accept(servidor,(void*) &direccion_cliente,&tamaño_direccion);
-	return 0;
-}
-
-int enviar_mensaje(int socket,t_header head,const void* content,size_t size){
-	t_message* mensaje = crear_mensaje(head,size,content);
-	int res = send(socket,&(mensaje->size),sizeof(size_t),0);
-	if(res < 0){
-		perror("ERROR AL ENVIAR EL MENSAJE");
-		res = -1;
-	}
-	else{
-		void* buffer = malloc(mensaje->size);
-		memcpy(buffer,&mensaje->head,sizeof(t_header));
-		memcpy(buffer + sizeof(t_header),mensaje->content,size);
-		res = send(socket,buffer,mensaje->size,0);
-		free(buffer);
-	}
-	free(mensaje);
-	return res;
-}
-
-t_message* crear_mensaje(t_header head,size_t size,void* content){
-	t_message* mensaje=malloc(sizeof(t_message));
-	mensaje->head = head;
-	mensaje->size = size + sizeof(head);
-	mensaje->content = malloc(size);
-
-	memset(mensaje->content,0,size);
-	memcpy(mensaje->content,content,size);
-	return mensaje;
-}
-
-
-t_message recibir_mensaje(int socket){
-	t_message* mensaje = (t_message*) malloc(sizeof(t_message));
-	int res = recv(socket,&mensaje->size,sizeof(size_t),MSG_WAITALL);
-	if(res <= 0){
-		close(socket);
-		free(mensaje);
-		perror("ERROR AL ENVIAR EL MENSAJE");
-	}
-	void* buffer= malloc(mensaje->size);
-	res = recv(socket,buffer,&mensaje->size,MSG_WAITALL);
-	if(res <= 0){
-			close(socket);
-			free(mensaje);
-			free(buffer);
-			perror("ERROR AL ENVIAR EL MENSAJE");
-		}
-	mensaje->content = calloc(mensaje->size - sizeof(size_t)+1,1);
-	memcpy(&mensaje->head,buffer,sizeof(t_header));
-	memcpy(&mensaje->content,buffer,sizeof(t_header));
-	mensaje->size -= sizeof(t_header);
-
-	free(buffer);
-	return  mensaje;
-}
-
-void *suscribirseBrokerLocalized(){
-	int socketSuscripcion = crearConexion(teamConf->IP_BROKER,teamConf->PUERTO_BROKER,teamConf->TIEMPO_RECONEXION);
-
-	suscribirseLocalized(teamConf->NOMBRE_PROCESO,0,socketSuscripcion);
-	pthread_mutex_t mutexRecibir;
-	pthread_mutex_init(&mutexRecibir,NULL);
-
-	t_paquete *buffer;
-
-	int flag = 1;
-	while(flag){
-		pthread_mutex_lock(&mutexRecibir);
-		bufferLoco = recibirMensaje(socketSuscripcion);
-
-		if(bufferLoco != NULL){
-			pthread_mutex_lock(&mutex_bandeja);
-			queue_push(bandejaDeMensajes,(void*)bufferLoco);
-			pthread_mutex_unlock(&mutex_bandeja);
-			pthread_mutex_unlock(&mutexRecibir);
-			sem_post(&contadorBandeja);
-		}
-		else
-		{
-			socketSuscripcion = crearConexion(teamConf->IP_BROKER,teamConf->PUERTO_BROKER,teamConf->TIEMPO_RECONEXION);
-			suscribirseLocalized(teamConf->NOMBRE_PROCESO,0,socketSuscripcion);
-		}
-
-	}
-	return NULL;
-}
+//int crear_servidor(int port) {
+//	struct socktadrr_in direccion_servidor;
+//	direccion_servidor.sin_family = AF_INET;
+//	direccion_servidor.sin_addr.s_addr = INADDR_ANY; // por alguna razon no me toma el .s_addr
+//	direccion_servidor.sin_port = htans(port);
+//
+//	int servidor = socket(AF_INET,SOCK_STREAM,0);
+//
+//	if(bind(servidor,(void*) &direccion_servidor,sizeof(direccion_servidor)) != 0){    // esto vuela en cualquier momento
+//		perror("ERROR AL CONECTARSE AL SERVIDOR");
+//		return 1;
+//	}
+//	listen(servidor,SOMAXCONN);
+//	return 0;
+//}
+//
+//int aceptar_cliente(struct socktadrr_in servidor){
+//	struct socktadrr_in direccion_cliente;
+//	unsigned int tamaño_direccion;
+//	int cliente = accept(servidor,(void*) &direccion_cliente,&tamaño_direccion);
+//	return 0;
+//}
+//
+//int enviar_mensaje(int socket,t_header head,const void* content,size_t size){
+//	t_message* mensaje = crear_mensaje(head,size,content);
+//	int res = send(socket,&(mensaje->size),sizeof(size_t),0);
+//	if(res < 0){
+//		perror("ERROR AL ENVIAR EL MENSAJE");
+//		res = -1;
+//	}
+//	else{
+//		void* buffer = malloc(mensaje->size);
+//		memcpy(buffer,&mensaje->head,sizeof(t_header));
+//		memcpy(buffer + sizeof(t_header),mensaje->content,size);
+//		res = send(socket,buffer,mensaje->size,0);
+//		free(buffer);
+//	}
+//	free(mensaje);
+//	return res;
+//}
+//
+//t_message* crear_mensaje(t_header head,size_t size,void* content){
+//	t_message* mensaje=malloc(sizeof(t_message));
+//	mensaje->head = head;
+//	mensaje->size = size + sizeof(head);
+//	mensaje->content = malloc(size);
+//
+//	memset(mensaje->content,0,size);
+//	memcpy(mensaje->content,content,size);
+//	return mensaje;
+//}
+//
+//
+//t_message recibir_mensaje(int socket){
+//	t_message* mensaje = (t_message*) malloc(sizeof(t_message));
+//	int res = recv(socket,&mensaje->size,sizeof(size_t),MSG_WAITALL);
+//	if(res <= 0){
+//		close(socket);
+//		free(mensaje);
+//		perror("ERROR AL ENVIAR EL MENSAJE");
+//	}
+//	void* buffer= malloc(mensaje->size);
+//	res = recv(socket,buffer,&mensaje->size,MSG_WAITALL);
+//	if(res <= 0){
+//			close(socket);
+//			free(mensaje);
+//			free(buffer);
+//			perror("ERROR AL ENVIAR EL MENSAJE");
+//		}
+//	mensaje->content = calloc(mensaje->size - sizeof(size_t)+1,1);
+//	memcpy(&mensaje->head,buffer,sizeof(t_header));
+//	memcpy(&mensaje->content,buffer,sizeof(t_header));
+//	mensaje->size -= sizeof(t_header);
+//
+//	free(buffer);
+//	return  mensaje;
+//}
+//
+//void *suscribirseBrokerLocalized(){
+//	int socketSuscripcion = crearConexion(teamConf->IP_BROKER,teamConf->PUERTO_BROKER,teamConf->TIEMPO_RECONEXION);
+//
+//	suscribirseLocalized(teamConf->NOMBRE_PROCESO,0,socketSuscripcion);
+//	pthread_mutex_t mutexRecibir;
+//	pthread_mutex_init(&mutexRecibir,NULL);
+//
+//	t_paquete *buffer;
+//
+//	int flag = 1;
+//	while(flag){
+//		pthread_mutex_lock(&mutexRecibir);
+//		bufferLoco = recibirMensaje(socketSuscripcion);
+//
+//		if(bufferLoco != NULL){
+//			pthread_mutex_lock(&mutex_bandeja);
+//			queue_push(bandejaDeMensajes,(void*)bufferLoco);
+//			pthread_mutex_unlock(&mutex_bandeja);
+//			pthread_mutex_unlock(&mutexRecibir);
+//			sem_post(&contadorBandeja);
+//		}
+//		else
+//		{
+//			socketSuscripcion = crearConexion(teamConf->IP_BROKER,teamConf->PUERTO_BROKER,teamConf->TIEMPO_RECONEXION);
+//			suscribirseLocalized(teamConf->NOMBRE_PROCESO,0,socketSuscripcion);
+//		}
+//
+//	}
+//	return NULL;
+//}
