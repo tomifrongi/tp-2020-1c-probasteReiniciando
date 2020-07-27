@@ -13,10 +13,14 @@ void ejecutarModoTeam(t_list* argumentos){
 //	while(1){
 	t_message mensajeTeam = obtenerMensajeTeam(argumentos);
 	send_message(socketGame, mensajeTeam.head,mensajeTeam.content, mensajeTeam.size);
+
 	free(mensajeTeam.content);
+	t_message* mensajeACK = recv_message(socketGame);
+	free_t_message(mensajeACK);
 //	}
 	}
-	log_info(logger,"ERROR AL CONECTARSE CON EL TEAM");
+	else
+		log_info(logger,"ERROR AL CONECTARSE CON EL TEAM");
 }
 
 t_message obtenerMensajeTeam(t_list* argumentos){
