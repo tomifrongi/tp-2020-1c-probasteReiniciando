@@ -203,6 +203,7 @@ void deserializarLocalized(void* content){
 	while(index<longitudLista){
 		memcpy(&posiciones[index],content+bytesLeidos,sizeof(uint32_t));
 		bytesLeidos+=(sizeof(uint32_t));
+		index++;
 	}
 
 	log_info(logger,"ID MENSAJE: %d",mensaje.id_mensaje);
