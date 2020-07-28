@@ -29,7 +29,7 @@ void cargar_teams(){
 		path[4]=i;
 		team->path_config=strcat(path,tipo);
 
-		list_add(lista_teams,team);
+		list_add(lista_teams,team);33
 	}
 }
 

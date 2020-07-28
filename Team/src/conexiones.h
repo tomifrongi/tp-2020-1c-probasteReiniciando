@@ -78,7 +78,4 @@ void handler_suscripciones(int socketTeam);
 
 //------------------------
 
-//int crear_servidor(int);
-//int aceptar_cliente(struct socktadrr_in);
-//int enviar_mensaje(t_header ,size_t,void*);		//Son funciones provisorias que luego seran adptadas a los requisitos del tp.
-//t_message* recibir_mensaje(int);
+

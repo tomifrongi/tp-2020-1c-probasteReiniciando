@@ -171,37 +171,74 @@ int tiempo_rafaga( entrenador, pokemon) {
 
 }
 
-void planificacion_rr( team, entrenador_cercano) {
+void planificacion_rr(t_team* team, entrenador_cercano) {
+	int quantum = team->quantum;
 	list_add(team->entrenadores_planificados, entrenador_cercano);
 	int tiempo_total_captura = tiempo_rafaga(entrenador, pokemon); //lo paso a una variable por que sino al moverse el entrenador altera la cuenta
-	for (i = 0; i <= quantum; i++) {
+	for (int i = 0; i <= quantum; i++) {
 		if (i == quantum) { //agoto tiempo de quuantum,pasa a bloqueado
 			i++;
 		}
 	}
 }
-planificacion_sjf_cd( team, hilo_entrenador)
+planificacion_sjf_cd( team, hilo_entrenador){
+
+}
 
 //----------------------------------------------------------GUION/funcion principal:
 void planificar_team(t_team*team) {
+
+
 	//bool suscripcion_ok = suscribirse_a_colas(team);
-	if (suscribirse_a_colas(team) == false) {
-		activar_proceso_reconexion(); //un thread
-		int socket_gameboy = abrir_socket_gameboy(); //no se si no se hace aun cuando el broker si conecta
-		recibir_mensajes_gameboy(socket_gameboy); //otro thread
-	}
-	pedir_pokemones_necesarios(team); //gets
+	t_list* pokemones_por_especie = list_create();
+
+	pthread_t appeared_thread;
+	pthread_t localized_thread;
+	pthread_t caught_thread;
+
+
+	uint32_t a = APPEARED;
+	uint32_t l = LOCALIZED;
+	uint32_t c = CAUGHT;
+	pthread_create(&appeared_thread, NULL, (void*) handler_broker, &a);
+	pthread_detach(appeared_thread);
+	pthread_create(&localized_thread, NULL, (void*) handler_broker, &l);
+	pthread_detach(localized_thread);
+	pthread_create(&caught_thread, NULL, (void*) handler_broker, &c);
+	pthread_detach(caught_thread);
+	int listener_socket = init_server(PUERTO_TEAM);
+	escuchar_mensajes_gameboy(listener_socket);
+	enviar_gets(pokemones_por_especie);
+
+
+//	if (suscribirse_a_colas(team) == false) {
+//		activar_proceso_reconexion(); //un thread
+//		int socket_gameboy = abrir_socket_gameboy(); //no se si no se hace aun cuando el broker si conecta ojo esto vuela
+//		recibir_mensajes_gameboy(socket_gameboy); //otro thread
+//	}
+
+
 	t_pokemon*pokemon_a_capturar = malloc(sizeof(t_pokemon)); //crear pokemon en blanco ,mmalloc y demas(faltaria para despues una de liberar)
 
-	while (team_cumplio_objetivo_global(team) == false) { //acomodar esto
-		{
-			if (verificar_nuevo_localized(team,pokemon_a_capturar) == true && team_puede_capturar(team) == true) //las repuestas a los get,pueden ser dirigidos a otro team
+	while (team_cumplio_objetivo_global(team) == false) {
+
+		wait(semaforo_localized);
+
+
+
+
+
+
+
+
+
+			if (verificar_nuevo_localized(team,pokemon_a_capturar)&& team_puede_capturar(team) ) //las repuestas a los get,pueden ser dirigidos a otro team
 			{
 				/*
 				 *
 				 * la idea en este punto es mandarlo a capturar,  osea ponerlo en ready, despues el algoritmo de planificacion dira cuando se ejecuta
 				 */
-				planificar_entrenador(team, pokemon); //aca ya tendria la cola de hilos lista y actualizada para que laburen
+				planificar_entrenador(team, pokemon_a_capturar); //aca ya tendria la cola de hilos lista y actualizada para que laburen
 
 			} else { ///mientras no llegan mensajes o se quedo trabajdo el team ,se purgan los deadlocks
 				if (verificar_deadlock(team)) { //si la causa es un deadlock aca se soluciona,si es que no esta llegando mensajes se esperaran
@@ -213,8 +250,26 @@ void planificar_team(t_team*team) {
 				}
 			}
 		}
-	} //de aca en adelante se cumplio el objetivo del team...van las funciones de cerrar
+} //de aca en adelante se cumplio el objetivo del team...van las funciones de cerrar
 
-}
 
+
+/* 1. Interconexion con los demas modulos.
+ * 2. Activacion de mecanismo de antifallos.
+ * 2.1 Si falla activar el mecanismo antifallos.
+ * 2.2 Purgar deadlocks internos. // vamo a ver que se puede
+ * 3. Al conectar mando los get_pokemon.
+ * 3.1 while (el team no haya cumplido el objetivo global){
+ * 		4. Escucho los localized_pokemon.
+ * 		5. Planifico los entrenadores.
+ * 		5.1 Mandar los catch
+ * 		5.1.1 Si la subcripcion al broker rompe se considera que se atrapo.
+ * 		5.1.2 Si no rompe se queda en espera activa.
+ * 		6. Al recibir caught se queda en bloqueado
+ * 		6.1 Verificar si el caugth es positivo pasara a EXIT o a BLOCK
+ * 		if(detectar_deadlock)
+ * 			solucionar_deadlock
+ * }
+ *
+ *  */
 

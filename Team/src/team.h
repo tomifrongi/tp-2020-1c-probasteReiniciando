@@ -7,9 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <commons/collections/list.h>
+#include <commons/collections/queue.h>
 #include <commons/string.h>
 #include <math.h>
- #include "entrenadores.h"
+#include "entrenadores.h"
 
 typedef enum {
 	FIFO,
@@ -58,6 +59,10 @@ typedef struct{
 	int cantidad_deadlocks=0;//mm hace falta
 	int cantidad_deadlocks_detectados=0;
 	int cantidad_deadlocks_solucionados=0;
+	bool conectado_al_broker;
+	t_queue cola_localized;
+	t_queue cola_appeared;
+	t_queue cola_caught;
 }t_team;
 
 t_list*lista_teams=list_create();//TODO al main

@@ -24,7 +24,7 @@ t_list *get_pokemones(t_team*team, int id_entrenador, int tipo) { //0 para captu
 	return listar_pokemones(pokemones[id_entrenador]);
 }
 
-bool  pokemones_es_misma_especie(t_pokemon*p1,t_pokemon*p2){//SE USA ALFINAL??
+bool  pokemones_es_misma_especie(t_pokemon*p1,t_pokemon*p2){   //SE USA ALFINAL?? parece que  si
 	return string_equals_ignore_case(p1->especie, p2->especie);
 
 }
@@ -53,7 +53,7 @@ t_list*listar_pokemones(char**array) { //el string p1|p2|p3 lo pone cada uno en 
 	return lista;
 }
 
-*/
+
 
 
 /*------------------------------------------------MUESTRA POR PANTALLA------------------------------------------------*/

@@ -17,10 +17,10 @@ bool mapa_hay_pokemon_suelto(t_team*team) {
 }
 
 t_entrenador*entrenador_mas_cercano(t_list*entrenadores,t_pokemon*pokemon){
-
-	list_filter(entrenadores,)
+	int size = list_size(entrenadores);
+	//list_filter(entrenadores);
 	 t_entrenador*entrenador_cercano=list_get(entrenadores,0);
-	 for (int i=1;i<list_size(entrenadores);i++){
+	 for (int i=1;i<size;i++){
 		 if (distancia_entrenador_pokemon(list_get(entrenadores,i),pokemon)<distancia_entrenador_pokemon(entrenador_cercano,pokemon)){
 			 entrenador_cercano=list_get(entrenadores,i);
 		 }
