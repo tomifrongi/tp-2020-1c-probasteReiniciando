@@ -60,9 +60,12 @@ typedef struct{
 	int cantidad_deadlocks_detectados=0;
 	int cantidad_deadlocks_solucionados=0;
 	bool conectado_al_broker;
-	t_queue cola_localized;
-	t_queue cola_appeared;
-	t_queue cola_caught;
+	t_queue* cola_localized;
+	sem_t* semaforo_contador_localized;
+	t_queue* cola_appeared;
+	sem_t* semaforo_contador_appeared;
+	t_queue* cola_caught;
+	sem_t* semaforo_contador_caught;
 }t_team;
 
 t_list*lista_teams=list_create();//TODO al main

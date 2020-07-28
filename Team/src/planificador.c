@@ -68,8 +68,9 @@ bool suscribirse_a_colas(t_team*team) {
 			cerrar_coneccion_broker();
 		}
 	}
+}
 
-	bool verificar_nuevo_localized(t_team*team, t_pokemon*pokemon) { //TODO
+bool verificar_nuevo_localized(t_team*team, t_pokemon*pokemon) { //TODO
 		if (hay_nuevos_mensajes()) {
 			t_pokemon*pokemon = recibir_mensaje(); //aca la idea es que devuelva por parametro el pokemon para despues capturarlo
 			if (team_necesita_especie(esṕecie) & primer_mensaje(team, especie)) { //NO ME GUSTA ASI...//solo me quedo con el primer localized de cada especie ,no puede haber dos en mapa sueltos de cada especie
@@ -82,7 +83,7 @@ bool suscribirse_a_colas(t_team*team) {
 			}
 		}
 		return true;
-	}
+}
 
 	/* entrenadores en new
 	 *
@@ -137,20 +138,23 @@ bool suscribirse_a_colas(t_team*team) {
 
 	}
 
-}
-planificar_entrenador(t_team * team, t_pokemon * pokemon)
-//pasar su hilo a ready
-{
 
+
+void planificar_entrenador(t_team * team, t_pokemon * pokemon)
+{
+	//pasar su hilo a ready
 	t_entrenador*entrenador = entrenador_mas_cercano(team->entrenadores, pokemon)
 //aca armo el hilo y se los paso a los planificadores//seria otro tad...
 	switch (team->planificador) {
-	case FIFO:
-	case RR:
+	case FIFO:{
+
+	}
+	case RR:{
 
 		list_add(team->entrenadores_planificados, hilo_entrenador); //se agrega al final
 		break;
-	case SJF_CD:
+	}
+	case SJF_CD:{
 		int indice = get_indice(team, hilo_entrenador);
 		if (indice == 0) {
 			desalojar_hilo(); //TODO que desaloje y se ejecute el nuevo hilo
@@ -158,10 +162,12 @@ planificar_entrenador(t_team * team, t_pokemon * pokemon)
 		list_add_in_index(team->entrenadores_planificados, indice, hilo_entrenador);
 
 		break;
-	case SJF_SD: //lo agrega ordenado segun su tiempo
+	}
+	case SJF_SD: {//lo agrega ordenado segun su tiempo
 
 		list_add_in_index(team->entrenadores_planificados, get_indice(team, hilo_entrenador), hilo_entrenador);
 		break;
+	}
 	}
 
 }
@@ -185,10 +191,27 @@ planificacion_sjf_cd( team, hilo_entrenador){
 
 }
 
+
+
+void procesar_localized(t_team* team){
+	while(1){
+		sem_wait(team->semaforo_contador_localized);
+		localized_pokemon* mensaje = queue_pop(team->cola_localized);
+		t_pokemon pokemon_a_capturar;
+		pokemon_a_capturar.especie = mensaje->nombrePokemon;
+		coordenada* posicion = list_get(mensaje->posiciones,0);
+		pokemon_a_capturar.posicion_x = posicion->posicionEjeX;
+		pokemon_a_capturar.posicion_x = posicion->posicionEjeY;
+		t_pokemon* pokemon_a_capturar_creado = crear_t_pokemon(pokemon_a_capturar);
+		if(verificar_nuevo_localized(team,pokemon_a_capturar_creado))
+			planificar_entrenador();
+	}
+}
+
 //----------------------------------------------------------GUION/funcion principal:
 void planificar_team(t_team*team) {
 
-
+	//sem_init(&semaforo_contador_localized,0,0);
 	//bool suscripcion_ok = suscribirse_a_colas(team);
 	t_list* pokemones_por_especie = list_create();
 
@@ -200,7 +223,7 @@ void planificar_team(t_team*team) {
 	uint32_t a = APPEARED;
 	uint32_t l = LOCALIZED;
 	uint32_t c = CAUGHT;
-	pthread_create(&appeared_thread, NULL, (void*) handler_broker, &a);
+	pthread_create(&appeared_thread, NULL, (void*) handler_broker, &a);//TODO agregar semaforo contador (post) a estos 3 hilos
 	pthread_detach(appeared_thread);
 	pthread_create(&localized_thread, NULL, (void*) handler_broker, &l);
 	pthread_detach(localized_thread);
@@ -217,12 +240,22 @@ void planificar_team(t_team*team) {
 //		recibir_mensajes_gameboy(socket_gameboy); //otro thread
 //	}
 
-
-	t_pokemon*pokemon_a_capturar = malloc(sizeof(t_pokemon)); //crear pokemon en blanco ,mmalloc y demas(faltaria para despues una de liberar)
-
 	while (team_cumplio_objetivo_global(team) == false) {
 
-		wait(semaforo_localized);
+
+
+		pthread_t consumidor_cola_localized;
+		pthread_create(&consumidor_cola_localized,NULL,procesar_localized,team);
+		pthread_detach(consumidor_cola_localized);
+
+		pthread_t consumidor_cola_appeared;
+		pthread_create(&consumidor_cola_appeared,NULL,procesar_appeared,NULL);
+		pthread_detach(consumidor_cola_appeared);
+
+		pthread_t consumidor_cola_caught;
+		pthread_create(&consumidor_cola_caught,NULL,procesar_caught,NULL);
+		pthread_detach(consumidor_cola_caught);
+
 
 
 
