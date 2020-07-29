@@ -59,6 +59,7 @@ typedef struct{
 	int cantidad_deadlocks=0;//mm hace falta
 	int cantidad_deadlocks_detectados=0;
 	int cantidad_deadlocks_solucionados=0;
+
 	bool conectado_al_broker;
 	t_queue* cola_localized;
 	sem_t* semaforo_contador_localized;
@@ -66,6 +67,9 @@ typedef struct{
 	sem_t* semaforo_contador_appeared;
 	t_queue* cola_caught;
 	sem_t* semaforo_contador_caught;
+	t_list* idsGet;
+	t_list* idsCatch;
+	t_list* especiesRecibidas;
 }t_team;
 
 t_list*lista_teams=list_create();//TODO al main

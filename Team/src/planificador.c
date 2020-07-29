@@ -43,7 +43,6 @@ cerrar_coneccion_broker(); //marcos
 //verificar_nuevo_localized
 hay_nuevos_mensajes(); //marcos
 recibir_mensaje(); //marcos   //aca la idea es que devuelva por parametro el pokemon para despues capturarlo
-team_necesita_especie( esṕecie);
 primer_mensaje( team, especie); //solo me quedo con el primer localized de cada especie ,no puede haber dos en mapa sueltos de cada especie
 agregar_nuevos( team);
 no_es_primer_mensaje( team, especie); //avisa que ya no es el primer mensaje el proximo que vendra de esa especie,tendra que volverlo a poner en blanco el entrenador al capturar,no se si n se podria hacer directamente contando los que hay sueltos en mapa
@@ -140,10 +139,10 @@ bool verificar_nuevo_localized(t_team*team, t_pokemon*pokemon) { //TODO
 
 
 
-void planificar_entrenador(t_team * team, t_pokemon * pokemon)
+void planificar_entrenador(t_team * team, t_pokemon * pokemon) //TODO ACTUALIZAR
 {
 	//pasar su hilo a ready
-	t_entrenador*entrenador = entrenador_mas_cercano(team->entrenadores, pokemon)
+	t_entrenador*entrenador = entrenador_mas_cercano(team->entrenadores, pokemon);
 //aca armo el hilo y se los paso a los planificadores//seria otro tad...
 	switch (team->planificador) {
 	case FIFO:{
@@ -191,22 +190,106 @@ planificacion_sjf_cd( team, hilo_entrenador){
 
 }
 
+//PROCESAMIENTO DE LOCALIZED Y APPEARED ----------------------------
+// Este link explica como proceso los mensajes appeared y localized
+// https://github.com/sisoputnfrba/foro/issues/1749
 
+bool contain_id_get(t_team* team,uint32_t id_correlativo){
+	bool mismo_id(void* id_lista){
+		uint32_t* id_casteado = id_lista;
+		return(id_casteado == id_correlativo);
+	}
+	void* id_encontrado = list_find(team->idsGet,mismo_id);
+	return (id_encontrado != NULL);
+}
+
+bool verificar_nuevo_localized(t_team* team, t_pokemon* pokemon,uint32_t id_correlativo){
+	if(contain_id_get(team,id_correlativo) && team_necesita_especie(team,pokemon) && contain_especie_recibida(team,pokemon))
+		return false;
+	else{
+		char* especie_nueva_recibida = malloc(strlen(pokemon->especie));
+		strcpy(especie_nueva_recibida,pokemon->especie);
+		list_add(team->especiesRecibidas,especie_nueva_recibida);
+		return true;
+	}
+
+}
 
 void procesar_localized(t_team* team){
 	while(1){
 		sem_wait(team->semaforo_contador_localized);
 		localized_pokemon* mensaje = queue_pop(team->cola_localized);
+
 		t_pokemon pokemon_a_capturar;
 		pokemon_a_capturar.especie = mensaje->nombrePokemon;
 		coordenada* posicion = list_get(mensaje->posiciones,0);
 		pokemon_a_capturar.posicion_x = posicion->posicionEjeX;
 		pokemon_a_capturar.posicion_x = posicion->posicionEjeY;
 		t_pokemon* pokemon_a_capturar_creado = crear_t_pokemon(pokemon_a_capturar);
-		if(verificar_nuevo_localized(team,pokemon_a_capturar_creado))
-			planificar_entrenador();
+		t_list* pokemones_localized = list_create();
+
+		void agregar_pokemon_suelto(void* posicion){
+			coordenada* posicionCasteada = posicion;
+			t_pokemon pokemon_a_capturar;
+			pokemon_a_capturar.especie = mensaje->nombrePokemon;
+			pokemon_a_capturar.posicion_x = posicionCasteada->posicionEjeX;
+			pokemon_a_capturar.posicion_x = posicionCasteada->posicionEjeY;
+			t_pokemon* pokemon_a_capturar_creado = crear_t_pokemon(pokemon_a_capturar);
+			list_add(pokemones_localized,pokemon_a_capturar_creado);
+		}
+
+		if(verificar_nuevo_localized(team,pokemon_a_capturar_creado,mensaje->idCorrelativo)){
+			borrar_t_pokemon(pokemon_a_capturar);
+			list_iterate(mensaje->posiciones,agregar_pokemon_suelto);
+
+			//TODO busco_cuantos_necesito
+			//TODO planifico los mas cercanos a un entrenador
+			//TODO el resto los agrego a una lista por si los llego a necesitar
+			//planificar_entrenador(team,pokemon_a_capturar_creado);
+		}
+
+
 	}
 }
+
+bool contain_especie_recibida(t_team* team,t_pokemon* pokemon){
+	bool misma_especie(void* especie_lista){
+		char* especie_casteada = especie_lista;
+		return(strcmp(especie_casteada,pokemon->especie)== 0);
+	}
+	void* pokemonEncontrado = list_find(team->especiesRecibidas,misma_especie);
+	return (pokemonEncontrado != NULL);
+}
+
+bool team_necesita_especie(t_team* team, t_pokemon* pokemon); //TODO verificar si el pokemon esta dentro de los objetivos
+
+bool verificar_nuevo_appeared(t_team* team, t_pokemon* pokemon){
+	if(team_necesita_especie(team,pokemon) && contain_especie_recibida(team,pokemon))
+		return false;
+	else{
+		char* especie_nueva_recibida = malloc(strlen(pokemon->especie));
+		strcpy(especie_nueva_recibida,pokemon->especie);
+		list_add(team->especiesRecibidas,especie_nueva_recibida);
+		return true;
+	}
+}
+
+void procesar_appeared(t_team* team){
+	while(1){
+		sem_wait(team->semaforo_contador_appeared);
+		appeared_pokemon* mensaje = queue_pop(team->cola_appeared);
+		t_pokemon pokemon_a_capturar;
+		pokemon_a_capturar.especie = mensaje->nombrePokemon;
+		pokemon_a_capturar.posicion_x = mensaje->posicionEjeX;
+		pokemon_a_capturar.posicion_x = mensaje->posicionEjeY;
+		t_pokemon* pokemon_a_capturar_creado = crear_t_pokemon(pokemon_a_capturar);
+		if(verificar_nuevo_appeared(team,pokemon_a_capturar_creado))
+			planificar_entrenador(team,pokemon_a_capturar_creado);
+	}
+
+}
+
+//------------------------------------------------------------------
 
 //----------------------------------------------------------GUION/funcion principal:
 void planificar_team(t_team*team) {
@@ -218,19 +301,23 @@ void planificar_team(t_team*team) {
 	pthread_t appeared_thread;
 	pthread_t localized_thread;
 	pthread_t caught_thread;
-
+	pthread_t appeared_gameboy_thread;
 
 	uint32_t a = APPEARED;
 	uint32_t l = LOCALIZED;
 	uint32_t c = CAUGHT;
+
+
 	pthread_create(&appeared_thread, NULL, (void*) handler_broker, &a);//TODO agregar semaforo contador (post) a estos 3 hilos
 	pthread_detach(appeared_thread);
 	pthread_create(&localized_thread, NULL, (void*) handler_broker, &l);
 	pthread_detach(localized_thread);
 	pthread_create(&caught_thread, NULL, (void*) handler_broker, &c);
 	pthread_detach(caught_thread);
+
 	int listener_socket = init_server(PUERTO_TEAM);
-	escuchar_mensajes_gameboy(listener_socket);
+	pthread_create(&appeared_gameboy_thread, NULL, (void*) escuchar_mensajes_gameboy, &listener_socket);//TODO ordenar escuchar_mensajes_gameboy
+	pthread_detach(appeared_gameboy_thread);
 	enviar_gets(pokemones_por_especie);
 
 
@@ -240,21 +327,59 @@ void planificar_team(t_team*team) {
 //		recibir_mensajes_gameboy(socket_gameboy); //otro thread
 //	}
 
+	if(detectarDeadlocks(team))
+		resolverDeadlocks();
+
+	pthread_t consumidor_cola_localized;
+	pthread_create(&consumidor_cola_localized,NULL,procesar_localized,team);
+	pthread_detach(consumidor_cola_localized);
+
+
+	pthread_t consumidor_cola_appeared;
+	pthread_create(&consumidor_cola_appeared,NULL,procesar_appeared,NULL);
+	pthread_detach(consumidor_cola_appeared);
+
+	pthread_t consumidor_cola_caught;
+	pthread_create(&consumidor_cola_caught,NULL,procesar_caught,NULL);
+	pthread_detach(consumidor_cola_caught);
+
+	pthread_t hilo_principal;
+	pthread_create(&hilo_principal,NULL,planificacion_general,NULL);
+	pthread_detach(hilo_principal);
+
+
+
+	//ESTE HILO ESTA CONSTAMENTE EN UN WHILE 1, SI HAY ENTRENADORES PARA PLANIFICAR, LOS AGARRO Y HAGO LO QUE TENGA QUE HACER
+
+	void planificacion_general(void* algo){
+
+
+		while (team_cumplio_objetivo_global(team) == false){
+			//SEMAFORO QUE ESPERA A QUE HAYA ENTRENADORES PARA PLANIFICAR EN "team->entrenadores_planificados"
+
+			//wait_sem(&semaforo_entrenadores_disponibles_para_planificar)
+
+			//WAIT MUTEX DE "team->entrenadores_planificados;"
+
+			//EJECUTO LA RAFAGA DE CPU PARA EL ENTRENADOR QUE CORRESPONDA, CUANTO DURA LA RAFAGA DEPENDERA DEL ALGORITMO
+
+				//LOS VOY MOVIENDO A LA POSICION DEL POKEMON QUE QUIEREN ATRAPAR
+				//OOO LOS VOY MOVIENDO A LA POSICION DEL ENTRENADOR QUE NECESITA EL INTERCAMBIO
+
+			//SI LLEGO A LA POSICION QUE BUSCA MANDO EL CATCH O HAGO EL INTERCAMBIO DE POKEMON
+
+				//SI EL ENTRENADOR TIENE QUE SEGUIR SIENDO PLANIFICADO, HAGO UN signal_sem(&semaforo_entrenadores_disponibles_para_planificar)
+				//ES DECIR, NO SACO AL ENTRENADOR DE LA LISTA: ""team->entrenadores_planificados"
+
+			//SIGNAL MUTEX DE "team->entrenadores_planificados;"
+		}
+	}
+
 	while (team_cumplio_objetivo_global(team) == false) {
 
 
 
-		pthread_t consumidor_cola_localized;
-		pthread_create(&consumidor_cola_localized,NULL,procesar_localized,team);
-		pthread_detach(consumidor_cola_localized);
 
-		pthread_t consumidor_cola_appeared;
-		pthread_create(&consumidor_cola_appeared,NULL,procesar_appeared,NULL);
-		pthread_detach(consumidor_cola_appeared);
-
-		pthread_t consumidor_cola_caught;
-		pthread_create(&consumidor_cola_caught,NULL,procesar_caught,NULL);
-		pthread_detach(consumidor_cola_caught);
 
 
 
