@@ -144,15 +144,20 @@ void planificar_entrenador(t_team * team, t_pokemon * pokemon) //TODO ACTUALIZAR
 	//pasar su hilo a ready
 	t_entrenador*entrenador = entrenador_mas_cercano(team->entrenadores, pokemon);
 //aca armo el hilo y se los paso a los planificadores//seria otro tad...
-	switch (team->planificador) {
+
+	switch (team->planificador){
 	case FIFO:{
 
 	}
+
+
 	case RR:{
 
 		list_add(team->entrenadores_planificados, hilo_entrenador); //se agrega al final
 		break;
 	}
+
+
 	case SJF_CD:{
 		int indice = get_indice(team, hilo_entrenador);
 		if (indice == 0) {
@@ -162,11 +167,13 @@ void planificar_entrenador(t_team * team, t_pokemon * pokemon) //TODO ACTUALIZAR
 
 		break;
 	}
+
 	case SJF_SD: {//lo agrega ordenado segun su tiempo
 
 		list_add_in_index(team->entrenadores_planificados, get_indice(team, hilo_entrenador), hilo_entrenador);
 		break;
 	}
+
 	}
 
 }
@@ -186,6 +193,7 @@ void planificacion_rr(t_team* team, entrenador_cercano) {
 		}
 	}
 }
+
 planificacion_sjf_cd( team, hilo_entrenador){
 
 }
@@ -289,9 +297,182 @@ void procesar_appeared(t_team* team){
 
 }
 
+
+void handler_entrenador(t_entrenador* entrenador){
+	while(1){
+
+
+		sem_wait(entrenador->semaforo);
+
+		ejecutar_ciclo_cpu(entrenador);
+
+
+		if(cumplio_rafaga(entrenador)){
+			switch(entrenador->tarea->tipo_tarea){
+			case ATRAPAR:{
+				entrenador->esta_en_entrada_salida = true;
+				int id_mensaje = enviar_catch(entrenador->tarea->pokemon);
+				int* id_mensaje_creado = malloc(sizeof(int));
+				*id_mensaje_creado = id_mensaje;
+				cambiar_estado(entrenador,BLOCK);
+				list_add(entrenador->team->idsCatch,id_mensaje_creado);
+
+
+				break;
+			}
+
+			case INTERCAMBIO:{
+				realizar_intercambio(entrenador,entrenador->tarea->entrenador);
+				break;
+			}
+			}
+		}
+	}
+}
+
 //------------------------------------------------------------------
 
+//RESUMEN SEMAFOROS-------------
+/*
+pthread_t thread;
+pthread_create();
+pthread_detach();
+
+sem_t semaforo_contador;
+sem_init();
+sem_post();
+sem_wait();
+
+pthread_mutex_t semaforo_mutex;
+pthread_mutex_init();
+pthread_mutex_lock();
+pthread_mutex_unlock();
+*/
+//-----------------------------
+
+
+//retorna si le alcanzo o no las rafagas
+bool sem_post_algoritmo(t_entrenador* entrenador,t_list* entrenadores_planificados){
+
+	switch(TEAM->planificador){
+
+	case FIFO:{
+		int rafagas_necesarias = calcular_rafagas_necesarias(entrenador);
+		int i = 1;
+		while(i<=rafagas_necesarias){
+			sem_post(entrenador->semaforo);
+			i++;
+		}
+		return true;
+	}
+
+	case RR:{
+		int rafagas_necesarias = calcular_rafagas_necesarias(entrenador);
+		if(rafagas_necesarias<=QUANTUM){
+			int i = 1;
+			while(i<=rafagas_necesarias){
+				sem_post(entrenador->semaforo);
+				i++;
+			}
+			return true;
+		}
+		else{
+			int i = 1;
+			while(i<=QUANTUM){
+				sem_post(entrenador->semaforo);
+				i++;
+			}
+			return false;
+		}
+	}
+
+	case SJF_CD:{
+		int rafagas_necesarias = calcular_rafagas_necesarias(entrenador);
+		int i = 1;
+		pthread_mutex_lock(mutex_entrenadores_disponibles);
+		int longitud_lista_actual = list_size(entrenadores_planificados);
+		pthread_mutex_unlock(mutex_entrenadores_disponibles);
+
+		while(i<=rafagas_necesarias){
+			sem_post(entrenador->semaforo);
+
+			pthread_mutex_lock(mutex_entrenadores_disponibles);
+			int longitud_lista_actualizada = list_size(entrenadores_planificados);
+			pthread_mutex_unlock(mutex_entrenadores_disponibles);
+
+			if(longitud_lista_actualizada != longitud_lista_actual){
+				actualizar_estimados(entrenador,i,entrenador->estimado_rafaga_proxima);
+				return false;
+			}
+			i++;
+		}
+		actualizar_estimados(entrenador,i-1,entrenador->estimado_rafaga_proxima);
+		return true;
+
+	}
+
+	case SJF_SD:{
+		int rafagas_necesarias = calcular_rafagas_necesarias(entrenador);
+		int i = 1;
+		while(i<=rafagas_necesarias){
+			sem_post(entrenador->semaforo);
+			i++;
+		}
+		actualizar_estimados(entrenador,i-1,entrenador->estimado_rafaga_proxima);
+		return true;
+
+	}
+
+	default:
+		return false;
+	}
+
+}
+
+
+void planificacion_general(t_team* team){
+
+	while (!team_cumplio_objetivo_global(team)){
+
+		sem_wait(semaforo_entrenadores_disponibles);
+
+		pthread_mutex_lock(mutex_entrenadores_disponibles);
+		t_entrenador* entrenador = list_remove(team->entrenadores_planificados,0);
+		pthread_mutex_unlock(mutex_entrenadores_disponibles);
+
+		if(!sem_post_algoritmo(entrenador))
+		{
+			agregar_entrenador_planificar(entrenador);
+			sem_post(semaforo_entrenadores_disponibles);
+		}
+
+
+
+		//SEMAFORO QUE ESPERA A QUE HAYA ENTRENADORES PARA PLANIFICAR EN "team->entrenadores_planificados"
+
+
+		//wait_sem(&semaforo_entrenadores_disponibles_para_planificar)
+
+		//WAIT MUTEX DE "team->entrenadores_planificados;"
+		//EJECUTO LA RAFAGA DE CPU PARA EL ENTRENADOR QUE CORRESPONDA, CUANTO DURA LA RAFAGA DEPENDERA DEL ALGORITMO
+
+			//LOS VOY MOVIENDO A LA POSICION DEL POKEMON QUE QUIEREN ATRAPAR
+			//OOO LOS VOY MOVIENDO A LA POSICION DEL ENTRENADOR QUE NECESITA EL INTERCAMBIO
+
+		//SI LLEGO A LA POSICION QUE BUSCA MANDO EL CATCH O HAGO EL INTERCAMBIO DE POKEMON
+			//SI EL ENTRENADOR TIENE QUE SEGUIR SIENDO PLANIFICADO, HAGO UN signal_sem(&semaforo_entrenadores_disponibles_para_planificar)
+			//ES DECIR, NO SACO AL ENTRENADOR DE LA LISTA: ""team->entrenadores_planificados"
+
+
+		//SIGNAL MUTEX DE "team->entrenadores_planificados;"
+	}
+
+}
+
+
 //----------------------------------------------------------GUION/funcion principal:
+
+
 void planificar_team(t_team*team) {
 
 	//sem_init(&semaforo_contador_localized,0,0);
@@ -310,22 +491,18 @@ void planificar_team(t_team*team) {
 
 	pthread_create(&appeared_thread, NULL, (void*) handler_broker, &a);//TODO agregar semaforo contador (post) a estos 3 hilos
 	pthread_detach(appeared_thread);
+
 	pthread_create(&localized_thread, NULL, (void*) handler_broker, &l);
 	pthread_detach(localized_thread);
+
 	pthread_create(&caught_thread, NULL, (void*) handler_broker, &c);
 	pthread_detach(caught_thread);
 
 	int listener_socket = init_server(PUERTO_TEAM);
 	pthread_create(&appeared_gameboy_thread, NULL, (void*) escuchar_mensajes_gameboy, &listener_socket);//TODO ordenar escuchar_mensajes_gameboy
 	pthread_detach(appeared_gameboy_thread);
+
 	enviar_gets(pokemones_por_especie);
-
-
-//	if (suscribirse_a_colas(team) == false) {
-//		activar_proceso_reconexion(); //un thread
-//		int socket_gameboy = abrir_socket_gameboy(); //no se si no se hace aun cuando el broker si conecta ojo esto vuela
-//		recibir_mensajes_gameboy(socket_gameboy); //otro thread
-//	}
 
 	if(detectarDeadlocks(team))
 		resolverDeadlocks();
@@ -347,35 +524,10 @@ void planificar_team(t_team*team) {
 	pthread_create(&hilo_principal,NULL,planificacion_general,NULL);
 	pthread_detach(hilo_principal);
 
-
+	crear_hilos_entrenadores();
 
 	//ESTE HILO ESTA CONSTAMENTE EN UN WHILE 1, SI HAY ENTRENADORES PARA PLANIFICAR, LOS AGARRO Y HAGO LO QUE TENGA QUE HACER
 
-	void planificacion_general(void* algo){
-
-
-		while (team_cumplio_objetivo_global(team) == false){
-			//SEMAFORO QUE ESPERA A QUE HAYA ENTRENADORES PARA PLANIFICAR EN "team->entrenadores_planificados"
-
-			//wait_sem(&semaforo_entrenadores_disponibles_para_planificar)
-
-			//WAIT MUTEX DE "team->entrenadores_planificados;"
-
-			//EJECUTO LA RAFAGA DE CPU PARA EL ENTRENADOR QUE CORRESPONDA, CUANTO DURA LA RAFAGA DEPENDERA DEL ALGORITMO
-
-				//LOS VOY MOVIENDO A LA POSICION DEL POKEMON QUE QUIEREN ATRAPAR
-				//OOO LOS VOY MOVIENDO A LA POSICION DEL ENTRENADOR QUE NECESITA EL INTERCAMBIO
-
-			//SI LLEGO A LA POSICION QUE BUSCA MANDO EL CATCH O HAGO EL INTERCAMBIO DE POKEMON
-
-				//SI EL ENTRENADOR TIENE QUE SEGUIR SIENDO PLANIFICADO, HAGO UN signal_sem(&semaforo_entrenadores_disponibles_para_planificar)
-				//ES DECIR, NO SACO AL ENTRENADOR DE LA LISTA: ""team->entrenadores_planificados"
-
-			//SIGNAL MUTEX DE "team->entrenadores_planificados;"
-		}
-	}
-
-	while (team_cumplio_objetivo_global(team) == false) {
 
 
 
@@ -383,32 +535,44 @@ void planificar_team(t_team*team) {
 
 
 
+//	while (team_cumplio_objetivo_global(team) == false) {
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//			if (verificar_nuevo_localized(team,pokemon_a_capturar)&& team_puede_capturar(team) ) //las repuestas a los get,pueden ser dirigidos a otro team
+//			{
+//				/*
+//				 *
+//				 * la idea en este punto es mandarlo a capturar,  osea ponerlo en ready, despues el algoritmo de planificacion dira cuando se ejecuta
+//				 */
+//				planificar_entrenador(team, pokemon_a_capturar); //aca ya tendria la cola de hilos lista y actualizada para que laburen
+//
+//			} else { ///mientras no llegan mensajes o se quedo trabajdo el team ,se purgan los deadlocks
+//				if (verificar_deadlock(team)) { //si la causa es un deadlock aca se soluciona,si es que no esta llegando mensajes se esperaran
+//					team->cantidad_deadlocks_detectados++;
+//					salvar_deadlocks(team);
+//				}
+//				else{//en este punto se supone que no hay pokemones libres en mapa ni deadlock, hay que seguir el curso normal
+//					ejecutar_planificador();
+//				}
+//			}
+//		}
 
 
+	//de aca en adelante se cumplio el objetivo del team...van las funciones de cerrar
 
-
-
-
-
-			if (verificar_nuevo_localized(team,pokemon_a_capturar)&& team_puede_capturar(team) ) //las repuestas a los get,pueden ser dirigidos a otro team
-			{
-				/*
-				 *
-				 * la idea en este punto es mandarlo a capturar,  osea ponerlo en ready, despues el algoritmo de planificacion dira cuando se ejecuta
-				 */
-				planificar_entrenador(team, pokemon_a_capturar); //aca ya tendria la cola de hilos lista y actualizada para que laburen
-
-			} else { ///mientras no llegan mensajes o se quedo trabajdo el team ,se purgan los deadlocks
-				if (verificar_deadlock(team)) { //si la causa es un deadlock aca se soluciona,si es que no esta llegando mensajes se esperaran
-					team->cantidad_deadlocks_detectados++;
-					salvar_deadlocks(team);
-				}
-				else{//en este punto se supone que no hay pokemones libres en mapa ni deadlock, hay que seguir el curso normal
-					ejecutar_planificador();
-				}
-			}
-		}
-} //de aca en adelante se cumplio el objetivo del team...van las funciones de cerrar
+}
 
 
 

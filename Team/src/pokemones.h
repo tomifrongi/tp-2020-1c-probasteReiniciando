@@ -10,11 +10,16 @@
 #include<commons/config.h>
 #include<commons/string.h>
 #include<commons/collections/list.h>
-#include "config.h"
+#include "configuracion.h"
 #include "team.h"
 #include "entrenadores.h"
 #include <stdbool.h>
 
+typedef struct{
+	char* especie;
+	int posicion_x;
+	int posicion_y;
+}t_pokemon;
 
 
 t_list *pokemones_capturados(t_team*team,int index);

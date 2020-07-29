@@ -20,59 +20,27 @@ typedef enum {
 }t_planificador;
 
 typedef struct{
-	char* especie;
-	//cambio de planes tenemos mapa again,pero mantenemos posicion para algunos calculos
-	int posicion_x;
-	int posicion_y;//todos arrancan en el bolsillo del entrenador
-
-}t_pokemon;
-
- typedef struct {
-	//char* nombre;
-	int id;
-	int team;//team al que pertenece
-	int posicion_x;
-	int posicion_y;
-	t_list* pokemones_capturados;
-	t_list* pokemones_buscados;
-	 t_state estado ;//no se puede inicializar en este.h parece
-}t_entrenador;
-
-
-typedef struct{
-	int id;
-	char* path_config;
+//	int id;
+//	char* path_config;
 	t_list * entrenadores;
 	t_list* objetivo_global;
 	//t_list*mapa [MAP_SIZE][MAP_SIZE];
 	t_list*pokemones_sueltos;
-	char*path_logfile;//logfile
-	int ip_broker;
-	int puerto_broker;
-	int tiempo_reconexion;
-	int retardo_ciclo_cpu;
-	int quantum;
+//	char*path_logfile;//logfile
+//	int ip_broker;
+//	int puerto_broker;
+//	int tiempo_reconexion;
+//	int retardo_ciclo_cpu;
+//	int quantum;
 	t_planificador planificador;
 	t_list*entrenadores_planificados;
-	//contadores finales :
-	int cantidad_ciclos_cpu_ejecutados=0;
-	int cantidad_deadlocks=0;//mm hace falta
-	int cantidad_deadlocks_detectados=0;
-	int cantidad_deadlocks_solucionados=0;
+	//contadores finales :break;
+	int cantidad_ciclos_cpu_ejecutados;
+	int cantidad_deadlocks;//mm hace falta
+	int cantidad_deadlocks_detectados;
+	int cantidad_deadlocks_solucionados;
 
-	bool conectado_al_broker;
-	t_queue* cola_localized;
-	sem_t* semaforo_contador_localized;
-	t_queue* cola_appeared;
-	sem_t* semaforo_contador_appeared;
-	t_queue* cola_caught;
-	sem_t* semaforo_contador_caught;
-	t_list* idsGet;
-	t_list* idsCatch;
-	t_list* especiesRecibidas;
 }t_team;
-
-t_list*lista_teams=list_create();//TODO al main
 
 
 

@@ -143,3 +143,30 @@ void mover_entrenador(t_entrenador*entrenador, int pos_dest_x, int pos_dest_y) {
 
 	}
 }
+
+int calcular_rafagas_necesarias(t_entrenador* entrenador){
+	switch(entrenador->tarea->tipo_tarea){
+
+	case ATRAPAR: {
+		return distancia_entrenador_pokemon(entrenador,entrenador->tarea->pokemon);
+	}
+
+	case BUSCAR_ENTRENADOR:{
+		return distancia_entrenador_pokemon(entrenador,entrenador->tarea->pokemon) + 5;
+	}
+	default:
+		return 0;
+	}
+}
+
+
+
+void actualizar_estimados(t_entrenador* entrenador,int* real_rafaga_anterior,int* estimado_rafaga_anterior){
+	entrenador->real_rafaga_anterior = real_rafaga_anterior;
+
+	entrenador->estimado_rafaga_anterior = estimado_rafaga_anterior;
+
+	//Est(n+1) = 𝝰 R(n) + ( 1 - 𝝰 ) Est(n)
+	int estimado = ALPHA*real_rafaga_anterior + (1-ALPHA) * estimado_rafaga_anterior;
+	entrenador->estimado_rafaga_proxima = estimado;
+}
