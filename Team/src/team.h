@@ -27,7 +27,8 @@ typedef struct{
 	t_list* entrenadores_desocupados; //toodos los entrenadores arrancan en esta lista ya que estan desocupados
 
 	t_list* objetivo_pokemones_restantes; //tiene toodos los pokemones que le falta al team y puede haber repetidos
-							//si se captura un pokemon, hay que sacarlo de esta lista.
+										 //si se captura un pokemon, hay que sacarlo de esta lista.
+										// es una lista de char*, no de t_pokemones
 	t_list* mapa_pokemones;
 	t_planificador planificador;
 

@@ -79,6 +79,7 @@ bool verificar_nuevo_localized(t_team*team, t_pokemon*pokemon) { //TODO
 
 //armo los planificadores:
 //atrapada:entrenador y pokemon involucrado
+
 int get_indice(t_team*team, hilo_entrenador) {
 	int indice = 0;
 	if (list_size(team->entrenadores_planificados) == 0) { //si no hay elementos lo pongo primero
@@ -95,42 +96,70 @@ int get_indice(t_team*team, hilo_entrenador) {
 }
 
 
-void planificar_entrenador(t_team * team, t_pokemon * pokemon) //TODO ACTUALIZAR
+void planificar_entrenador(t_team * team) //TODO ACTUALIZAR
 {
 	typedef struct{
-		t_pokemon pokemon;
-		t_entrenador entrenador;
+		t_pokemon* pokemon;
+		t_entrenador* entrenador;
 		int distancia;
-	}t_distancia_pokemon;
-
-	void foop(void* p){
-		t_pokemon* pokemon = p;
-		int cantidad_necesaria_pokemon = cantidad_pokemones_especie(team->objetivo_pokemones_restantes,pokemon->especie);
-		t_list* posiciones_pokemon_mapa = pokemones_misma_especie(team->mapa_pokemones,pokemon->especie);
-		int i = 0;
-		while(i < list_size(pokemones_misma_especie){
-			t_pokemon* pokemon = list_remove(posiciones_pokemon_mapa,i);
-
-			i++;
-		}
-	}
+	}t_distancia_pokemon_entrenador;
 
 
-	while(algunos_pueden_atrapar(team)){
+	while(1){
+
+		//3 pikachus y te lllega un localized que tiene 6 posiciones
+
 		sem_wait(semaforo_mapa_pokemones);
 		sem_wait(semaforo_entrenadores_desocupados);
 
 
-		if(!list_is_empty(posiciones_pokemon_mapa)){
-
+		char* especie_pokemon = list_get(team->objetivo_pokemones_restantes,0);
+		t_list* posiciones_pokemon_mapa = pokemones_misma_especie(team->mapa_pokemones,especie_pokemon); //seria una lista de t_pokemon
+		int size_posiciones_pokemon_mapa = list_size(posiciones_pokemon_mapa);
+		int i = 0;
+		int size_objetivo_pokemones_restantes = list_size(team->objetivo_pokemones_restantes);
+		while(size_posiciones_pokemon_mapa <=0 && i<size_objetivo_pokemones_restantes){
+			especie_pokemon = list_get(team->objetivo_pokemones_restantes,i);
+			posiciones_pokemon_mapa = pokemones_misma_especie(team->mapa_pokemones,especie_pokemon); //seria una lista de t_pokemon
+			size_posiciones_pokemon_mapa = list_size(posiciones_pokemon_mapa);
+			i++;
 		}
 
-		list_iterate(team->objetivo_pokemones_restantes,foop);
 
+		int j = 0;
+		t_list* pares_entrenadores_mas_cercanos = list_create();
+		while(j<size_posiciones_pokemon_mapa){
+			t_pokemon* pokemon = list_get(posiciones_pokemon_mapa,j);
+			t_entrenador* entrenador_mas_cercano = buscar_entrenador_mas_cercano(team->entrenadores_desocupados,pokemon);
+			t_distancia_pokemon_entrenador distancia;
+			distancia.pokemon = pokemon;
+			distancia.entrenador = entrenador_mas_cercano;
+			distancia.distancia = distancia_entrenador_pokemon(entrenador_mas_cercano,pokemon);
+			t_distancia_pokemon_entrenador* distancia_creada = crear_t_distancia_pokemon_entrenador(distancia);
+			list_add(pares_entrenadores_mas_cercanos,distancia_creada);
+			j++;
+		}
 
+		ordenar_t_distancia(pares_entrenadores_mas_cercanos);
+		t_distancia_pokemon_entrenador* mejor_distancia = list_get(pares_entrenadores_mas_cercanos,0);
+		asignar_tarea_atrapar(mejor_distancia->entrenador,mejor_distancia->pokemon);
+		remover_entrenador(team->entrenadores_desocupados,mejor_distancia->entrenador);
+		remover_pokemon(team->mapa_pokemones,mejor_distancia->pokemon);
+		//list_destroy_and_destroy_elements(pares_entrenadores_mas_cercanos)
+
+		//TODO REVISAR BIEN LOS DESTROY, OJO CON LOS MEMORY LEAK
 
 	}
+
+
+
+
+
+
 }
+
+
+//TODO TENER EN CUENTA QUE SE CAE EL SERVIDOR EN LOS HILOS
 
 int tiempo_rafaga(t_entrenador* entrenador,t_pokemon* pokemon) {
 	return team->retardo_ciclo_cpu * distancia_entrenador_pokemon(entrenador, pokemon);
@@ -248,11 +277,11 @@ void procesar_appeared(t_team* team){
 
 
 void handler_entrenador(t_entrenador* entrenador){
+
 	while(1){
 
 
 		sem_wait(entrenador->semaforo);
-
 		ejecutar_ciclo_cpu(entrenador);
 
 
@@ -260,12 +289,23 @@ void handler_entrenador(t_entrenador* entrenador){
 			switch(entrenador->tarea->tipo_tarea){
 				case ATRAPAR:{
 					entrenador->esta_en_entrada_salida = true;
-					int id_mensaje = enviar_catch(entrenador->tarea->pokemon);
-					int* id_mensaje_creado = malloc(sizeof(int));
-					*id_mensaje_creado = id_mensaje;
-					list_add(idsCatch,id_mensaje_creado);
-					entrenador->id_correlativo_esperado = id_mensaje;
+					if(conectado_al_broker){
+						int id_mensaje = enviar_catch(entrenador->tarea->pokemon);
+						int* id_mensaje_creado = malloc(sizeof(int));
+						*id_mensaje_creado = id_mensaje;
+						list_add(idsCatch,id_mensaje_creado);
+						entrenador->id_correlativo_esperado = id_mensaje;
+					}
+					else{
+
+						//entrenador->pokemones_capturados.add
+						//entrenador
+
+
+						//TODO COMPLETAR EL CASO QUE NO ESTE CONECTADO EL BROKER
+					}
 					break;
+
 				}
 
 				case INTERCAMBIO:{
@@ -525,11 +565,19 @@ void planificar_team(t_team*team) {
 	pthread_create(&consumidor_cola_caught,NULL,procesar_caught,NULL);
 	pthread_detach(consumidor_cola_caught);
 
+
+
 	pthread_t hilo_principal;
 	pthread_create(&hilo_principal,NULL,planificacion_general,NULL);
 	pthread_detach(hilo_principal);
 
+	//agregar thread
+
+
 	crear_hilos_entrenadores();
+	t_entrenador* entrenador;
+
+	pthread_create(&hilo_entrenador,NULL,handler_entrenador,(void*) entrenador);
 
 	//ESTE HILO ESTA CONSTAMENTE EN UN WHILE 1, SI HAY ENTRENADORES PARA PLANIFICAR, LOS AGARRO Y HAGO LO QUE TENGA QUE HACER
 
