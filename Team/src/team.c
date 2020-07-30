@@ -98,7 +98,13 @@ void consumir_ciclos_cpu(t_team*team,int cantidad_ciclos){
 
 
 
-
+bool algunos_pueden_atrapar(t_team* team){
+	bool alcanzo_capacidad_maxima(void* e){
+		t_entrenador* entrenador = e;
+		return  list_size(entrenador->pokemones_capturados) < list_size(entrenador->pokemones_buscados);
+	}
+	return list_any_satisfy(team->entrenadores,alcanzo_capacidad_maxima);
+}
 
 
 

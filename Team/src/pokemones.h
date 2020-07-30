@@ -32,6 +32,8 @@ bool  pokemones_es_misma_especie(t_pokemon*,t_pokemon*);
 
 int cantidad_pokemones_especie(t_list* , char*);
 
+t_list* pokemones_misma_especie(t_list*, char*);
+
 t_list*listar_pokemones(char**);
 
 void mostrar_pokemon(t_pokemon*);

@@ -24,6 +24,9 @@ t_list* especiesRecibidas;
 pthread_mutex_t* mutex_entrenadores_disponibles;
 sem_t* semaforo_entrenadores_disponibles;
 
+sem_t* semaforo_mapa_pokemones;
+sem_t* semaforo_entrenadores_desocupados;
+
 t_team* TEAM;
 
 #ifndef SRC_PLANIFICADOR_H_

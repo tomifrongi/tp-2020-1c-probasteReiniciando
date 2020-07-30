@@ -37,6 +37,16 @@ int cantidad_pokemones_especie(t_list* pokemones, char*mi_especie) {
 	return list_size(list_filter(pokemones, (t_pokemon *) _es_especie));
 
 }
+
+t_list* pokemones_misma_especie(t_list* pokemones, char*mi_especie) {
+
+	bool _es_especie(t_pokemon * p) {
+		char* especie = p->especie;
+		return string_equals_ignore_case(mi_especie, (char*) especie);
+	}
+	return list_filter(pokemones, (t_pokemon *) _es_especie);
+
+}
 /*
 /*------------------------------------------------CARGA E INICIALIZACION DE LOS POKEMONES------------------------------------------------*/
 

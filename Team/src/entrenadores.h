@@ -44,7 +44,6 @@ typedef struct {
 	t_state estado;
 	t_tarea* tarea;
 	sem_t* semaforo;
-
 	int estimado_rafaga_anterior;
 	int estimado_rafaga_proxima;
 	int real_rafaga_anterior;

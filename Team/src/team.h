@@ -19,21 +19,18 @@ typedef enum {
 	SJF_SD
 }t_planificador;
 
+//2 squirtle y 1 pikachu
+
 typedef struct{
-//	int id;
-//	char* path_config;
-	t_list * entrenadores;
-	t_list* objetivo_global;
-	//t_list*mapa [MAP_SIZE][MAP_SIZE];
-	t_list*pokemones_sueltos;
-//	char*path_logfile;//logfile
-//	int ip_broker;
-//	int puerto_broker;
-//	int tiempo_reconexion;
-//	int retardo_ciclo_cpu;
-//	int quantum;
+	t_list* entrenadores; //esta lista contiene todos los entrenadores siempre, no se sacan ni se agregan
+	t_list* entrenadores_planificados; //los que estan en READY
+	t_list* entrenadores_desocupados; //toodos los entrenadores arrancan en esta lista ya que estan desocupados
+
+	t_list* objetivo_pokemones_restantes; //tiene toodos los pokemones que le falta al team y puede haber repetidos
+							//si se captura un pokemon, hay que sacarlo de esta lista.
+	t_list* mapa_pokemones;
 	t_planificador planificador;
-	t_list*entrenadores_planificados;
+
 	//contadores finales :break;
 	int cantidad_ciclos_cpu_ejecutados;
 	int cantidad_deadlocks;//mm hace falta
@@ -63,7 +60,7 @@ bool team_cumplio_objetivo_global(t_team*);
 void team_verificar_finalizacion(t_team*);
 void consumir_ciclos_cpu(t_team*,int);
 
-
+bool algunos_pueden_atrapar(t_team*);
 
 
 t_list * pokemones_sueltos;

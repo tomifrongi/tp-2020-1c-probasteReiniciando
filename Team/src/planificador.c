@@ -91,50 +91,39 @@ int get_indice(t_team*team, hilo_entrenador) {
 		} else {
 			return indice;
 		}
-
 	}
-
 }
-
 
 
 void planificar_entrenador(t_team * team, t_pokemon * pokemon) //TODO ACTUALIZAR
 {
-	//pasar su hilo a ready
-	t_entrenador*entrenador = entrenador_mas_cercano(team->entrenadores, pokemon);
-//aca armo el hilo y se los paso a los planificadores//seria otro tad...
+	while(algunos_pueden_atrapar(team)){
+		sem_wait(semaforo_mapa_pokemones);
+		sem_wait(semaforo_entrenadores_desocupados);
 
-	switch (team->planificador){
-	case FIFO:{
-
-	}
-
-
-	case RR:{
-
-		list_add(team->entrenadores_planificados, hilo_entrenador); //se agrega al final
-		break;
-	}
+		void foop(void* p){
+			t_pokemon* pokemon = p;
+			int cantidad_necesaria_pokemon = cantidad_pokemones_especie(team->objetivo_pokemones_restantes,pokemon->especie);
+			t_list* posiciones_pokemon_mapa = pokemones_misma_especie(team->mapa_pokemones,pokemon->especie);
+			entrenador
+			pokemon
+			distancia
 
 
-	case SJF_CD:{
-		int indice = get_indice(team, hilo_entrenador);
-		if (indice == 0) {
-			desalojar_hilo(); //TODO que desaloje y se ejecute el nuevo hilo
+
+			if(!list_is_empty(posiciones_pokemon_mapa)){
+
+			}
+
+
+
 		}
-		list_add_in_index(team->entrenadores_planificados, indice, hilo_entrenador);
 
-		break;
-	}
+		list_iterate(team->objetivo_pokemones_restantes,foop);
 
-	case SJF_SD: {//lo agrega ordenado segun su tiempo
 
-		list_add_in_index(team->entrenadores_planificados, get_indice(team, hilo_entrenador), hilo_entrenador);
-		break;
-	}
 
 	}
-
 }
 
 int tiempo_rafaga(t_entrenador* entrenador,t_pokemon* pokemon) {
@@ -184,7 +173,7 @@ bool verificar_nuevo_localized(t_team* team, t_pokemon* pokemon,uint32_t id_corr
 
 void procesar_localized(t_team* team){
 	while(1){
-		sem_wait(team->semaforo_contador_localized);
+		sem_wait(semaforo_contador_localized);
 		localized_pokemon* mensaje = queue_pop(team->cola_localized);
 
 		t_pokemon pokemon_a_capturar;
@@ -202,20 +191,14 @@ void procesar_localized(t_team* team){
 			pokemon_a_capturar.posicion_x = posicionCasteada->posicionEjeX;
 			pokemon_a_capturar.posicion_x = posicionCasteada->posicionEjeY;
 			t_pokemon* pokemon_a_capturar_creado = crear_t_pokemon(pokemon_a_capturar);
-			list_add(pokemones_localized,pokemon_a_capturar_creado);
+			list_add(team->mapa_pokemones,pokemon_a_capturar_creado);
 		}
 
 		if(verificar_nuevo_localized(team,pokemon_a_capturar_creado,mensaje->idCorrelativo)){
 			borrar_t_pokemon(pokemon_a_capturar);
 			list_iterate(mensaje->posiciones,agregar_pokemon_suelto);
-
-			//TODO busco_cuantos_necesito
-			//TODO planifico los mas cercanos a un entrenador
-			//TODO el resto los agrego a una lista por si los llego a necesitar
-			//planificar_entrenador(team,pokemon_a_capturar_creado);
 		}
-
-
+		borrar_localized_pokemon(mensaje);
 	}
 }
 
@@ -243,15 +226,16 @@ bool verificar_nuevo_appeared(t_team* team, t_pokemon* pokemon){
 
 void procesar_appeared(t_team* team){
 	while(1){
-		sem_wait(team->semaforo_contador_appeared);
-		appeared_pokemon* mensaje = queue_pop(team->cola_appeared);
+		sem_wait(semaforo_contador_appeared);
+		appeared_pokemon* mensaje = queue_pop(cola_appeared);
 		t_pokemon pokemon_a_capturar;
 		pokemon_a_capturar.especie = mensaje->nombrePokemon;
 		pokemon_a_capturar.posicion_x = mensaje->posicionEjeX;
 		pokemon_a_capturar.posicion_x = mensaje->posicionEjeY;
 		t_pokemon* pokemon_a_capturar_creado = crear_t_pokemon(pokemon_a_capturar);
 		if(verificar_nuevo_appeared(team,pokemon_a_capturar_creado))
-			planificar_entrenador(team,pokemon_a_capturar_creado);
+			list_add(team->mapa_pokemones,pokemon_a_capturar_creado);
+		borrar_appeared_pokemon(mensaje);
 	}
 
 }
@@ -282,9 +266,9 @@ void handler_entrenador(t_entrenador* entrenador){
 					realizar_intercambio(entrenador,entrenador->tarea->entrenador_intercambio);
 					if(entrenador_cumplio_objetivos(entrenador))
 						cambiar_estado(entrenador,EXIT);
-
 					else{
-
+						if(detectar_deadlocks())
+							resolver_deadlocs();
 					}
 					break;
 				}
@@ -453,7 +437,7 @@ void agregar_entrenador_a_planificar(t_entrenador* entrenador,t_team* team){
 
 void planificacion_general(t_team* team){
 
-	while (!team_cumplio_objetivo_global(team)){
+	while (algunos_pueden_atrapar(team)){
 
 		sem_wait(semaforo_entrenadores_disponibles);
 
@@ -464,30 +448,24 @@ void planificacion_general(t_team* team){
 		if(!sem_post_algoritmo(entrenador))
 			agregar_entrenador_a_planificar(entrenador,team);
 
-
-
-
-
-		//SEMAFORO QUE ESPERA A QUE HAYA ENTRENADORES PARA PLANIFICAR EN "team->entrenadores_planificados"
-
-
-		//wait_sem(&semaforo_entrenadores_disponibles_para_planificar)
-
-		//WAIT MUTEX DE "team->entrenadores_planificados;"
-		//EJECUTO LA RAFAGA DE CPU PARA EL ENTRENADOR QUE CORRESPONDA, CUANTO DURA LA RAFAGA DEPENDERA DEL ALGORITMO
-
-			//LOS VOY MOVIENDO A LA POSICION DEL POKEMON QUE QUIEREN ATRAPAR
-			//OOO LOS VOY MOVIENDO A LA POSICION DEL ENTRENADOR QUE NECESITA EL INTERCAMBIO
-
-		//SI LLEGO A LA POSICION QUE BUSCA MANDO EL CATCH O HAGO EL INTERCAMBIO DE POKEMON
-			//SI EL ENTRENADOR TIENE QUE SEGUIR SIENDO PLANIFICADO, HAGO UN signal_sem(&semaforo_entrenadores_disponibles_para_planificar)
-			//ES DECIR, NO SACO AL ENTRENADOR DE LA LISTA: ""team->entrenadores_planificados"
-
-
-		//SIGNAL MUTEX DE "team->entrenadores_planificados;"
 	}
-	if(detectarDeadlocks(team))
-			resolverDeadlocks();
+
+	if(detectar_deadlocks())
+		resolverDeadlocks();
+
+	while (!team_cumplio_objetivo_global(team))
+	{
+		sem_wait(semaforo_entrenadores_disponibles);
+		pthread_mutex_lock(mutex_entrenadores_disponibles);
+		t_entrenador* entrenador = list_remove(team->entrenadores_planificados,0);
+		pthread_mutex_unlock(mutex_entrenadores_disponibles);
+
+		if(!sem_post_algoritmo(entrenador))
+			agregar_entrenador_a_planificar(entrenador,team);
+
+
+	}
+
 
 }
 
