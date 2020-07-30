@@ -35,7 +35,9 @@ typedef struct {
 typedef struct {
 	int id;
 	t_team* team;
-	coordenada posicion_actual;
+	//coordenada posicion_actual; esto efea
+	int posicion_x;
+	int posicion_y;
 	t_list* pokemones_capturados;
 	t_list* pokemones_buscados;
 	t_state estado;
@@ -51,28 +53,45 @@ typedef struct {
 	int rafagas_intercambio_realizadas;
 }t_entrenador;
 
+//--------FUCIONES------
 
-bool esta_disponible(t_entrenador*);
+t_entrenador *iniciar_entrenador(int , int , int , t_list*, t_list*);
 
-void cambiar_estado(t_entrenador*,t_state);
+t_list * inicializar_entrenadores(t_team*);
 
-void bloquear_entrenador(t_entrenador*);
+void mostrar_entrenador(t_entrenador*);
 
-void capturar_pokemon(t_entrenador*,t_pokemon*);
+void mostrar_entrenadores(t_list*);
 
-int cant_pokemones_especie(t_entrenador*,t_pokemon*);
+void cambiar_estado(t_entrenador* , t_state );
 
-int cantidad_objetivos(t_entrenador*);
+void entrenador_bloquear(t_entrenador *);
 
-int puede_atrapar(t_entrenador*,t_pokemon*);
+bool entrenador_cumplio_objetivos(t_entrenador *);
 
-int necesita_pokemon(t_entrenador*,t_pokemon*);
+int entrenador_finalizar(t_entrenador *);
 
-int calcular_rafagas_necesarias(t_entrenador*);
+bool entrenador_finalizo(t_entrenador*);
 
-void actualizar_estimados(t_entrenador*,int*,int*);
+bool entrenador_desocupado(t_entrenador*);
 
+bool disponible_para_planificar(t_entrenador*);
 
+t_list * entrenador_pokemones_faltantes(t_entrenador*);
+
+t_list* entrenador_pokemones_sobrantes(t_entrenador*);
+
+int entrenador_cantidad_objetivos(t_entrenador *);
+
+int entrenador_cantidad_capturados(t_entrenador *);
+
+bool entrenador_puede_capturar(t_entrenador*);
+
+void mover_entrenador(t_entrenador*, int , int );
+
+int calcular_rafagas_necesarias(t_entrenador* );
+
+void actualizar_estimados(t_entrenador* ,int* ,int*);
 
 #endif /* ENTRENADORES_H_ */
 

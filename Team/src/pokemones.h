@@ -22,12 +22,27 @@ typedef struct{
 }t_pokemon;
 
 
-t_list *pokemones_capturados(t_team*team,int index);
-t_list *pokemones_buscados(t_team*team,int index);
-int cantidad_objetivos(t_entrenador *entrenador);
-int cantidad_pokemones_especie(t_list* pokemones, char*mi_especie);
-int necesita_pokemon(t_entrenador* entrenador, t_pokemon *pokemon); //ni me acuero que hace
-t_list*listar_pokemones(char**array);
-void mostrar_pokemon(t_pokemon*pokemon);
-void mostrar_pokemones(t_list*pokemones);
+//-----------------FUNCIONES-------------
+
+t_list* intersect_listas_pokemones(t_list*, t_list*);
+
+t_list *get_pokemones(t_team*, int , int );
+
+bool  pokemones_es_misma_especie(t_pokemon*,t_pokemon*);
+
+int cantidad_pokemones_especie(t_list* , char*);
+
+t_list*listar_pokemones(char**);
+
+void mostrar_pokemon(t_pokemon*);
+
+int pokemon_util_a_entrenador(t_entrenador* , t_pokemon *);
+
+bool pokemon_util_a_team(t_team*,t_pokemon*);
+
+
+
+
+
+
 #endif /* POKEMONES_H_ */

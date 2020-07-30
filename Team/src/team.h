@@ -53,6 +53,19 @@ t_list * objetivo_global(t_team*team) ;
 int cantidad_por_especie(t_team*,t_pokemon*);
 void crear_hilo(t_entrenador*);//no se si es tan asi
 
+t_list * team_get_objetivo_global(t_team*);
+
+int team_cantidad_maxima_especie(t_team*, char*);
+int team_cantidad_total_especie(t_team*, char*);
+bool team_puede_capturar(t_team*team, t_pokemon*);
+t_list*team_entrenadores_disponibles(t_team*);
+bool team_cumplio_objetivo_global(t_team*);
+void team_verificar_finalizacion(t_team*);
+void consumir_ciclos_cpu(t_team*,int);
+
+
+
+
 t_list * pokemones_sueltos;
 
 #endif /* TEAM_H_ */

@@ -33,7 +33,7 @@ void cargar_teams(){
 	}
 }
 
-t_config * leer_config() {//sasco el parametro team
+t_config * leer_config() {//saco el parametro team
 
 	t_config * config = config_create("./src/a.config");
 	//t_config * config = config_create(team->path_config); //ver de que funcione asi //todo

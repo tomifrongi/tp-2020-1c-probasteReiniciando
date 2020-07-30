@@ -152,7 +152,7 @@ int calcular_rafagas_necesarias(t_entrenador* entrenador){
 	}
 
 	case BUSCAR_ENTRENADOR:{
-		return distancia_entrenador_pokemon(entrenador,entrenador->tarea->pokemon) + 5;
+		return distancia_entrenador_pokemon(entrenador,entrenador->tarea->pokemon) + 5 - entrenador->rafagas_intercambio_realizadas;
 	}
 	default:
 		return 0;
