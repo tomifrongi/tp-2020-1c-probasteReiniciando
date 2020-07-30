@@ -97,25 +97,31 @@ int get_indice(t_team*team, hilo_entrenador) {
 
 void planificar_entrenador(t_team * team, t_pokemon * pokemon) //TODO ACTUALIZAR
 {
+	typedef struct{
+		t_pokemon pokemon;
+		t_entrenador entrenador;
+		int distancia;
+	}t_distancia_pokemon;
+
+	void foop(void* p){
+		t_pokemon* pokemon = p;
+		int cantidad_necesaria_pokemon = cantidad_pokemones_especie(team->objetivo_pokemones_restantes,pokemon->especie);
+		t_list* posiciones_pokemon_mapa = pokemones_misma_especie(team->mapa_pokemones,pokemon->especie);
+		int i = 0;
+		while(i < list_size(pokemones_misma_especie){
+			t_pokemon* pokemon = list_remove(posiciones_pokemon_mapa,i);
+
+			i++;
+		}
+	}
+
+
 	while(algunos_pueden_atrapar(team)){
 		sem_wait(semaforo_mapa_pokemones);
 		sem_wait(semaforo_entrenadores_desocupados);
 
-		void foop(void* p){
-			t_pokemon* pokemon = p;
-			int cantidad_necesaria_pokemon = cantidad_pokemones_especie(team->objetivo_pokemones_restantes,pokemon->especie);
-			t_list* posiciones_pokemon_mapa = pokemones_misma_especie(team->mapa_pokemones,pokemon->especie);
-			entrenador
-			pokemon
-			distancia
 
-
-
-			if(!list_is_empty(posiciones_pokemon_mapa)){
-
-			}
-
-
+		if(!list_is_empty(posiciones_pokemon_mapa)){
 
 		}
 
