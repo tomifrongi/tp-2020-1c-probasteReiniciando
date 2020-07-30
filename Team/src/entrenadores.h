@@ -22,7 +22,6 @@ typedef enum {
 
 typedef enum {
 	ATRAPAR,
-	BUSCAR_ENTRENADOR,
 	INTERCAMBIO
 }t_tipo_tarea;
 
@@ -61,6 +60,9 @@ t_list * inicializar_entrenadores(t_team*);
 
 void mostrar_entrenador(t_entrenador*);
 
+void ejecutar_ciclo_cpu(t_entrenador*);
+
+
 void mostrar_entrenadores(t_list*);
 
 void cambiar_estado(t_entrenador* , t_state );
@@ -86,6 +88,8 @@ int entrenador_cantidad_objetivos(t_entrenador *);
 int entrenador_cantidad_capturados(t_entrenador *);
 
 bool entrenador_puede_capturar(t_entrenador*);
+
+void mover_entrenador_una_posicion(t_entrenador*, int , int);
 
 void mover_entrenador(t_entrenador*, int , int );
 

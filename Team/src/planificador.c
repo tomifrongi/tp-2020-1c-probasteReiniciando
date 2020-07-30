@@ -24,30 +24,14 @@ void* crear_hilos_entrenadores( team) { //debe hacerse al inciar el proceso team
 
 //__________________________Guion_____________________________________________________________________-
 
-bool suscribirse_a_colas(t_team*team) {
-	int socket_apparead = suscribirse_apparead();
-	int socket_caught = suscribirse_caught();
-	int socket_localized = suscribirse_localized();
-	return ((socket_localized == 0) || (socket_caught == 0) || (socket_apparead == 0));
 
-	pedir_pokemones_necesarios(t_team * team);
-	{
-		t_list*especies_necesarias = list_create();
-		especies_necesarias = team_especies_pokemones_necesarios(team); //solo mando los tipos de especie que me interesan,no la cantidad que necesite
-
-		for (int i = 0; i < list_size(especies_necesarias); i++) {
-			int socket = connectar_con_broker(); //tema sockets
-			enviar_mensaje_a_broker(get, list_get(especies_necesarias, i), socket);
-			//creo que son las tres cosas que necesita nro de socket,especie
-			cerrar_coneccion_broker();
-		}
-	}
-}
 
 bool verificar_nuevo_localized(t_team*team, t_pokemon*pokemon) { //TODO
+		char* especie;
+		t_message mensaje;
 		if (hay_nuevos_mensajes()) {
 			t_pokemon*pokemon = recibir_mensaje(); //aca la idea es que devuelva por parametro el pokemon para despues capturarlo
-			if (team_necesita_especie(esṕecie) & primer_mensaje(team, especie)) { //NO ME GUSTA ASI...//solo me quedo con el primer localized de cada especie ,no puede haber dos en mapa sueltos de cada especie
+			if (team_necesita_especie(especie) & primer_mensaje(team, especie)) { //NO ME GUSTA ASI...//solo me quedo con el primer localized de cada especie ,no puede haber dos en mapa sueltos de cada especie
 				agregar_nuevos(team); //agrego a la lista de pokemones sueltos los que llegaron //mapeo
 				no_es_primer_mensaje(team, especie); //avisa que ya no es el primer mensaje el proximo que vendra de esa especie,tendra que volverlo a poner en blanco el entrenador al capturar,no se si n se podria hacer directamente contando los que hay sueltos en mapa
 
@@ -95,22 +79,22 @@ bool verificar_nuevo_localized(t_team*team, t_pokemon*pokemon) { //TODO
 
 //armo los planificadores:
 //atrapada:entrenador y pokemon involucrado
-	int get_indice(t_team*team, hilo_entrenador) {
-		int indice = 0;
-		if (list_size(team->entrenadores_planificados) == 0) { //si no hay elementos lo pongo primero
-			return 0;
-		}
-		while (indice < list_size(team->entrenadores_planificados)) {
-			t_entrenador*hilo_otro_entrenador = list_get(team->entrenadores_planificados, indice);
-			if (hilo_entrenador->tiempo_rafaga > hilo_otro_entrenador->tiempo_rafaga) {
-				indice++;
-			} else {
-				return indice;
-			}
-
+int get_indice(t_team*team, hilo_entrenador) {
+	int indice = 0;
+	if (list_size(team->entrenadores_planificados) == 0) { //si no hay elementos lo pongo primero
+		return 0;
+	}
+	while (indice < list_size(team->entrenadores_planificados)) {
+		t_entrenador*hilo_otro_entrenador = list_get(team->entrenadores_planificados, indice);
+		if (hilo_entrenador->tiempo_rafaga > hilo_otro_entrenador->tiempo_rafaga) {
+			indice++;
+		} else {
+			return indice;
 		}
 
 	}
+
+}
 
 
 
@@ -282,25 +266,26 @@ void handler_entrenador(t_entrenador* entrenador){
 		ejecutar_ciclo_cpu(entrenador);
 
 
-		if(cumplio_rafaga(entrenador)){
+		if(calcular_rafagas_necesarias(entrenador) == 0){
 			switch(entrenador->tarea->tipo_tarea){
-			case ATRAPAR:{
-				entrenador->esta_en_entrada_salida = true;
-				int id_mensaje = enviar_catch(entrenador->tarea->pokemon);
-				int* id_mensaje_creado = malloc(sizeof(int));
-				*id_mensaje_creado = id_mensaje;
-				cambiar_estado(entrenador,BLOCK);
-				list_add(entrenador->team->idsCatch,id_mensaje_creado);
+				case ATRAPAR:{
+					entrenador->esta_en_entrada_salida = true;
+					int id_mensaje = enviar_catch(entrenador->tarea->pokemon);
+					int* id_mensaje_creado = malloc(sizeof(int));
+					*id_mensaje_creado = id_mensaje;
+					cambiar_estado(entrenador,BLOCK);
+					list_add(entrenador->team->idsCatch,id_mensaje_creado);
+					break;
+				}
 
-
-				break;
+				case INTERCAMBIO:{
+					realizar_intercambio(entrenador,entrenador->tarea->entrenador_intercambio);
+					break;
+				}
 			}
-
-			case INTERCAMBIO:{
-				realizar_intercambio(entrenador,entrenador->tarea->entrenador);
-				break;
-			}
-			}
+		}
+		else{
+			sleep(RETARDO_CICLO_CPU);
 		}
 	}
 }
@@ -334,10 +319,12 @@ bool sem_post_algoritmo(t_entrenador* entrenador,t_list* entrenadores_planificad
 	case FIFO:{
 		int rafagas_necesarias = calcular_rafagas_necesarias(entrenador);
 		int i = 1;
+		cambiar_estado(entrenador,EXEC);
 		while(i<=rafagas_necesarias){
 			sem_post(entrenador->semaforo);
 			i++;
 		}
+		cambiar_estado(entrenador,BLOCK);
 		return true;
 	}
 
@@ -345,18 +332,22 @@ bool sem_post_algoritmo(t_entrenador* entrenador,t_list* entrenadores_planificad
 		int rafagas_necesarias = calcular_rafagas_necesarias(entrenador);
 		if(rafagas_necesarias<=QUANTUM){
 			int i = 1;
+			cambiar_estado(entrenador,EXEC);
 			while(i<=rafagas_necesarias){
 				sem_post(entrenador->semaforo);
 				i++;
 			}
+			cambiar_estado(entrenador,BLOCK);
 			return true;
 		}
 		else{
 			int i = 1;
+			cambiar_estado(entrenador,EXEC);
 			while(i<=QUANTUM){
 				sem_post(entrenador->semaforo);
 				i++;
 			}
+			cambiar_estado(entrenador,READY);
 			return false;
 		}
 	}
@@ -367,7 +358,7 @@ bool sem_post_algoritmo(t_entrenador* entrenador,t_list* entrenadores_planificad
 		pthread_mutex_lock(mutex_entrenadores_disponibles);
 		int longitud_lista_actual = list_size(entrenadores_planificados);
 		pthread_mutex_unlock(mutex_entrenadores_disponibles);
-
+		cambiar_estado(entrenador,EXEC);
 		while(i<=rafagas_necesarias){
 			sem_post(entrenador->semaforo);
 
@@ -377,10 +368,13 @@ bool sem_post_algoritmo(t_entrenador* entrenador,t_list* entrenadores_planificad
 
 			if(longitud_lista_actualizada != longitud_lista_actual){
 				actualizar_estimados(entrenador,i,entrenador->estimado_rafaga_proxima);
+				cambiar_estado(entrenador,READY);
 				return false;
 			}
 			i++;
 		}
+		cambiar_estado(entrenador,BLOCK);
+
 		actualizar_estimados(entrenador,i-1,entrenador->estimado_rafaga_proxima);
 		return true;
 
@@ -393,6 +387,7 @@ bool sem_post_algoritmo(t_entrenador* entrenador,t_list* entrenadores_planificad
 			sem_post(entrenador->semaforo);
 			i++;
 		}
+		cambiar_estado(entrenador,BLOCK);
 		actualizar_estimados(entrenador,i-1,entrenador->estimado_rafaga_proxima);
 		return true;
 
@@ -403,6 +398,51 @@ bool sem_post_algoritmo(t_entrenador* entrenador,t_list* entrenadores_planificad
 	}
 
 }
+
+void agregar_entrenador_a_planificar(t_entrenador* entrenador,t_team* team){
+	cambiar_estado(entrenador,READY);
+	switch(team->planificador){
+	case FIFO:{
+		pthread_mutex_lock(mutex_entrenadores_disponibles);
+		list_add(team->entrenadores_planificados,entrenador);
+		pthread_mutex_unlock(mutex_entrenadores_disponibles);
+		sem_post(semaforo_entrenadores_disponibles);
+		break;
+		}
+
+	case RR:{
+		pthread_mutex_lock(mutex_entrenadores_disponibles);
+		list_add(team->entrenadores_planificados,entrenador);
+		pthread_mutex_unlock(mutex_entrenadores_disponibles);
+		sem_post(semaforo_entrenadores_disponibles);
+		break;
+		}
+
+	case SJF_CD:{
+		pthread_mutex_lock(mutex_entrenadores_disponibles);
+		list_add(team->entrenadores_planificados,entrenador);
+		ordenar_entrenadores_planificados_por_estimacion(team);
+		pthread_mutex_unlock(mutex_entrenadores_disponibles);
+		sem_post(semaforo_entrenadores_disponibles);
+		break;
+		}
+
+	case SJF_SD:{
+		pthread_mutex_lock(mutex_entrenadores_disponibles);
+		list_add(team->entrenadores_planificados,entrenador);
+		ordenar_entrenadores_planificados_por_estimacion(team);
+		pthread_mutex_unlock(mutex_entrenadores_disponibles);
+		sem_post(semaforo_entrenadores_disponibles);
+		break;
+		}
+
+	default:{
+		break;
+		}
+
+	}
+}
+
 
 
 void planificacion_general(t_team* team){
@@ -416,10 +456,9 @@ void planificacion_general(t_team* team){
 		pthread_mutex_unlock(mutex_entrenadores_disponibles);
 
 		if(!sem_post_algoritmo(entrenador))
-		{
-			agregar_entrenador_planificar(entrenador);
-			sem_post(semaforo_entrenadores_disponibles);
-		}
+			agregar_entrenador_a_planificar(entrenador,team);
+
+
 
 
 

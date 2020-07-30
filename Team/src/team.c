@@ -48,7 +48,7 @@ bool team_puede_capturar(t_team*team, t_pokemon*pokemon) {
 
 t_list*team_entrenadores_disponibles(t_team*team) {
 
-	return list_filter(team->entrenadores, esta_disponible);
+	return list_filter(team->entrenadores, esta_disponible); // todo el esta_disponible
 }
 /*
  t_entrenador*team_buscar_entrenador_cercano(t_team*team) {
@@ -71,6 +71,24 @@ void team_verificar_finalizacion(t_team*team) { //la idea es que se lopee  despu
 		//todo log_finalizacion;
 	}
 }
+
+
+
+
+void ordenar_entrenadores_planificados_por_estimacion(t_team* team){
+	bool comparador_estimacion(void* e1,void* e2){
+		t_entrenador*  entrenador1 = e1;
+		t_entrenador*  entrenador2 = e2;
+		return entrenador1->estimado_rafaga_proxima < entrenador2->estimado_rafaga_proxima;
+	}
+	list_sort(team->entrenadores_planificados,comparador_estimacion);
+}
+
+
+
+
+
+
 
 //
 void consumir_ciclos_cpu(t_team*team,int cantidad_ciclos){

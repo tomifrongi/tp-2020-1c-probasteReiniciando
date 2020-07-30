@@ -40,6 +40,26 @@ t_list * inicializar_entrenadores(t_team *team) {
 	return entrenadores;
 }
 
+
+void ejecutar_ciclo_cpu(t_entrenador* entrenador){
+	cambiar_estado(entrenador,EXEC);
+	switch(entrenador->tarea->tipo_tarea){
+		case ATRAPAR:{
+			mover_entrenador_una_posicion(entrenador,entrenador->tarea->pokemon->posicion_x,entrenador->tarea->pokemon->posicion_y);
+			break;
+		}
+		case INTERCAMBIO:{
+			if(distancia_entrenador_entrenador(entrenador,entrenador->tarea->entrenador_intercambio) > 0)
+				mover_entrenador_una_posicion(entrenador,entrenador->tarea->entrenador_intercambio->posicion_x,entrenador->tarea->entrenador_intercambio->posicion_y);
+			else
+				(entrenador->rafagas_intercambio_realizadas)++;
+		}
+	}
+	cambiar_estado(entrenador,READY);
+}
+
+
+
 void mostrar_entrenador(t_entrenador*entrenador) { //closure
 	printf("id: %d\n", entrenador->id);
 	printf("estado: %d\n", entrenador->estado);
@@ -124,6 +144,29 @@ bool entrenador_puede_capturar(t_entrenador*entrenador) {
 	return cantidad_objetivos(entrenador) > cantidad_capturados(entrenador); //si tenia que capturar 3 no puede mas de 3 por mas que no sean los suyos
 }
 
+
+void mover_entrenador_una_posicion(t_entrenador*entrenador, int pos_dest_x, int pos_dest_y) {//si lo tengo que mover de a un paso cambiar los while por if
+
+
+	if (entrenador->posicion_x != pos_dest_x) {//primero lo pongo a la coorod en eje horizontal
+		if (entrenador->posicion_x < pos_dest_x) {
+			entrenador->posicion_x++;
+		} else {
+			entrenador->posicion_x--;
+		}
+	}
+	else if(entrenador->posicion_y != pos_dest_y) {//ahora en el eje vertical
+		if (entrenador->posicion_y < pos_dest_y) {
+			entrenador->posicion_y++;
+		} else {
+			entrenador->posicion_y--;
+		}
+
+	}
+}
+
+
+
 void mover_entrenador(t_entrenador*entrenador, int pos_dest_x, int pos_dest_y) {//si lo tengo que mover de a un paso cambiar los while por if
 
 
@@ -151,7 +194,7 @@ int calcular_rafagas_necesarias(t_entrenador* entrenador){
 		return distancia_entrenador_pokemon(entrenador,entrenador->tarea->pokemon);
 	}
 
-	case BUSCAR_ENTRENADOR:{
+	case INTERCAMBIO:{
 		return distancia_entrenador_pokemon(entrenador,entrenador->tarea->pokemon) + 5 - entrenador->rafagas_intercambio_realizadas;
 	}
 	default:

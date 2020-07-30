@@ -34,7 +34,6 @@ t_team* TEAM;
 
 void* crear_hilos_entrenadores(team);
 
-bool suscribirse_a_colas(t_team*);
 
 bool verificar_nuevo_localized(t_team*,t_pokemon*);
 
@@ -63,6 +62,8 @@ void procesar_appeared(t_team*);
 void handler_entrenador(t_entrenador*);
 
 bool sem_post_algoritmo(t_entrenador* ,t_list*);
+
+void agregar_entrenador_a_planificar(t_entrenador* ,t_team* );
 
 void planificar_team(t_team*);
 
