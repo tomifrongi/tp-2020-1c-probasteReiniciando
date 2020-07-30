@@ -159,7 +159,7 @@ void planificar_entrenador(t_team * team) //TODO ACTUALIZAR
 }
 
 
-//TODO TENER EN CUENTA QUE SE CAE EL SERVIDOR EN LOS HILOS
+
 
 int tiempo_rafaga(t_entrenador* entrenador,t_pokemon* pokemon) {
 	return team->retardo_ciclo_cpu * distancia_entrenador_pokemon(entrenador, pokemon);
@@ -535,7 +535,7 @@ void planificar_team(t_team*team) {
 	uint32_t c = CAUGHT;
 
 
-	pthread_create(&appeared_thread, NULL, (void*) handler_broker, &a);//TODO agregar semaforo contador (post) a estos 3 hilos
+	pthread_create(&appeared_thread, NULL, (void*) handler_broker, &a);//TODO TENER EN CUENTA QUE PASA SI SE CAE EL SERVIDOR EN LOS HILOS
 	pthread_detach(appeared_thread);
 
 	pthread_create(&localized_thread, NULL, (void*) handler_broker, &l);
