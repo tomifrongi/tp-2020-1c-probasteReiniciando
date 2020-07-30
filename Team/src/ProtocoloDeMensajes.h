@@ -132,9 +132,9 @@ typedef struct {
 
 //FUNCIONES------------------------------------------------------------
 
-appeared_pokemon deserializarAppeared(void* content); //tiene un malloc en nombrePokemon
-caught_pokemon deserializarCaught(void* content);
-localized_pokemon deserializarLocalized(void* content); //tiene un malloc en nombrePokemon, un list_create
+appeared_pokemon* deserializarAppeared(void* content); //tiene un malloc en nombrePokemon
+caught_pokemon* deserializarCaught(void* content);
+localized_pokemon* deserializarLocalized(void* content); //tiene un malloc en nombrePokemon, un list_create
 														//y cada elemento de la lista tiene un malloc
 confirmacion deserializarConfirmacion(void* content);
 

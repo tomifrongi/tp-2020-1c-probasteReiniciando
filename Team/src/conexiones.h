@@ -71,10 +71,24 @@ int init_server(int port);
 
 //+CONEXIONES-------------
 
-void* handler_broker(void *cola);
-void escuchar_mensajes_gameboy(int listener_socket);
-void* handler_appeared(void* socket);
-void handler_suscripciones(int socketTeam);
+typedef struct {
+	t_queue* cola_mensajes;
+	sem_t* semaforo_contador_cola;
+	uint32_t cola_suscriptor;
+}administracion_cola;
+
+typedef struct {
+	t_queue* cola_mensajes;
+	sem_t* semaforo_contador_cola;
+	uint32_t listener_socket;
+}administracion_gameboy;
+
+
+
+void* handler_broker(void * administracion);
+void* escuchar_mensajes_gameboy(void* administracion);
+void* handler_appeared(void* administracion);
+void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_contador_cola);
 
 //------------------------
 

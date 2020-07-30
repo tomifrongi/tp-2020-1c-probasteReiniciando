@@ -158,9 +158,8 @@ int create_socket(){
 //+CONEXIONES-------------
 
 
-void* handler_broker(void *cola){
-	uint32_t* colaSusc = cola;
-	uint32_t colaSuscriptor = *colaSusc;
+void* handler_broker(void *administracion){
+	administracion_cola* administracion_casteada = administracion;
 	while(1){
 		int socketTeam = connect_to_server(IP_BROKER, PUERTO_BROKER, NULL);
 		if(socketTeam != -errno){
@@ -168,138 +167,107 @@ void* handler_broker(void *cola){
 			t_message mensaje;
 			suscripcion content;
 			content.idSuscriptor= getpid();
-			content.idCola = colaSuscriptor;
+			content.idCola = administracion_casteada->cola_suscriptor;
 			mensaje.content = serializarSuscripcion(content);
 			mensaje.head = SUSCRIPCION;
 			mensaje.size = sizeof(suscripcion);
 			send_message(socketTeam, mensaje.head,mensaje.content, mensaje.size);
 			free(mensaje.content);
-			handler_suscripciones(socketTeam);
+			handler_suscripciones(socketTeam,administracion_casteada->cola_mensajes,administracion_casteada->semaforo_contador_cola);
 		}
 		sleep(TIEMPO_RECONEXION);
 	}
 	return NULL;
 }
 
-void escuchar_mensajes_gameboy(int listener_socket){
+void* escuchar_mensajes_gameboy(void* administracion){
+	administracion_gameboy* administracion_casteada = administracion;
 	log_info(log_team_oficial, "Servidor levantado! Escuchando en %i",PUERTO_TEAM);
 		struct sockaddr team_cli;
 		socklen_t len = sizeof(team_cli);
 		do {
-			int team_sock = accept(listener_socket, &team_cli, &len);
+			int team_sock = accept(administracion_casteada->listener_socket, &team_cli, &len);
 			if (team_sock > 0) {
 				log_info(log_team_oficial, "NUEVA CONEXIÓN");
 				pthread_t team_cli_thread;
-				pthread_create(&team_cli_thread, NULL, handler_appeared,
-						(void*) (team_sock));
+				pthread_create(&team_cli_thread, NULL, handler_appeared,administracion);
 				pthread_detach(team_cli_thread);
 			} else {
 				log_error(log_team_oficial, "Error aceptando conexiones: %s", strerror(errno));
 			}
 		} while (1);
+
+		return NULL;
 }
 
-void* handler_appeared(void* socket){
-	int socketEnvio = (int) (socket);
+void* handler_appeared(void* administracion){
+	administracion_gameboy* administracion_casteada = administracion;
 	bool executing = true;
 	while(executing){
-		t_message* message = recv_message(socketEnvio);
+		t_message* message = recv_message(administracion_casteada->listener_socket);
 		if(message->head == APPEARED_POKEMON){
-			appeared_pokemon mensaje;
-			mensaje = deserializarAppeared(message->content);
+			appeared_pokemon* mensaje = deserializarAppeared(message->content);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = APPEARED;
 			mensajeACK.idSuscriptor = getpid();
 			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
-			send_message(socketEnvio,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
+			send_message(administracion_casteada->listener_socket,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
 			free(mensajeACKSerializado);
 
-			//TODO hacer algo con este mensaje
-			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO DEL GAMEBOY");
-			log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje.idCorrelativo);
-			log_info(log_team_oficial,"ID MENSAJE: %d",mensaje.id_mensaje);
-			log_info(log_team_oficial,"SIZE NOMBRE: %d",mensaje.sizeNombre);
-			log_info(log_team_oficial,"NOMBRE: %s",mensaje.nombrePokemon);
-			log_info(log_team_oficial,"POSICION EJE X: %d",mensaje.posicionEjeX);
-			log_info(log_team_oficial,"POSICION EJE Y: %d",mensaje.posicionEjeY);
-
-
-
+			queue_push(administracion_casteada->cola_mensajes,mensaje);
+			sem_post(administracion_casteada->semaforo_contador_cola);
 		}
 		free_t_message(message);
 	}
 	return NULL;
 }
 
-void handler_suscripciones(int socketTeam){
+void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_contador_cola){
 
 	while(1){
 		t_message* message = recv_message(socketTeam);
 
 		switch(message->head){
 		case APPEARED_POKEMON:{
-			appeared_pokemon mensaje = deserializarAppeared(message->content);
+			appeared_pokemon* mensaje = deserializarAppeared(message->content);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = APPEARED;
 			mensajeACK.idSuscriptor = getpid();
 			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
 			send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
 			free(mensajeACKSerializado);
-			//TODO hacer algo con el mensaje
-			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO DEL BROKER");
-			log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje.idCorrelativo);
-			log_info(log_team_oficial,"ID MENSAJE: %d",mensaje.id_mensaje);
-			log_info(log_team_oficial,"SIZE NOMBRE: %d",mensaje.sizeNombre);
-			log_info(log_team_oficial,"NOMBRE: %s",mensaje.nombrePokemon);
-			log_info(log_team_oficial,"POSICION EJE X: %d",mensaje.posicionEjeX);
-			log_info(log_team_oficial,"POSICION EJE Y: %d",mensaje.posicionEjeY);
+
+			queue_push(cola_mensajes,mensaje);
+			sem_post(semaforo_contador_cola);
+
 			break;
 		}
 
 		case LOCALIZED_POKEMON:{
-			localized_pokemon mensaje = deserializarLocalized(message->content);
+			localized_pokemon* mensaje = deserializarLocalized(message->content);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = LOCALIZED;
 			mensajeACK.idSuscriptor = getpid();
 			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
 			send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
 			free(mensajeACKSerializado);
-			//TODO hacer algo con el mensaje
-			log_info(log_team_oficial,"MENSAJE LOCALIZED RECIBIDO DEL BROKER");
-			log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje.idCorrelativo);
-			log_info(log_team_oficial,"ID MENSAJE: %d",mensaje.id_mensaje);
-			log_info(log_team_oficial,"SIZE NOMBRE: %d",mensaje.sizeNombre);
-			log_info(log_team_oficial,"NOMBRE: %s",mensaje.nombrePokemon);
-			log_info(log_team_oficial,"CANTIDAD DE POSICIONES: %d",mensaje.cantidadPosiciones);
 
-			void logearPosiciones(void* posicion){
-				coordenada* posicionCasteada = posicion;
-				log_info(log_team_oficial,"POSICION EJE X: %d",posicionCasteada->posicionEjeX);
-				log_info(log_team_oficial,"POSICION EJE Y: %d",posicionCasteada->posicionEjeY);
-			}
-			list_iterate(mensaje.posiciones,logearPosiciones);
-
+			queue_push(cola_mensajes,mensaje);
+			sem_post(semaforo_contador_cola);
 			break;
-
 		}
 
 		case CAUGHT_POKEMON:{
-			caught_pokemon mensaje = deserializarCaught(message->content);
+			caught_pokemon* mensaje = deserializarCaught(message->content);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = CAUGHT;
 			mensajeACK.idSuscriptor = getpid();
 			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
 			send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
 			free(mensajeACKSerializado);
-			//TODO hacer algo con el mensaje
-			log_info(log_team_oficial,"MENSAJE CAUGHT RECIBIDO DEL BROKER");
-			log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje.idCorrelativo);
-			log_info(log_team_oficial,"ID MENSAJE: %d",mensaje.id_mensaje);
-			log_info(log_team_oficial,"POKEMON ATRAPADO: %d",mensaje.pokemonAtrapado);
-			if(mensaje.pokemonAtrapado == 1)
-				log_info(log_team_oficial,"POKEMON FUE ATRAPADO");
-			else if (mensaje.pokemonAtrapado == 0)
-				log_info(log_team_oficial,"POKEMON NOOO FUE ATRAPADO");
+
+			queue_push(cola_mensajes,mensaje);
+			sem_post(semaforo_contador_cola);
 			break;
 		}
 
