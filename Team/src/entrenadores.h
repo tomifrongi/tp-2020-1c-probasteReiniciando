@@ -12,6 +12,8 @@
 #ifndef ENTRENADORES_H_
 #define ENTRENADORES_H_
 
+
+
 typedef enum {
 	NEW,
 	READY,

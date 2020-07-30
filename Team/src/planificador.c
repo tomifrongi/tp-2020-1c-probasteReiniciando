@@ -273,13 +273,19 @@ void handler_entrenador(t_entrenador* entrenador){
 					int id_mensaje = enviar_catch(entrenador->tarea->pokemon);
 					int* id_mensaje_creado = malloc(sizeof(int));
 					*id_mensaje_creado = id_mensaje;
-					cambiar_estado(entrenador,BLOCK);
-					list_add(entrenador->team->idsCatch,id_mensaje_creado);
+					list_add(idsCatch,id_mensaje_creado);
+					entrenador->id_correlativo_esperado = id_mensaje;
 					break;
 				}
 
 				case INTERCAMBIO:{
 					realizar_intercambio(entrenador,entrenador->tarea->entrenador_intercambio);
+					if(entrenador_cumplio_objetivos(entrenador))
+						cambiar_estado(entrenador,EXIT);
+
+					else{
+
+					}
 					break;
 				}
 			}
@@ -480,6 +486,8 @@ void planificacion_general(t_team* team){
 
 		//SIGNAL MUTEX DE "team->entrenadores_planificados;"
 	}
+	if(detectarDeadlocks(team))
+			resolverDeadlocks();
 
 }
 
@@ -518,8 +526,7 @@ void planificar_team(t_team*team) {
 
 	enviar_gets(pokemones_por_especie);
 
-	if(detectarDeadlocks(team))
-		resolverDeadlocks();
+
 
 	pthread_t consumidor_cola_localized;
 	pthread_create(&consumidor_cola_localized,NULL,procesar_localized,team);
