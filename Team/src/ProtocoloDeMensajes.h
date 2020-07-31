@@ -147,5 +147,12 @@ void* serializarCatch(catch_pokemon mensaje); //devuelve un content que tiene un
 coordenada* crear_coordenada(coordenada c);
 void borrar_coordenada(coordenada* c);
 
+void borrar_caught_pokemon(caught_pokemon* cp);
+
+void borrar_appeared_pokemon(appeared_pokemon* ap);
+
+
+void borrar_localized_pokemon(localized_pokemon* lp);
+
 //---------------------------------------------------------------------
 #endif /* SRC_PROTOCOLODEMENSAJES_H_ */

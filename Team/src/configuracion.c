@@ -19,19 +19,19 @@ int largo_array(char**array) {
 }
 
 
-void cargar_teams(){
-	for (int i=0;i<CANTIDAD_TEAMS;i++){//todo testear!
-		char*path="team";
-		char*tipo=".config";
-
-		t_team *team=malloc(sizeof(t_team));
-		team->id=i;
-		path[4]=i;
-		team->path_config=strcat(path,tipo);
-
-		list_add(lista_teams,team);33
-	}
-}
+//void cargar_teams(){
+//	for (int i=0;i<CANTIDAD_TEAMS;i++){//todo testear!
+//		char*path="team";
+//		char*tipo=".config";
+//
+//		t_team *team=malloc(sizeof(t_team));
+//		team->id=i;
+//		path[4]=i;
+//		team->path_config=strcat(path,tipo);
+//
+//		list_add(lista_teams,team);33
+//	}
+//}
 
 t_config * leer_config() {//saco el parametro team
 

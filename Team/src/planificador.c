@@ -36,7 +36,7 @@ void crear_hilos_entrenadores(t_team* team) {
 	 *        si quedo algun pokemon suelto en mapa por que llegaron mas rapido que lo que los entrenadores capturan,lo pongo en estado ready y lo vuelvo a planificar
 	 *        si no paso nada de lo anterior (que haya pokemones sueltos o que cumplio sus objetivos) queda bloqueado a la espera de que aparezcan pokemones
 	 *
-	 /*
+
 	 *otro caso:localized envio 2 pokemones pero el obj global solo necesita 1 ,planifico al mas cercano,pero no borro el otro por si el caught es negativo
 	 *otro caos: localized envio 2 pokemones  y necesito los 2,planifico a dos pokemones mas cercanos para ir a capturar
 	 *
@@ -81,14 +81,14 @@ void planificar_entrenador(t_team * team){
 
 		ordenar_t_distancia(pares_entrenadores_mas_cercanos);
 		t_distancia_pokemon_entrenador* mejor_distancia = list_remove(pares_entrenadores_mas_cercanos,0);
-		asignar_tarea_atrapar(mejor_distancia->entrenador,mejor_distancia->pokemon);
+		asignar_tarea_atrapar(mejor_distancia->entrenador,mejor_distancia->pokemon,semaforo_entrenadores_ready);
 		remover_entrenador(team->entrenadores_desocupados,mejor_distancia->entrenador);
 		remover_pokemon(team->mapa_pokemones,mejor_distancia->pokemon);
 		remover_especie_y_destruir(team->objetivo_pokemones_restantes,mejor_distancia->pokemon->especie);
 		borrar_int_t_distancia_pokemon_entrenador(pares_entrenadores_mas_cercanos);
 
 		list_destroy(posiciones_pokemon_mapa);
-		t_list* posiciones_pokemon_mapa = buscar_pokemones_objetivo_en_mapa(team);
+		posiciones_pokemon_mapa = buscar_especie_objetivo_en_mapa(team);
 
 
 	}
@@ -100,6 +100,15 @@ void borrar_int_t_distancia_pokemon_entrenador(t_list* distancias){
 		free(t_d->distancia);
 	}
 	list_destroy_and_destroy_elements(distancias,eliminar_int);
+}
+
+void ordenar_t_distancia(t_list* distancias){
+	bool menor_t_distancia(void* d1,void*d2){
+		t_distancia_pokemon_entrenador* distancia1 = d1;
+		t_distancia_pokemon_entrenador* distancia2 = d2;
+		return (*(distancia1->distancia)< *(distancia2->distancia));
+	}
+	list_sort(distancias,menor_t_distancia);
 }
 
 
@@ -117,7 +126,7 @@ int tiempo_rafaga(t_entrenador* entrenador,t_pokemon* pokemon) {
 bool contain_id_get(t_list* ids, int id_correlativo){
 	bool mismo_id(void* id_lista){
 		int* id_casteado = id_lista;
-		return(id_casteado == id_correlativo);
+		return(*id_casteado == id_correlativo);
 	}
 	void* id_encontrado = list_find(ids,mismo_id);
 	return (id_encontrado != NULL);
@@ -145,7 +154,8 @@ bool verificar_nuevo_localized(t_team* team, t_pokemon* pokemon,uint32_t id_corr
 	pthread_mutex_unlock(mutex_especiesRecibidas);
 }
 
-void procesar_localized(t_team* team){
+void* procesar_localized(void* t){
+	t_team* team = t;
 	while(1){
 		sem_wait(semaforo_contador_localized);
 
@@ -154,11 +164,13 @@ void procesar_localized(t_team* team){
 		pthread_mutex_unlock(mutex_cola_localized);
 
 		t_pokemon pokemon_a_capturar;
-		pokemon_a_capturar.especie = mensaje->nombrePokemon;
+		pokemon_a_capturar.especie = malloc(mensaje->sizeNombre);
+		strcpy(pokemon_a_capturar.especie,mensaje->nombrePokemon);
 		coordenada* posicion = list_get(mensaje->posiciones,0);
 		pokemon_a_capturar.posicion_x = posicion->posicionEjeX;
 		pokemon_a_capturar.posicion_x = posicion->posicionEjeY;
 		t_pokemon* pokemon_a_capturar_creado = crear_t_pokemon(pokemon_a_capturar);
+		free(pokemon_a_capturar.especie);
 		t_list* pokemones_localized = list_create();
 		void agregar_pokemon_suelto(void* posicion){
 			coordenada* posicionCasteada = posicion;
@@ -166,11 +178,11 @@ void procesar_localized(t_team* team){
 			strcpy(pokemon_a_capturar.especie,mensaje->nombrePokemon);
 			pokemon_a_capturar.posicion_x = posicionCasteada->posicionEjeX;
 			pokemon_a_capturar.posicion_x = posicionCasteada->posicionEjeY;
-			t_pokemon* pokemon_a_capturar_creado = crear_t_pokemon(pokemon_a_capturar);
-			list_add(pokemones_localized,pokemon_a_capturar_creado);
+			t_pokemon* pokemon_a_capturar_creado_aux = crear_t_pokemon(pokemon_a_capturar);
+			list_add(pokemones_localized,pokemon_a_capturar_creado_aux);
 		}
 		bool b = verificar_nuevo_localized(team,pokemon_a_capturar_creado,mensaje->idCorrelativo);
-		borrar_t_pokemon(pokemon_a_capturar);
+		borrar_t_pokemon(pokemon_a_capturar_creado);
 		if(b){
 			list_iterate(mensaje->posiciones,agregar_pokemon_suelto);
 			pthread_mutex_lock(mutex_planificar_entrenador);
@@ -181,6 +193,7 @@ void procesar_localized(t_team* team){
 		borrar_localized_pokemon(mensaje);
 		list_destroy(pokemones_localized);
 	}
+	return NULL;
 }
 
 bool contain_especie_recibida(t_list* especies,t_pokemon* pokemon){
@@ -205,7 +218,8 @@ bool verificar_nuevo_appeared(t_team* team, t_pokemon* pokemon){ //TODO ESPERAR 
 	pthread_mutex_unlock(mutex_especiesRecibidas);
 }
 
-void procesar_appeared(t_team* team){
+void* procesar_appeared(void* t){
+	t_team* team = t;
 	while(1){
 		sem_wait(semaforo_contador_appeared);
 		pthread_mutex_lock(mutex_cola_appeared);
@@ -224,58 +238,63 @@ void procesar_appeared(t_team* team){
 		pthread_mutex_unlock(mutex_planificar_entrenador);
 		}
 	}
+	return NULL;
 
 }
 
 int* buscar_id(t_list* ids,int id){
 	bool mismo_id(void* id_lista){
 		uint32_t* id_casteado = id_lista;
-		return(id_casteado == id);
+		return(*id_casteado == id);
 	}
 	return list_find(ids,mismo_id);
 }
 
-void procesar_caught(t_team* team){
-	sem_wait(semaforo_contador_caught);
-	pthread_mutex_lock(mutex_cola_caught);
-	caught_pokemon* mensaje = queue_pop(cola_caught);
-	pthread_mutex_unlock(mutex_cola_caught);
+void* procesar_caught(void* t){
+	t_team* team = t;
+	while(1){
+		sem_wait(semaforo_contador_caught);
+		pthread_mutex_lock(mutex_cola_caught);
+		caught_pokemon* mensaje = queue_pop(cola_caught);
+		pthread_mutex_unlock(mutex_cola_caught);
 
-	pthread_mutex_lock(mutex_idsCatch);
-	int* id = buscar_id(idsCatch,mensaje->idCorrelativo);
-	pthread_mutex_unlock(mutex_idsCatch);
-	if(id != NULL){
-		t_entrenador* entrenador = buscar_entrenador_por_id_correlativo(team->entrenadores,*id);
-		if(mensaje->pokemonAtrapado == 1){
-			list_add(entrenador->pokemones_capturados,entrenador->tarea->pokemon);
-			entrenador->esta_en_entrada_salida =false;
-			entrenador->id_correlativo_esperado = -1;
-			if(entrenador_puede_capturar(entrenador)){
+		pthread_mutex_lock(mutex_idsCatch);
+		int* id = buscar_id(idsCatch,mensaje->idCorrelativo);
+		pthread_mutex_unlock(mutex_idsCatch);
+		if(id != NULL){
+			t_entrenador* entrenador = buscar_entrenador_por_id_correlativo(team->entrenadores,*id);
+			if(mensaje->pokemonAtrapado == 1){
+				list_add(entrenador->pokemones_capturados,entrenador->tarea->pokemon);
+				entrenador->esta_en_entrada_salida =false;
+				entrenador->id_correlativo_esperado = -1;
+				if(entrenador_puede_capturar(entrenador)){
+					pthread_mutex_lock(mutex_planificar_entrenador);
+					list_add(entrenador->team->entrenadores_desocupados,entrenador);
+					planificar_entrenador(entrenador->team);
+					pthread_mutex_unlock(mutex_planificar_entrenador);
+				}
+				else if(entrenador_cumplio_objetivos(entrenador))
+					cambiar_estado(entrenador,EXIT);
+				entrenador->esta_en_entrada_salida =false;
+			}
+			else{
+				entrenador->esta_en_entrada_salida =false;
+				entrenador->id_correlativo_esperado = -1;
+				int longitud_especie = strlen(entrenador->tarea->pokemon->especie);
+				char* especie = malloc(longitud_especie+1);
+				strcpy(especie,entrenador->tarea->pokemon->especie);
+				borrar_t_pokemon(entrenador->tarea->pokemon);
 				pthread_mutex_lock(mutex_planificar_entrenador);
 				list_add(entrenador->team->entrenadores_desocupados,entrenador);
+				list_add(entrenador->team->objetivo_pokemones_restantes,especie);
 				planificar_entrenador(entrenador->team);
 				pthread_mutex_unlock(mutex_planificar_entrenador);
 			}
-			else if(entrenador_cumplio_objetivos(entrenador))
-				cambiar_estado(entrenador,EXIT);
-			entrenador->esta_en_entrada_salida =false;
+			free(id);
 		}
-		else{
-			entrenador->esta_en_entrada_salida =false;
-			entrenador->id_correlativo_esperado = -1;
-			int longitud_especie = strlen(entrenador->tarea->pokemon->especie);
-			char* especie = malloc(longitud_especie+1);
-			strcpy(especie,entrenador->tarea->pokemon->especie);
-			borrar_t_pokemon(entrenador->tarea->pokemon);
-			pthread_mutex_lock(mutex_planificar_entrenador);
-			list_add(entrenador->team->entrenadores_desocupados,entrenador);
-			list_add(entrenador->team->objetivo_pokemones_restantes,especie);
-			planificar_entrenador(entrenador->team);
-			pthread_mutex_unlock(mutex_planificar_entrenador);
-		}
-		free(id);
+		borrar_caught_pokemon(mensaje);
 	}
-	borrar_caught_pokemon(mensaje);
+	return NULL;
 }
 
 
@@ -459,7 +478,7 @@ void agregar_entrenador_a_cola_ready(t_entrenador* entrenador,t_team* team){
 	switch(team->planificador){
 	case FIFO:{
 		pthread_mutex_lock(mutex_entrenadores_ready);
-		list_add(team->entrenadores_planificados,entrenador);
+		list_add(team->entrenadores_ready,entrenador);
 		pthread_mutex_unlock(mutex_entrenadores_ready);
 		sem_post(semaforo_entrenadores_ready);
 		break;
@@ -467,7 +486,7 @@ void agregar_entrenador_a_cola_ready(t_entrenador* entrenador,t_team* team){
 
 	case RR:{
 		pthread_mutex_lock(mutex_entrenadores_ready);
-		list_add(team->entrenadores_planificados,entrenador);
+		list_add(team->entrenadores_ready,entrenador);
 		pthread_mutex_unlock(mutex_entrenadores_ready);
 		sem_post(semaforo_entrenadores_ready);
 		break;
@@ -475,7 +494,7 @@ void agregar_entrenador_a_cola_ready(t_entrenador* entrenador,t_team* team){
 
 	case SJF_CD:{
 		pthread_mutex_lock(mutex_entrenadores_ready);
-		list_add(team->entrenadores_planificados,entrenador);
+		list_add(team->entrenadores_ready,entrenador);
 		ordenar_entrenadores_planificados_por_estimacion(team);
 		pthread_mutex_unlock(mutex_entrenadores_ready);
 		sem_post(semaforo_entrenadores_ready);
@@ -484,7 +503,7 @@ void agregar_entrenador_a_cola_ready(t_entrenador* entrenador,t_team* team){
 
 	case SJF_SD:{
 		pthread_mutex_lock(mutex_entrenadores_ready);
-		list_add(team->entrenadores_planificados,entrenador);
+		list_add(team->entrenadores_ready,entrenador);
 		ordenar_entrenadores_planificados_por_estimacion(team);
 		pthread_mutex_unlock(mutex_entrenadores_ready);
 		sem_post(semaforo_entrenadores_ready);
@@ -506,10 +525,10 @@ void planificacion_general(t_team* team){
 		sem_wait(semaforo_entrenadores_ready);
 
 		pthread_mutex_lock(mutex_entrenadores_ready);
-		t_entrenador* entrenador = list_remove(team->entrenadores_planificados,0);
+		t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
 		pthread_mutex_unlock(mutex_entrenadores_ready);
 
-		if(!sem_post_algoritmo(entrenador))
+		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
 			agregar_entrenador_a_cola_ready(entrenador,team);
 
 	}
@@ -521,10 +540,10 @@ void planificacion_general(t_team* team){
 	{
 		sem_wait(semaforo_entrenadores_ready);
 		pthread_mutex_lock(mutex_entrenadores_ready);
-		t_entrenador* entrenador = list_remove(team->entrenadores_planificados,0);
+		t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
 		pthread_mutex_unlock(mutex_entrenadores_ready);
 
-		if(!sem_post_algoritmo(entrenador))
+		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
 			agregar_entrenador_a_cola_ready(entrenador,team);
 
 	}
@@ -537,10 +556,6 @@ void planificacion_general(t_team* team){
 
 
 void planificar_team(t_team*team) {
-
-	//sem_init(&semaforo_contador_localized,0,0);
-	//bool suscripcion_ok = suscribirse_a_colas(team);
-	t_list* pokemones_por_especie = list_create();
 
 	pthread_t appeared_thread;
 	pthread_t localized_thread;
@@ -565,21 +580,21 @@ void planificar_team(t_team*team) {
 	pthread_create(&appeared_gameboy_thread, NULL, (void*) escuchar_mensajes_gameboy, &listener_socket);
 	pthread_detach(appeared_gameboy_thread);
 
-	enviar_gets(team->objetivo_pokemones_restantes,idsGet,mutex_idsGet); //TODO ENVIAR GETS
+	enviar_gets(team->objetivo_pokemones_restantes,idsGet,mutex_idsGet);
 	crear_hilos_entrenadores(); //TODO CREAR HILOS ENTRENADORES
 
 
 	pthread_t consumidor_cola_localized;
-	pthread_create(&consumidor_cola_localized,NULL,procesar_localized,team);
+	pthread_create(&consumidor_cola_localized,NULL,procesar_localized,(void*) team);
 	pthread_detach(consumidor_cola_localized);
 
 
 	pthread_t consumidor_cola_appeared;
-	pthread_create(&consumidor_cola_appeared,NULL,procesar_appeared,NULL);
+	pthread_create(&consumidor_cola_appeared,NULL,procesar_appeared,(void*) team);
 	pthread_detach(consumidor_cola_appeared);
 
 	pthread_t consumidor_cola_caught;
-	pthread_create(&consumidor_cola_caught,NULL,procesar_caught,NULL); //TODO RECIBIR CAUGHT
+	pthread_create(&consumidor_cola_caught,NULL,procesar_caught,(void*) team); //TODO RECIBIR CAUGHT
 	pthread_detach(consumidor_cola_caught);
 
 

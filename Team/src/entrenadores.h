@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "team.h"
+#include "mapa.h"
 #include "configuracion.h"
 #include "ProtocoloDeMensajes.h"
 
@@ -59,9 +60,15 @@ void mover_entrenador(t_entrenador*, int , int );
 
 int calcular_rafagas_necesarias(t_entrenador* );
 
-void actualizar_estimados(t_entrenador* ,int* ,int*);
+void actualizar_estimados(t_entrenador* ,int ,int);
 
 t_entrenador* buscar_entrenador_por_id_correlativo(t_list*,int);
+
+t_entrenador* buscar_entrenador_mas_cercano(t_list*,t_pokemon*);
+
+void asignar_tarea_atrapar(t_entrenador* entrenador,t_pokemon* pokemon,sem_t* semaforo_readys);
+
+void remover_entrenador(t_list*,t_entrenador*);
 
 #endif /* ENTRENADORES_H_ */
 

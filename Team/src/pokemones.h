@@ -37,9 +37,13 @@ int pokemon_util_a_entrenador(t_entrenador* , t_pokemon *);
 
 //bool pokemon_util_a_team(t_team*,t_pokemon*);
 
+void remover_pokemon(t_list*,t_pokemon*);
 
+void remover_especie_y_destruir(t_list*,char*);
 
+t_pokemon* crear_t_pokemon(t_pokemon);
 
+void borrar_t_pokemon(t_pokemon*);
 
 
 #endif /* POKEMONES_H_ */

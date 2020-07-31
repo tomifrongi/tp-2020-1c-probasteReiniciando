@@ -97,5 +97,35 @@ bool pokemon_util_a_team(t_team*team,t_pokemon*pokemon){
 	return list_any_satisfy(team->entrenadores,es_util);
 }
 
+void remover_pokemon(t_list* pokemones,t_pokemon* pokemon){
+	bool mismo_nombre_p(void* p){
+		t_pokemon* p_1 = p;
+		return (strcmp(p_1->especie, pokemon->especie) == 0);
+	}
 
+	list_remove_by_condition(pokemones,mismo_nombre_p);
+}
+
+void remover_especie_y_destruir(t_list* especies,char* nombre_especie){
+	bool mismo_nombre_pp(void* e){
+		char* especie = e;
+		return (strcmp(especie, nombre_especie) == 0);
+	}
+	char* especie_encontrada = list_remove_by_condition(especies,mismo_nombre_pp);
+	free(especie_encontrada);
+}
+
+t_pokemon* crear_t_pokemon(t_pokemon pokemon){
+	t_pokemon* pokemon_creado = malloc(sizeof(t_pokemon));
+	pokemon_creado->especie = malloc(strlen(pokemon.especie)+1);
+	pokemon_creado->posicion_x = pokemon.posicion_x;
+	pokemon_creado->posicion_y = pokemon.posicion_y;
+	strcpy(pokemon_creado->especie,pokemon.especie);
+	return pokemon_creado;
+}
+
+void borrar_t_pokemon(t_pokemon* pokemon){
+	free(pokemon->especie);
+	free(pokemon);
+}
 

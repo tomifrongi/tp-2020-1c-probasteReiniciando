@@ -9,6 +9,12 @@
 #include "configuracion.h"
 #include <pthread.h>
 #include <semaphore.h>
+#include <stdint.h>
+#include "mapa.h"
+#include "conexiones.h"
+#include "ProtocoloDeMensajes.h"
+#include "entrenadores.h"
+#include "pokemones.h"
 
 typedef struct{
 	t_pokemon* pokemon;
@@ -55,13 +61,10 @@ pthread_mutex_t* mutex_planificar_entrenador;
 //------------FUNCIONES-------------
 
 
-void* crear_hilos_entrenadores(team);
+//void* crear_hilos_entrenadores(team);
 
-bool verificar_nuevo_localized(t_team*,t_pokemon*);
 
-int get_indice(t_team*team, hilo_entrenador);
-
-void planificar_entrenador(t_team * , t_pokemon * );
+void planificar_entrenador(t_team *);
 
 int tiempo_rafaga(t_entrenador*, t_pokemon*);
 
@@ -69,7 +72,7 @@ bool contain_id_get(t_list*, int);
 
 bool verificar_nuevo_localized(t_team* , t_pokemon* ,uint32_t );
 
-void procesar_localized(t_team* );
+void* procesar_localized(void*);
 
 bool contain_especie_recibida(t_list*,t_pokemon*);
 
@@ -79,9 +82,9 @@ bool team_necesita_especie(t_team* , t_pokemon* );
 
 bool verificar_nuevo_appeared(t_team*,t_pokemon*);
 
-void procesar_appeared(t_team*);
+void* procesar_appeared(void*);
 
-void procesar_caught(t_team*);
+void* procesar_caught(void*);
 
 void handler_entrenador(t_entrenador*);
 
@@ -93,7 +96,7 @@ void planificar_team(t_team*);
 
 
 void borrar_int_t_distancia_pokemon_entrenador(t_list* distancias);
-
+void ordenar_t_distancia(t_list* distancias);
 
 
 

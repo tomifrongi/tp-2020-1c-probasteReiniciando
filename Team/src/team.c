@@ -46,10 +46,7 @@ bool team_puede_capturar(t_team*team, t_pokemon*pokemon) {
 }
 /*------------------------------------------------BUSQUEDA DE ENTRENADOR QUE VA A ATRAPAR------------------------------------------------*/
 
-t_list*team_entrenadores_disponibles(t_team*team) {
 
-	return list_filter(team->entrenadores, esta_disponible); // todo el esta_disponible
-}
 /*
  t_entrenador*team_buscar_entrenador_cercano(t_team*team) {
  list_sorted(team_entrenadores_disponibles(team))

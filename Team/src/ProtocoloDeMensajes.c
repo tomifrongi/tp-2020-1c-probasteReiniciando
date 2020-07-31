@@ -156,4 +156,17 @@ void borrar_coordenada(coordenada* c){
 	free(c);
 }
 
+void borrar_caught_pokemon(caught_pokemon* cp){
+	free(cp);
+}
 
+void borrar_appeared_pokemon(appeared_pokemon* ap){
+	free(ap->nombrePokemon);
+	free(ap);
+}
+
+void borrar_localized_pokemon(localized_pokemon* lp){
+	free(lp->nombrePokemon);
+	list_destroy_and_destroy_elements(lp->posiciones,(void*)borrar_coordenada);
+	free(lp);
+}

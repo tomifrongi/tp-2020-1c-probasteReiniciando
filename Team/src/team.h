@@ -10,7 +10,7 @@
 #include <commons/collections/queue.h>
 #include <commons/string.h>
 #include <math.h>
-#include "entrenadores.h"
+#include <semaphore.h>
 
 typedef enum {
 	FIFO,
@@ -23,7 +23,7 @@ typedef enum {
 
 typedef struct{
 	t_list* entrenadores; //esta lista contiene todos los entrenadores siempre, no se sacan ni se agregan
-	t_list* entrenadores_planificados; //los que estan en READY
+	t_list* entrenadores_ready; //los que estan en READY
 	t_list* entrenadores_desocupados; //toodos los entrenadores arrancan en esta lista ya que estan desocupados
 
 	t_list* objetivo_pokemones_restantes; //tiene toodos los pokemones que le falta al team y puede haber repetidos
@@ -56,7 +56,7 @@ typedef enum {
 
 
 
-typedef struct {
+typedef struct{
 	int id;
 	t_team* team;
 	//coordenada posicion_actual; esto efea
@@ -113,6 +113,7 @@ bool algunos_pueden_atrapar(t_team*);
 
 //Devuelve un lista de posiciones de alguna especie objetivo que estan en el mapa. Si no encuentra devuelve NULL
 t_list* buscar_especie_objetivo_en_mapa(t_team*);
+void ordenar_entrenadores_planificados_por_estimacion(t_team*);
 
 t_list * pokemones_sueltos;
 
