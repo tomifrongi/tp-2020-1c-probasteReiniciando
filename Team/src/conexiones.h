@@ -19,7 +19,7 @@
 #include <net/if.h>
 #include <stdarg.h>
 #include <pthread.h>
-
+#include <semaphore.h>
 #include "configuracion.h"
 #include "ProtocoloDeMensajes.h"
 
@@ -74,7 +74,9 @@ int init_server(int port);
 typedef struct {
 	t_queue* cola_mensajes;
 	sem_t* semaforo_contador_cola;
+	pthread_mutex_t* mutex_cola;
 	uint32_t cola_suscriptor;
+	t_team* team;
 }administracion_cola;
 
 typedef struct {
@@ -88,7 +90,7 @@ typedef struct {
 void* handler_broker(void * administracion);
 void* escuchar_mensajes_gameboy(void* administracion);
 void* handler_appeared(void* administracion);
-void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_contador_cola);
+void handler_suscripciones(int socketTeam,t_queue* cola_mensajes,sem_t* semaforo_contador_cola,pthread_mutex_t* mutex_cola);
 
 //------------------------
 

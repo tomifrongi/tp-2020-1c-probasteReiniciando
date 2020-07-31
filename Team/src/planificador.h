@@ -10,24 +10,44 @@
 #include <pthread.h>
 #include <semaphore.h>
 
+typedef struct{
+	t_pokemon* pokemon;
+	t_entrenador* entrenador;
+	int* distancia;
+}t_distancia_pokemon_entrenador;
 
-bool conectado_al_broker;
+
 t_queue* cola_localized;
 sem_t* semaforo_contador_localized;
+pthread_mutex_t* mutex_cola_localized;
+
 t_queue* cola_appeared;
 sem_t* semaforo_contador_appeared;
+pthread_mutex_t* mutex_cola_appeared;
+
 t_queue* cola_caught;
 sem_t* semaforo_contador_caught;
-t_list* idsGet;
-t_list* idsCatch;
-t_list* especiesRecibidas;
-pthread_mutex_t* mutex_entrenadores_disponibles;
-sem_t* semaforo_entrenadores_disponibles;
+pthread_mutex_t* mutex_cola_caught;
 
-sem_t* semaforo_mapa_pokemones;
-sem_t* semaforo_entrenadores_desocupados;
+pthread_mutex_t* mutex_idsGet; //lista de int
+t_list* idsGet;
+
+pthread_mutex_t* mutex_idsCatch; //lista de int
+t_list* idsCatch;
+
+pthread_mutex_t* mutex_entrenadores_ready;
+sem_t* semaforo_entrenadores_ready;
+
+t_list* especiesRecibidas;
+pthread_mutex_t* mutex_especiesRecibidas;
+
+
+
+sem_t* semaforo_termino_rafaga_cpu;
 
 t_team* TEAM;
+
+pthread_mutex_t* mutex_planificar_entrenador;
 
 #ifndef SRC_PLANIFICADOR_H_
 #define SRC_PLANIFICADOR_H_
@@ -37,7 +57,6 @@ t_team* TEAM;
 
 void* crear_hilos_entrenadores(team);
 
-
 bool verificar_nuevo_localized(t_team*,t_pokemon*);
 
 int get_indice(t_team*team, hilo_entrenador);
@@ -46,13 +65,13 @@ void planificar_entrenador(t_team * , t_pokemon * );
 
 int tiempo_rafaga(t_entrenador*, t_pokemon*);
 
-bool contain_id_get(t_team* ,uint32_t );
+bool contain_id_get(t_list*, int);
 
 bool verificar_nuevo_localized(t_team* , t_pokemon* ,uint32_t );
 
 void procesar_localized(t_team* );
 
-bool contain_especie_recibida(t_team* ,t_pokemon* );
+bool contain_especie_recibida(t_list*,t_pokemon*);
 
 bool team_necesita_especie(t_team* , t_pokemon*);
 
@@ -62,15 +81,18 @@ bool verificar_nuevo_appeared(t_team*,t_pokemon*);
 
 void procesar_appeared(t_team*);
 
+void procesar_caught(t_team*);
+
 void handler_entrenador(t_entrenador*);
 
 bool sem_post_algoritmo(t_entrenador* ,t_list*);
 
-void agregar_entrenador_a_planificar(t_entrenador* ,t_team* );
+void agregar_entrenador_a_cola_ready(t_entrenador* ,t_team* );
 
 void planificar_team(t_team*);
 
 
+void borrar_int_t_distancia_pokemon_entrenador(t_list* distancias);
 
 
 

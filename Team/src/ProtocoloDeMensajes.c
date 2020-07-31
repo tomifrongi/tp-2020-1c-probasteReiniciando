@@ -6,9 +6,9 @@ appeared_pokemon* deserializarAppeared(void* content){
 	int bytesLeidos = 0;
 
 
-	memcpy(&mensaje->id_mensaje,content+bytesLeidos,sizeof(mensaje.id_mensaje));
-	bytesLeidos+=(sizeof(mensaje->id_mensaje));
-	memcpy(&mensaje->idCorrelativo,content+bytesLeidos,sizeof(mensaje.idCorrelativo));
+	memcpy(&mensaje.id_mensaje,content+bytesLeidos,sizeof(mensaje.id_mensaje));
+	bytesLeidos+=(sizeof(mensaje.id_mensaje));
+	memcpy(&mensaje.idCorrelativo,content+bytesLeidos,sizeof(mensaje.idCorrelativo));
 	bytesLeidos+=(sizeof(mensaje.idCorrelativo));
 	memcpy(&mensaje.sizeNombre,content+bytesLeidos,sizeof(mensaje.sizeNombre));
 	bytesLeidos+=(sizeof(mensaje.sizeNombre));
@@ -50,7 +50,7 @@ caught_pokemon* deserializarCaught(void* content){
 	return mensaje_creado;
 }
 
-localized_pokemon deserializarLocalized(void* content){
+localized_pokemon* deserializarLocalized(void* content){
 	localized_pokemon mensaje;
 	int bytesLeidos = 0;
 

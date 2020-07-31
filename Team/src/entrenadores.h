@@ -1,57 +1,20 @@
 
+#ifndef ENTRENADORES_H_
+#define ENTRENADORES_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-//#include "team.h"
+#include "team.h"
 #include "configuracion.h"
-#include "pokemones.h"
 #include "ProtocoloDeMensajes.h"
 
-#ifndef ENTRENADORES_H_
-#define ENTRENADORES_H_
 
 
 
-typedef enum {
-	NEW,
-	READY,
-	EXEC,
-	BLOCK,
-	EXIT
-}t_state;
 
-typedef enum {
-	ATRAPAR,
-	INTERCAMBIO
-}t_tipo_tarea;
 
-typedef struct {
-	t_tipo_tarea tipo_tarea;
-	t_pokemon pokemon;
-	t_entrenador entrenador_intercambio;
-}t_tarea;
-
-typedef struct {
-	int id;
-	t_team* team;
-	//coordenada posicion_actual; esto efea
-	int posicion_x;
-	int posicion_y;
-	t_list* pokemones_capturados;
-	t_list* pokemones_buscados;
-	t_state estado;
-	t_tarea* tarea;
-	sem_t* semaforo;
-	int estimado_rafaga_anterior;
-	int estimado_rafaga_proxima;
-	int real_rafaga_anterior;
-
-	bool esta_en_entrada_salida;
-	int id_correlativo_esperado;
-	int rafagas_intercambio_realizadas;
-}t_entrenador;
 
 //--------FUCIONES------
 
@@ -97,6 +60,8 @@ void mover_entrenador(t_entrenador*, int , int );
 int calcular_rafagas_necesarias(t_entrenador* );
 
 void actualizar_estimados(t_entrenador* ,int* ,int*);
+
+t_entrenador* buscar_entrenador_por_id_correlativo(t_list*,int);
 
 #endif /* ENTRENADORES_H_ */
 

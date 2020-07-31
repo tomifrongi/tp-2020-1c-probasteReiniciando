@@ -163,6 +163,7 @@ void* handler_broker(void *administracion){
 	while(1){
 		int socketTeam = connect_to_server(IP_BROKER, PUERTO_BROKER, NULL);
 		if(socketTeam != -errno){
+			administracion_casteada->team->conectado_al_broker = true;
 			log_info(log_team_oficial, "CONEXION EXITOSA CON EL BROKER");
 			t_message mensaje;
 			suscripcion content;
@@ -171,9 +172,11 @@ void* handler_broker(void *administracion){
 			mensaje.content = serializarSuscripcion(content);
 			mensaje.head = SUSCRIPCION;
 			mensaje.size = sizeof(suscripcion);
-			send_message(socketTeam, mensaje.head,mensaje.content, mensaje.size);
+			int res = send_message(socketTeam, mensaje.head,mensaje.content, mensaje.size);
 			free(mensaje.content);
-			handler_suscripciones(socketTeam,administracion_casteada->cola_mensajes,administracion_casteada->semaforo_contador_cola);
+			if(res != -errno)
+				handler_suscripciones(socketTeam,administracion_casteada->cola_mensajes,administracion_casteada->semaforo_contador_cola,administracion_casteada->mutex_cola);
+			administracion_casteada->team->conectado_al_broker = false;
 		}
 		sleep(TIEMPO_RECONEXION);
 	}
@@ -202,8 +205,6 @@ void* escuchar_mensajes_gameboy(void* administracion){
 
 void* handler_appeared(void* administracion){
 	administracion_gameboy* administracion_casteada = administracion;
-	bool executing = true;
-	while(executing){
 		t_message* message = recv_message(administracion_casteada->listener_socket);
 		if(message->head == APPEARED_POKEMON){
 			appeared_pokemon* mensaje = deserializarAppeared(message->content);
@@ -213,18 +214,17 @@ void* handler_appeared(void* administracion){
 			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
 			send_message(administracion_casteada->listener_socket,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
 			free(mensajeACKSerializado);
-
 			queue_push(administracion_casteada->cola_mensajes,mensaje);
 			sem_post(administracion_casteada->semaforo_contador_cola);
 		}
 		free_t_message(message);
-	}
+
 	return NULL;
 }
 
-void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_contador_cola){
-
-	while(1){
+void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_contador_cola,pthread_mutex_t* mutex_cola){
+	int executing = 1;
+	while(executing){
 		t_message* message = recv_message(socketTeam);
 
 		switch(message->head){
@@ -234,11 +234,14 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 			mensajeACK.idCola = APPEARED;
 			mensajeACK.idSuscriptor = getpid();
 			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
-			send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
+			int res = send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
 			free(mensajeACKSerializado);
-
+			pthread_mutex_lock(mutex_cola);
 			queue_push(cola_mensajes,mensaje);
+			pthread_mutex_unlock(mutex_cola);
 			sem_post(semaforo_contador_cola);
+			if(res == -errno)
+				executing = 0;
 
 			break;
 		}
@@ -249,11 +252,14 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 			mensajeACK.idCola = LOCALIZED;
 			mensajeACK.idSuscriptor = getpid();
 			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
-			send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
+			int res = send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
 			free(mensajeACKSerializado);
-
+			pthread_mutex_lock(mutex_cola);
 			queue_push(cola_mensajes,mensaje);
+			pthread_mutex_unlock(mutex_cola);
 			sem_post(semaforo_contador_cola);
+			if(res == -errno)
+				executing = 0;
 			break;
 		}
 
@@ -263,11 +269,19 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 			mensajeACK.idCola = CAUGHT;
 			mensajeACK.idSuscriptor = getpid();
 			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
-			send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
+			int res = send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
 			free(mensajeACKSerializado);
-
+			pthread_mutex_lock(mutex_cola);
 			queue_push(cola_mensajes,mensaje);
+			pthread_mutex_unlock(mutex_cola);
 			sem_post(semaforo_contador_cola);
+			if(res == -errno)
+				executing = 0;
+			break;
+		}
+
+		case NO_CONNECTION:{
+			executing = 0;
 			break;
 		}
 
@@ -278,6 +292,74 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 		}
 		free_t_message(message);
 	}
+}
+
+bool ya_esta_en_la_lista(t_list* sin_repetidos,char* especie){
+	bool mismo_nombre(void* n){
+		char* nombre = n;
+		return (strcmp(nombre,especie) == 0);
+	}
+	return (list_find(sin_repetidos,mismo_nombre)!= NULL);
+}
+
+t_list*eliminar_repetidos(t_list* objetivo_pokemones_restantes){
+	t_list* sin_repetidos = list_create();
+	list_add(sin_repetidos,list_get(objetivo_pokemones_restantes,0));
+	int i = 1;
+	int size = list_size(objetivo_pokemones_restantes);
+
+	while(i<size){
+		char* especie = list_get(objetivo_pokemones_restantes,i);
+		if(!ya_esta_en_la_lista(sin_repetidos,especie)){
+			list_add(sin_repetidos,especie);
+		}
+		i++;
+	}
+	return sin_repetidos;
+}
+
+void enviar_gets(t_list* objetivo_pokemones_restantes,t_list* idsGet,pthread_mutex_t* mutex_idsGet){
+
+	t_list* objetivos_pokemones_restantes_sin_repetidos = eliminar_repetidos(objetivo_pokemones_restantes);
+	int size = list_size(objetivos_pokemones_restantes_sin_repetidos);
+	int i = 0;
+	while(i<size){
+		int socket_get = connect_to_server(IP_BROKER, PUERTO_BROKER, NULL);
+		if(socket_get != -errno){
+		char* especie = list_get(objetivos_pokemones_restantes_sin_repetidos,i);
+		get_pokemon mensaje;
+		mensaje.sizeNombre = strlen(especie)+1;
+		mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
+		strcpy(mensaje.nombrePokemon,especie);
+		void* content = serializarGet(mensaje);
+		free(mensaje.nombrePokemon);
+
+		pthread_mutex_lock(mutex_idsGet);
+		send_message(socket_get, GET_POKEMON,content, sizeof(uint32_t)+mensaje.sizeNombre);
+		free(content);
+
+		t_message* mensajeConfirmacionID =recv_message(socket_get);
+		uint32_t idConf;
+		memcpy(&idConf,mensajeConfirmacionID->content,sizeof(uint32_t));
+		free_t_message(mensajeConfirmacionID);
+
+		int* id_lista = malloc(sizeof(int));
+		*id_lista = idConf;
+
+		list_add(idsGet,id_lista);
+		pthread_mutex_unlock(mutex_idsGet);
+
+		shutdown(socket_get,SHUT_RDWR);
+		}
+
+		i++;
+	}
+
+
+
+
+
+	list_destroy(objetivos_pokemones_restantes_sin_repetidos);
 }
 
 //------------------------

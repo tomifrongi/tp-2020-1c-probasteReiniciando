@@ -28,17 +28,65 @@ typedef struct{
 
 	t_list* objetivo_pokemones_restantes; //tiene toodos los pokemones que le falta al team y puede haber repetidos
 										 //si se captura un pokemon, hay que sacarlo de esta lista.
+										//si se le asigno a un entrenador, capturar un pokemon de esta lista, se lo saca de la lista
+													//si no se lo pudo capturar se lo vuelve a agregar
 										// es una lista de char*, no de t_pokemones
 	t_list* mapa_pokemones;
 	t_planificador planificador;
-
 	//contadores finales :break;
 	int cantidad_ciclos_cpu_ejecutados;
 	int cantidad_deadlocks;//mm hace falta
 	int cantidad_deadlocks_detectados;
 	int cantidad_deadlocks_solucionados;
-
+	bool conectado_al_broker;
 }t_team;
+
+typedef enum {
+	NEW,
+	READY,
+	EXEC,
+	BLOCK,
+	EXIT
+}t_state;
+
+typedef enum {
+	ATRAPAR,
+	INTERCAMBIO
+}t_tipo_tarea;
+
+
+
+typedef struct {
+	int id;
+	t_team* team;
+	//coordenada posicion_actual; esto efea
+	int posicion_x;
+	int posicion_y;
+	t_list* pokemones_capturados; //lista de t_pokemon, por mas que los tenga en el bolsillo, dejamos la posicion
+	t_list* pokemones_buscados; //lista de t_pokemon, por mas que los tenga en el bolsillo, dejamos la posicion
+	t_state estado;
+	struct t_tarea* tarea;
+	sem_t* semaforo;
+	int estimado_rafaga_anterior;
+	int estimado_rafaga_proxima;
+	int real_rafaga_anterior;
+
+	bool esta_en_entrada_salida;
+	int id_correlativo_esperado;
+	int rafagas_intercambio_realizadas;
+}t_entrenador;
+
+typedef struct{
+	char* especie;
+	int posicion_x;
+	int posicion_y;
+}t_pokemon;
+
+struct t_tarea{
+	t_tipo_tarea tipo_tarea;
+	t_pokemon* pokemon;
+	t_entrenador* entrenador_intercambio;
+};
 
 
 
@@ -63,6 +111,8 @@ void consumir_ciclos_cpu(t_team*,int);
 
 bool algunos_pueden_atrapar(t_team*);
 
+//Devuelve un lista de posiciones de alguna especie objetivo que estan en el mapa. Si no encuentra devuelve NULL
+t_list* buscar_especie_objetivo_en_mapa(t_team*);
 
 t_list * pokemones_sueltos;
 

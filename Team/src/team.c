@@ -107,7 +107,30 @@ bool algunos_pueden_atrapar(t_team* team){
 }
 
 
+t_list* buscar_especie_objetivo_en_mapa(t_team* team){
 
+	char* especie_pokemon;
+	t_list* posiciones_pokemon_mapa = NULL;
+	int i = 0;
+	int size_objetivo_pokemones_restantes = list_size(team->objetivo_pokemones_restantes);
+
+	while(i<size_objetivo_pokemones_restantes){
+		especie_pokemon = list_get(team->objetivo_pokemones_restantes,i);
+		posiciones_pokemon_mapa = pokemones_misma_especie(team->mapa_pokemones,especie_pokemon); //seria una lista de t_pokemon
+
+		if(!list_is_empty(posiciones_pokemon_mapa))
+			return posiciones_pokemon_mapa;
+		else
+		{
+			list_destroy(posiciones_pokemon_mapa);
+			posiciones_pokemon_mapa = NULL;
+		}
+		i++;
+	}
+
+	return posiciones_pokemon_mapa;
+
+}
 
 
 

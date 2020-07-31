@@ -92,7 +92,6 @@ void entrenador_bloquear(t_entrenador *entrenador) { //para mas claridad
 }
 bool entrenador_cumplio_objetivos(t_entrenador *entrenador) {
 	return list_size(entrenador_pokemones_faltantes) == 0;
-
 }
 int entrenador_finalizar(t_entrenador *entrenador) { //o si no finalizo,1 si finalizo ok //ver que onda por que esta funcion me hizo agregar el id en struct team y entrenador,si se usa solo aca,buscarle la vuelta por otro lado
 	if (entrenador_cumplio_objetivos(entrenador)) {
@@ -141,7 +140,7 @@ int entrenador_cantidad_capturados(t_entrenador *entrenador) {
 	return list_size(entrenador->pokemones_capturados);
 }
 bool entrenador_puede_capturar(t_entrenador*entrenador) {
-	return cantidad_objetivos(entrenador) > cantidad_capturados(entrenador); //si tenia que capturar 3 no puede mas de 3 por mas que no sean los suyos
+	return list_size(entrenador->pokemones_buscados)>list_size(entrenador->pokemones_capturados);
 }
 
 
@@ -212,4 +211,13 @@ void actualizar_estimados(t_entrenador* entrenador,int* real_rafaga_anterior,int
 	//Est(n+1) = 𝝰 R(n) + ( 1 - 𝝰 ) Est(n)
 	int estimado = ALPHA*real_rafaga_anterior + (1-ALPHA) * estimado_rafaga_anterior;
 	entrenador->estimado_rafaga_proxima = estimado;
+}
+
+t_entrenador* buscar_entrenador_por_id_correlativo(t_list* entrenadores,int id_correlativo){
+	bool mismo_id_correlativo(void* e){
+		t_entrenador* entrenador = e;
+		return ((entrenador->esta_en_entrada_salida) && (entrenador->id_correlativo_esperado == id_correlativo));
+	}
+
+	return list_find(entrenadores,mismo_id_correlativo);
 }
