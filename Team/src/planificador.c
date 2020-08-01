@@ -10,7 +10,16 @@
 
 
 void crear_hilos_entrenadores(t_team* team) {
-
+	int i = 0;
+	int size = list_size(team->entrenadores);
+	while(i<size){
+		void* entrenador = list_get(team->entrenadores,i);
+		pthread_t* hilo_entrenador = malloc(sizeof(hilo_entrenador));
+		pthread_create(hilo_entrenador,NULL,handler_entrenador,entrenador);
+		pthread_detach(*hilo_entrenador);
+		list_add(team->hilos_entrenadores,hilo_entrenador);
+		i++;
+	}
 }
 
 
@@ -81,7 +90,7 @@ void planificar_entrenador(t_team * team){
 
 		ordenar_t_distancia(pares_entrenadores_mas_cercanos);
 		t_distancia_pokemon_entrenador* mejor_distancia = list_remove(pares_entrenadores_mas_cercanos,0);
-		asignar_tarea_atrapar(mejor_distancia->entrenador,mejor_distancia->pokemon,semaforo_entrenadores_ready);
+		asignar_tarea_atrapar(mejor_distancia->entrenador,TEAM,mejor_distancia->pokemon,semaforo_entrenadores_ready);
 		remover_entrenador(team->entrenadores_desocupados,mejor_distancia->entrenador);
 		remover_pokemon(team->mapa_pokemones,mejor_distancia->pokemon);
 		remover_especie_y_destruir(team->objetivo_pokemones_restantes,mejor_distancia->pokemon->especie);
@@ -269,13 +278,14 @@ void* procesar_caught(void* t){
 				entrenador->id_correlativo_esperado = -1;
 				if(entrenador_puede_capturar(entrenador)){
 					pthread_mutex_lock(mutex_planificar_entrenador);
-					list_add(entrenador->team->entrenadores_desocupados,entrenador);
-					planificar_entrenador(entrenador->team);
+					list_add(TEAM->entrenadores_desocupados,entrenador);
+					planificar_entrenador(TEAM);
 					pthread_mutex_unlock(mutex_planificar_entrenador);
 				}
-				else if(entrenador_cumplio_objetivos(entrenador))
+				else if(entrenador_cumplio_objetivos(entrenador)){
 					cambiar_estado(entrenador,EXIT);
-				entrenador->esta_en_entrada_salida =false;
+					entrenador->esta_en_entrada_salida =false;
+				}
 			}
 			else{
 				entrenador->esta_en_entrada_salida =false;
@@ -285,9 +295,9 @@ void* procesar_caught(void* t){
 				strcpy(especie,entrenador->tarea->pokemon->especie);
 				borrar_t_pokemon(entrenador->tarea->pokemon);
 				pthread_mutex_lock(mutex_planificar_entrenador);
-				list_add(entrenador->team->entrenadores_desocupados,entrenador);
-				list_add(entrenador->team->objetivo_pokemones_restantes,especie);
-				planificar_entrenador(entrenador->team);
+				list_add(TEAM->entrenadores_desocupados,entrenador);
+				list_add(TEAM->objetivo_pokemones_restantes,especie);
+				planificar_entrenador(TEAM);
 				pthread_mutex_unlock(mutex_planificar_entrenador);
 			}
 			free(id);
@@ -298,8 +308,8 @@ void* procesar_caught(void* t){
 }
 
 
-void handler_entrenador(t_entrenador* entrenador){
-
+void* handler_entrenador(void* e){
+	t_entrenador* entrenador = e;
 	while(entrenador->estado != EXIT){
 		sem_wait(entrenador->semaforo);
 		ejecutar_ciclo_cpu(entrenador);
@@ -311,12 +321,12 @@ void handler_entrenador(t_entrenador* entrenador){
 			switch(entrenador->tarea->tipo_tarea){
 				case ATRAPAR:{
 
-					if(entrenador->team->conectado_al_broker){
+					if(TEAM->conectado_al_broker){
 
 						cambiar_estado(entrenador,BLOCK);
 						entrenador->esta_en_entrada_salida = true;
 						pthread_mutex_lock(mutex_idsCatch);
-						int id_mensaje = enviar_catch(entrenador->tarea->pokemon);
+						int id_mensaje = enviar_catch(entrenador->tarea->pokemon->especie,entrenador->tarea->pokemon->posicion_x,entrenador->tarea->pokemon->posicion_y,idsCatch,mutex_idsCatch);
 						int* id_mensaje_creado = malloc(sizeof(int));
 						*id_mensaje_creado = id_mensaje;
 						list_add(idsCatch,id_mensaje_creado);
@@ -330,8 +340,8 @@ void handler_entrenador(t_entrenador* entrenador){
 						//entrenador->estado
 						if(entrenador_puede_capturar(entrenador)){
 							pthread_mutex_lock(mutex_planificar_entrenador);
-							list_add(entrenador->team->entrenadores_desocupados,entrenador);
-							planificar_entrenador(entrenador->team);
+							list_add(TEAM->entrenadores_desocupados,entrenador);
+							planificar_entrenador(TEAM);
 							pthread_mutex_unlock(mutex_planificar_entrenador);
 						}
 						else if(entrenador_cumplio_objetivos(entrenador))
@@ -358,6 +368,8 @@ void handler_entrenador(t_entrenador* entrenador){
 			sem_post(semaforo_termino_rafaga_cpu);
 		}
 	}
+	return NULL;
+
 }
 
 //------------------------------------------------------------------
@@ -551,103 +563,128 @@ void planificacion_general(t_team* team){
 
 }
 
+void iniciar_estructuras_administrativas(){
+	cola_localized = queue_create();
+	sem_init(semaforo_contador_localized,0,0);
+	pthread_mutex_init(mutex_cola_localized,NULL);
+
+	cola_appeared = queue_create();
+	sem_init(semaforo_contador_appeared,0,0);
+	pthread_mutex_init(mutex_cola_appeared,NULL);
+
+	cola_caught = queue_create();
+	sem_init(semaforo_contador_caught,0,0);
+	pthread_mutex_init(mutex_cola_caught,NULL);
+
+	pthread_mutex_init(mutex_idsGet,NULL);
+	idsGet = list_create();
+
+	pthread_mutex_init(mutex_idsCatch,NULL);
+	idsCatch  = list_create();
+
+	pthread_mutex_init(mutex_entrenadores_ready,NULL);
+	sem_init(semaforo_entrenadores_ready,0,0);
+
+	especiesRecibidas = list_create();
+	pthread_mutex_init(mutex_especiesRecibidas,NULL);
+
+	sem_init(semaforo_termino_rafaga_cpu,0,0);
+}
 
 //----------------------------------------------------------GUION/funcion principal:
 
 
 void planificar_team(t_team*team) {
+	TEAM = team;
+	iniciar_estructuras_administrativas();
 
-	pthread_t appeared_thread;
-	pthread_t localized_thread;
-	pthread_t caught_thread;
-	pthread_t appeared_gameboy_thread;
+	crear_hilos_entrenadores(TEAM);
 
-	uint32_t a = APPEARED;
-	uint32_t l = LOCALIZED;
-	uint32_t c = CAUGHT;
+	pthread_t* appeared_thread = malloc(sizeof(pthread_t));
+	administracion_cola* administracion_appeared;
+	administracion_appeared->cola_mensajes = cola_appeared;
+	administracion_appeared->cola_suscriptor = APPEARED;
+	administracion_appeared->mutex_cola = mutex_cola_appeared;
+	administracion_appeared->semaforo_contador_cola = semaforo_contador_appeared;
+	administracion_appeared->team = TEAM;
+	pthread_create(appeared_thread, NULL,handler_broker, (void*) administracion_appeared);
+	pthread_detach(*appeared_thread);
 
 
-	pthread_create(&appeared_thread, NULL, (void*) handler_broker, &a);//TODO PONER BIEN LO QUE RECIBEN ESTOS 4 HILOS
-	pthread_detach(appeared_thread);
+	pthread_t* localized_thread = malloc(sizeof(pthread_t));
+	administracion_cola* administracion_localized;
+	administracion_localized->cola_mensajes = cola_localized;
+	administracion_localized->cola_suscriptor = LOCALIZED;
+	administracion_localized->mutex_cola = mutex_cola_localized;
+	administracion_localized->semaforo_contador_cola = semaforo_contador_localized;
+	administracion_localized->team = TEAM;
+	pthread_create(localized_thread, NULL, (void*) handler_broker, (void*) administracion_localized);
+	pthread_detach(*localized_thread);
 
-	pthread_create(&localized_thread, NULL, (void*) handler_broker, &l);
-	pthread_detach(localized_thread);
 
-	pthread_create(&caught_thread, NULL, (void*) handler_broker, &c);
-	pthread_detach(caught_thread);
+	pthread_t* caught_thread = malloc(sizeof(pthread_t));
+	administracion_cola* administracion_caught;
+	administracion_caught->cola_mensajes = cola_caught;
+	administracion_caught->cola_suscriptor = CAUGHT;
+	administracion_caught->mutex_cola = mutex_cola_caught;
+	administracion_caught->semaforo_contador_cola = semaforo_contador_caught;
+	administracion_caught->team = TEAM;
+	pthread_create(caught_thread, NULL, (void*) handler_broker, (void*) administracion_caught);
+	pthread_detach(*caught_thread);
 
-	int listener_socket = init_server(PUERTO_TEAM);
-	pthread_create(&appeared_gameboy_thread, NULL, (void*) escuchar_mensajes_gameboy, &listener_socket);
-	pthread_detach(appeared_gameboy_thread);
+
+	pthread_t* appeared_gameboy_thread = malloc(sizeof(pthread_t));
+	administracion_gameboy* administracion_gameboy;
+	administracion_gameboy->cola_mensajes = cola_appeared;
+	administracion_gameboy->listener_socket = init_server(PUERTO_TEAM);
+	administracion_gameboy->mutex_cola = mutex_cola_appeared;
+	administracion_gameboy->semaforo_contador_cola = semaforo_contador_appeared;
+	pthread_create(appeared_gameboy_thread, NULL, (void*) escuchar_mensajes_gameboy, (void*) administracion_gameboy);
+	pthread_detach(*appeared_gameboy_thread);
+
+
+	pthread_t* consumidor_cola_localized = malloc(sizeof(pthread_t));
+	pthread_create(consumidor_cola_localized,NULL,procesar_localized,(void*) TEAM);
+	pthread_detach(*consumidor_cola_localized);
+
+	pthread_t* consumidor_cola_appeared = malloc(sizeof(pthread_t));
+	pthread_create(consumidor_cola_appeared,NULL,procesar_appeared,(void*) TEAM);
+	pthread_detach(*consumidor_cola_appeared);
+
+	pthread_t* consumidor_cola_caught = malloc(sizeof(pthread_t));
+	pthread_create(consumidor_cola_caught,NULL,procesar_caught,(void*) TEAM);
+	pthread_detach(*consumidor_cola_caught);
 
 	enviar_gets(team->objetivo_pokemones_restantes,idsGet,mutex_idsGet);
-	crear_hilos_entrenadores(); //TODO CREAR HILOS ENTRENADORES
 
+	while (algunos_pueden_atrapar(team)){
 
-	pthread_t consumidor_cola_localized;
-	pthread_create(&consumidor_cola_localized,NULL,procesar_localized,(void*) team);
-	pthread_detach(consumidor_cola_localized);
+			sem_wait(semaforo_entrenadores_ready);
 
+			pthread_mutex_lock(mutex_entrenadores_ready);
+			t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
+			pthread_mutex_unlock(mutex_entrenadores_ready);
 
-	pthread_t consumidor_cola_appeared;
-	pthread_create(&consumidor_cola_appeared,NULL,procesar_appeared,(void*) team);
-	pthread_detach(consumidor_cola_appeared);
+			if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
+				agregar_entrenador_a_cola_ready(entrenador,team);
 
-	pthread_t consumidor_cola_caught;
-	pthread_create(&consumidor_cola_caught,NULL,procesar_caught,(void*) team); //TODO RECIBIR CAUGHT
-	pthread_detach(consumidor_cola_caught);
+		}
 
+		if(detectar_deadlocks()) //TODO DEADLOCK
+			resolverDeadlocks();
 
-	pthread_t hilo_principal;
-	pthread_create(&hilo_principal,NULL,planificacion_general,NULL);
-	pthread_detach(hilo_principal);
+		while (!team_cumplio_objetivo_global(team)) //TODO REVISAR
+		{
+			sem_wait(semaforo_entrenadores_ready);
+			pthread_mutex_lock(mutex_entrenadores_ready);
+			t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
+			pthread_mutex_unlock(mutex_entrenadores_ready);
 
+			if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
+				agregar_entrenador_a_cola_ready(entrenador,team);
 
-	//ESTE HILO ESTA CONSTAMENTE EN UN WHILE 1, SI HAY ENTRENADORES PARA PLANIFICAR, LOS AGARRO Y HAGO LO QUE TENGA QUE HACER
+		}
 
-
-
-
-
-
-
-
-//	while (team_cumplio_objetivo_global(team) == false) {
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//			if (verificar_nuevo_localized(team,pokemon_a_capturar)&& team_puede_capturar(team) ) //las repuestas a los get,pueden ser dirigidos a otro team
-//			{
-//				/*
-//				 *
-//				 * la idea en este punto es mandarlo a capturar,  osea ponerlo en ready, despues el algoritmo de planificacion dira cuando se ejecuta
-//				 */
-//				planificar_entrenador(team, pokemon_a_capturar); //aca ya tendria la cola de hilos lista y actualizada para que laburen
-//
-//			} else { ///mientras no llegan mensajes o se quedo trabajdo el team ,se purgan los deadlocks
-//				if (verificar_deadlock(team)) { //si la causa es un deadlock aca se soluciona,si es que no esta llegando mensajes se esperaran
-//					team->cantidad_deadlocks_detectados++;
-//					salvar_deadlocks(team);
-//				}
-//				else{//en este punto se supone que no hay pokemones libres en mapa ni deadlock, hay que seguir el curso normal
-//					ejecutar_planificador();
-//				}
-//			}
-//		}
-
-
-	//de aca en adelante se cumplio el objetivo del team...van las funciones de cerrar
 
 }
 

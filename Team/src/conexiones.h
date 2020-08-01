@@ -82,6 +82,7 @@ typedef struct {
 typedef struct {
 	t_queue* cola_mensajes;
 	sem_t* semaforo_contador_cola;
+	pthread_mutex_t* mutex_cola;
 	uint32_t listener_socket;
 }administracion_gameboy;
 
@@ -92,7 +93,7 @@ void* escuchar_mensajes_gameboy(void* administracion);
 void* handler_appeared(void* administracion);
 void handler_suscripciones(int socketTeam,t_queue* cola_mensajes,sem_t* semaforo_contador_cola,pthread_mutex_t* mutex_cola);
 void enviar_gets(t_list* objetivo_pokemones_restantes,t_list* idsGet,pthread_mutex_t* mutex_idsGet);
-
+int enviar_catch(char* ,int ,int ,t_list* ,pthread_mutex_t* );
 //------------------------
 
 

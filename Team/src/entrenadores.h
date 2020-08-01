@@ -10,6 +10,7 @@
 #include "mapa.h"
 #include "configuracion.h"
 #include "ProtocoloDeMensajes.h"
+#include "pokemones.h"
 
 
 
@@ -36,7 +37,7 @@ void entrenador_bloquear(t_entrenador *);
 
 bool entrenador_cumplio_objetivos(t_entrenador *);
 
-int entrenador_finalizar(t_entrenador *);
+int entrenador_finalizar(t_entrenador*);
 
 bool entrenador_finalizo(t_entrenador*);
 
@@ -66,9 +67,10 @@ t_entrenador* buscar_entrenador_por_id_correlativo(t_list*,int);
 
 t_entrenador* buscar_entrenador_mas_cercano(t_list*,t_pokemon*);
 
-void asignar_tarea_atrapar(t_entrenador* entrenador,t_pokemon* pokemon,sem_t* semaforo_readys);
+void asignar_tarea_atrapar(t_entrenador* ,t_team* ,t_pokemon* ,sem_t* );
 
 void remover_entrenador(t_list*,t_entrenador*);
 
+t_list* obtener_objetivo_pokemones_restantes(t_list*);
 #endif /* ENTRENADORES_H_ */
 

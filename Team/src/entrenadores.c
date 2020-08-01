@@ -2,43 +2,51 @@
 
 /*-----------------------------------------------------------INICIALIZACION----------------------*/
 
-//t_entrenador *iniciar_entrenador(int id, int posicion_x, int posicion_y, t_list*pokemones_capturados, t_list*pokemones_buscados) {
-//	t_entrenador*entrenador = malloc(sizeof(t_entrenador)); //cuidado con el malloc el tamaño de entrenador no es fijo
-//	entrenador->id = id;
-//	entrenador->posicion_x = posicion_x;
-//	entrenador->posicion_y = posicion_y;
-//
-//	entrenador->estado = NEW;
-//	entrenador->pokemones_capturados = pokemones_capturados;
-//	entrenador->pokemones_buscados = pokemones_buscados;
-//
-//	return entrenador;
-//}
+t_entrenador *iniciar_entrenador(int id, int posicion_x, int posicion_y, t_list*pokemones_capturados, t_list*pokemones_buscados) {
+	t_entrenador*entrenador = malloc(sizeof(t_entrenador)); //cuidado con el malloc el tamaño de entrenador no es fijo
+	entrenador->id = id;
+	entrenador->posicion_x = posicion_x;
+	entrenador->posicion_y = posicion_y;
+	entrenador->esta_en_entrada_salida = false;
+	entrenador->estimado_rafaga_proxima = ESTIMACION_INICIAL;
+	entrenador->estimado_rafaga_anterior = -1;
+	entrenador->real_rafaga_anterior = -1;
+	entrenador->id_correlativo_esperado = -1;
+	sem_init(entrenador->semaforo,0,0);
+	entrenador->rafagas_intercambio_realizadas = 0;
+	entrenador->tarea = NULL;
+	entrenador->pokemones_capturados = pokemones_capturados;
+	entrenador->pokemones_buscados = pokemones_buscados;
+	entrenador->estado = NEW;
 
-//t_list * inicializar_entrenadores(t_team *team) {
-//	int cantidad = cantidad_entrenadores(team);
-//
-//	t_list *entrenadores = list_create();
-//	int posicion_x, posicion_y;
-//	char**posicion;
-//
-//	int id;
-//	for (int i = 0; i < cantidad; i++) {
-//		id = i;
-//
-//		posicion = leer_posicion(team, i); // coordenadas posicion, ejemplo  [1,2]
-//		posicion_x = atoi(posicion[0]);
-//		posicion_y = atoi(posicion[1]);
-//
-//		t_entrenador *entrenador = iniciar_entrenador(id, posicion_x, posicion_y, get_pokemones(team, i, 0), get_pokemones(team, i, 1)); //el estado lo hago sin pasar parametro por ahora
-//
-//		list_add(entrenadores, entrenador);
-//		//printf("se cargo el entrenador: %d \n\n", i);
-//
-//	}
-//
-//	return entrenadores;
-//}
+
+	return entrenador;
+}
+
+t_list * inicializar_entrenadores(t_team *team) {
+	int cantidad = cantidad_entrenadores(team);
+
+	t_list *entrenadores = list_create();
+	int posicion_x, posicion_y;
+	char**posicion;
+
+	int id;
+	for (int i = 0; i < cantidad; i++) {
+		id = i;
+
+		posicion = leer_posicion(team, i); // coordenadas posicion, ejemplo  [1,2]
+		posicion_x = atoi(posicion[0]);
+		posicion_y = atoi(posicion[1]);
+
+		t_entrenador *entrenador = iniciar_entrenador(id, posicion_x, posicion_y, get_pokemones(team, i, 0), get_pokemones(team, i, 1)); //el estado lo hago sin pasar parametro por ahora
+
+		list_add(entrenadores, entrenador);
+		//printf("se cargo el entrenador: %d \n\n", i);
+
+	}
+
+	return entrenadores;
+}
 
 
 void ejecutar_ciclo_cpu(t_entrenador* entrenador){
@@ -58,28 +66,6 @@ void ejecutar_ciclo_cpu(t_entrenador* entrenador){
 	cambiar_estado(entrenador,READY);
 }
 
-
-
-//void mostrar_entrenador(t_entrenador*entrenador) { //closure
-//	printf("id: %d\n", entrenador->id);
-//	printf("estado: %d\n", entrenador->estado);
-//	printf("posicion x: %d\n", entrenador->posicion_x);
-//	printf("posicion y: %d\n", entrenador->posicion_y);
-//	printf("\npokemones capturados:\n\n"); //
-//
-//	mostrar_pokemones(entrenador->pokemones_capturados);
-//	printf("\npokemones buscados:\n\n");
-//
-//	mostrar_pokemones(entrenador->pokemones_buscados);
-//
-//	printf("\n\n--fin entrenador\n\n");
-//}
-void mostrar_entrenadores(t_list*entrenadores) {
-	list_iterate(entrenadores, (void*) mostrar_entrenador);
-
-}
-
-//todo falta una funcion que llame a todas estas funciones para cada team
 /*-----------------------------------------------------------PLANIFICACION----------------------*/
 
 //funciones de estado
@@ -93,10 +79,9 @@ void entrenador_bloquear(t_entrenador *entrenador) { //para mas claridad
 bool entrenador_cumplio_objetivos(t_entrenador *entrenador) {
 	return list_size(entrenador_pokemones_faltantes(entrenador)) == 0;
 }
-int entrenador_finalizar(t_entrenador *entrenador) { //o si no finalizo,1 si finalizo ok //ver que onda por que esta funcion me hizo agregar el id en struct team y entrenador,si se usa solo aca,buscarle la vuelta por otro lado
+int entrenador_finalizar(t_entrenador *entrenador) {
 	if (entrenador_cumplio_objetivos(entrenador)) {
 		cambiar_estado(entrenador, EXIT);
-		team_verificar_finalizacion(entrenador->team);
 		return 1;
 	}
 	return 0;
@@ -105,18 +90,7 @@ int entrenador_finalizar(t_entrenador *entrenador) { //o si no finalizo,1 si fin
 bool entrenador_finalizo(t_entrenador*entrenador) {
 	return entrenador->estado == EXIT;
 }
-bool entrenador_desocupado(t_entrenador*entrenador) {
-	if (entrenador->estado == BLOCK) {
-		//todo esta bloqueado por que no tiene nada para hacer
-		return true;
-	} else {
-		return false;
-	}
 
-}
-bool disponible_para_planificar(t_entrenador*entrenador) {
-	return (entrenador->estado == NEW || entrenador_desocupado(entrenador)); //lo dice en el video en 11:00
-}
 
 //funciones de objetivos
 t_list * entrenador_pokemones_faltantes(t_entrenador*entrenador) { //los que le faltan por encontrar a cada entrenador
@@ -234,11 +208,11 @@ t_entrenador* buscar_entrenador_mas_cercano(t_list* entrenadores,t_pokemon* poke
 	return list_get(entrenadores,0);
 }
 
-void asignar_tarea_atrapar(t_entrenador* entrenador,t_pokemon* pokemon,sem_t* semaforo_readys){
+void asignar_tarea_atrapar(t_entrenador* entrenador,t_team* team,t_pokemon* pokemon,sem_t* semaforo_readys){
 	entrenador->tarea->pokemon = pokemon;
 	entrenador->tarea->tipo_tarea = ATRAPAR;
 	entrenador->estado = READY;
-	list_add(entrenador->team->entrenadores_ready,entrenador);
+	list_add(team->entrenadores_ready,entrenador);
 	sem_post(semaforo_readys);
 }
 
@@ -249,5 +223,21 @@ void remover_entrenador(t_list* entrenadores,t_entrenador* entrenador){
 	}
 
 	list_remove_by_condition(entrenadores,mismo_id_entrenador);
+}
+
+t_list* obtener_objetivo_pokemones_restantes(t_list* entrenadores){
+	t_list* pokemones_capturados = list_create();
+	t_list* pokemones_objetivos = list_create();
+
+	void agregar_pokemones_a_listas(void* e){
+		t_entrenador* entrenador = e;
+		list_add_all(pokemones_capturados,entrenador->pokemones_capturados);
+		list_add_all(pokemones_objetivos,entrenador->pokemones_buscados);
+	}
+	list_iterate(entrenadores,agregar_pokemones_a_listas);
+
+	intersect_listas_pokemones(pokemones_objetivos,pokemones_capturados);
+	list_destroy(pokemones_capturados);
+	return pokemones_objetivos;
 }
 

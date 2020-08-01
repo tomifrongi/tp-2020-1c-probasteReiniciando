@@ -23,8 +23,12 @@ typedef enum {
 
 typedef struct{
 	t_list* entrenadores; //esta lista contiene todos los entrenadores siempre, no se sacan ni se agregan
+	t_list* hilos_entrenadores;
 	t_list* entrenadores_ready; //los que estan en READY
 	t_list* entrenadores_desocupados; //toodos los entrenadores arrancan en esta lista ya que estan desocupados
+									  //no consideramos que algun entrenador arranque sin poder capturar mas pokemones o
+										// arranque ya habiendo cumplido su objetivo
+									  //esto tiene sentido con el diagrama de estados. arrancan todos en new (enunciado) y solo pueden pasar a ready
 
 	t_list* objetivo_pokemones_restantes; //tiene toodos los pokemones que le falta al team y puede haber repetidos
 										 //si se captura un pokemon, hay que sacarlo de esta lista.
@@ -58,8 +62,7 @@ typedef enum {
 
 typedef struct{
 	int id;
-	t_team* team;
-	//coordenada posicion_actual; esto efea
+//	t_team* team;
 	int posicion_x;
 	int posicion_y;
 	t_list* pokemones_capturados; //lista de t_pokemon, por mas que los tenga en el bolsillo, dejamos la posicion
@@ -101,9 +104,8 @@ void crear_hilo(t_entrenador*);//no se si es tan asi
 
 t_list * team_get_objetivo_global(t_team*);
 
-int team_cantidad_maxima_especie(t_team*, char*);
-int team_cantidad_total_especie(t_team*, char*);
-bool team_puede_capturar(t_team*team, t_pokemon*);
+
+
 t_list*team_entrenadores_disponibles(t_team*);
 bool team_cumplio_objetivo_global(t_team*);
 void team_verificar_finalizacion(t_team*);

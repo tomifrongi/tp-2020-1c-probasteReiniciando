@@ -214,7 +214,9 @@ void* handler_appeared(void* administracion){
 			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
 			send_message(administracion_casteada->listener_socket,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
 			free(mensajeACKSerializado);
+			pthread_mutex_lock(administracion_casteada->mutex_cola);
 			queue_push(administracion_casteada->cola_mensajes,mensaje);
+			pthread_mutex_unlock(administracion_casteada->mutex_cola);
 			sem_post(administracion_casteada->semaforo_contador_cola);
 		}
 		free_t_message(message);
@@ -318,7 +320,7 @@ t_list*eliminar_repetidos(t_list* objetivo_pokemones_restantes){
 	return sin_repetidos;
 }
 
-void enviar_gets(t_list* objetivo_pokemones_restantes,t_list* idsGet,pthread_mutex_t* mutex_idsGet){
+void enviar_gets(t_list* objetivo_pokemones_restantes,t_list* idsGett,pthread_mutex_t* mutex_idsGett){
 
 	t_list* objetivos_pokemones_restantes_sin_repetidos = eliminar_repetidos(objetivo_pokemones_restantes);
 	int size = list_size(objetivos_pokemones_restantes_sin_repetidos);
@@ -334,21 +336,21 @@ void enviar_gets(t_list* objetivo_pokemones_restantes,t_list* idsGet,pthread_mut
 		void* content = serializarGet(mensaje);
 		free(mensaje.nombrePokemon);
 
-		pthread_mutex_lock(mutex_idsGet);
+		pthread_mutex_lock(mutex_idsGett);
 		send_message(socket_get, GET_POKEMON,content, sizeof(uint32_t)+mensaje.sizeNombre);
 		free(content);
 
 		t_message* mensajeConfirmacionID =recv_message(socket_get);
 		uint32_t idConf;
 		memcpy(&idConf,mensajeConfirmacionID->content,sizeof(uint32_t));
-		free_t_message(mensajeConfirmacionID);
+
 
 		int* id_lista = malloc(sizeof(int));
 		*id_lista = idConf;
 
-		list_add(idsGet,id_lista);
-		pthread_mutex_unlock(mutex_idsGet);
-
+		list_add(idsGett,id_lista);
+		pthread_mutex_unlock(mutex_idsGett);
+		free_t_message(mensajeConfirmacionID);
 		shutdown(socket_get,SHUT_RDWR);
 		}
 
@@ -364,6 +366,35 @@ void enviar_gets(t_list* objetivo_pokemones_restantes,t_list* idsGet,pthread_mut
 
 //------------------------
 
+int enviar_catch(char* especie,int posicion_x,int posicion_y,t_list* idsCatchh,pthread_mutex_t* mutex_idsCatchh){
+	int id = -1;
+	catch_pokemon mensaje;
+	mensaje.nombrePokemon = especie;
+	mensaje.sizeNombre = strlen(especie)+1;
+	mensaje.posicionEjeX = posicion_x;
+	mensaje.posicionEjeY = posicion_y;
+	void* content = serializarCatch(mensaje);
+
+	int socket_catch = connect_to_server(IP_BROKER, PUERTO_BROKER, NULL);
+	if(socket_catch != -errno){
+		pthread_mutex_lock(mutex_idsCatchh);
+		send_message(socket_catch, CATCH_POKEMON,content, sizeof(uint32_t)*3 + mensaje.sizeNombre);
+		free(content);
+
+		t_message* mensajeConfirmacionID =recv_message(socket_catch);
+		uint32_t idConf;
+		memcpy(&idConf,mensajeConfirmacionID->content,sizeof(uint32_t));
+
+		int* id_lista = malloc(sizeof(int));
+		*id_lista = idConf;
+		id = *id_lista;
+		list_add(idsCatchh,id_lista);
+		pthread_mutex_unlock(mutex_idsCatchh);
+		free_t_message(mensajeConfirmacionID);
+		shutdown(socket_catch,SHUT_RDWR);
+	}
+	return id;
+}
 
 
 

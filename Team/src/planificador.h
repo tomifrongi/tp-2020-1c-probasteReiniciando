@@ -47,8 +47,6 @@ sem_t* semaforo_entrenadores_ready;
 t_list* especiesRecibidas;
 pthread_mutex_t* mutex_especiesRecibidas;
 
-
-
 sem_t* semaforo_termino_rafaga_cpu;
 
 t_team* TEAM;
@@ -86,7 +84,7 @@ void* procesar_appeared(void*);
 
 void* procesar_caught(void*);
 
-void handler_entrenador(t_entrenador*);
+void* handler_entrenador(void*);
 
 bool sem_post_algoritmo(t_entrenador* ,t_list*);
 
@@ -103,7 +101,7 @@ void ordenar_t_distancia(t_list* distancias);
 
 
 /*
-// TODO
+
 //planificar team
 activar_proceso_reconexion(); //un thread
 abrir_socket_gameboy(); //marcos
