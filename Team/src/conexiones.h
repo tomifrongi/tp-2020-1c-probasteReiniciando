@@ -19,7 +19,7 @@
 #include <net/if.h>
 #include <stdarg.h>
 #include <pthread.h>
-
+#include <semaphore.h>
 #include "configuracion.h"
 #include "ProtocoloDeMensajes.h"
 
@@ -71,11 +71,29 @@ int init_server(int port);
 
 //+CONEXIONES-------------
 
-void* handler_broker(void *cola);
-void escuchar_mensajes_gameboy(int listener_socket);
-void* handler_appeared(void* socket);
-void handler_suscripciones(int socketTeam);
+typedef struct {
+	t_queue* cola_mensajes;
+	sem_t* semaforo_contador_cola;
+	pthread_mutex_t* mutex_cola;
+	uint32_t cola_suscriptor;
+	t_team* team;
+}administracion_cola;
 
+typedef struct {
+	t_queue* cola_mensajes;
+	sem_t* semaforo_contador_cola;
+	pthread_mutex_t* mutex_cola;
+	uint32_t listener_socket;
+}administracion_gameboy;
+
+
+
+void* handler_broker(void * administracion);
+void* escuchar_mensajes_gameboy(void* administracion);
+void* handler_appeared(void* administracion);
+void handler_suscripciones(int socketTeam,t_queue* cola_mensajes,sem_t* semaforo_contador_cola,pthread_mutex_t* mutex_cola);
+void enviar_gets(t_list* objetivo_pokemones_restantes,t_list* idsGet,pthread_mutex_t* mutex_idsGet);
+int enviar_catch(char* ,int ,int ,t_list* ,pthread_mutex_t* );
 //------------------------
 
 

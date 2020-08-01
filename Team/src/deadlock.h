@@ -22,8 +22,19 @@ typedef struct {
 } t_intercambio;
 
 
-int quiere_algo_de(t_entrenador*,t_entrenador*);
+//------------FUNCIONES----------------
+bool team_tiene_pokemones_sobrantes(t_team*);
+bool estado_deadlock(t_team*);
+t_list*candidatos_intercambio(t_team*);
+int cantidad_intercambios(t_list*,t_list*);
+bool get_intercambio(t_entrenador *,t_entrenador *,t_list*);
+t_list*buscar_intercambios(t_team*);
+void intercambiar_pokemones(t_team*,t_intercambio*);
+int quiere_algo_de(t_entrenador* ,t_entrenador* );
 void* matriz_adyacencia(t_team*);
 int detectar_ciclos(t_team*);
+
+
+
 
 #endif /* SRC_DEADLOCK_H_ */

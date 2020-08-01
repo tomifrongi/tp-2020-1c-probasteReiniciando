@@ -802,6 +802,7 @@ void enviarConfirmacion(uint32_t id, int broker_sock){
 	void* content = malloc(sizeof(uint32_t));
 	size_t size = sizeof(uint32_t);
 	memcpy(content,&id,sizeof(uint32_t));
+	//log_info(logger,"CONFIRMACION ENVIADA CON ID %d AL SOCKET %d",id,broker_sock);
 	send_message(broker_sock, CONFIRMACION,content,size);
 	free(content);
 }

@@ -15,10 +15,9 @@
 
 //CAMPOS-------------------------
 
-//POSICIONES_ENTRENADORES
-//POKEMON_ENTRENADORES
-//OBJETIVOS_ENTRENADORES
-//Estos 3 de arriba nose como ponerlos
+char** POSICIONES_ENTRENADORES;
+char** POKEMON_ENTRENADORES;
+char** OBJETIVOS_ENTRENADORES;
 int TIEMPO_RECONEXION;
 int RETARDO_CICLO_CPU;
 char* ALGORITMO_PLANIFICACION;
@@ -53,7 +52,7 @@ t_config * leer_config();
 void separa_valores(char*string_valores, t_list * ptr_valores) ;
 t_list*array_to_list(char**array);
 int largo_array(char**array);
-
+char** leer_posicion(t_team* , int );
 int cantidad_entrenadores(t_team*team);
 
 //-------------------------------

@@ -19,24 +19,11 @@ int largo_array(char**array) {
 }
 
 
-void cargar_teams(){
-	for (int i=0;i<CANTIDAD_TEAMS;i++){//todo testear!
-		char*path="team";
-		char*tipo=".config";
 
-		t_team *team=malloc(sizeof(t_team));
-		team->id=i;
-		path[4]=i;
-		team->path_config=strcat(path,tipo);
 
-		list_add(lista_teams,team);33
-	}
-}
-
-t_config * leer_config() {//sasco el parametro team
+t_config * leer_config() {//saco el parametro team
 
 	t_config * config = config_create("./src/a.config");
-	//t_config * config = config_create(team->path_config); //ver de que funcione asi //todo
 
 	if (config == NULL) {
 		printf("no se pudo leer el archivo de configuracion \n");
@@ -46,47 +33,38 @@ t_config * leer_config() {//sasco el parametro team
 }
 
 char** leer_pokemones(t_team* team, int tipo) { //todos los del config tipo 0 para los que tiene 1 para los objetivos
-	t_config *config = leer_config(team);
 	char**array_pokemones;
 	switch (tipo) {
 	case 0:
-		array_pokemones = config_get_array_value(config,
-				"POKEMON_ENTRENADORES");
+		array_pokemones = POKEMON_ENTRENADORES;
 		break;
 	case 1:
-		array_pokemones = config_get_array_value(config,
-				"OBJETIVOS_ENTRENADORES");
+		array_pokemones = OBJETIVOS_ENTRENADORES;
 		break;
 	default:
-		printf("tipo de lectura erroneo"), exit(1);
+		break;
 	}
 
 	return array_pokemones;
 }
 char** leer_posicion(t_team* team, int num_entrenador) {
-	t_config *config = leer_config(team);
-	char**array_posiciones = config_get_array_value(config,
-			"POSICIONES_ENTRENADORES");
-
-	char**posicion = separar_valores_de_string(
-			array_posiciones[num_entrenador]); // separa el "1|2" en posicion[1,2]
+	char**array_posiciones = POSICIONES_ENTRENADORES;
+	char**posicion = separar_valores_de_string(array_posiciones[num_entrenador]); // separa el "1|2" en posicion[1,2]
 
 	return posicion;
 }
 
-int cantidad_entrenadores(t_team*team) { //al.h
-	t_config *config = leer_config(team);
-		char**array_posiciones = config_get_array_value(config,
-				"POSICIONES_ENTRENADORES");
-	return largo_array(array_posiciones);
+int cantidad_entrenadores(t_team*team) {
+	return largo_array(POSICIONES_ENTRENADORES);
 }
 
 void cargar_configuracion(){
 
-	config_team = leer_config();//TODO solo se lee una vez, vi que arriba leen varias veces, estarian creando varios config.
+	config_team = leer_config();
 
-	//TODO FALTAN 3 config_get
-
+	POSICIONES_ENTRENADORES = config_get_array_value(config_team,"POSICIONES_ENTRENADORES");
+	POKEMON_ENTRENADORES = config_get_array_value(config_team,"POKEMON_ENTRENADORES");
+	OBJETIVOS_ENTRENADORES = config_get_array_value(config_team,"OBJETIVOS_ENTRENADORES");
 
 	TIEMPO_RECONEXION = config_get_int_value(config_team, "TIEMPO_RECONEXION");
 	RETARDO_CICLO_CPU = config_get_int_value(config_team, "RETARDO_CICLO_CPU");
