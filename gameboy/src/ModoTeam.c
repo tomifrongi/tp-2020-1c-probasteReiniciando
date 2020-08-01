@@ -12,7 +12,7 @@ void ejecutarModoTeam(t_list* argumentos){
 	log_info(logger, "CONEXION EXITOSA CON EL PROCESO TEAM");
 //	while(1){
 	t_message mensajeTeam = obtenerMensajeTeam(argumentos);
-	send_message(socketGame, mensajeTeam.head,mensajeTeam.content, mensajeTeam.size);
+	send_message(socketGame, APPEARED_POKEMON,mensajeTeam.content, mensajeTeam.size);
 
 	free(mensajeTeam.content);
 	t_message* mensajeACK = recv_message(socketGame);
