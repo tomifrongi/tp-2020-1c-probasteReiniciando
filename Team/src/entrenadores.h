@@ -8,6 +8,7 @@
 #include <string.h>
 #include "team.h"
 #include "mapa.h"
+#include <semaphore.h>
 #include "configuracion.h"
 #include "ProtocoloDeMensajes.h"
 #include "pokemones.h"

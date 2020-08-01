@@ -12,6 +12,7 @@ t_entrenador *iniciar_entrenador(int id, int posicion_x, int posicion_y, t_list*
 	entrenador->estimado_rafaga_anterior = -1;
 	entrenador->real_rafaga_anterior = -1;
 	entrenador->id_correlativo_esperado = -1;
+	entrenador->semaforo = malloc(sizeof(sem_t));
 	sem_init(entrenador->semaforo,0,0);
 	entrenador->rafagas_intercambio_realizadas = 0;
 	entrenador->tarea = NULL;
@@ -37,8 +38,9 @@ t_list * inicializar_entrenadores(t_team *team) {
 		posicion = leer_posicion(team, i); // coordenadas posicion, ejemplo  [1,2]
 		posicion_x = atoi(posicion[0]);
 		posicion_y = atoi(posicion[1]);
-
-		t_entrenador *entrenador = iniciar_entrenador(id, posicion_x, posicion_y, get_pokemones(team, i, 0), get_pokemones(team, i, 1)); //el estado lo hago sin pasar parametro por ahora
+		t_list* pokemones_capturados = get_pokemones(team, i, 0);
+		t_list* pokemones_objetivo = get_pokemones(team, i, 1);
+		t_entrenador *entrenador = iniciar_entrenador(id, posicion_x, posicion_y,pokemones_capturados , pokemones_objetivo); //el estado lo hago sin pasar parametro por ahora
 
 		list_add(entrenadores, entrenador);
 		//printf("se cargo el entrenador: %d \n\n", i);
@@ -209,8 +211,14 @@ t_entrenador* buscar_entrenador_mas_cercano(t_list* entrenadores,t_pokemon* poke
 }
 
 void asignar_tarea_atrapar(t_entrenador* entrenador,t_team* team,t_pokemon* pokemon,sem_t* semaforo_readys){
-	entrenador->tarea->pokemon = pokemon;
-	entrenador->tarea->tipo_tarea = ATRAPAR;
+	//TODO CADA VEZ QUE FINALIZA UNA TAREA TENGO QUE HACER FREE
+	struct t_tarea* tarea = malloc(sizeof(struct t_tarea));
+	tarea->pokemon = pokemon;
+	tarea->tipo_tarea = ATRAPAR;
+	tarea->entrenador_intercambio = NULL;
+	tarea->pokemon_a_otorgar = NULL;
+	tarea->pokemon_a_pedir = NULL;
+	entrenador->tarea =tarea;
 	entrenador->estado = READY;
 	list_add(team->entrenadores_ready,entrenador);
 	sem_post(semaforo_readys);

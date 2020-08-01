@@ -141,7 +141,7 @@ bool contain_id_get(t_list* ids, int id_correlativo){
 	return (id_encontrado != NULL);
 }
 
-bool verificar_nuevo_localized(t_team* team, t_pokemon* pokemon,uint32_t id_correlativo){ //TODO REVER VERIFICAR_LOCALIZED
+bool verificar_nuevo_localized(t_team* team, t_pokemon* pokemon,uint32_t id_correlativo){
 
 	pthread_mutex_lock(mutex_especiesRecibidas);
 	pthread_mutex_lock(mutex_idsGet);
@@ -214,9 +214,9 @@ bool contain_especie_recibida(t_list* especies,t_pokemon* pokemon){
 	return (pokemonEncontrado != NULL);
 }
 
-bool verificar_nuevo_appeared(t_team* team, t_pokemon* pokemon){ //TODO ESPERAR RESPUESTA NICO
+bool verificar_nuevo_appeared(t_team* team, t_pokemon* pokemon){
 	pthread_mutex_lock(mutex_especiesRecibidas);
-	if(contain_especie_recibida(especiesRecibidas,pokemon))
+	if(!team_puede_capturar(team,pokemon))
 		return false;
 	else{
 		char* especie_nueva_recibida = malloc(strlen(pokemon->especie)+1);
@@ -234,11 +234,21 @@ void* procesar_appeared(void* t){
 		pthread_mutex_lock(mutex_cola_appeared);
 		appeared_pokemon* mensaje = queue_pop(cola_appeared);
 		pthread_mutex_unlock(mutex_cola_appeared);
+		log_info(log_team_oficial,"HILO CONSUMIDOR RECIBIO MENSAJE");
+		log_info(log_team_oficial,"ID MENSAJE: %d",mensaje->id_mensaje);
+		log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje->idCorrelativo);
+		log_info(log_team_oficial,"ID SIZE NOMBRE: %d",mensaje->sizeNombre);
+		log_info(log_team_oficial,"NOMBRE: %s",mensaje->nombrePokemon);
+		log_info(log_team_oficial,"POSICION EJE X: %d",mensaje->posicionEjeX);
+		log_info(log_team_oficial,"POSICION EJE Y: %d",mensaje->posicionEjeY);
+
 		t_pokemon pokemon_a_capturar;
+		pokemon_a_capturar.especie = malloc(strlen(mensaje->nombrePokemon)+1);
 		strcpy(pokemon_a_capturar.especie,mensaje->nombrePokemon);
 		pokemon_a_capturar.posicion_x = mensaje->posicionEjeX;
 		pokemon_a_capturar.posicion_x = mensaje->posicionEjeY;
 		t_pokemon* pokemon_a_capturar_creado = crear_t_pokemon(pokemon_a_capturar);
+		free(pokemon_a_capturar.especie);
 		borrar_appeared_pokemon(mensaje);
 		if(verificar_nuevo_appeared(team,pokemon_a_capturar_creado)){
 		pthread_mutex_lock(mutex_planificar_entrenador);
@@ -352,12 +362,12 @@ void* handler_entrenador(void* e){
 				}
 
 				case INTERCAMBIO:{ //TODO REVISAR CASE INTERCAMBIO HANDLER_ENTRENADOR
-					realizar_intercambio(entrenador,entrenador->tarea->entrenador_intercambio);
+					//realizar_intercambio(entrenador,entrenador->tarea->entrenador_intercambio);
 					if(entrenador_cumplio_objetivos(entrenador))
 						cambiar_estado(entrenador,EXIT);
 					else{
-						if(detectar_deadlocks())
-							resolver_deadlocs();
+						//if(detectar_deadlocks())
+						//	resolver_deadlocs();
 					}
 					break;
 				}
@@ -545,8 +555,8 @@ void planificacion_general(t_team* team){
 
 	}
 
-	if(detectar_deadlocks()) //TODO DEADLOCK
-		resolverDeadlocks();
+	//if(detectar_deadlocks()) //TODO DEADLOCK
+	//	resolverDeadlocks();
 
 	while (!team_cumplio_objetivo_global(team)) //TODO REVISAR
 	{
@@ -565,30 +575,45 @@ void planificacion_general(t_team* team){
 
 void iniciar_estructuras_administrativas(){
 	cola_localized = queue_create();
+	semaforo_contador_localized = malloc(sizeof(sem_t));
 	sem_init(semaforo_contador_localized,0,0);
+	mutex_cola_localized = malloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(mutex_cola_localized,NULL);
 
 	cola_appeared = queue_create();
+	semaforo_contador_appeared = malloc(sizeof(sem_t));
 	sem_init(semaforo_contador_appeared,0,0);
+	mutex_cola_appeared = malloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(mutex_cola_appeared,NULL);
 
 	cola_caught = queue_create();
+	semaforo_contador_caught = malloc(sizeof(sem_t));
 	sem_init(semaforo_contador_caught,0,0);
+	mutex_cola_caught = malloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(mutex_cola_caught,NULL);
 
+	mutex_idsGet = malloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(mutex_idsGet,NULL);
 	idsGet = list_create();
 
+	mutex_idsCatch = malloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(mutex_idsCatch,NULL);
 	idsCatch  = list_create();
 
+	mutex_entrenadores_ready = malloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(mutex_entrenadores_ready,NULL);
+	semaforo_entrenadores_ready = malloc(sizeof(sem_t));
 	sem_init(semaforo_entrenadores_ready,0,0);
 
 	especiesRecibidas = list_create();
+	mutex_especiesRecibidas = malloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(mutex_especiesRecibidas,NULL);
 
+	semaforo_termino_rafaga_cpu = malloc(sizeof(sem_t));
 	sem_init(semaforo_termino_rafaga_cpu,0,0);
+
+	mutex_planificar_entrenador = malloc(sizeof(pthread_mutex_t));
+	pthread_mutex_init(mutex_planificar_entrenador,NULL);
 }
 
 //----------------------------------------------------------GUION/funcion principal:
@@ -601,45 +626,45 @@ void planificar_team(t_team*team) {
 	crear_hilos_entrenadores(TEAM);
 
 	pthread_t* appeared_thread = malloc(sizeof(pthread_t));
-	administracion_cola* administracion_appeared;
-	administracion_appeared->cola_mensajes = cola_appeared;
-	administracion_appeared->cola_suscriptor = APPEARED;
-	administracion_appeared->mutex_cola = mutex_cola_appeared;
-	administracion_appeared->semaforo_contador_cola = semaforo_contador_appeared;
-	administracion_appeared->team = TEAM;
-	pthread_create(appeared_thread, NULL,handler_broker, (void*) administracion_appeared);
+	administracion_cola administracion_appeared;
+	administracion_appeared.cola_mensajes = cola_appeared;
+	administracion_appeared.cola_suscriptor = APPEARED;
+	administracion_appeared.mutex_cola = mutex_cola_appeared;
+	administracion_appeared.semaforo_contador_cola = semaforo_contador_appeared;
+	administracion_appeared.team = TEAM;
+	pthread_create(appeared_thread, NULL,handler_broker, (void*) &administracion_appeared);
 	pthread_detach(*appeared_thread);
 
 
 	pthread_t* localized_thread = malloc(sizeof(pthread_t));
-	administracion_cola* administracion_localized;
-	administracion_localized->cola_mensajes = cola_localized;
-	administracion_localized->cola_suscriptor = LOCALIZED;
-	administracion_localized->mutex_cola = mutex_cola_localized;
-	administracion_localized->semaforo_contador_cola = semaforo_contador_localized;
-	administracion_localized->team = TEAM;
-	pthread_create(localized_thread, NULL, (void*) handler_broker, (void*) administracion_localized);
+	administracion_cola administracion_localized;
+	administracion_localized.cola_mensajes = cola_localized;
+	administracion_localized.cola_suscriptor = LOCALIZED;
+	administracion_localized.mutex_cola = mutex_cola_localized;
+	administracion_localized.semaforo_contador_cola = semaforo_contador_localized;
+	administracion_localized.team = TEAM;
+	pthread_create(localized_thread, NULL, (void*) handler_broker, (void*) &administracion_localized);
 	pthread_detach(*localized_thread);
 
 
 	pthread_t* caught_thread = malloc(sizeof(pthread_t));
-	administracion_cola* administracion_caught;
-	administracion_caught->cola_mensajes = cola_caught;
-	administracion_caught->cola_suscriptor = CAUGHT;
-	administracion_caught->mutex_cola = mutex_cola_caught;
-	administracion_caught->semaforo_contador_cola = semaforo_contador_caught;
-	administracion_caught->team = TEAM;
-	pthread_create(caught_thread, NULL, (void*) handler_broker, (void*) administracion_caught);
+	administracion_cola administracion_caught;
+	administracion_caught.cola_mensajes = cola_caught;
+	administracion_caught.cola_suscriptor = CAUGHT;
+	administracion_caught.mutex_cola = mutex_cola_caught;
+	administracion_caught.semaforo_contador_cola = semaforo_contador_caught;
+	administracion_caught.team = TEAM;
+	pthread_create(caught_thread, NULL, (void*) handler_broker, (void*) &administracion_caught);
 	pthread_detach(*caught_thread);
 
 
 	pthread_t* appeared_gameboy_thread = malloc(sizeof(pthread_t));
-	administracion_gameboy* administracion_gameboy;
-	administracion_gameboy->cola_mensajes = cola_appeared;
-	administracion_gameboy->listener_socket = init_server(PUERTO_TEAM);
-	administracion_gameboy->mutex_cola = mutex_cola_appeared;
-	administracion_gameboy->semaforo_contador_cola = semaforo_contador_appeared;
-	pthread_create(appeared_gameboy_thread, NULL, (void*) escuchar_mensajes_gameboy, (void*) administracion_gameboy);
+	administracion_gameboy administracion_cola_gameboy;
+	administracion_cola_gameboy.cola_mensajes = cola_appeared;
+	administracion_cola_gameboy.listener_socket = init_server(PUERTO_TEAM);
+	administracion_cola_gameboy.mutex_cola = mutex_cola_appeared;
+	administracion_cola_gameboy.semaforo_contador_cola = semaforo_contador_appeared;
+	pthread_create(appeared_gameboy_thread, NULL, (void*) escuchar_mensajes_gameboy, (void*) &administracion_cola_gameboy);
 	pthread_detach(*appeared_gameboy_thread);
 
 
@@ -655,8 +680,12 @@ void planificar_team(t_team*team) {
 	pthread_create(consumidor_cola_caught,NULL,procesar_caught,(void*) TEAM);
 	pthread_detach(*consumidor_cola_caught);
 
-	enviar_gets(team->objetivo_pokemones_restantes,idsGet,mutex_idsGet);
 
+	//enviar_gets(team->objetivo_pokemones_restantes,idsGet,mutex_idsGet);
+
+//	while(1){
+//
+//	}
 	while (algunos_pueden_atrapar(team)){
 
 			sem_wait(semaforo_entrenadores_ready);
@@ -670,8 +699,8 @@ void planificar_team(t_team*team) {
 
 		}
 
-		if(detectar_deadlocks()) //TODO DEADLOCK
-			resolverDeadlocks();
+		//if(detectar_deadlocks(TEAM)) //TODO DEADLOCK
+		//	resolverDeadlocks();
 
 		while (!team_cumplio_objetivo_global(team)) //TODO REVISAR
 		{
@@ -684,6 +713,12 @@ void planificar_team(t_team*team) {
 				agregar_entrenador_a_cola_ready(entrenador,team);
 
 		}
+
+//	TODO Cantidad de ciclos de CPU totales.
+//	TODO Cantidad de cambios de contexto realizados.
+//TODO 	Cantidad de ciclos de CPU realizados por entrenador.
+//TODO	Deadlocks producidos y resueltos (Spoiler Alert).
+
 
 
 }

@@ -15,6 +15,7 @@
 #include "ProtocoloDeMensajes.h"
 #include "entrenadores.h"
 #include "pokemones.h"
+#include <commons/log.h>
 
 typedef struct{
 	t_pokemon* pokemon;

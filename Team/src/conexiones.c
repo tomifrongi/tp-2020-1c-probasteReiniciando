@@ -208,6 +208,13 @@ void* handler_appeared(void* administracion){
 		t_message* message = recv_message(administracion_casteada->listener_socket);
 		if(message->head == APPEARED_POKEMON){
 			appeared_pokemon* mensaje = deserializarAppeared(message->content);
+			log_info(log_team_oficial,"HILO DE ESCUCHA RECIBIO MENSAJE");
+			log_info(log_team_oficial,"ID MENSAJE: %d",mensaje->id_mensaje);
+			log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje->idCorrelativo);
+			log_info(log_team_oficial,"ID SIZE NOMBRE: %d",mensaje->sizeNombre);
+			log_info(log_team_oficial,"NOMBRE: %s",mensaje->nombrePokemon);
+			log_info(log_team_oficial,"POSICION EJE X: %d",mensaje->posicionEjeX);
+			log_info(log_team_oficial,"POSICION EJE Y: %d",mensaje->posicionEjeY);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = APPEARED;
 			mensajeACK.idSuscriptor = getpid();

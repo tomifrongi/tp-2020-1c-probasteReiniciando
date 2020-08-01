@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "team.h"
+#include <commons/collections/list.h>
+#include "pokemones.h"
+#include "entrenadores.h"
 
 
 typedef struct {
@@ -22,18 +25,18 @@ typedef struct {
 } t_intercambio;
 
 
-//------------FUNCIONES----------------
-bool team_tiene_pokemones_sobrantes(t_team*);
-bool estado_deadlock(t_team*);
-t_list*candidatos_intercambio(t_team*);
-int cantidad_intercambios(t_list*,t_list*);
-bool get_intercambio(t_entrenador *,t_entrenador *,t_list*);
-t_list*buscar_intercambios(t_team*);
-void intercambiar_pokemones(t_team*,t_intercambio*);
-int quiere_algo_de(t_entrenador* ,t_entrenador* );
-void* matriz_adyacencia(t_team*);
-int detectar_ciclos(t_team*);
 
+//------------FUNCIONES----------------
+bool detectar_deadlock(t_team*);
+void resolver_deadlock(t_team*);
+t_entrenador* buscar_mejor_entrenador_para_intercambio(t_list*,t_entrenador*);
+bool hay_ciclo(t_entrenador*,t_entrenador*);
+bool quiere_algo_de(t_entrenador* ,t_entrenador* );
+t_list* obtener_pokemones_faltantes(t_entrenador* );
+t_list* obtener_pokemones_sobrantes(t_entrenador* );
+t_entrenador* buscar_entrenador_para_intercambio(t_list* ,t_entrenador* );
+void asignar_tarea_intercambio(t_entrenador*, t_entrenador*);
+void asignar_mejor_tarea_intercambio(t_entrenador*, t_entrenador*);
 
 
 

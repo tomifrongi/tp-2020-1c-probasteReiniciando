@@ -2,23 +2,25 @@
 
 /*------------------------------------------------FUNCIONES QUE LLAMAN LOS ENTRENADORES------------------------------------------------*/
 
+//TODO ACTUALIZAR EN TODOS LOS LADOS QUE USE INTERSECT_LISTAS_POKEMONES
 t_list* intersect_listas_pokemones(t_list*list1, t_list*list2)
 {
-for (int i = 0; i < list_size(list1); i++) {
-	t_pokemon*poke_busc = list_get(list1, i);
+	int i = 0;
+	while(i < list_size(list1)) {
+		t_pokemon*poke_busc = list_get(list1, i);
 
-	for (int j = 0; j < list_size(list2); j++) {
-		t_pokemon*poke_cap = list_get(list2, j);
-		if (strcmp(poke_busc->especie,poke_cap->especie)==0 ){
-			list_remove(list1, i);
-			list_remove(list2,j);
-			i = 0;
-			break;
+		for (int j = 0; j < list_size(list2); j++) {
+			t_pokemon*poke_cap = list_get(list2, j);
+			if (strcmp(poke_busc->especie,poke_cap->especie)==0 ){
+				list_remove(list1, i);
+				list_remove(list2,j);
+				i = -1;
+				break;
+			}
 		}
+		i++;
 	}
-}
-return list1;
-
+	return list1;
 }
 t_list *get_pokemones(t_team*team, int id_entrenador, int tipo) { //0 para capturados 1 para buscados//HACER UN ENUM PARA ESTO
 	char**pokemones = leer_pokemones(team, tipo);

@@ -43,6 +43,7 @@ typedef struct{
 	int cantidad_deadlocks_detectados;
 	int cantidad_deadlocks_solucionados;
 	bool conectado_al_broker;
+
 }t_team;
 
 typedef enum {
@@ -57,6 +58,7 @@ typedef enum {
 	ATRAPAR,
 	INTERCAMBIO
 }t_tipo_tarea;
+
 
 
 
@@ -77,6 +79,7 @@ typedef struct{
 	bool esta_en_entrada_salida;
 	int id_correlativo_esperado;
 	int rafagas_intercambio_realizadas;
+	bool esperando_intercambio; //TODO AGREGAR ESTO A INICIALIZAR ENTRENADOR
 }t_entrenador;
 
 typedef struct{
@@ -89,6 +92,8 @@ struct t_tarea{
 	t_tipo_tarea tipo_tarea;
 	t_pokemon* pokemon;
 	t_entrenador* entrenador_intercambio;
+	t_pokemon* pokemon_a_pedir;
+	t_pokemon* pokemon_a_otorgar;
 };
 
 
