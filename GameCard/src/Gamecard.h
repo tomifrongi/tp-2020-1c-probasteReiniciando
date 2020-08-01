@@ -46,6 +46,7 @@ typedef struct{
 
 //POSICIONES//
 typedef struct {
+	uint32_t cantidad;
 	uint32_t posicionEjeX;
 	uint32_t posicionEjeY;
 }t_posiciones;
@@ -74,7 +75,7 @@ void* handler_broker(void *cola); //maneja todas las conexiones al broker
 int listener_socket;
 void* handler_clients(void* socket); //se encarga del gameboy
 void init_gamecard_server(); //crea el server para el gameboy
-void handler_suscripciones(int socket);
+void* handler_suscripciones(void* socket);
 
 void gm_init();
 void *handle_conexion_server(void *arg);
