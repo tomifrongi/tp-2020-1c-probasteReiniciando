@@ -82,7 +82,7 @@ FILE* bitmap_file;
 char* struct_paths[5];
 
 #define RUTA_METADATA_GENERAL "/Metadata/Metadata.bin"
-#define RUTA_BITMAP_GENERAL "/Metadata/Bitmap.bin"
+#define RUTA_BITMAP_GENERAL "Metadata/Bitmap.bin"
 int g_blocks_maximos;
 int g_blocks_usados;
 
