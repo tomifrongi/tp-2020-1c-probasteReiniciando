@@ -977,7 +977,7 @@ void crear_root_files()
 
 	char* archivos = string_new();
 	string_append(&archivos, puntoMontaje);
-	string_append(&archivos, "Files/");
+	string_append(&archivos, "Files");
 
 	char* dir_bloques = string_new();
 	string_append(&dir_bloques, puntoMontaje);
