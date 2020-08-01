@@ -13,7 +13,8 @@ void gcfsFreeBitmaps()
 }
 void init_semaphore() //inicio semaforo
 {
-	pthread_mutex_init(&MUTEX_METADATA, NULL);
+	pthread_mutex_init(&MUTEX_LISTA_ARCHIVO_ABIERTO, NULL);
+	files_open = dictionary_create();
 }
 
 int directorio_recursivo(const char* path) //directorios
@@ -74,7 +75,6 @@ int crear_archivo(char* fullPath)//Crear archivo
 		mkdir(completePath, 0777);
 		actualizar_pokemon_metadata(fullPath, "N", "0", "[]", "N", "NEW_POKEMON");
 	}
-
 	free(completePath);
 	return 0;
 }
@@ -147,7 +147,6 @@ void updateOpenFileState(char* fullPath, char* open, char* op)//actualizar el es
 int coordinateExists(unsigned int posX, unsigned int posY, t_list* pokemonLines)//ver si existen las coordenadas dadas
 {
 	int coordinateExist = 0;
-
 	for (int i=0; i<list_size(pokemonLines); i++)
 	{
 		blockLine* newLineBlock = (blockLine*) list_get(pokemonLines, i);
@@ -157,7 +156,6 @@ int coordinateExists(unsigned int posX, unsigned int posY, t_list* pokemonLines)
 			coordinateExist = 1;
 		}
 	}
-	
 	return coordinateExist;
 }
 
@@ -385,8 +383,8 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 {
 	t_pokemon_metadata pokemonMetadata = leer_metadata_pokemon(completePath);
 
-	pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);//esta en .H
-	pokemon_open_tad* pokemonOpenTad = dictionary_get(files_open, completePath);//ESTRUCTURA EN .H
+	pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
+	pokemon_open_tad* pokemonOpenTad = dictionary_get(files_open, completePath);
 
 	if(pokemonOpenTad == NULL)
 	{
@@ -1168,7 +1166,7 @@ void crear_metadata_file(char* metadataBin)
 	FILE* metadata = fopen(metadataBin, "w+b");
 	config_metadata = config_create(metadataBin);
 	config_set_value(config_metadata, "BLOCK_SIZE", "64");
-	config_set_value(config_metadata, "BLOCKS", "4096"); // asi no tengo 5492 bloques
+	config_set_value(config_metadata, "BLOCKS", "1024"); // asi no tengo 5492 bloques
 	config_set_value(config_metadata, "MAGIC_NUMBER", "TALL_GRASS");
 	config_save(config_metadata);
 	config_destroy(config_metadata);

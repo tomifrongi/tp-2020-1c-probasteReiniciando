@@ -73,7 +73,6 @@ typedef struct {
 	char* magic_number;
 } Metadata;
 
-//#define RUTA_BITMAP_GENERAL "/Metadata/Bitmap.bin"
 Metadata metadata;
 
 t_config* config_metadata;
