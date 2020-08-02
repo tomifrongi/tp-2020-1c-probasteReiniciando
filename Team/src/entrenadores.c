@@ -143,6 +143,7 @@ void mover_entrenador_una_posicion(t_entrenador*entrenador, int pos_dest_x, int 
 		} else {
 			entrenador->posicion_x--;
 		}
+		log_info(log_team_oficial,"EL ENTRENADOR %d SE MOVIO A LA POSICION (%d,%d)",entrenador->id,entrenador->posicion_x,entrenador->posicion_y);
 	}
 	else if(entrenador->posicion_y != pos_dest_y) {//ahora en el eje vertical
 		if (entrenador->posicion_y < pos_dest_y) {
@@ -150,7 +151,7 @@ void mover_entrenador_una_posicion(t_entrenador*entrenador, int pos_dest_x, int 
 		} else {
 			entrenador->posicion_y--;
 		}
-
+		log_info(log_team_oficial,"EL ENTRENADOR %d SE MOVIO A LA POSICION (%d,%d)",entrenador->id,entrenador->posicion_x,entrenador->posicion_y);
 	}
 }
 

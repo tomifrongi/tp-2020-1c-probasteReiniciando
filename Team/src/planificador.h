@@ -24,6 +24,7 @@ typedef struct{
 	int* distancia;
 }t_distancia_pokemon_entrenador;
 
+t_team* TEAM;
 
 t_queue* cola_localized;
 sem_t* semaforo_contador_localized;
@@ -51,9 +52,9 @@ pthread_mutex_t* mutex_especiesRecibidas;
 
 sem_t* semaforo_termino_rafaga_cpu;
 
-t_team* TEAM;
-
 pthread_mutex_t* mutex_planificar_entrenador;
+
+
 
 #ifndef SRC_PLANIFICADOR_H_
 #define SRC_PLANIFICADOR_H_

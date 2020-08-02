@@ -284,6 +284,7 @@ void* procesar_caught(void* t){
 			t_entrenador* entrenador = buscar_entrenador_por_id_correlativo(team->entrenadores,*id);
 			if(mensaje->pokemonAtrapado == 1){
 				list_add(entrenador->pokemones_capturados,entrenador->tarea->pokemon);
+				log_info(log_team_oficial,"EL ENTRENADOR %d ATRAPO AL POKEMON %s EN LA POSICION (%d,%d)",entrenador->id,entrenador->tarea->pokemon->especie,entrenador->posicion_x,entrenador->posicion_y);
 				entrenador->esta_en_entrada_salida =false;
 				entrenador->id_correlativo_esperado = -1;
 				if(entrenador_puede_capturar(entrenador)){
@@ -298,6 +299,7 @@ void* procesar_caught(void* t){
 				}
 			}
 			else{
+				log_info(log_team_oficial,"EL ENTRENADOR %d NO PUDO ATRAPAR AL POKEMON %s EN LA POSICION (%d,%d)",entrenador->id,entrenador->tarea->pokemon->especie,entrenador->posicion_x,entrenador->posicion_y);
 				entrenador->esta_en_entrada_salida =false;
 				entrenador->id_correlativo_esperado = -1;
 				int longitud_especie = strlen(entrenador->tarea->pokemon->especie);
@@ -346,6 +348,7 @@ void* handler_entrenador(void* e){
 					}
 					else{
 						list_add(entrenador->pokemones_capturados,entrenador->tarea->pokemon);
+						log_info(log_team_oficial,"EL ENTRENADOR %d ATRAPO AL POKEMON %s EN LA POSICION (%d,%d)",entrenador->id,entrenador->tarea->pokemon->especie,entrenador->posicion_x,entrenador->posicion_y);
 						entrenador->esta_en_entrada_salida =false;
 						free(entrenador->tarea);
 						//entrenador->estado
@@ -364,7 +367,7 @@ void* handler_entrenador(void* e){
 
 				case INTERCAMBIO:{
 					realizar_intercambio(entrenador,entrenador->tarea->entrenador_intercambio);
-
+					log_info(log_team_oficial,"EL ENTRENADOR %d INTERCAMBIO SU POKEMON %s POR EL POKEMON %s AL ENTRENADOR %d",entrenador->id,entrenador->tarea->pokemon_a_otorgar->especie,entrenador->tarea->pokemon_a_pedir->especie,entrenador->tarea->entrenador_intercambio->id);
 					if(entrenador_cumplio_objetivos(entrenador->tarea->entrenador_intercambio))
 						cambiar_estado(entrenador->tarea->entrenador_intercambio,EXIT);
 					else{
@@ -598,6 +601,8 @@ void iniciar_estructuras_administrativas(){
 
 	mutex_planificar_entrenador = malloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(mutex_planificar_entrenador,NULL);
+
+
 }
 
 //----------------------------------------------------------GUION/funcion principal:
@@ -667,36 +672,36 @@ void planificar_team(t_team*team) {
 
 //	enviar_gets(team->objetivo_pokemones_restantes,idsGet,mutex_idsGet);
 
-//	while(1){
-//
-//	}
-	while (algunos_pueden_atrapar(team)){
-
-			sem_wait(semaforo_entrenadores_ready);
-
-			pthread_mutex_lock(mutex_entrenadores_ready);
-			t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
-			pthread_mutex_unlock(mutex_entrenadores_ready);
-
-			if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
-				agregar_entrenador_a_cola_ready(entrenador,team);
-
-		}
-
-	if(detectar_deadlock(TEAM))
-		resolver_deadlock(TEAM,semaforo_entrenadores_ready);
-
-	while (!team_cumplio_objetivo_global(team))
-	{
-		sem_wait(semaforo_entrenadores_ready);
-		pthread_mutex_lock(mutex_entrenadores_ready);
-		t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
-		pthread_mutex_unlock(mutex_entrenadores_ready);
-
-		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
-			agregar_entrenador_a_cola_ready(entrenador,team);
+	while(1){
 
 	}
+//	while (algunos_pueden_atrapar(team)){
+//
+//	sem_wait(semaforo_entrenadores_ready);
+//
+//	pthread_mutex_lock(mutex_entrenadores_ready);
+//	t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
+//	pthread_mutex_unlock(mutex_entrenadores_ready);
+//
+//	if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
+//		agregar_entrenador_a_cola_ready(entrenador,team);
+//
+//	}
+//
+//	if(detectar_deadlock(TEAM))
+//		resolver_deadlock(TEAM,semaforo_entrenadores_ready);
+//
+//	while (!team_cumplio_objetivo_global(team))
+//	{
+//		sem_wait(semaforo_entrenadores_ready);
+//		pthread_mutex_lock(mutex_entrenadores_ready);
+//		t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
+//		pthread_mutex_unlock(mutex_entrenadores_ready);
+//
+//		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
+//			agregar_entrenador_a_cola_ready(entrenador,team);
+//
+//	}
 
 //TODO Cantidad de ciclos de CPU totales.
 //TODO Cantidad de cambios de contexto realizados.

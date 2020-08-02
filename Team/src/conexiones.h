@@ -86,6 +86,14 @@ typedef struct {
 	int listener_socket;
 }administracion_gameboy;
 
+typedef struct {
+	t_queue* cola_mensajes;
+	sem_t* semaforo_contador_cola;
+	pthread_mutex_t* mutex_cola;
+	int listener_socket;
+	int socket_cliente;
+}administracion_gameboy_cliente;
+
 
 
 void* handler_broker(void * administracion);

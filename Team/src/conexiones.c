@@ -191,10 +191,15 @@ void* escuchar_mensajes_gameboy(void* administracion){
 		do {
 			int team_sock = accept(administracion_casteada->listener_socket, &team_cli, &len);
 			if (team_sock > 0) {
+				administracion_gameboy_cliente* administracion_cliente = malloc(sizeof(administracion_gameboy_cliente));
+				administracion_cliente->cola_mensajes = administracion_casteada->cola_mensajes;
+				administracion_cliente->listener_socket = administracion_casteada->listener_socket;
+				administracion_cliente->mutex_cola = administracion_casteada->mutex_cola;
+				administracion_cliente->semaforo_contador_cola = administracion_casteada->semaforo_contador_cola;
+				administracion_cliente->socket_cliente = team_sock;
 				log_info(log_team_oficial, "NUEVA CONEXIÓN");
-				//handler_appeared(administracion);
 				pthread_t team_cli_thread;
-				pthread_create(&team_cli_thread, NULL, handler_appeared,administracion);
+				pthread_create(&team_cli_thread, NULL, handler_appeared,(void*) administracion_cliente);
 				pthread_detach(team_cli_thread);
 			} else {
 				log_error(log_team_oficial, "Error aceptando conexiones: %s", strerror(errno));
@@ -205,39 +210,49 @@ void* escuchar_mensajes_gameboy(void* administracion){
 }
 
 void* handler_appeared(void* administracion){
-	administracion_gameboy* administracion_casteada = administracion;
-	t_message* message = recv_message(administracion_casteada->listener_socket);
-	switch(message->head){
-	case APPEARED_POKEMON:{
-		appeared_pokemon* mensaje = deserializarAppeared(message->content);
-		log_info(log_team_oficial,"HILO DE ESCUCHA RECIBIO MENSAJE");
-		log_info(log_team_oficial,"ID MENSAJE: %d",mensaje->id_mensaje);
-		log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje->idCorrelativo);
-		log_info(log_team_oficial,"ID SIZE NOMBRE: %d",mensaje->sizeNombre);
-		log_info(log_team_oficial,"NOMBRE: %s",mensaje->nombrePokemon);
-		log_info(log_team_oficial,"POSICION EJE X: %d",mensaje->posicionEjeX);
-		log_info(log_team_oficial,"POSICION EJE Y: %d",mensaje->posicionEjeY);
-		suscripcion mensajeACK;
-		mensajeACK.idCola = APPEARED;
-		mensajeACK.idSuscriptor = getpid();
-		void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
-		send_message(administracion_casteada->listener_socket,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
-		free(mensajeACKSerializado);
-		pthread_mutex_lock(administracion_casteada->mutex_cola);
-		queue_push(administracion_casteada->cola_mensajes,mensaje);
-		pthread_mutex_unlock(administracion_casteada->mutex_cola);
-		sem_post(administracion_casteada->semaforo_contador_cola);
-		break;
+	administracion_gameboy_cliente* administracion_casteada = administracion;
+	while(1){
+		t_message* message = recv_message(administracion_casteada->socket_cliente);
+		bool flag = false;
+		switch(message->head){
+		case APPEARED_POKEMON:{
+			appeared_pokemon* mensaje = deserializarAppeared(message->content);
+			log_info(log_team_oficial,"HILO DE ESCUCHA RECIBIO MENSAJE");
+			log_info(log_team_oficial,"ID MENSAJE: %d",mensaje->id_mensaje);
+			log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje->idCorrelativo);
+			log_info(log_team_oficial,"ID SIZE NOMBRE: %d",mensaje->sizeNombre);
+			log_info(log_team_oficial,"NOMBRE: %s",mensaje->nombrePokemon);
+			log_info(log_team_oficial,"POSICION EJE X: %d",mensaje->posicionEjeX);
+			log_info(log_team_oficial,"POSICION EJE Y: %d",mensaje->posicionEjeY);
+			suscripcion mensajeACK;
+			mensajeACK.idCola = APPEARED;
+			mensajeACK.idSuscriptor = getpid();
+			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
+			send_message(administracion_casteada->socket_cliente,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
+			free(mensajeACKSerializado);
+			pthread_mutex_lock(administracion_casteada->mutex_cola);
+			queue_push(administracion_casteada->cola_mensajes,mensaje);
+			pthread_mutex_unlock(administracion_casteada->mutex_cola);
+			sem_post(administracion_casteada->semaforo_contador_cola);
+			break;
+		}
+		case ERROR_RECV:{
+			log_info(log_team_oficial,"ERROR RECIBIENDO MENSAJE");
+			break;
+		}
+		case NO_CONNECTION:{
+			flag = true;
+			break;
+		}
+		free_t_message(message);
 	}
-	case ERROR_RECV:
-		log_info(log_team_oficial,"ERROR RECIBIENDO MENSAJE");
-		break;
-	}
-	free_t_message(message);
+		if(flag)
+			break;
 
+}
+	free(administracion_casteada);
 	return NULL;
 }
-
 void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_contador_cola,pthread_mutex_t* mutex_cola){
 	int executing = 1;
 	while(executing){

@@ -27,10 +27,10 @@ int main(){
 	else if(strcmp(ALGORITMO_PLANIFICACION,"SJF-SD")==0)
 		team->planificador = SJF_SD;
 
-	mostrar_entrenadores(team->entrenadores);
+	//mostrar_entrenadores(team->entrenadores);
 
 
-//	planificar_team(team);
+	planificar_team(team);
 
 	return 0;
 }
