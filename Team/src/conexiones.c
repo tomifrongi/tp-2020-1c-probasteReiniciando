@@ -22,7 +22,6 @@ int send_message(int socket, t_header head,const void* content, size_t size){
 		res = -errno;
 	}
 	free_t_message(message);
-
 	return res;
 
 }
@@ -217,13 +216,7 @@ void* handler_appeared(void* administracion){
 		switch(message->head){
 		case APPEARED_POKEMON:{
 			appeared_pokemon* mensaje = deserializarAppeared(message->content);
-			log_info(log_team_oficial,"HILO DE ESCUCHA RECIBIO MENSAJE");
-			log_info(log_team_oficial,"ID MENSAJE: %d",mensaje->id_mensaje);
-			log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje->idCorrelativo);
-			log_info(log_team_oficial,"ID SIZE NOMBRE: %d",mensaje->sizeNombre);
-			log_info(log_team_oficial,"NOMBRE: %s",mensaje->nombrePokemon);
-			log_info(log_team_oficial,"POSICION EJE X: %d",mensaje->posicionEjeX);
-			log_info(log_team_oficial,"POSICION EJE Y: %d",mensaje->posicionEjeY);
+			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \nNOMBRE: %s \nPOSICION (%d,%d) \n",mensaje->id_mensaje,mensaje->idCorrelativo,mensaje->nombrePokemon,mensaje->posicionEjeX,mensaje->posicionEjeY);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = APPEARED;
 			mensajeACK.idSuscriptor = getpid();
@@ -261,6 +254,7 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 		switch(message->head){
 		case APPEARED_POKEMON:{
 			appeared_pokemon* mensaje = deserializarAppeared(message->content);
+			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \nNOMBRE: %s \nPOSICION (%d,%d) \n",mensaje->id_mensaje,mensaje->idCorrelativo,mensaje->nombrePokemon,mensaje->posicionEjeX,mensaje->posicionEjeY);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = APPEARED;
 			mensajeACK.idSuscriptor = getpid();
@@ -279,6 +273,17 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 
 		case LOCALIZED_POKEMON:{
 			localized_pokemon* mensaje = deserializarLocalized(message->content);
+			char* posiciones;
+			t_list* coordenadas = mensaje->posiciones;
+			int i = 0;
+			while(i< mensaje->cantidadPosiciones){
+				coordenada posicion = list_get(coordenadas,i);
+				char xy[5];
+				sprintf(xy,"(%d,%d)",posicion->posicionEjeX,posicion->posicionEjeY);
+				posiciones;
+				i++;
+			}
+			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \nNOMBRE: %s \nPOSICIONES %s \n",mensaje->id_mensaje,mensaje->idCorrelativo,mensaje->nombrePokemon,mensaje->posicionEjeX,mensaje->posicionEjeY);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = LOCALIZED;
 			mensajeACK.idSuscriptor = getpid();
@@ -296,6 +301,10 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 
 		case CAUGHT_POKEMON:{
 			caught_pokemon* mensaje = deserializarCaught(message->content);
+			if(mensaje->pokemonAtrapado == 1)
+				log_info(log_team_oficial,"MENSAJE CAUGHT RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \n EL POKEMON FUE ATRAPADO \n",mensaje->id_mensaje,mensaje->idCorrelativo);
+			else
+				log_info(log_team_oficial,"MENSAJE CAUGHT RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \n EL POKEMON NO FUE ATRAPADO \n",mensaje->id_mensaje,mensaje->idCorrelativo);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = CAUGHT;
 			mensajeACK.idSuscriptor = getpid();
