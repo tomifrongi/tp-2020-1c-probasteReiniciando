@@ -347,6 +347,7 @@ void* handler_entrenador(void* e){
 
 					}
 					else{
+						log_info(log_team_oficial,"NO SE PUDO ENVIAR EL MENSAJE CATCH, SE PROCEDE POR DEFAULT");
 						list_add(entrenador->pokemones_capturados,entrenador->tarea->pokemon);
 						log_info(log_team_oficial,"EL ENTRENADOR %d ATRAPO AL POKEMON %s EN LA POSICION (%d,%d)",entrenador->id,entrenador->tarea->pokemon->especie,entrenador->posicion_x,entrenador->posicion_y);
 						entrenador->esta_en_entrada_salida =false;
@@ -670,7 +671,7 @@ void planificar_team(t_team*team) {
 	pthread_detach(*consumidor_cola_caught);
 
 
-//	enviar_gets(team->objetivo_pokemones_restantes,idsGet,mutex_idsGet);
+	enviar_gets(team->objetivo_pokemones_restantes,idsGet,mutex_idsGet);
 
 	while(1){
 

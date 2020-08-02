@@ -107,7 +107,7 @@ int connect_to_server(char* host,int port, void*(*callback)()) {
 	sock = create_socket();
 
 	if(connect(sock,(struct sockaddr *)&server_addr, sizeof(server_addr))< 0){
-		perror("ERROR CONECTAR SERVIDOR");
+		//perror("ERROR CONECTAR SERVIDOR");
 		return -errno;
 	}
 
@@ -163,7 +163,7 @@ void* handler_broker(void *administracion){
 		int socketTeam = connect_to_server(IP_BROKER, PUERTO_BROKER, NULL);
 		if(socketTeam != -errno){
 			administracion_casteada->team->conectado_al_broker = true;
-			log_info(log_team_oficial, "CONEXION EXITOSA CON EL BROKER");
+			log_info(log_team_oficial,"CONEXION EXITOSA CON EL BROKER");
 			t_message mensaje;
 			suscripcion content;
 			content.idSuscriptor= getpid();
@@ -177,7 +177,11 @@ void* handler_broker(void *administracion){
 				handler_suscripciones(socketTeam,administracion_casteada->cola_mensajes,administracion_casteada->semaforo_contador_cola,administracion_casteada->mutex_cola);
 			administracion_casteada->team->conectado_al_broker = false;
 		}
+		else{
+			log_info(log_team_oficial,"ERROR AL SUSCRIBIRSE A LA COLA");
+		}
 		sleep(TIEMPO_RECONEXION);
+		log_info(log_team_oficial, "INCIO DEL PROCESO DE REINTENTO DE COMUNICACION CON EL BROKER");
 	}
 	return NULL;
 }
@@ -273,17 +277,19 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 
 		case LOCALIZED_POKEMON:{
 			localized_pokemon* mensaje = deserializarLocalized(message->content);
-			char* posiciones;
+			char* posiciones = malloc(6*(mensaje->cantidadPosiciones)+1);
+			strcpy(posiciones,"");
 			t_list* coordenadas = mensaje->posiciones;
 			int i = 0;
 			while(i< mensaje->cantidadPosiciones){
-				coordenada posicion = list_get(coordenadas,i);
-				char xy[5];
-				sprintf(xy,"(%d,%d)",posicion->posicionEjeX,posicion->posicionEjeY);
-				posiciones;
+				coordenada* p = list_get(coordenadas,i);
+				char xy[6];
+				sprintf(xy,"(%d,%d) ",p->posicionEjeX,p->posicionEjeY);
+				strcat(posiciones, xy);
 				i++;
 			}
-			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \nNOMBRE: %s \nPOSICIONES %s \n",mensaje->id_mensaje,mensaje->idCorrelativo,mensaje->nombrePokemon,mensaje->posicionEjeX,mensaje->posicionEjeY);
+			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \nNOMBRE: %s \nPOSICIONES %s \n",mensaje->id_mensaje,mensaje->idCorrelativo,mensaje->nombrePokemon,posiciones);
+			free(posiciones);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = LOCALIZED;
 			mensajeACK.idSuscriptor = getpid();
@@ -390,6 +396,9 @@ void enviar_gets(t_list* objetivo_pokemones_restantes,t_list* idsGett,pthread_mu
 		pthread_mutex_unlock(mutex_idsGett);
 		free_t_message(mensajeConfirmacionID);
 		shutdown(socket_get,SHUT_RDWR);
+		}
+		else{
+			log_info(log_team_oficial,"ERROR AL ENVIAR MENSAJE GET");
 		}
 
 		i++;
