@@ -16,6 +16,7 @@
 #include "entrenadores.h"
 #include "pokemones.h"
 #include <commons/log.h>
+#include "deadlock.h"
 
 typedef struct{
 	t_pokemon* pokemon;

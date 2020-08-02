@@ -83,7 +83,7 @@ typedef struct {
 	t_queue* cola_mensajes;
 	sem_t* semaforo_contador_cola;
 	pthread_mutex_t* mutex_cola;
-	uint32_t listener_socket;
+	int listener_socket;
 }administracion_gameboy;
 
 

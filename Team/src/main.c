@@ -5,8 +5,6 @@ int main(){
 	inicializar_logger();
 	t_team* team = malloc(sizeof(t_team));
 	//TODO PONER TOOODOS LOS LOGS
-	team->cantidad_ciclos_cpu_ejecutados = 0;
-	team->cantidad_deadlocks = 0;
 	team->cantidad_deadlocks_detectados = 0;
 	team->cantidad_deadlocks_solucionados = 0;
 	team->conectado_al_broker = false;
@@ -16,9 +14,10 @@ int main(){
 	team->entrenadores_ready = list_create();
 	team->hilos_entrenadores = list_create();
 	team->mapa_pokemones = list_create();
-	//mostrar_entrenadores(team->entrenadores);
+
 
 	team->objetivo_pokemones_restantes = obtener_objetivo_pokemones_restantes(team->entrenadores);
+
 	if(strcmp(ALGORITMO_PLANIFICACION,"FIFO")==0)
 		team->planificador = FIFO;
 	else if(strcmp(ALGORITMO_PLANIFICACION,"RR")==0)
@@ -28,9 +27,10 @@ int main(){
 	else if(strcmp(ALGORITMO_PLANIFICACION,"SJF-SD")==0)
 		team->planificador = SJF_SD;
 
+	mostrar_entrenadores(team->entrenadores);
 
 
-	planificar_team(team);
+//	planificar_team(team);
 
 	return 0;
 }

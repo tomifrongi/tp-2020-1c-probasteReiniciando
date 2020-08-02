@@ -28,16 +28,16 @@ typedef struct {
 
 //------------FUNCIONES----------------
 bool detectar_deadlock(t_team*);
-void resolver_deadlock(t_team*);
+void resolver_deadlock(t_team* ,sem_t*);
 t_entrenador* buscar_mejor_entrenador_para_intercambio(t_list*,t_entrenador*);
 bool hay_ciclo(t_entrenador*,t_entrenador*);
 bool quiere_algo_de(t_entrenador* ,t_entrenador* );
 t_list* obtener_pokemones_faltantes(t_entrenador* );
 t_list* obtener_pokemones_sobrantes(t_entrenador* );
 t_entrenador* buscar_entrenador_para_intercambio(t_list* ,t_entrenador* );
-void asignar_tarea_intercambio(t_entrenador*, t_entrenador*);
-void asignar_mejor_tarea_intercambio(t_entrenador*, t_entrenador*);
-
+void asignar_tarea_intercambio(t_entrenador* , t_entrenador* ,t_team* ,sem_t*);
+void asignar_mejor_tarea_intercambio(t_entrenador* , t_entrenador* ,t_team* ,sem_t*);
+void realizar_intercambio(t_entrenador* ,t_entrenador* );
 
 
 #endif /* SRC_DEADLOCK_H_ */

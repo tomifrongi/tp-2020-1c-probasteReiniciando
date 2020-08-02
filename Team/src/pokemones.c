@@ -2,7 +2,6 @@
 
 /*------------------------------------------------FUNCIONES QUE LLAMAN LOS ENTRENADORES------------------------------------------------*/
 
-//TODO ACTUALIZAR EN TODOS LOS LADOS QUE USE INTERSECT_LISTAS_POKEMONES
 t_list* intersect_listas_pokemones(t_list*list1, t_list*list2)
 {
 	int i = 0;
@@ -81,8 +80,8 @@ t_list*listar_pokemones(char**array) { //el string p1|p2|p3 lo pone cada uno en 
 
 void mostrar_pokemon(t_pokemon*pokemon) { //closure
 
-	printf("especie :%s\n", pokemon->especie);
-	//printf("posicion :[%d,%d]\n", pokemon->posicion[0], pokemon->posicion[1]);
+log_info(log_team_oficial,"NOMBRE: %s",pokemon->especie);
+log_info(log_team_oficial,"POSICION X: %d POSICION Y: %d",pokemon->posicion_x,pokemon->posicion_y);
 
 }
 void mostrar_pokemones(t_list*pokemones) {

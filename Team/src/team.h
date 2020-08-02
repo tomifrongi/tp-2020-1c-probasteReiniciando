@@ -38,8 +38,6 @@ typedef struct{
 	t_list* mapa_pokemones;
 	t_planificador planificador;
 	//contadores finales :break;
-	int cantidad_ciclos_cpu_ejecutados;
-	int cantidad_deadlocks;//mm hace falta
 	int cantidad_deadlocks_detectados;
 	int cantidad_deadlocks_solucionados;
 	bool conectado_al_broker;
@@ -79,7 +77,8 @@ typedef struct{
 	bool esta_en_entrada_salida;
 	int id_correlativo_esperado;
 	int rafagas_intercambio_realizadas;
-	bool esperando_intercambio; //TODO AGREGAR ESTO A INICIALIZAR ENTRENADOR
+	bool esperando_intercambio;
+	int ciclos_cpu_realizados;
 }t_entrenador;
 
 typedef struct{

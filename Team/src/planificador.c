@@ -311,6 +311,8 @@ void* procesar_caught(void* t){
 				pthread_mutex_unlock(mutex_planificar_entrenador);
 			}
 			free(id);
+			free(entrenador->tarea);
+
 		}
 		borrar_caught_pokemon(mensaje);
 	}
@@ -326,11 +328,9 @@ void* handler_entrenador(void* e){
 
 
 		if(calcular_rafagas_necesarias(entrenador) == 0){
-			sleep(RETARDO_CICLO_CPU); //TODO REVER
-			sem_post(semaforo_termino_rafaga_cpu);
+			sleep(RETARDO_CICLO_CPU);
 			switch(entrenador->tarea->tipo_tarea){
 				case ATRAPAR:{
-
 					if(TEAM->conectado_al_broker){
 
 						cambiar_estado(entrenador,BLOCK);
@@ -347,6 +347,7 @@ void* handler_entrenador(void* e){
 					else{
 						list_add(entrenador->pokemones_capturados,entrenador->tarea->pokemon);
 						entrenador->esta_en_entrada_salida =false;
+						free(entrenador->tarea);
 						//entrenador->estado
 						if(entrenador_puede_capturar(entrenador)){
 							pthread_mutex_lock(mutex_planificar_entrenador);
@@ -361,20 +362,36 @@ void* handler_entrenador(void* e){
 
 				}
 
-				case INTERCAMBIO:{ //TODO REVISAR CASE INTERCAMBIO HANDLER_ENTRENADOR
-					//realizar_intercambio(entrenador,entrenador->tarea->entrenador_intercambio);
-					if(entrenador_cumplio_objetivos(entrenador))
-						cambiar_estado(entrenador,EXIT);
+				case INTERCAMBIO:{
+					realizar_intercambio(entrenador,entrenador->tarea->entrenador_intercambio);
+
+					if(entrenador_cumplio_objetivos(entrenador->tarea->entrenador_intercambio))
+						cambiar_estado(entrenador->tarea->entrenador_intercambio,EXIT);
 					else{
-						//if(detectar_deadlocks())
-						//	resolver_deadlocs();
+						cambiar_estado(entrenador->tarea->entrenador_intercambio,BLOCK);
+						if(detectar_deadlock(TEAM))
+							resolver_deadlock(TEAM,semaforo_entrenadores_ready);
 					}
+
+					if(entrenador_cumplio_objetivos(entrenador)){
+						free(entrenador->tarea);
+						cambiar_estado(entrenador,EXIT);
+					}
+					else{
+						cambiar_estado(entrenador,BLOCK);
+						free(entrenador->tarea);
+						if(detectar_deadlock(TEAM))
+							resolver_deadlock(TEAM,semaforo_entrenadores_ready);
+					}
+
+
 					break;
 				}
 			}
+			sem_post(semaforo_termino_rafaga_cpu);
 		}
 		else{
-			sleep(RETARDO_CICLO_CPU); //TODO REVER
+			sleep(RETARDO_CICLO_CPU);
 			sem_post(semaforo_termino_rafaga_cpu);
 		}
 	}
@@ -540,39 +557,6 @@ void agregar_entrenador_a_cola_ready(t_entrenador* entrenador,t_team* team){
 }
 
 
-void planificacion_general(t_team* team){
-
-	while (algunos_pueden_atrapar(team)){
-
-		sem_wait(semaforo_entrenadores_ready);
-
-		pthread_mutex_lock(mutex_entrenadores_ready);
-		t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
-		pthread_mutex_unlock(mutex_entrenadores_ready);
-
-		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
-			agregar_entrenador_a_cola_ready(entrenador,team);
-
-	}
-
-	//if(detectar_deadlocks()) //TODO DEADLOCK
-	//	resolverDeadlocks();
-
-	while (!team_cumplio_objetivo_global(team)) //TODO REVISAR
-	{
-		sem_wait(semaforo_entrenadores_ready);
-		pthread_mutex_lock(mutex_entrenadores_ready);
-		t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
-		pthread_mutex_unlock(mutex_entrenadores_ready);
-
-		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
-			agregar_entrenador_a_cola_ready(entrenador,team);
-
-	}
-
-
-}
-
 void iniciar_estructuras_administrativas(){
 	cola_localized = queue_create();
 	semaforo_contador_localized = malloc(sizeof(sem_t));
@@ -681,7 +665,7 @@ void planificar_team(t_team*team) {
 	pthread_detach(*consumidor_cola_caught);
 
 
-	//enviar_gets(team->objetivo_pokemones_restantes,idsGet,mutex_idsGet);
+//	enviar_gets(team->objetivo_pokemones_restantes,idsGet,mutex_idsGet);
 
 //	while(1){
 //
@@ -699,23 +683,23 @@ void planificar_team(t_team*team) {
 
 		}
 
-		//if(detectar_deadlocks(TEAM)) //TODO DEADLOCK
-		//	resolverDeadlocks();
+	if(detectar_deadlock(TEAM))
+		resolver_deadlock(TEAM,semaforo_entrenadores_ready);
 
-		while (!team_cumplio_objetivo_global(team)) //TODO REVISAR
-		{
-			sem_wait(semaforo_entrenadores_ready);
-			pthread_mutex_lock(mutex_entrenadores_ready);
-			t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
-			pthread_mutex_unlock(mutex_entrenadores_ready);
+	while (!team_cumplio_objetivo_global(team))
+	{
+		sem_wait(semaforo_entrenadores_ready);
+		pthread_mutex_lock(mutex_entrenadores_ready);
+		t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
+		pthread_mutex_unlock(mutex_entrenadores_ready);
 
-			if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
-				agregar_entrenador_a_cola_ready(entrenador,team);
+		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
+			agregar_entrenador_a_cola_ready(entrenador,team);
 
-		}
+	}
 
-//	TODO Cantidad de ciclos de CPU totales.
-//	TODO Cantidad de cambios de contexto realizados.
+//TODO Cantidad de ciclos de CPU totales.
+//TODO Cantidad de cambios de contexto realizados.
 //TODO 	Cantidad de ciclos de CPU realizados por entrenador.
 //TODO	Deadlocks producidos y resueltos (Spoiler Alert).
 
