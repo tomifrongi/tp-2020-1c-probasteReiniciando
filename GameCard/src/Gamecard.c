@@ -82,11 +82,13 @@ void* handler_broker(void *cola) { //Inicia el gamecard conectandose al broker
 			suscripcion content;
 			content.idSuscriptor= getpid();
 			content.idCola = colaSuscriptor;
+
 			int bytes_escritos = 0;
 			mensaje.content = malloc(sizeof(suscripcion));
-			memcpy(&content+bytes_escritos, &content.idCola, sizeof(id_cola));
+			memcpy(mensaje.content+bytes_escritos, &content.idCola, sizeof(id_cola));
 			bytes_escritos += sizeof (uint32_t);
-			memcpy(&content+bytes_escritos, &content.idSuscriptor, sizeof(pid_t));
+			memcpy(mensaje.content+bytes_escritos, &content.idSuscriptor, sizeof(pid_t));
+
 			mensaje.head = SUSCRIPCION;
 			mensaje.size = sizeof(suscripcion);
 			send_message(socketGameCard, mensaje.head,mensaje.content, mensaje.size);

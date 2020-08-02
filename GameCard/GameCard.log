@@ -1,2 +1,77 @@
 
 [INFO] 18:19:05:231 GameCard/(5126:5126): CONEXION EXITOSA CON EL BROKER
+[INFO] 13:52:22:382 GameCard/(4408:4408): Creada carpeta Metadata/
+[INFO] 13:52:22:394 GameCard/(4408:4408): Creada carpeta Files/
+[INFO] 13:52:22:395 GameCard/(4408:4408): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 13:52:22:395 GameCard/(4408:4408): Creada carpeta Bloques/
+[INFO] 13:52:22:406 GameCard/(4408:4408): Leyendo Metadata.bin ...
+[INFO] 13:52:22:413 GameCard/(4408:4408): Creando el Bitmap.bin por primera vez...
+[INFO] 13:52:22:414 GameCard/(4408:4408): Leyendo Bitmap.bin ...
+[INFO] 13:52:22:416 GameCard/(4408:4408): Creando bloques en el path /Bloques
+[INFO] 13:52:23:597 GameCard/(4408:4408): Servidor levantado! Escuchando en 5011
+[INFO] 13:54:16:478 GameCard/(4617:4617): Creada carpeta Metadata/
+[INFO] 13:54:16:479 GameCard/(4617:4617): Creada carpeta Files/
+[INFO] 13:54:16:479 GameCard/(4617:4617): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 13:54:16:479 GameCard/(4617:4617): Creada carpeta Bloques/
+[INFO] 13:54:16:479 GameCard/(4617:4617): Leyendo Metadata.bin ...
+[INFO] 13:54:16:480 GameCard/(4617:4617): Leyendo Bitmap.bin ...
+[INFO] 13:54:16:502 GameCard/(4617:4626): CONEXION EXITOSA CON EL BROKER
+[INFO] 13:54:16:522 GameCard/(4617:4627): CONEXION EXITOSA CON EL BROKER
+[INFO] 13:54:16:529 GameCard/(4617:4617): Servidor levantado! Escuchando en 5011
+[INFO] 13:54:16:531 GameCard/(4617:4629): CONEXION EXITOSA CON EL BROKER
+[INFO] 13:56:32:231 GameCard/(4680:4680): Creada carpeta Metadata/
+[INFO] 13:56:32:231 GameCard/(4680:4680): Creada carpeta Files/
+[INFO] 13:56:32:232 GameCard/(4680:4680): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 13:56:32:232 GameCard/(4680:4680): Creada carpeta Bloques/
+[INFO] 13:56:32:232 GameCard/(4680:4680): Leyendo Metadata.bin ...
+[INFO] 13:56:32:232 GameCard/(4680:4680): Leyendo Bitmap.bin ...
+[INFO] 13:56:36:172 GameCard/(4680:4680): Servidor levantado! Escuchando en 5011
+[INFO] 13:56:39:784 GameCard/(4680:4689): CONEXION EXITOSA CON EL BROKER
+[INFO] 13:56:42:414 GameCard/(4680:4690): CONEXION EXITOSA CON EL BROKER
+[INFO] 13:56:45:28 GameCard/(4680:4694): CONEXION EXITOSA CON EL BROKER
+[INFO] 14:10:36:464 GameCard/(5074:5074): Creada carpeta Metadata/
+[INFO] 14:10:36:466 GameCard/(5074:5074): Creada carpeta Files/
+[INFO] 14:10:36:466 GameCard/(5074:5074): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 14:10:36:467 GameCard/(5074:5074): Creada carpeta Bloques/
+[INFO] 14:10:36:467 GameCard/(5074:5074): Leyendo Metadata.bin ...
+[INFO] 14:10:36:467 GameCard/(5074:5074): Leyendo Bitmap.bin ...
+[INFO] 14:10:36:469 GameCard/(5074:5074): Servidor levantado! Escuchando en 5011
+[INFO] 14:10:36:472 GameCard/(5074:5084): CONEXION EXITOSA CON EL BROKER
+[INFO] 14:10:36:473 GameCard/(5074:5083): CONEXION EXITOSA CON EL BROKER
+[INFO] 14:10:36:477 GameCard/(5074:5082): CONEXION EXITOSA CON EL BROKER
+[INFO] 14:14:30:38 GameCard/(5074:5082): ID MENSAJE: 0
+[INFO] 14:14:30:42 GameCard/(5074:5082): NOMBRE POKEMON: HìiÒ
+[INFO] 14:14:30:43 GameCard/(5074:5082): CANTIDAD: 5074
+[INFO] 14:14:30:43 GameCard/(5074:5082): POSICION EJE X: 2081
+[INFO] 14:14:30:44 GameCard/(5074:5082): POSICION EJE Y: -1216997456
+[INFO] 14:14:30:53 GameCard/(5074:5082): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 14:14:30:59 GameCard/(5074:5082): Se procede a setear el bloque 0 como Ocupado..
+[INFO] 14:14:30:65 GameCard/(5074:5082): Operacion NEW_POKEMON ƒÄ‰EÜ¡"ƒìPè÷ÿÿƒÄéÿÿÿU‰åƒì‹E‹, Coordenada: (7, 141159312, 9) terminada correctamente
+[INFO] 14:14:30:66 GameCard/(5074:5084): ID MENSAJE: 0
+[INFO] 14:14:30:72 GameCard/(5074:5084): NOMBRE POKEMON: ÒÀµ
+[INFO] 14:14:30:72 GameCard/(5074:5084): CANTIDAD: 2949120
+[INFO] 14:14:30:72 GameCard/(5074:5084): POSICION EJE X: 0
+[INFO] 14:14:30:73 GameCard/(5074:5084): POSICION EJE Y: 0
+[INFO] 14:14:30:73 GameCard/(5074:5084): Pokemon existe dentro del FileSystem!
+[INFO] 14:14:30:91 GameCard/(5074:5082): ID MENSAJE: 0
+[INFO] 14:14:30:98 GameCard/(5074:5082): NOMBRE POKEMON: 0íi
+[INFO] 14:14:30:99 GameCard/(5074:5082): CANTIDAD: 0
+[INFO] 14:14:30:100 GameCard/(5074:5082): POSICION EJE X: 0
+[INFO] 14:14:30:100 GameCard/(5074:5082): POSICION EJE Y: 0
+[INFO] 14:14:30:102 GameCard/(5074:5082): Pokemon existe dentro del FileSystem!
+[INFO] 14:14:30:104 GameCard/(5074:5285): ACK enviado al BROKER
+[INFO] 14:14:30:605 GameCard/(5074:5285): La conexiÃ³n con el BROKER se cerrarÃ¡
+[INFO] 14:14:40:77 GameCard/(5074:5084): El archivo no estÃ¡ abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 14:14:40:80 GameCard/(5074:5084): Operacion NEW_POKEMON ƒÄ‰EÜ¡"ƒìPè÷ÿÿƒÄéÿÿÿU‰åƒì‹E‹, Coordenada (7, -1245707152, 7) terminada correctamente
+[INFO] 14:14:40:84 GameCard/(5074:5292): ACK enviado al BROKER
+[INFO] 14:14:40:104 GameCard/(5074:5082): El archivo no estÃ¡ abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 14:14:40:106 GameCard/(5074:5082): Operacion NEW_POKEMON ƒÄ‰EÜ¡"ƒìPè÷ÿÿƒÄéÿÿÿU‰åƒì‹E‹, Coordenada (7, 141159312, 9) terminada correctamente
+[INFO] 14:14:40:118 GameCard/(5074:5294): ACK enviado al BROKER
+[INFO] 14:14:40:585 GameCard/(5074:5292): La conexiÃ³n con el BROKER se cerrarÃ¡
+[INFO] 14:14:40:620 GameCard/(5074:5294): La conexiÃ³n con el BROKER se cerrarÃ¡
+[INFO] 14:14:52:522 GameCard/(5074:5082): ID MENSAJE: 0
+[INFO] 14:14:52:523 GameCard/(5074:5082): NOMBRE POKEMON: 8öi4:40
+[INFO] 14:14:52:523 GameCard/(5074:5082): CANTIDAD: 0
+[INFO] 14:14:52:523 GameCard/(5074:5082): POSICION EJE X: 0
+[INFO] 14:14:52:524 GameCard/(5074:5082): POSICION EJE Y: 0
+[INFO] 14:14:52:524 GameCard/(5074:5082): Pokemon existe dentro del FileSystem!
