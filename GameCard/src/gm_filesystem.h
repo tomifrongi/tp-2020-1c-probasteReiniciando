@@ -68,8 +68,8 @@ typedef enum {
 } e_paths_structure;
 
 typedef struct {
-	int block_size;
-	int blocks;
+	unsigned int block_size;
+	unsigned int blocks;
 	char* magic_number;
 } Metadata;
 
@@ -80,6 +80,8 @@ t_config* config_table_metadata;
 t_bitarray* bitmap;
 FILE* bitmap_file;
 char* struct_paths[5];
+
+#define ceiling(x,y) (((x) + (y) - 1) / (y))
 
 #define RUTA_METADATA_GENERAL "/Metadata/Metadata.bin"
 #define RUTA_BITMAP_GENERAL "Metadata/Bitmap.bin"
@@ -145,7 +147,7 @@ void crear_root_files();
 void conf_metadata();
 void conf_files();
 void crear_blocks();
-t_bitarray* crear_bitmap(char* bitmapBin);
+void crear_bitmap(char* bitmapBin);
 void crear_metadata_file(char* metadataBin);
 void leer_metadata(char* metadataPath);
 void leer_bitmap(char* bitmapBin);

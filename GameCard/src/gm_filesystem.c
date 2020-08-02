@@ -1,5 +1,5 @@
 #include "gm_filesystem.h"
-
+#include <math.h>
 void gm_structs_fs() //Estructuras del File System
 {
 	crear_root_files();
@@ -994,7 +994,7 @@ void crear_root_files()
 		log_info(logger, "Creada carpeta Metadata/");
 		mkdir(archivos, 0777);
 		log_info(logger, "Creada carpeta Files/");
-		log_info(logger, "Creada carpeta Files/ %s", dir_bloques);
+		log_info(logger, "Creada carpeta Files/ %s", dir_bloques);//es la de pokemons
 		mkdir(dir_bloques, 0777);
 		log_info(logger, "Creada carpeta Bloques/");
 	}
@@ -1079,85 +1079,13 @@ void crear_blocks()
     }
 }
 
-
-/*void crear_bitmap(char* bitmap_bin){
+void crear_bitmap(char* bitmap_bin){
 	log_info(logger, "Creando el Bitmap.bin por primera vez...");
 	bitmap_file = fopen(bitmap_bin, "wb+");
-	char* bitarray_limpio = calloc(1, ceil(metadata.blocks));
-	fwrite((void*)bitarray_limpio, ceil(metadata.blocks), 1, bitmap_file);
+	char* bitarray = calloc(1, ceiling(metadata.blocks, 8));
+	fwrite((void*)bitarray, ceiling(metadata.blocks, 8), 1, bitmap_file);
 	fflush(bitmap_file);//devuelve EOF si ocurre escritura
-	free(bitarray_limpio);
-}*/
-t_bitarray* crear_bitmap(char* bitmapBin) {
-	bitmapBin = crear_archivo(RUTA_BITMAP_GENERAL);
-	int cantidadDeBloques = g_blocks_maximos / 8;
-	int max = 0;
-	if (access(bitmapBin, F_OK) != -1) {
-		// Existe el archivo Bitmap
-		for (int i = 0; i < cantidadDeBloques; i++) {
-			char* ruta = string_new();
-			string_append(&ruta, puntoMontaje);
-			string_append(&ruta, "/Blocks/");
-			string_append(&ruta, string_itoa(i + 1));
-			string_append(&ruta, ".bin");
-			int tamanio = blocks_ocupados(ruta);
-			free(ruta);
-			if (tamanio <= 0) {
-				max = i;
-				break;
-			}
-		}
-		g_blocks_usados = max;
-		int fd = open(bitmapBin, O_CREAT | O_RDWR, 0664);
-		ftruncate(fd, cantidadDeBloques);
-		if (fd == -1) {
-			log_error(logger, "No se pudo abrir el bitmap");
-			perror("open file");
-			exit(1);
-		}
-		char* bmap = mmap(NULL, cantidadDeBloques, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-		if (bmap == MAP_FAILED) {
-			perror("mmap");
-			close(fd);
-			exit(1);
-		}
-		t_bitarray* bitmap = bitarray_create_with_mode(bmap, cantidadDeBloques, LSB_FIRST);
-		log_info(logger, "El tamano del bloque es de %d bits", bitarray_get_max_bit(bitmap));
-		msync(bmap, sizeof(bitmap), MS_SYNC);
-		munmap(bmap, cantidadDeBloques);
-		close(fd);
-		free(bitmapBin);
-		return bitmap;
-
-	}
-	else {
-		// NO Existe el archivo Bitmap
-		g_blocks_usados = 0;
-		int fd = open(bitmapBin, O_CREAT | O_RDWR, 0664);
-		ftruncate(fd, cantidadDeBloques);
-		if (fd == -1) {
-			log_error(logger, "No se pudo abrir el bitmap");
-			perror("open file");
-			exit(1);
-		}
-		char* bmap = mmap(NULL, cantidadDeBloques, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-		if (bmap == MAP_FAILED) {
-			perror("mmap");
-			close(fd);
-			exit(1);
-		}
-		t_bitarray* bitmap = bitarray_create_with_mode(bmap, cantidadDeBloques, LSB_FIRST);
-		log_info(logger, "El tamano del bloque es de %d bits", bitarray_get_max_bit(bitmap));
-		size_t tope = bitarray_get_max_bit(bitmap);
-		for (int i = 0; i < tope; i++) {
-			bitarray_clean_bit(bitmap, i);
-		}
-		msync(bmap, sizeof(bitmap), MS_SYNC);
-		munmap(bmap, cantidadDeBloques);
-		close(fd);
-		free(bitmapBin);
-		return bitmap;
-	}
+	free(bitarray);
 }
 
 void crear_metadata_file(char* metadataBin)
