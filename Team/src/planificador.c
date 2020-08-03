@@ -633,22 +633,21 @@ void planificar_team(t_team*team) {
 
 	enviar_gets(team->objetivo_pokemones_restantes,idsGet,mutex_idsGet);
 
-	while (algunos_pueden_atrapar(team)){
-
+	t_entrenador* ultimo_entrenador_en_ejecutar = NULL;
+	while (algunos_pueden_atrapar(team))
+	{
 		sem_wait(semaforo_entrenadores_ready);
 
 		pthread_mutex_lock(mutex_entrenadores_ready);
 		t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
 		pthread_mutex_unlock(mutex_entrenadores_ready);
 
-		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready)){
+		if(ultimo_entrenador_en_ejecutar != entrenador)
+			TEAM->cantidad_cambios_de_contexto+=1;
+		ultimo_entrenador_en_ejecutar = entrenador;
+
+		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
 			agregar_entrenador_a_cola_ready(entrenador,team);
-			pthread_mutex_lock(mutex_entrenadores_ready);
-			t_entrenador* entrenador_siguiente = list_get(team->entrenadores_ready,0);
-			pthread_mutex_unlock(mutex_entrenadores_ready);
-			if(entrenador->id != entrenador_siguiente->id)
-				TEAM->cantidad_cambios_de_contexto+=1;
-		}
 	}
 
 	mostrar_entrenadores(team->entrenadores);
@@ -663,14 +662,12 @@ void planificar_team(t_team*team) {
 		t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
 		pthread_mutex_unlock(mutex_entrenadores_ready);
 
-		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready)){
+		if(ultimo_entrenador_en_ejecutar != entrenador)
+			TEAM->cantidad_cambios_de_contexto+=1;
+		ultimo_entrenador_en_ejecutar = entrenador;
+
+		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
 			agregar_entrenador_a_cola_ready(entrenador,team);
-			pthread_mutex_lock(mutex_entrenadores_ready);
-			t_entrenador* entrenador_siguiente = list_get(team->entrenadores_ready,0);
-			pthread_mutex_unlock(mutex_entrenadores_ready);
-			if(entrenador->id != entrenador_siguiente->id)
-				TEAM->cantidad_cambios_de_contexto+=1;
-		}
 	}
 
 	//finalizar todos los hilos
@@ -696,10 +693,6 @@ void planificar_team(t_team*team) {
 		log_info(log_team_oficial,"Ocurrieron deadlocks y fueron resueltos");
 	else
 		log_info(log_team_oficial,"No ocurrieron deadlocks");
-
-//TODO Cantidad de cambios de contexto realizados.
-
-
 
 }
 

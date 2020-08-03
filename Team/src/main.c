@@ -5,7 +5,7 @@ int main(){
 	inicializar_logger();
 	t_team* team = malloc(sizeof(t_team));
 	//TODO PONER TOOODOS LOS LOGS
-	team->cantidad_cambios_de_contexto = 0;
+	team->cantidad_cambios_de_contexto = -1;
 	team->hubo_deadlocks = false;
 	team->conectado_al_broker = false;
 	team->entrenadores = inicializar_entrenadores(team);
