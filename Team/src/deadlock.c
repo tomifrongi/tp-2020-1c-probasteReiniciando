@@ -78,7 +78,8 @@ bool hay_ciclo(t_entrenador* entrenador1,t_entrenador* entrenador2){
 t_list* obtener_pokemones_faltantes(t_entrenador* entrenador){
 	t_list* pokemones_faltantes = list_duplicate(entrenador->pokemones_buscados);
 	t_list* pokemones_capturados_aux = list_duplicate(entrenador->pokemones_capturados);
-	intersect_listas_pokemones(pokemones_faltantes,pokemones_capturados_aux);
+
+	pokemones_faltantes= intersect_listas_pokemones(pokemones_faltantes,pokemones_capturados_aux);
 	list_destroy(pokemones_capturados_aux);
 	return pokemones_faltantes;
 }
@@ -86,7 +87,7 @@ t_list* obtener_pokemones_faltantes(t_entrenador* entrenador){
 t_list* obtener_pokemones_sobrantes(t_entrenador* entrenador){
 	t_list* pokemones_sobrantes = list_duplicate(entrenador->pokemones_capturados);
 	t_list* pokemones_objetivos_aux = list_duplicate(entrenador->pokemones_buscados);
-	intersect_listas_pokemones(pokemones_sobrantes,pokemones_objetivos_aux);
+	pokemones_sobrantes = intersect_listas_pokemones(pokemones_sobrantes,pokemones_objetivos_aux);
 	list_destroy(pokemones_objetivos_aux);
 	return pokemones_sobrantes;
 }

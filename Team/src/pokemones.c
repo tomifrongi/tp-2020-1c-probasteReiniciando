@@ -36,11 +36,15 @@ bool  pokemones_es_misma_especie(t_pokemon*p1,t_pokemon*p2){   //SE USA ALFINAL?
 }
 int cantidad_pokemones_especie(t_list* pokemones, char*mi_especie) {
 
-	bool _es_especie(t_pokemon * p) {
+	bool _es_especie(void * pokemon) {
+		t_pokemon* p = pokemon;
 		char* especie = p->especie;
 		return string_equals_ignore_case(mi_especie, (char*) especie);
 	}
-	return list_size(list_filter(pokemones, (t_pokemon *) _es_especie));
+	t_list* lista_filtrada = list_filter(pokemones,_es_especie);
+	int size = list_size(lista_filtrada);
+	list_destroy(lista_filtrada);
+	return size;
 
 }
 

@@ -84,7 +84,7 @@ void planificar_entrenador(t_team * team){
 		remover_pokemon(team->mapa_pokemones,mejor_distancia->pokemon);
 		remover_especie_y_destruir(team->objetivo_pokemones_restantes,mejor_distancia->pokemon->especie);
 		borrar_t_distancia_pokemon_entrenador(pares_entrenadores_mas_cercanos);
-
+		//TODO free(mejor_distancia);?
 		list_destroy(posiciones_pokemon_mapa);
 		posiciones_pokemon_mapa = buscar_especie_objetivo_en_mapa(team);
 
@@ -335,6 +335,8 @@ void* handler_entrenador(void* e){
 
 		if(calcular_rafagas_necesarias(entrenador) == 0){
 			sleep(RETARDO_CICLO_CPU);
+
+			//cambiar_estado(entrenador,BLOCK);
 			switch(entrenador->tarea->tipo_tarea){
 				case ATRAPAR:{
 					if(TEAM->conectado_al_broker){
