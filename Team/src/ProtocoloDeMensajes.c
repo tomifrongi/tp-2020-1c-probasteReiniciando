@@ -46,8 +46,6 @@ caught_pokemon* deserializarCaught(void* content){
 	mensaje_creado->idCorrelativo = mensaje.idCorrelativo;
 	mensaje_creado->pokemonAtrapado = mensaje.pokemonAtrapado;
 	return mensaje_creado;
-
-	return mensaje_creado;
 }
 
 localized_pokemon* deserializarLocalized(void* content){

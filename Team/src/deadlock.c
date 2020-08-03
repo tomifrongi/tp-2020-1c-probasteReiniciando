@@ -5,11 +5,21 @@
 
 /*------------------------------------------------FUNCIONES DE DEADLOCK------------------------------------------------*/
 bool detectar_deadlock(t_team* team){
+	log_info(log_team_oficial,"INICIO EL ALGORITMO DE DETECCION DE DEADLOCKS");
 	bool esta_bloqueado(void* e){
 		t_entrenador* entrenador = e;
-		return entrenador->estado == BLOCK;
+		return entrenador->estado != EXIT;
 	}
-	return list_any_satisfy(team->entrenadores,esta_bloqueado);
+	if(list_any_satisfy(team->entrenadores,esta_bloqueado)){
+		log_info(log_team_oficial,"SE DETECTARON DEADLOCKS");
+		return true;
+	}
+	else{
+		log_info(log_team_oficial,"NO SE DETECTARON DEADLOCKS");
+		return false;
+	}
+
+	//return list_any_satisfy(team->entrenadores,esta_bloqueado);
 }
 
 void resolver_deadlock(t_team* team,sem_t*semaforo_cola_ready){
@@ -44,7 +54,6 @@ void resolver_deadlock(t_team* team,sem_t*semaforo_cola_ready){
 			i = 0;
 			continue;
 		}
-
 		i++;
 	}
 }

@@ -22,7 +22,6 @@ int send_message(int socket, t_header head,const void* content, size_t size){
 		res = -errno;
 	}
 	free_t_message(message);
-
 	return res;
 
 }
@@ -108,7 +107,7 @@ int connect_to_server(char* host,int port, void*(*callback)()) {
 	sock = create_socket();
 
 	if(connect(sock,(struct sockaddr *)&server_addr, sizeof(server_addr))< 0){
-		perror("ERROR CONECTAR SERVIDOR");
+		//perror("ERROR CONECTAR SERVIDOR");
 		return -errno;
 	}
 
@@ -164,7 +163,7 @@ void* handler_broker(void *administracion){
 		int socketTeam = connect_to_server(IP_BROKER, PUERTO_BROKER, NULL);
 		if(socketTeam != -errno){
 			administracion_casteada->team->conectado_al_broker = true;
-			log_info(log_team_oficial, "CONEXION EXITOSA CON EL BROKER");
+			log_info(log_team_oficial,"CONEXION EXITOSA CON EL BROKER");
 			t_message mensaje;
 			suscripcion content;
 			content.idSuscriptor= getpid();
@@ -178,7 +177,11 @@ void* handler_broker(void *administracion){
 				handler_suscripciones(socketTeam,administracion_casteada->cola_mensajes,administracion_casteada->semaforo_contador_cola,administracion_casteada->mutex_cola);
 			administracion_casteada->team->conectado_al_broker = false;
 		}
+		else{
+			log_info(log_team_oficial,"ERROR AL SUSCRIBIRSE A LA COLA");
+		}
 		sleep(TIEMPO_RECONEXION);
+		log_info(log_team_oficial, "INCIO DEL PROCESO DE REINTENTO DE COMUNICACION CON EL BROKER");
 	}
 	return NULL;
 }
@@ -191,10 +194,15 @@ void* escuchar_mensajes_gameboy(void* administracion){
 		do {
 			int team_sock = accept(administracion_casteada->listener_socket, &team_cli, &len);
 			if (team_sock > 0) {
+				administracion_gameboy_cliente* administracion_cliente = malloc(sizeof(administracion_gameboy_cliente));
+				administracion_cliente->cola_mensajes = administracion_casteada->cola_mensajes;
+				administracion_cliente->listener_socket = administracion_casteada->listener_socket;
+				administracion_cliente->mutex_cola = administracion_casteada->mutex_cola;
+				administracion_cliente->semaforo_contador_cola = administracion_casteada->semaforo_contador_cola;
+				administracion_cliente->socket_cliente = team_sock;
 				log_info(log_team_oficial, "NUEVA CONEXIÓN");
-				//handler_appeared(administracion);
 				pthread_t team_cli_thread;
-				pthread_create(&team_cli_thread, NULL, handler_appeared,administracion);
+				pthread_create(&team_cli_thread, NULL, handler_appeared,(void*) administracion_cliente);
 				pthread_detach(team_cli_thread);
 			} else {
 				log_error(log_team_oficial, "Error aceptando conexiones: %s", strerror(errno));
@@ -205,39 +213,43 @@ void* escuchar_mensajes_gameboy(void* administracion){
 }
 
 void* handler_appeared(void* administracion){
-	administracion_gameboy* administracion_casteada = administracion;
-	t_message* message = recv_message(administracion_casteada->listener_socket);
-	switch(message->head){
-	case APPEARED_POKEMON:{
-		appeared_pokemon* mensaje = deserializarAppeared(message->content);
-		log_info(log_team_oficial,"HILO DE ESCUCHA RECIBIO MENSAJE");
-		log_info(log_team_oficial,"ID MENSAJE: %d",mensaje->id_mensaje);
-		log_info(log_team_oficial,"ID CORRELATIVO: %d",mensaje->idCorrelativo);
-		log_info(log_team_oficial,"ID SIZE NOMBRE: %d",mensaje->sizeNombre);
-		log_info(log_team_oficial,"NOMBRE: %s",mensaje->nombrePokemon);
-		log_info(log_team_oficial,"POSICION EJE X: %d",mensaje->posicionEjeX);
-		log_info(log_team_oficial,"POSICION EJE Y: %d",mensaje->posicionEjeY);
-		suscripcion mensajeACK;
-		mensajeACK.idCola = APPEARED;
-		mensajeACK.idSuscriptor = getpid();
-		void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
-		send_message(administracion_casteada->listener_socket,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
-		free(mensajeACKSerializado);
-		pthread_mutex_lock(administracion_casteada->mutex_cola);
-		queue_push(administracion_casteada->cola_mensajes,mensaje);
-		pthread_mutex_unlock(administracion_casteada->mutex_cola);
-		sem_post(administracion_casteada->semaforo_contador_cola);
-		break;
+	administracion_gameboy_cliente* administracion_casteada = administracion;
+	while(1){
+		t_message* message = recv_message(administracion_casteada->socket_cliente);
+		bool flag = false;
+		switch(message->head){
+		case APPEARED_POKEMON:{
+			appeared_pokemon* mensaje = deserializarAppeared(message->content);
+			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \nNOMBRE: %s \nPOSICION (%d,%d) \n",mensaje->id_mensaje,mensaje->idCorrelativo,mensaje->nombrePokemon,mensaje->posicionEjeX,mensaje->posicionEjeY);
+			suscripcion mensajeACK;
+			mensajeACK.idCola = APPEARED;
+			mensajeACK.idSuscriptor = getpid();
+			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
+			send_message(administracion_casteada->socket_cliente,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
+			free(mensajeACKSerializado);
+			pthread_mutex_lock(administracion_casteada->mutex_cola);
+			queue_push(administracion_casteada->cola_mensajes,mensaje);
+			pthread_mutex_unlock(administracion_casteada->mutex_cola);
+			sem_post(administracion_casteada->semaforo_contador_cola);
+			break;
+		}
+		case ERROR_RECV:{
+			log_info(log_team_oficial,"ERROR RECIBIENDO MENSAJE");
+			break;
+		}
+		case NO_CONNECTION:{
+			flag = true;
+			break;
+		}
+		free_t_message(message);
 	}
-	case ERROR_RECV:
-		log_info(log_team_oficial,"ERROR RECIBIENDO MENSAJE");
-		break;
-	}
-	free_t_message(message);
+		if(flag)
+			break;
 
+}
+	free(administracion_casteada);
 	return NULL;
 }
-
 void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_contador_cola,pthread_mutex_t* mutex_cola){
 	int executing = 1;
 	while(executing){
@@ -246,6 +258,7 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 		switch(message->head){
 		case APPEARED_POKEMON:{
 			appeared_pokemon* mensaje = deserializarAppeared(message->content);
+			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \nNOMBRE: %s \nPOSICION (%d,%d) \n",mensaje->id_mensaje,mensaje->idCorrelativo,mensaje->nombrePokemon,mensaje->posicionEjeX,mensaje->posicionEjeY);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = APPEARED;
 			mensajeACK.idSuscriptor = getpid();
@@ -264,6 +277,19 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 
 		case LOCALIZED_POKEMON:{
 			localized_pokemon* mensaje = deserializarLocalized(message->content);
+			char* posiciones = malloc(6*(mensaje->cantidadPosiciones)+1);
+			strcpy(posiciones,"");
+			t_list* coordenadas = mensaje->posiciones;
+			int i = 0;
+			while(i< mensaje->cantidadPosiciones){
+				coordenada* p = list_get(coordenadas,i);
+				char xy[6];
+				sprintf(xy,"(%d,%d) ",p->posicionEjeX,p->posicionEjeY);
+				strcat(posiciones, xy);
+				i++;
+			}
+			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \nNOMBRE: %s \nPOSICIONES %s \n",mensaje->id_mensaje,mensaje->idCorrelativo,mensaje->nombrePokemon,posiciones);
+			free(posiciones);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = LOCALIZED;
 			mensajeACK.idSuscriptor = getpid();
@@ -281,6 +307,10 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 
 		case CAUGHT_POKEMON:{
 			caught_pokemon* mensaje = deserializarCaught(message->content);
+			if(mensaje->pokemonAtrapado == 1)
+				log_info(log_team_oficial,"MENSAJE CAUGHT RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \n EL POKEMON FUE ATRAPADO \n",mensaje->id_mensaje,mensaje->idCorrelativo);
+			else
+				log_info(log_team_oficial,"MENSAJE CAUGHT RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \n EL POKEMON NO FUE ATRAPADO \n",mensaje->id_mensaje,mensaje->idCorrelativo);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = CAUGHT;
 			mensajeACK.idSuscriptor = getpid();
@@ -366,6 +396,9 @@ void enviar_gets(t_list* objetivo_pokemones_restantes,t_list* idsGett,pthread_mu
 		pthread_mutex_unlock(mutex_idsGett);
 		free_t_message(mensajeConfirmacionID);
 		shutdown(socket_get,SHUT_RDWR);
+		}
+		else{
+			log_info(log_team_oficial,"ERROR AL ENVIAR MENSAJE GET");
 		}
 
 		i++;
