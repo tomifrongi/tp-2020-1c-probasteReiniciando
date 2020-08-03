@@ -9,6 +9,10 @@
 #include "ProtocoloDeMensajes.h"
 //#include "protocol.h"
 
+typedef struct {
+	uint32_t posicionEjeX;
+	uint32_t posicionEjeY;
+}t_envio_posicion;
 
 typedef struct {
 	id_cola idCola;
@@ -93,5 +97,12 @@ typedef struct {
 	char* nombrePokemon;
 	uint32_t cantidadPosiciones;
 }localized_pokemon_suscipcion;
+
+new_pokemon_suscripcion* deserializarNew(void* content);
+catch_pokemon_suscripcion* deserializarCatch(void* content);
+get_pokemon_suscripcion* deserializarGet(void* content);
+void* serializarAppeared (appeared_pokemon* parametros);
+void* serializarCaught(caught_pokemon* parametros);
+void* serializarLocalized(localized_pokemon* parametros);
 
 #endif

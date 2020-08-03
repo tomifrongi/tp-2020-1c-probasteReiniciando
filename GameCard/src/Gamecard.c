@@ -35,11 +35,11 @@ int main(void)
  * */
 void iniciar_config_logger() {
 	logger =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
-	t_config * config = config_create("GameCard.config");
+	t_config * config = config_create("./GameCard.config");
 
-	tiempoReintentoConexion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
-	tiempoReintentoOperacion = config_get_string_value(config, "TIEMPO_DE_REINTENTO_OPERACION");
-	tiempoRetardoOperacion = config_get_string_value(config, "TIEMPO_RETARDO_OPERACION");
+	tiempoReintentoConexion = config_get_int_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
+	tiempoReintentoOperacion = config_get_int_value(config, "TIEMPO_DE_REINTENTO_OPERACION");
+	tiempoRetardoOperacion = config_get_int_value(config, "TIEMPO_RETARDO_OPERACION");
 	puntoMontaje = config_get_string_value(config, "PUNTO_MONTAJE_TALLGRASS");
 	ipBroker = config_get_string_value(config, "IP_BROKER");
 	puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
@@ -103,21 +103,23 @@ void* handler_broker(void *cola) { //Inicia el gamecard conectandose al broker
 /*
  * Envio de ACK al Broker
  * */
-void enviar_ack(void* arg) {
-	int id = *((int*) arg);
-	t_header* ack_send;//seria SUSCRIPCION
-	t_suscripcion susc; //contiene id_cola QUE ES EL TIPO DE MENSAJE(NEW, GET, CATCH)
-	susc.idSuscriptor = getpid();
 
+
+void enviar_ack(void* arg) {
+	uint32_t id = (uint32_t) arg; //creo que no se esta usando
+	pid_t processId = getpid();
 	int client_fd = connect_to_server(ipBroker, puertoBroker, NULL);
 	if (client_fd > 0)
 	{
-		serializarMensaje(susc);
-		send_message(client_fd, SUSCRIPCION, NULL, 0);
-		log_info(logger, "ACK enviado al BROKER");
+		void* content = malloc(sizeof(uint32_t) + sizeof(pid_t));
+		size_t size = sizeof(uint32_t) + sizeof(pid_t);
+		int bytes_escritos = 0;
+		memcpy(content,&id,sizeof(uint32_t));
+		bytes_escritos += sizeof (uint32_t);
+		memcpy(content + bytes_escritos,&processId,sizeof(pid_t));
+		send_message(client_fd, CONFIRMACION,content,size);
+		free(content);
 	}
-	usleep(500000);
-	log_info(logger, "La conexión con el BROKER se cerrará");
 	close(client_fd);
 }
 
@@ -134,56 +136,88 @@ void* handler_suscripciones(void* socket)
 		switch(message->head){
 			case NEW:{
 				void*aux=message->content;
-				new_pokemon_enviar mensaje;
-				deserializarNew(mensaje);
-
-				//ENVIO ACK AL BROKER
-				send_message(socketEnvio, CONFIRMACION, NULL, 0);
+				new_pokemon_suscripcion* mensaje = deserializarNew(aux);
+				uint32_t idMensaje = mensaje->id_mensaje;
 
 				//FILE SYSTEM
-				new_pokemon_gamecard* new_pokemon;
-				createNewPokemon(new_pokemon);
+				new_pokemon* new_pokemon = malloc(sizeof(new_pokemon));
+				new_pokemon->nombrePokemon = malloc(mensaje->sizeNombre);
+				new_pokemon->sizeNombre = mensaje->sizeNombre;
+				strcpy(new_pokemon->nombrePokemon,mensaje->nombrePokemon);
+				new_pokemon->cantidad = mensaje->cantidad;
+				new_pokemon->posicionEjeX = mensaje->posicionEjeX;
+				new_pokemon->posicionEjeY = mensaje->posicionEjeY;
+
+				procesar_new_enviar_appeared(new_pokemon,idMensaje);
+
 				pthread_t thread;
-				pthread_create(&thread, NULL, (void*) enviar_ack, (void*) &mensaje.id_mensaje);
+				pthread_create(&thread, NULL, (void*) enviar_ack, (void*) idMensaje);
 				pthread_detach(thread);
+
 				free_t_message(message);
+				//free(mensaje->nombrePokemon);
+				free(mensaje);
+				free(new_pokemon->nombrePokemon);
+				//free(new_pokemon);
 				break;
 			}
 			case CATCH:{
-				void *aux = message->content;
-				catch_pokemon_enviar mensaje;
-				deserializarCatch(mensaje);
-
-				//Envio de ACK hay que agregarselo al broker
-				send_message(socketEnvio, CONFIRMACION, NULL, 0);
+				void*aux=message->content;
+				catch_pokemon_suscripcion* mensaje = deserializarCatch(aux);
+				uint32_t idMensaje = mensaje->id_mensaje;
 
 				//FILE SYSTEM
-				catchAPokemon(&mensaje);
-				pthread_t thread5;
-				pthread_create(&thread5, NULL, (void*) enviar_ack, (void*) &mensaje.id_mensaje);
-				pthread_detach(thread5);
+				catch_pokemon* catch_pokemon = malloc(sizeof(catch_pokemon));
+				catch_pokemon->nombrePokemon = malloc(mensaje->sizeNombre);
+				catch_pokemon->sizeNombre = mensaje->sizeNombre;
+				strcpy(catch_pokemon->nombrePokemon,mensaje->nombrePokemon);
+				catch_pokemon->posicionEjeX = mensaje->posicionEjeX;
+				catch_pokemon->posicionEjeY = mensaje->posicionEjeY;
+
+				//Esto capaz hay que pasarlo a un hilo para que no trabe la cola
+				procesar_catch_enviar_caught(catch_pokemon,idMensaje);
+
+				pthread_t thread;
+				pthread_create(&thread, NULL, (void*) enviar_ack, (void*) idMensaje);
+				pthread_detach(thread);
+
 				free_t_message(message);
+				//free(mensaje->nombrePokemon);
+				free(mensaje);
+				free(catch_pokemon->nombrePokemon);
+				//free(catch_pokemon);
 				break;
+
 			}
 			case GET:{
-				void *aux = message->content;
-				get_pokemon_enviar mensaje;
-				deserializarGet(mensaje);
-
-				//Envio de ACK hay que agregarselo al broker
-				send_message(socketEnvio, CONFIRMACION, NULL, 0);
+				void*aux=message->content;
+				get_pokemon_suscripcion* mensaje = deserializarGet(aux);
+				uint32_t idMensaje = mensaje->id_mensaje;
 
 				//FILE SYSTEM
-				getAPokemon(&mensaje);
-				pthread_t thread3;
-				pthread_create(&thread3, NULL, (void*) enviar_ack, (void*) &mensaje.id_mensaje);
-				pthread_detach(thread3);
+				get_pokemon* get_pokemon = malloc(sizeof(catch_pokemon));
+				get_pokemon->nombrePokemon = malloc(mensaje->sizeNombre);
+				get_pokemon->sizeNombre = mensaje->sizeNombre;
+				strcpy(get_pokemon->nombrePokemon,mensaje->nombrePokemon);
+
+				//Esto capaz hay que pasarlo a un hilo para que no trabe la cola
+				procesar_get_enviar_localized(get_pokemon,idMensaje);
+
+				pthread_t thread;
+				pthread_create(&thread, NULL, (void*) enviar_ack, (void*) idMensaje);
+				pthread_detach(thread);
+
 				free_t_message(message);
+				//free(mensaje->nombrePokemon);
+				free(mensaje);
+				free(get_pokemon->nombrePokemon);
+				//free(get_pokemon);
 				break;
+
 			}
 			case 100:{ //caso de error para el enumerado, se podria agregar en el idcola
 				free_t_message(message);
-				pthread_exit(NULL);
+				//pthread_exit(NULL);
 				return NULL;
 				break;
 			}
@@ -195,15 +229,16 @@ void* handler_suscripciones(void* socket)
 /*
  * Procesar mensaje New y Enviar mensaje Appeared
  * */
-void procesar_new_enviar_appeared(void* arg)
+void procesar_new_enviar_appeared(new_pokemon* arg, uint32_t idMensaje)
 {
-	new_pokemon_enviar* new_recv = (new_pokemon*) arg;
+	new_pokemon* new_recv = arg;
 	createNewPokemon(new_recv);
 
-	appeared_pokemon* appeared_snd = malloc(sizeof(appeared_pokemon_enviar));
-	appeared_snd->nombrePokemon = new_recv->nombrePokemon;
+	appeared_pokemon* appeared_snd = malloc(sizeof(appeared_pokemon));
+	appeared_snd->nombrePokemon = malloc(new_recv->sizeNombre);
+	strcpy(appeared_snd->nombrePokemon,new_recv->nombrePokemon);
 	appeared_snd->sizeNombre = new_recv->sizeNombre;
-	appeared_snd->idCorrelativo = new_recv->id_mensaje;
+	appeared_snd->idCorrelativo = idMensaje;
 	appeared_snd->posicionEjeX = new_recv->posicionEjeX;
 	appeared_snd->posicionEjeY = new_recv->posicionEjeY;
 	appeared_snd->cantidad = new_recv->cantidad;
@@ -211,39 +246,42 @@ void procesar_new_enviar_appeared(void* arg)
 	int client_fd = connect_to_server(ipBroker, puertoBroker, NULL);
 	if (client_fd > 0)
 	{
-		serializarAppeared(appeared_snd);
-		send_message(client_fd, APPEARED_POKEMON, NULL, 0);
+		void* contenido = serializarAppeared(appeared_snd);
+		send_message(client_fd, APPEARED_POKEMON, contenido, sizeof(uint32_t)*4+appeared_snd->sizeNombre);
 		log_info(logger, "El mensaje APPEARED fué enviado al BROKER");
+		free(contenido);
+
+		//Falta recepcion del ack del broker en un hilo aparte
+		t_message* message = recv_message(client_fd);
+		//no se hace nada con la recepcion del ACK
 	}
-	usleep(500000);
-	log_info(logger, "Cerrando la conexión con el BROKER");
+	free(appeared_snd);
+	free(appeared_snd->nombrePokemon);
 	close(client_fd);
 }
 
 /*
  * Procesar mensaje Get y Enviar mensaje Localized
  * */
-void procesar_get_enviar_localized(void* arg)
+void procesar_get_enviar_localized(get_pokemon* arg, uint32_t idMensaje)
 {
-	get_pokemon_enviar* get_rcv = (get_pokemon*) arg;
+	get_pokemon* get_rcv = arg;
 	t_list* response = getAPokemon(get_rcv);
 
-	localized_pokemon* localized_snd = malloc(sizeof(localized_pokemon_suscripcion));
-	localized_snd->idCorrelativo = get_rcv->id_mensaje;
+	localized_pokemon* localized_snd = malloc(sizeof(localized_pokemon));
+	localized_snd->idCorrelativo = idMensaje;
+	localized_snd->nombrePokemon = malloc(get_rcv->sizeNombre);
 	localized_snd->nombrePokemon = get_rcv->nombrePokemon;
-	localized_snd->sizeNombre = strlen(localized_snd->nombrePokemon) + 1;
+	localized_snd->sizeNombre = get_rcv->sizeNombre;
 
 	t_list* posiciones_list = list_create();
 
 	for (int i = 0; i < list_size(response); i++) {
 		t_posiciones* posicion_aux = list_get(response, i);
-		for(int j = 0; j < posicion_aux->cantidad; j++) {
-			t_posiciones* pos = malloc(sizeof(t_posiciones));
-			pos->posicionEjeX = posicion_aux->posicionEjeX;
-			pos->posicionEjeY = posicion_aux->posicionEjeY;
-
-			list_add(posiciones_list, pos);
-		}
+		t_envio_posicion* pos = malloc(sizeof(t_envio_posicion));
+		pos->posicionEjeX = posicion_aux->posicionEjeX;
+		pos->posicionEjeY = posicion_aux->posicionEjeY;
+		list_add(posiciones_list, pos);
 	}
 
 	localized_snd->cantidadPosiciones = list_size(posiciones_list);
@@ -252,33 +290,45 @@ void procesar_get_enviar_localized(void* arg)
 	int client_fd = connect_to_server(ipBroker, puertoBroker, NULL);
 	if (client_fd > 0)
 	{
-		serializarLocalized(localized_snd);
-		send_message(client_fd, LOCALIZED_POKEMON, NULL, 0);
+		void* contenido = serializarLocalized(localized_snd);
+		int tamanio_mensaje = sizeof(uint32_t)*4 + localized_snd->sizeNombre + 2*sizeof(uint32_t)*localized_snd->cantidadPosiciones;
+		send_message(client_fd, LOCALIZED_POKEMON, contenido, tamanio_mensaje);
 		log_info(logger, "El mensaje LOCALIZED fué enviado al BROKER");
+		free(contenido);
+
+		//Falta recepcion del ack del broker en un hilo aparte
+		t_message* message = recv_message(client_fd);
+		//no se hace nada con la recepcion del ACK
 	}
-	usleep(50000);
 	close(client_fd);
+	free(localized_snd);
+	free(localized_snd->nombrePokemon);
 }
 
 /*
  * Procesar mensaje Catch y Enviar mensaje Caught
  * */
-void procesar_catch_enviar_caught(void* arg) {
-	catch_pokemon_enviar* catch_rcv = (catch_pokemon*) arg;
+void procesar_catch_enviar_caught(catch_pokemon* arg, uint32_t idMensaje) {
+	catch_pokemon* catch_rcv = arg;
 	int response = catchAPokemon(catch_rcv);
 
 	caught_pokemon* caught_snd = malloc(sizeof(caught_pokemon));
-	caught_snd->idCorrelativo = catch_rcv->id_mensaje;
+	caught_snd->idCorrelativo = idMensaje;
 	caught_snd->pokemonAtrapado = response;
 
 	int client_fd = connect_to_server(ipBroker, puertoBroker, NULL);
 	if (client_fd > 0)
 	{
-		serializarCaught(caught_snd);
-		send_message(client_fd, CAUGHT_POKEMON, NULL, 0);
+		void* content = serializarCaught(caught_snd);
+		send_message(client_fd, CAUGHT_POKEMON, content, (2*sizeof(uint32_t)));
 		log_info(logger, "El mensaje CAUGHT fue enviado al BROKER");
+		free(content);
+
+		//falta la recepcion del ack en hilo aparte
+		t_message* message = recv_message(client_fd);
+		//no se hace nada con la recepcion del ACK
 	}
-	usleep(500000);
+	free(caught_snd);
 	close(client_fd);
 }
 

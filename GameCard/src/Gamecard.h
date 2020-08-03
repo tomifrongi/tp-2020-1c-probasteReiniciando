@@ -19,8 +19,8 @@
 #include <pthread.h>
 #include <sys/socket.h>
 
-#include "commons/config.h"
-#include "commons/log.h"
+#include <commons/config.h>
+#include <commons/log.h>
 #include <commons/collections/list.h>
 #include <commons/string.h>
 #include <commons/bitarray.h>
@@ -50,6 +50,7 @@ typedef struct {
 	uint32_t posicionEjeX;
 	uint32_t posicionEjeY;
 }t_posiciones;
+
 
 //CONEXIONES//
 int tiempoReintentoConexion;
@@ -81,9 +82,9 @@ void gm_init();
 void *handle_conexion_server(void *arg);
 void *recibir_msgs_gamecard(int fd, int send_to);
 void enviar_ack(void* arg);
-void procesar_new_enviar_appeared(void* arg);
-void procesar_get_enviar_localized(void* arg);
-void procesar_catch_enviar_caught(void* arg);
+void procesar_new_enviar_appeared(new_pokemon* arg, uint32_t idMensaje);
+void procesar_get_enviar_localized(get_pokemon* arg, uint32_t idMensaje);
+void procesar_catch_enviar_caught(catch_pokemon* arg, uint32_t idMensaje);
 void gm_exit();
 
 
