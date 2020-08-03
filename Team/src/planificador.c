@@ -22,7 +22,8 @@ void crear_hilos_entrenadores(t_team* team) {
 	}
 }
 //TODO CORREGIR planificar_entrenador
-void planificar_entrenador(t_team * team){
+void planificar_entrenador_aux(t_team * team){
+
 
 	t_list* posiciones_pokemon_mapa = buscar_especie_objetivo_en_mapa(team);
 
@@ -54,6 +55,38 @@ void planificar_entrenador(t_team * team){
 		list_destroy(posiciones_pokemon_mapa);
 		posiciones_pokemon_mapa = buscar_especie_objetivo_en_mapa(team);
 
+
+	}
+}
+
+void planificar_entrenador(t_team * team){
+
+
+	t_list* posiciones_pokemon_mapa = buscar_especie_objetivo_en_mapa(team);
+	while(!list_is_empty(team->entrenadores_desocupados) && !list_is_empty(team->mapa_pokemones) && posiciones_pokemon_mapa != NULL){
+		int size = list_size(team->entrenadores_desocupados);
+		int i = 0;
+		t_list* pares_entrenadores_mas_cercanos = list_create();
+		while(i<size){
+			t_entrenador* entrenador = list_get(team->entrenadores_desocupados,i);
+			t_pokemon* pokemon_mas_cercano = buscar_pokemon_mas_cercano(team->mapa_pokemones,entrenador);
+			t_distancia_pokemon_entrenador* distancia = malloc(sizeof(t_distancia_pokemon_entrenador));
+			distancia->pokemon = pokemon_mas_cercano;
+			distancia->entrenador = entrenador;
+			distancia->distancia = distancia_entrenador_pokemon(entrenador,pokemon_mas_cercano);
+			list_add(pares_entrenadores_mas_cercanos,distancia);
+			i++;
+		}
+		ordenar_t_distancia(pares_entrenadores_mas_cercanos);
+		t_distancia_pokemon_entrenador* mejor_distancia = list_remove(pares_entrenadores_mas_cercanos,0);
+		asignar_tarea_atrapar(mejor_distancia->entrenador,TEAM,mejor_distancia->pokemon,mutex_entrenadores_ready,semaforo_entrenadores_ready);
+		remover_entrenador(team->entrenadores_desocupados,mejor_distancia->entrenador);
+		remover_pokemon(team->mapa_pokemones,mejor_distancia->pokemon);
+		remover_especie_y_destruir(team->objetivo_pokemones_restantes,mejor_distancia->pokemon->especie);
+		borrar_t_distancia_pokemon_entrenador(pares_entrenadores_mas_cercanos);
+
+		list_destroy(posiciones_pokemon_mapa);
+		posiciones_pokemon_mapa = buscar_especie_objetivo_en_mapa(team);
 
 	}
 }
@@ -251,10 +284,22 @@ void* procesar_caught(void* t){
 					planificar_entrenador(TEAM);
 					pthread_mutex_unlock(mutex_planificar_entrenador);
 				}
-				else if(entrenador_cumplio_objetivos(entrenador)){
-					cambiar_estado(entrenador,EXIT);
-					entrenador->esta_en_entrada_salida =false;
+				else
+				{
+					if(entrenador_cumplio_objetivos(entrenador))
+					{
+						cambiar_estado(entrenador,EXIT);
+						entrenador->esta_en_entrada_salida =false;
+					}
+					else
+					{
+						cambiar_estado(entrenador,BLOCK);
+						entrenador->esta_en_entrada_salida =false;
+					}
+
+
 					//planificar_entrenador(TEAM);
+
 				}
 			}
 			else{
@@ -319,8 +364,12 @@ void* handler_entrenador(void* e){
 							planificar_entrenador(TEAM);
 							pthread_mutex_unlock(mutex_planificar_entrenador);
 						}
-						else if(entrenador_cumplio_objetivos(entrenador))
-							cambiar_estado(entrenador,EXIT);
+						else{
+							if(entrenador_cumplio_objetivos(entrenador))
+								cambiar_estado(entrenador,EXIT);
+							else
+								cambiar_estado(entrenador,BLOCK);
+						}
 					}
 					break;
 

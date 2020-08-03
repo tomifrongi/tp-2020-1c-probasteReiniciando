@@ -227,6 +227,16 @@ t_entrenador* buscar_entrenador_mas_cercano(t_list* entrenadores,t_pokemon* poke
 	return list_get(entrenadores,0);
 }
 
+t_pokemon* buscar_pokemon_mas_cercano(t_list* pokemones,t_entrenador* entrenador){
+	bool menor_distancia_p(void* p1,void* p2){
+		t_pokemon* pokemon1 = p1;
+		t_pokemon* pokemon2 = p2;
+		return distancia_entrenador_pokemon(entrenador,pokemon1) < distancia_entrenador_pokemon(entrenador,pokemon2);
+	}
+	list_sort(pokemones,menor_distancia_p);
+	return list_get(pokemones,0);
+}
+
 void asignar_tarea_atrapar(t_entrenador* entrenador,t_team* team,t_pokemon* pokemon,pthread_mutex_t* mutex,sem_t* semaforo_readys){
 
 	struct t_tarea* tarea = malloc(sizeof(struct t_tarea));

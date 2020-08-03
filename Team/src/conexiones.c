@@ -204,6 +204,7 @@ void* escuchar_mensajes_gameboy(void* administracion){
 				pthread_t team_cli_thread;
 				pthread_create(&team_cli_thread, NULL, handler_appeared,(void*) administracion_cliente);
 				pthread_detach(team_cli_thread);
+
 			} else {
 				log_error(log_team_oficial, "Error aceptando conexiones: %s", strerror(errno));
 			}

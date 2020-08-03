@@ -68,6 +68,7 @@ void actualizar_estimados(t_entrenador* ,int ,int);
 t_entrenador* buscar_entrenador_por_id_correlativo(t_list*,int);
 
 t_entrenador* buscar_entrenador_mas_cercano(t_list*,t_pokemon*);
+t_pokemon* buscar_pokemon_mas_cercano(t_list* ,t_entrenador* );
 
 void asignar_tarea_atrapar(t_entrenador* ,t_team* ,t_pokemon* ,pthread_mutex_t*,sem_t* );
 
