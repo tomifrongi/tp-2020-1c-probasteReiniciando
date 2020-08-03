@@ -38,8 +38,8 @@ typedef struct{
 	t_list* mapa_pokemones;
 	t_planificador planificador;
 	//contadores finales :break;
-	int cantidad_deadlocks_detectados;
-	int cantidad_deadlocks_solucionados;
+	int cantidad_cambios_de_contexto;
+	bool hubo_deadlocks;
 	bool conectado_al_broker;
 
 }t_team;

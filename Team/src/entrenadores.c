@@ -62,8 +62,10 @@ void ejecutar_ciclo_cpu(t_entrenador* entrenador){
 		case INTERCAMBIO:{
 			if(distancia_entrenador_entrenador(entrenador,entrenador->tarea->entrenador_intercambio) > 0)
 				mover_entrenador_una_posicion(entrenador,entrenador->tarea->entrenador_intercambio->posicion_x,entrenador->tarea->entrenador_intercambio->posicion_y);
-			else
+			else{
 				(entrenador->rafagas_intercambio_realizadas)++;
+				log_info(log_team_oficial,"EL ENTRENADOR %d EFECTUO UNA RAFAGA DE INTERCAMBIO",entrenador->id);
+			}
 		}
 	}
 	cambiar_estado(entrenador,READY);
@@ -225,7 +227,7 @@ t_entrenador* buscar_entrenador_mas_cercano(t_list* entrenadores,t_pokemon* poke
 	return list_get(entrenadores,0);
 }
 
-void asignar_tarea_atrapar(t_entrenador* entrenador,t_team* team,t_pokemon* pokemon,sem_t* semaforo_readys){
+void asignar_tarea_atrapar(t_entrenador* entrenador,t_team* team,t_pokemon* pokemon,pthread_mutex_t* mutex,sem_t* semaforo_readys){
 
 	struct t_tarea* tarea = malloc(sizeof(struct t_tarea));
 	tarea->pokemon = pokemon;
@@ -235,7 +237,8 @@ void asignar_tarea_atrapar(t_entrenador* entrenador,t_team* team,t_pokemon* poke
 	tarea->pokemon_a_pedir = NULL;
 	entrenador->tarea =tarea;
 	entrenador->estado = READY;
-	list_add(team->entrenadores_ready,entrenador);
+	agregar_entrenador_a_cola_ready_entrenador_h(entrenador,team,mutex,semaforo_readys);
+	log_info(log_team_oficial,"EL ENTRENADOR %d SE MOVIO A LA COLA DE CORTO PLAZO PARA PODER IR A CAPTURAR AL POKEMON: %s",entrenador->id,entrenador->tarea->pokemon->especie);
 	sem_post(semaforo_readys);
 }
 
@@ -281,7 +284,8 @@ t_list* obtener_objetivo_pokemones_restantes(t_list* entrenadores){
 
 
 
-void mostrar_entrenador(t_entrenador* entrenador){
+void mostrar_entrenador(void* e){
+	t_entrenador* entrenador = e;
 	log_info(log_team_oficial,"");//DESPUES BORRAAAAAAAAAAR AL FINAL
 	log_info(log_team_oficial,"ID: %d",entrenador->id);
 	log_info(log_team_oficial,"POSICION X: %d POSICION Y: %d",entrenador->posicion_x,entrenador->posicion_y);
@@ -332,3 +336,46 @@ void mostrar_entrenadores(t_list* entrenadores){
 	list_iterate(entrenadores,mostrar_entrenador);
 }
 
+void agregar_entrenador_a_cola_ready_entrenador_h(t_entrenador* entrenador,t_team* team,pthread_mutex_t* mutex,sem_t* semaforo){
+	cambiar_estado(entrenador,READY);
+	switch(team->planificador){
+	case FIFO:{
+		pthread_mutex_lock(mutex);
+		list_add(team->entrenadores_ready,entrenador);
+		pthread_mutex_unlock(mutex);
+		sem_post(semaforo);
+		break;
+		}
+
+	case RR:{
+		pthread_mutex_lock(mutex);
+		list_add(team->entrenadores_ready,entrenador);
+		pthread_mutex_unlock(mutex);
+		sem_post(semaforo);
+		break;
+		}
+
+	case SJF_CD:{
+		pthread_mutex_lock(mutex);
+		list_add(team->entrenadores_ready,entrenador);
+		ordenar_entrenadores_planificados_por_estimacion(team);
+		pthread_mutex_unlock(mutex);
+		sem_post(semaforo);
+		break;
+		}
+
+	case SJF_SD:{
+		pthread_mutex_lock(mutex);
+		list_add(team->entrenadores_ready,entrenador);
+		ordenar_entrenadores_planificados_por_estimacion(team);
+		pthread_mutex_unlock(mutex);
+		sem_post(semaforo);
+		break;
+		}
+
+	default:{
+		break;
+		}
+
+	}
+}

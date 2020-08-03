@@ -12,7 +12,8 @@
 #include "configuracion.h"
 #include "ProtocoloDeMensajes.h"
 #include "pokemones.h"
-
+#include <pthread.h>
+#include <semaphore.h>
 
 
 
@@ -25,7 +26,7 @@ t_entrenador *iniciar_entrenador(int , int , int , t_list*, t_list*);
 
 t_list * inicializar_entrenadores(t_team*);
 
-void mostrar_entrenador(t_entrenador*);
+void mostrar_entrenador(void*);
 
 void ejecutar_ciclo_cpu(t_entrenador*);
 
@@ -68,10 +69,12 @@ t_entrenador* buscar_entrenador_por_id_correlativo(t_list*,int);
 
 t_entrenador* buscar_entrenador_mas_cercano(t_list*,t_pokemon*);
 
-void asignar_tarea_atrapar(t_entrenador* ,t_team* ,t_pokemon* ,sem_t* );
+void asignar_tarea_atrapar(t_entrenador* ,t_team* ,t_pokemon* ,pthread_mutex_t*,sem_t* );
 
 void remover_entrenador(t_list*,t_entrenador*);
 
 t_list* obtener_objetivo_pokemones_restantes(t_list*);
+
+void agregar_entrenador_a_cola_ready_entrenador_h(t_entrenador* ,t_team* ,pthread_mutex_t* ,sem_t* );
 #endif /* ENTRENADORES_H_ */
 

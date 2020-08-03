@@ -78,8 +78,8 @@ t_list*listar_pokemones(char**array) { //el string p1|p2|p3 lo pone cada uno en 
 
 /*------------------------------------------------MUESTRA POR PANTALLA------------------------------------------------*/
 
-void mostrar_pokemon(t_pokemon*pokemon) { //closure
-
+void mostrar_pokemon(void*p) { //closure
+t_pokemon* pokemon = p;
 log_info(log_team_oficial,"NOMBRE: %s",pokemon->especie);
 log_info(log_team_oficial,"POSICION X: %d POSICION Y: %d",pokemon->posicion_x,pokemon->posicion_y);
 

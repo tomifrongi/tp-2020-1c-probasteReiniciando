@@ -21,7 +21,7 @@
 typedef struct{
 	t_pokemon* pokemon;
 	t_entrenador* entrenador;
-	int* distancia;
+	int distancia;
 }t_distancia_pokemon_entrenador;
 
 t_team* TEAM;
@@ -96,7 +96,7 @@ void agregar_entrenador_a_cola_ready(t_entrenador* ,t_team* );
 void planificar_team(t_team*);
 
 
-void borrar_int_t_distancia_pokemon_entrenador(t_list* distancias);
+void borrar_t_distancia_pokemon_entrenador(t_list* distancias);
 void ordenar_t_distancia(t_list* distancias);
 
 

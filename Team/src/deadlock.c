@@ -22,7 +22,7 @@ bool detectar_deadlock(t_team* team){
 	//return list_any_satisfy(team->entrenadores,esta_bloqueado);
 }
 
-void resolver_deadlock(t_team* team,sem_t*semaforo_cola_ready){
+void resolver_deadlock(t_team* team,pthread_mutex_t* mutex,sem_t*semaforo_cola_ready){
 	bool esta_bloqueado_y_no_esta_esperando_un_intercambio(void* e){
 		t_entrenador* entrenador = e;
 		return (entrenador->estado == BLOCK) && (!(entrenador->esperando_intercambio));
@@ -35,7 +35,7 @@ void resolver_deadlock(t_team* team,sem_t*semaforo_cola_ready){
 		t_entrenador* entrenador2 = buscar_mejor_entrenador_para_intercambio(entrenadores_bloqueados,entrenador1);
 		if(entrenador2 != NULL){
 			remover_entrenador(entrenadores_bloqueados,entrenador2);
-			asignar_mejor_tarea_intercambio(entrenador1,entrenador2,team,semaforo_cola_ready);
+			asignar_mejor_tarea_intercambio(entrenador1,entrenador2,team,mutex,semaforo_cola_ready);
 			i = 0;
 			continue;
 		}
@@ -50,7 +50,7 @@ void resolver_deadlock(t_team* team,sem_t*semaforo_cola_ready){
 		if(entrenador4 != NULL){
 			remover_entrenador(entrenadores_bloqueados,entrenador3);
 			remover_entrenador(entrenadores_bloqueados,entrenador4);
-			asignar_tarea_intercambio(entrenador3,entrenador4,team,semaforo_cola_ready);
+			asignar_tarea_intercambio(entrenador3,entrenador4,team,mutex,semaforo_cola_ready);
 			i = 0;
 			continue;
 		}
@@ -129,7 +129,7 @@ t_entrenador* buscar_entrenador_para_intercambio(t_list* entrenadores,t_entrenad
 	return NULL;
 }
 
-void asignar_tarea_intercambio(t_entrenador* entrenador1, t_entrenador* entrenador2,t_team* team,sem_t*semaforo_cola_ready){
+void asignar_tarea_intercambio(t_entrenador* entrenador1, t_entrenador* entrenador2,t_team* team,pthread_mutex_t* mutex,sem_t*semaforo_cola_ready){
 	int i,j = 0;
 	struct t_tarea* tarea = malloc(sizeof(struct t_tarea));
 	tarea->tipo_tarea = INTERCAMBIO;
@@ -157,12 +157,14 @@ void asignar_tarea_intercambio(t_entrenador* entrenador1, t_entrenador* entrenad
 	list_destroy(pokemones_faltantes_entrenador1);
 	list_destroy(pokemones_sobrantes_entrenador2);
 	entrenador1->estado = READY;
-	list_add(team->entrenadores_ready,entrenador1);
+	agregar_entrenador_a_cola_ready_deadlock_h(entrenador1,team,mutex,semaforo_cola_ready);
+	log_info(log_team_oficial,"EL ENTRENADOR %d SE MOVIO A LA COLA DE CORTO PLAZO PARA PODER IR A INTERCAMBIAR UN POKEMON CON EL ENTRENADOR %d",entrenador2->id);
+
 	sem_post(semaforo_cola_ready);
 
 }
 
-void asignar_mejor_tarea_intercambio(t_entrenador* entrenador1, t_entrenador* entrenador2,t_team* team,sem_t*semaforo_cola_ready){
+void asignar_mejor_tarea_intercambio(t_entrenador* entrenador1, t_entrenador* entrenador2,t_team* team,pthread_mutex_t* mutex,sem_t*semaforo_cola_ready){
 	int i,j = 0;
 	struct t_tarea* tarea = malloc(sizeof(struct t_tarea));
 	tarea->tipo_tarea = INTERCAMBIO;
@@ -214,7 +216,8 @@ void asignar_mejor_tarea_intercambio(t_entrenador* entrenador1, t_entrenador* en
 	list_destroy(pokemones_sobrantes_entrenador1);
 
 	entrenador1->estado = READY;
-	list_add(team->entrenadores_ready,entrenador1);
+	agregar_entrenador_a_cola_ready_deadlock_h(entrenador1,team,mutex,semaforo_cola_ready);
+	log_info(log_team_oficial,"EL ENTRENADOR %d SE MOVIO A LA COLA DE CORTO PLAZO PARA PODER IR A INTERCAMBIAR UN POKEMON CON EL ENTRENADOR %d",entrenador2->id);
 	sem_post(semaforo_cola_ready);
 
 }
@@ -234,7 +237,49 @@ void realizar_intercambio(t_entrenador* entrenador1,t_entrenador* entrenador2){
 
 
 
+void agregar_entrenador_a_cola_ready_deadlock_h(t_entrenador* entrenador,t_team* team,pthread_mutex_t* mutex,sem_t* semaforo){
+	cambiar_estado(entrenador,READY);
+	switch(team->planificador){
+	case FIFO:{
+		pthread_mutex_lock(mutex);
+		list_add(team->entrenadores_ready,entrenador);
+		pthread_mutex_unlock(mutex);
+		sem_post(semaforo);
+		break;
+		}
 
+	case RR:{
+		pthread_mutex_lock(mutex);
+		list_add(team->entrenadores_ready,entrenador);
+		pthread_mutex_unlock(mutex);
+		sem_post(semaforo);
+		break;
+		}
+
+	case SJF_CD:{
+		pthread_mutex_lock(mutex);
+		list_add(team->entrenadores_ready,entrenador);
+		ordenar_entrenadores_planificados_por_estimacion(team);
+		pthread_mutex_unlock(mutex);
+		sem_post(semaforo);
+		break;
+		}
+
+	case SJF_SD:{
+		pthread_mutex_lock(mutex);
+		list_add(team->entrenadores_ready,entrenador);
+		ordenar_entrenadores_planificados_por_estimacion(team);
+		pthread_mutex_unlock(mutex);
+		sem_post(semaforo);
+		break;
+		}
+
+	default:{
+		break;
+		}
+
+	}
+}
 
 
 

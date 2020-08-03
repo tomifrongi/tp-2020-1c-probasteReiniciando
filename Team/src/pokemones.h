@@ -34,7 +34,7 @@ int team_cantidad_maxima_especie(t_team*, char*);
 int team_cantidad_total_especie(t_team*, char*);
 bool team_puede_capturar(t_team*team, t_pokemon*);
 
-void mostrar_pokemon(t_pokemon*);
+void mostrar_pokemon(void*);
 
 int pokemon_util_a_entrenador(t_entrenador* , t_pokemon *);
 
