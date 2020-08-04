@@ -23,7 +23,7 @@ int largo_array(char**array) {
 
 t_config * leer_config() {//saco el parametro team
 
-	t_config * config = config_create("./src/a.config"); //TODO CAMBIAR DE CARPETA EL CONFIG
+	t_config * config = config_create("./Debug/Team.config"); //TODO CAMBIAR DE CARPETA EL CONFIG
 														//TODO CAMBIAR EL LOG DE CARPETA
 	if (config == NULL) {
 		printf("no se pudo leer el archivo de configuracion \n");
@@ -70,7 +70,7 @@ void cargar_configuracion(){
 	RETARDO_CICLO_CPU = config_get_int_value(config_team, "RETARDO_CICLO_CPU");
 	ALGORITMO_PLANIFICACION = config_get_string_value(config_team,"ALGORITMO_PLANIFICACION");
 	QUANTUM = config_get_int_value(config_team, "QUANTUM");
-	ALPHA = config_get_int_value(config_team, "ALPHA");
+	ALPHA = config_get_double_value(config_team, "ALPHA");
 	IP_BROKER = config_get_string_value(config_team,"IP_BROKER");
 	ESTIMACION_INICIAL = config_get_int_value(config_team, "ESTIMACION_INICIAL");
 	PUERTO_BROKER = config_get_int_value(config_team, "PUERTO_BROKER");

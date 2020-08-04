@@ -89,13 +89,17 @@ void entrenador_bloquear(t_entrenador *entrenador) { //para mas claridad
 }
 bool entrenador_cumplio_objetivos(t_entrenador *entrenador) {
 
-	t_list* faltantes =list_duplicate(entrenador->pokemones_capturados);
-	t_list* buscados = list_duplicate(entrenador->pokemones_buscados);
-	intersect_listas_pokemones(faltantes,buscados);
-	bool flag = (list_size(faltantes) == 0);
-	list_destroy(faltantes);
-	list_destroy(buscados);
-	return flag;
+	t_list* pokemones_faltantes = list_create();
+	list_add_all(pokemones_faltantes,entrenador->pokemones_buscados);
+	t_list* pokemones_capturados_aux = list_create();
+	list_add_all(pokemones_capturados_aux,entrenador->pokemones_capturados);
+
+	pokemones_faltantes= intersect_listas_pokemones(pokemones_faltantes,pokemones_capturados_aux);
+	list_destroy(pokemones_capturados_aux);
+	int size = list_size(pokemones_faltantes);
+	list_destroy(pokemones_faltantes);
+	return (size == 0);
+
 }
 int entrenador_finalizar(t_entrenador *entrenador) {
 	if (entrenador_cumplio_objetivos(entrenador)) {
@@ -212,8 +216,9 @@ void actualizar_estimados(t_entrenador* entrenador,int real_rafaga_anterior,int 
 	entrenador->estimado_rafaga_anterior = estimado_rafaga_anterior;
 
 	//Est(n+1) = 𝝰 R(n) + ( 1 - 𝝰 ) Est(n)
-	int estimado = ALPHA*real_rafaga_anterior + (1-ALPHA) * estimado_rafaga_anterior;
+	double estimado = ALPHA*real_rafaga_anterior + (1-ALPHA) * estimado_rafaga_anterior;
 	entrenador->estimado_rafaga_proxima = estimado;
+	log_info(log_team_oficial,"SE ACTUALIZO EL ESTIMADO DEL ENTRENADOR %d A %f",entrenador->id,entrenador->estimado_rafaga_proxima);
 }
 
 t_entrenador* buscar_entrenador_por_id_correlativo(t_list* entrenadores,int id_correlativo){

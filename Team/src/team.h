@@ -70,8 +70,8 @@ typedef struct{
 	t_state estado;
 	struct t_tarea* tarea;
 	sem_t* semaforo;
-	int estimado_rafaga_anterior;
-	int estimado_rafaga_proxima;
+	double estimado_rafaga_anterior;
+	double estimado_rafaga_proxima;
 	int real_rafaga_anterior;
 
 	bool esta_en_entrada_salida;

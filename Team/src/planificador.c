@@ -57,7 +57,7 @@ void planificar_entrenador(t_team * team){
 		list_destroy(posiciones_pokemon_mapa);
 
 }
-//TODO LEAK EN buscar_especie_objetivo_en_mapa
+
 
 void borrar_t_distancia_pokemon_entrenador(t_list* distancias){
 	void eliminar_int(void* d){
@@ -339,6 +339,7 @@ void* handler_entrenador(void* e){
 						if(entrenador_puede_capturar(entrenador)){
 							pthread_mutex_lock(mutex_planificar_entrenador);
 							list_add(TEAM->entrenadores_desocupados,entrenador);
+							entrenador->estado = BLOCK;
 							planificar_entrenador(TEAM);
 							pthread_mutex_unlock(mutex_planificar_entrenador);
 						}
@@ -474,13 +475,15 @@ bool sem_post_algoritmo(t_entrenador* entrenador,t_list* entrenadores_planificad
 		pthread_mutex_unlock(mutex_entrenadores_ready);
 		cambiar_estado(entrenador,EXEC);
 		while(i<=rafagas_necesarias){
+			int longitud_lista_actualizada = list_size(entrenadores_planificados);
+			int rafagas_necesarias_restantes = calcular_rafagas_necesarias(entrenador);
 			sem_post(entrenador->semaforo);
 			sem_wait(semaforo_termino_rafaga_cpu);
 			pthread_mutex_lock(mutex_entrenadores_ready);
-			int longitud_lista_actualizada = list_size(entrenadores_planificados);
+			//int longitud_lista_actualizada = list_size(entrenadores_planificados);
 			pthread_mutex_unlock(mutex_entrenadores_ready);
-			int rafagas_necesarias_restantes = calcular_rafagas_necesarias(entrenador);
-			if((longitud_lista_actualizada != longitud_lista_actual) && rafagas_necesarias_restantes > 0){
+
+			if((longitud_lista_actualizada != longitud_lista_actual) && rafagas_necesarias_restantes > 1){
 				actualizar_estimados(entrenador,i,entrenador->estimado_rafaga_proxima);
 				cambiar_estado(entrenador,READY);
 				return false;
