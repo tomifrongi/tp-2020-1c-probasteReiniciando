@@ -253,6 +253,7 @@ void procesar_new_enviar_appeared(new_pokemon* arg, uint32_t idMensaje)
 
 		//Falta recepcion del ack del broker en un hilo aparte
 		t_message* message = recv_message(client_fd);
+		free(message);
 		//no se hace nada con la recepcion del ACK
 	}
 	free(appeared_snd);
@@ -298,6 +299,7 @@ void procesar_get_enviar_localized(get_pokemon* arg, uint32_t idMensaje)
 
 		//Falta recepcion del ack del broker en un hilo aparte
 		t_message* message = recv_message(client_fd);
+		free(message);
 		//no se hace nada con la recepcion del ACK
 	}
 	close(client_fd);
@@ -326,6 +328,7 @@ void procesar_catch_enviar_caught(catch_pokemon* arg, uint32_t idMensaje) {
 
 		//falta la recepcion del ack en hilo aparte
 		t_message* message = recv_message(client_fd);
+		free(message);
 		//no se hace nada con la recepcion del ACK
 	}
 	free(caught_snd);
