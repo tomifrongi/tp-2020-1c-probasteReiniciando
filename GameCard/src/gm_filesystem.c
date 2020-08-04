@@ -821,7 +821,7 @@ t_list* string_blocks_list(char* blocks)
 {
 	t_list* retList = list_create();
 	// Solo esta usando un bloque
-	if (strlen(blocks) <= 3)
+	if (strlen(blocks) == 3)
 	{
 		char* blockStrWithoutBraces = string_substring(blocks, 1, 1);
 		list_add(retList, (void*)atoi(blockStrWithoutBraces));
