@@ -429,11 +429,10 @@ int enviar_catch(char* especie,int posicion_x,int posicion_y,t_list* idsCatchh,p
 		pthread_mutex_lock(mutex_idsCatchh);
 		send_message(socket_catch, CATCH_POKEMON,content, sizeof(uint32_t)*3 + mensaje.sizeNombre);
 		free(content);
-
 		t_message* mensajeConfirmacionID =recv_message(socket_catch);
 		uint32_t idConf;
 		memcpy(&idConf,mensajeConfirmacionID->content,sizeof(uint32_t));
-
+		log_info(log_team_oficial,"ID CATCH: %d",idConf);
 		int* id_lista = malloc(sizeof(int));
 		*id_lista = idConf;
 		id = *id_lista;
