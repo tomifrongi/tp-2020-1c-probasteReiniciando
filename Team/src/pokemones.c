@@ -8,7 +8,8 @@ t_list* intersect_listas_pokemones(t_list*list1, t_list*list2)
 	while(i < list_size(list1)) {
 		t_pokemon*poke_busc = list_get(list1, i);
 
-		for (int j = 0; j < list_size(list2); j++) {
+		int j = 0;
+		while (j < list_size(list2)){
 			t_pokemon*poke_cap = list_get(list2, j);
 			if (strcmp(poke_busc->especie,poke_cap->especie)==0 ){
 				list_remove(list1, i);
@@ -16,7 +17,9 @@ t_list* intersect_listas_pokemones(t_list*list1, t_list*list2)
 				i = -1;
 				break;
 			}
+			j++;
 		}
+
 		i++;
 	}
 	return list1;
@@ -83,10 +86,15 @@ t_list*listar_pokemones(char**array) { //el string p1|p2|p3 lo pone cada uno en 
 /*------------------------------------------------MUESTRA POR PANTALLA------------------------------------------------*/
 
 void mostrar_pokemon(void*p) { //closure
-t_pokemon* pokemon = p;
-log_info(log_team_oficial,"NOMBRE: %s",pokemon->especie);
-log_info(log_team_oficial,"POSICION X: %d POSICION Y: %d",pokemon->posicion_x,pokemon->posicion_y);
-
+	t_pokemon* pokemon = p;
+	if(pokemon != NULL){
+		log_info(log_team_oficial,"NOMBRE: %s",pokemon->especie);
+		log_info(log_team_oficial,"POSICION X: %d POSICION Y: %d",pokemon->posicion_x,pokemon->posicion_y);
+	}
+	else
+	{
+		log_info(log_team_oficial,"EL POKEMON ES NUL");
+	}
 }
 void mostrar_pokemones(t_list*pokemones) {
 

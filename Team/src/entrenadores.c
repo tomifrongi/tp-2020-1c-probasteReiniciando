@@ -187,7 +187,7 @@ int calcular_rafagas_necesarias(t_entrenador* entrenador){
 	}
 
 	case INTERCAMBIO:{
-		return distancia_entrenador_pokemon(entrenador,entrenador->tarea->pokemon) + 5 - entrenador->rafagas_intercambio_realizadas;
+		return distancia_entrenador_entrenador(entrenador,entrenador->tarea->entrenador_intercambio) + 5 - entrenador->rafagas_intercambio_realizadas;
 	}
 	default:
 		return 0;
@@ -247,9 +247,8 @@ void asignar_tarea_atrapar(t_entrenador* entrenador,t_team* team,t_pokemon* poke
 	tarea->pokemon_a_pedir = NULL;
 	entrenador->tarea =tarea;
 	entrenador->estado = READY;
-	agregar_entrenador_a_cola_ready_entrenador_h(entrenador,team,mutex,semaforo_readys);
 	log_info(log_team_oficial,"EL ENTRENADOR %d SE MOVIO A LA COLA DE CORTO PLAZO PARA PODER IR A CAPTURAR AL POKEMON: %s",entrenador->id,entrenador->tarea->pokemon->especie);
-	sem_post(semaforo_readys);
+	agregar_entrenador_a_cola_ready_entrenador_h(entrenador,team,mutex,semaforo_readys);
 }
 
 void remover_entrenador(t_list* entrenadores,t_entrenador* entrenador){

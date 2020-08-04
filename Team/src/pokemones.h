@@ -30,6 +30,7 @@ int cantidad_pokemones_especie(t_list* , char*);
 t_list* pokemones_misma_especie(t_list*, char*);
 
 t_list*listar_pokemones(char**);
+void mostrar_pokemones(t_list*) ;
 int team_cantidad_maxima_especie(t_team*, char*);
 int team_cantidad_total_especie(t_team*, char*);
 bool team_puede_capturar(t_team*team, t_pokemon*);

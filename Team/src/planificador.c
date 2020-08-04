@@ -379,25 +379,30 @@ void* handler_entrenador(void* e){
 
 				case INTERCAMBIO:{
 					realizar_intercambio(entrenador,entrenador->tarea->entrenador_intercambio);
+					t_entrenador* entrenador_intercambio = entrenador->tarea->entrenador_intercambio;
 					log_info(log_team_oficial,"EL ENTRENADOR %d INTERCAMBIO SU POKEMON %s POR EL POKEMON %s AL ENTRENADOR %d",entrenador->id,entrenador->tarea->pokemon_a_otorgar->especie,entrenador->tarea->pokemon_a_pedir->especie,entrenador->tarea->entrenador_intercambio->id);
-					if(entrenador_cumplio_objetivos(entrenador->tarea->entrenador_intercambio))
+					if(entrenador_cumplio_objetivos(entrenador)){
+						entrenador->esperando_intercambio = false;
 						cambiar_estado(entrenador->tarea->entrenador_intercambio,EXIT);
+						free(entrenador->tarea);
+					}
 					else{
 						cambiar_estado(entrenador->tarea->entrenador_intercambio,BLOCK);
+						entrenador->esperando_intercambio = false;
 						log_info(log_team_oficial,"SE MOVIO AL ENTRENADOR %d A LA COLA DE LARGO PLAZO Y SE LO BLOQUEO A LA ESPERA DE UN INTERCAMBIO",entrenador->id);
-						resolver_deadlock(TEAM,mutex_entrenadores_ready,semaforo_entrenadores_ready);
+						free(entrenador->tarea);
 					}
 
-					if(entrenador_cumplio_objetivos(entrenador)){
-						free(entrenador->tarea);
-						cambiar_estado(entrenador,EXIT);
+					if(entrenador_cumplio_objetivos(entrenador_intercambio)){
+						cambiar_estado(entrenador_intercambio,EXIT);
 					}
 					else{
-						cambiar_estado(entrenador,BLOCK);
-						log_info(log_team_oficial,"SE MOVIO AL ENTRENADOR %d A LA COLA DE LARGO PLAZO Y SE LO BLOQUEO A LA ESPERA DE UN INTERCAMBIO",entrenador->id);
-						free(entrenador->tarea);
-						resolver_deadlock(TEAM,mutex_entrenadores_ready,semaforo_entrenadores_ready);
+						cambiar_estado(entrenador_intercambio,BLOCK);
+						log_info(log_team_oficial,"SE MOVIO AL ENTRENADOR %d A LA COLA DE LARGO PLAZO Y SE LO BLOQUEO A LA ESPERA DE UN INTERCAMBIO",entrenador_intercambio->id);
 					}
+
+					if(!entrenador_cumplio_objetivos(entrenador) || !entrenador_cumplio_objetivos(entrenador_intercambio) )
+						resolver_deadlock(TEAM,mutex_entrenadores_ready,semaforo_entrenadores_ready);
 
 
 					break;
@@ -414,6 +419,7 @@ void* handler_entrenador(void* e){
 
 }
 
+//TODO REVISAR PROCESAR_CAUGHT LA PARTE DE INTERCAMBIO
 //------------------------------------------------------------------
 
 //RESUMEN SEMAFOROS-------------
@@ -744,6 +750,8 @@ void planificar_team(t_team*team) {
 		log_info(log_team_oficial,"Ocurrieron deadlocks y fueron resueltos");
 	else
 		log_info(log_team_oficial,"No ocurrieron deadlocks");
+
+	mostrar_entrenadores(team->entrenadores);
 
 }
 
