@@ -77,6 +77,12 @@ t_list*listar_pokemones(char**array) { //el string p1|p2|p3 lo pone cada uno en 
 		strcpy(pokemon->especie,pokemones[i]);
 		list_add(lista, pokemon);
 	}
+	int contador = 0;
+	while(pokemones[contador] != NULL){
+		free(pokemones[contador]);
+		contador++;
+	}
+	free(pokemones);
 	return lista;
 }
 

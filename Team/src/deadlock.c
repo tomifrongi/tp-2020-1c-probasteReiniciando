@@ -37,11 +37,12 @@ void resolver_deadlock(t_team* team,pthread_mutex_t* mutex,sem_t*semaforo_cola_r
 		if(entrenador2 != NULL){
 			remover_entrenador(entrenadores_bloqueados,entrenador2);
 			asignar_mejor_tarea_intercambio(entrenador1,entrenador2,team,mutex,semaforo_cola_ready);
-			i = 0;
-			continue;
+			i = -1;
+
 		}
 		i++;
 	}
+	list_destroy(entrenadores_bloqueados);
 
 	entrenadores_bloqueados = list_filter(team->entrenadores,esta_bloqueado_y_no_esta_esperando_un_intercambio);
 	i = 0;
@@ -52,11 +53,13 @@ void resolver_deadlock(t_team* team,pthread_mutex_t* mutex,sem_t*semaforo_cola_r
 			remover_entrenador(entrenadores_bloqueados,entrenador3);
 			remover_entrenador(entrenadores_bloqueados,entrenador4);
 			asignar_tarea_intercambio(entrenador3,entrenador4,team,mutex,semaforo_cola_ready);
-			i = 0;
-			continue;
+			i = -1;
+
 		}
 		i++;
 	}
+	list_destroy(entrenadores_bloqueados);
+
 }
 
 t_entrenador* buscar_mejor_entrenador_para_intercambio(t_list* entrenadores,t_entrenador* entrenador){
@@ -121,6 +124,8 @@ bool quiere_algo_de(t_entrenador* entrenador1,t_entrenador* entrenador2){
 		}
 		i++;
 	}
+	list_destroy(pokemones_faltantes_entrenador1);
+	list_destroy(pokemones_sobrantes_entrenador2);
 	return false;
 }
 
@@ -147,21 +152,27 @@ void asignar_tarea_intercambio(t_entrenador* entrenador1, t_entrenador* entrenad
 	tarea->entrenador_intercambio = entrenador2;
 	t_list* pokemones_faltantes_entrenador1 = obtener_pokemones_faltantes(entrenador1);
 	t_list* pokemones_sobrantes_entrenador2 = obtener_pokemones_sobrantes(entrenador2);
+	t_list* pokemones_sobrantes_entrenador1 = obtener_pokemones_sobrantes(entrenador1);
 
 	int size_i = list_size(pokemones_faltantes_entrenador1);
 	int size_j = list_size(pokemones_sobrantes_entrenador2);
-
+	int flag_i = false;
 	while(i<size_i){
 		t_pokemon* pokemon_i = list_get(pokemones_faltantes_entrenador1,i);
 		while(j<size_j){
 			t_pokemon* pokemon_j = list_get(pokemones_sobrantes_entrenador2,j);
-			if(strcmp(pokemon_i->especie,pokemon_j->especie)==0)
+			if(strcmp(pokemon_i->especie,pokemon_j->especie)==0){
 				tarea->pokemon_a_pedir = pokemon_j;
+				flag_i = true;
+				break;
+			}
 			j++;
 		}
+		if(flag_i)
+			break;
 		i++;
 	}
-	t_list* pokemones_sobrantes_entrenador1 = obtener_pokemones_sobrantes(entrenador1);
+
 	tarea->pokemon_a_otorgar = list_get(pokemones_sobrantes_entrenador1,0);
 	list_destroy(pokemones_sobrantes_entrenador1);
 	list_destroy(pokemones_faltantes_entrenador1);

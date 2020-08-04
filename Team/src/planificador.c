@@ -21,43 +21,7 @@ void crear_hilos_entrenadores(t_team* team) {
 		i++;
 	}
 }
-//TODO CORREGIR planificar_entrenador
-void planificar_entrenador_aux(t_team * team){
 
-
-	t_list* posiciones_pokemon_mapa = buscar_especie_objetivo_en_mapa(team);
-
-	while(!list_is_empty(team->entrenadores_desocupados) && !list_is_empty(team->mapa_pokemones) && posiciones_pokemon_mapa != NULL){
-
-		int j = 0;
-		t_list* pares_entrenadores_mas_cercanos = list_create();
-		int size_posiciones_pokemon_mapa = list_size(posiciones_pokemon_mapa);
-		while(j<size_posiciones_pokemon_mapa){
-			t_pokemon* pokemon = list_get(posiciones_pokemon_mapa,j);
-			t_entrenador* entrenador_mas_cercano = buscar_entrenador_mas_cercano(team->entrenadores_desocupados,pokemon);
-			t_distancia_pokemon_entrenador* distancia = malloc(sizeof(t_distancia_pokemon_entrenador));
-			distancia->pokemon = pokemon;
-			distancia->entrenador = entrenador_mas_cercano;
-			distancia->distancia = distancia_entrenador_pokemon(entrenador_mas_cercano,pokemon);
-			list_add(pares_entrenadores_mas_cercanos,distancia);
-			j++;
-		}
-
-
-		ordenar_t_distancia(pares_entrenadores_mas_cercanos);
-		t_distancia_pokemon_entrenador* mejor_distancia = list_remove(pares_entrenadores_mas_cercanos,0);
-		asignar_tarea_atrapar(mejor_distancia->entrenador,TEAM,mejor_distancia->pokemon,mutex_entrenadores_ready,semaforo_entrenadores_ready);
-		remover_entrenador(team->entrenadores_desocupados,mejor_distancia->entrenador);
-		remover_pokemon(team->mapa_pokemones,mejor_distancia->pokemon);
-		remover_especie_y_destruir(team->objetivo_pokemones_restantes,mejor_distancia->pokemon->especie);
-		borrar_t_distancia_pokemon_entrenador(pares_entrenadores_mas_cercanos);
-
-		list_destroy(posiciones_pokemon_mapa);
-		posiciones_pokemon_mapa = buscar_especie_objetivo_en_mapa(team);
-
-
-	}
-}
 
 void planificar_entrenador(t_team * team){
 
@@ -84,12 +48,16 @@ void planificar_entrenador(t_team * team){
 		remover_pokemon(team->mapa_pokemones,mejor_distancia->pokemon);
 		remover_especie_y_destruir(team->objetivo_pokemones_restantes,mejor_distancia->pokemon->especie);
 		borrar_t_distancia_pokemon_entrenador(pares_entrenadores_mas_cercanos);
-		//TODO free(mejor_distancia);?
+		free(mejor_distancia);
 		list_destroy(posiciones_pokemon_mapa);
 		posiciones_pokemon_mapa = buscar_especie_objetivo_en_mapa(team);
 
 	}
+	if(posiciones_pokemon_mapa != NULL)
+		list_destroy(posiciones_pokemon_mapa);
+
 }
+//TODO LEAK EN buscar_especie_objetivo_en_mapa
 
 void borrar_t_distancia_pokemon_entrenador(t_list* distancias){
 	void eliminar_int(void* d){
@@ -278,6 +246,8 @@ void* procesar_caught(void* t){
 				log_info(log_team_oficial,"EL ENTRENADOR %d ATRAPO AL POKEMON %s EN LA POSICION (%d,%d)",entrenador->id,entrenador->tarea->pokemon->especie,entrenador->posicion_x,entrenador->posicion_y);
 				entrenador->esta_en_entrada_salida =false;
 				entrenador->id_correlativo_esperado = -1;
+				free(entrenador->tarea);
+				entrenador->tarea = NULL;
 				if(entrenador_puede_capturar(entrenador)){
 					pthread_mutex_lock(mutex_planificar_entrenador);
 					list_add(TEAM->entrenadores_desocupados,entrenador);
@@ -290,9 +260,13 @@ void* procesar_caught(void* t){
 					{
 						cambiar_estado(entrenador,EXIT);
 						entrenador->esta_en_entrada_salida =false;
+						free(entrenador->tarea);
+						entrenador->tarea = NULL;
 					}
 					else
 					{
+						free(entrenador->tarea);
+						entrenador->tarea = NULL;
 						cambiar_estado(entrenador,BLOCK);
 						entrenador->esta_en_entrada_salida =false;
 					}
@@ -310,6 +284,8 @@ void* procesar_caught(void* t){
 				char* especie = malloc(longitud_especie+1);
 				strcpy(especie,entrenador->tarea->pokemon->especie);
 				borrar_t_pokemon(entrenador->tarea->pokemon);
+				free(entrenador->tarea);
+				entrenador->tarea = NULL;
 				pthread_mutex_lock(mutex_planificar_entrenador);
 				list_add(TEAM->entrenadores_desocupados,entrenador);
 				list_add(TEAM->objetivo_pokemones_restantes,especie);
@@ -317,7 +293,6 @@ void* procesar_caught(void* t){
 				pthread_mutex_unlock(mutex_planificar_entrenador);
 			}
 			free(id);
-			free(entrenador->tarea);
 
 		}
 		borrar_caught_pokemon(mensaje);
@@ -359,6 +334,7 @@ void* handler_entrenador(void* e){
 						log_info(log_team_oficial,"EL ENTRENADOR %d ATRAPO AL POKEMON %s EN LA POSICION (%d,%d)",entrenador->id,entrenador->tarea->pokemon->especie,entrenador->posicion_x,entrenador->posicion_y);
 						entrenador->esta_en_entrada_salida =false;
 						free(entrenador->tarea);
+						entrenador->tarea = NULL;
 						//entrenador->estado
 						if(entrenador_puede_capturar(entrenador)){
 							pthread_mutex_lock(mutex_planificar_entrenador);
@@ -373,6 +349,7 @@ void* handler_entrenador(void* e){
 								cambiar_estado(entrenador,BLOCK);
 						}
 					}
+					sem_post(semaforo_termino_rafaga_cpu);
 					break;
 
 				}
@@ -383,32 +360,36 @@ void* handler_entrenador(void* e){
 					log_info(log_team_oficial,"EL ENTRENADOR %d INTERCAMBIO SU POKEMON %s POR EL POKEMON %s AL ENTRENADOR %d",entrenador->id,entrenador->tarea->pokemon_a_otorgar->especie,entrenador->tarea->pokemon_a_pedir->especie,entrenador->tarea->entrenador_intercambio->id);
 					if(entrenador_cumplio_objetivos(entrenador)){
 						entrenador->esperando_intercambio = false;
-						cambiar_estado(entrenador->tarea->entrenador_intercambio,EXIT);
+						cambiar_estado(entrenador,EXIT);
 						free(entrenador->tarea);
+						entrenador->tarea = NULL;
 					}
 					else{
-						cambiar_estado(entrenador->tarea->entrenador_intercambio,BLOCK);
+						cambiar_estado(entrenador,BLOCK);
 						entrenador->esperando_intercambio = false;
 						log_info(log_team_oficial,"SE MOVIO AL ENTRENADOR %d A LA COLA DE LARGO PLAZO Y SE LO BLOQUEO A LA ESPERA DE UN INTERCAMBIO",entrenador->id);
 						free(entrenador->tarea);
+						entrenador->tarea = NULL;
 					}
 
 					if(entrenador_cumplio_objetivos(entrenador_intercambio)){
 						cambiar_estado(entrenador_intercambio,EXIT);
+						entrenador_intercambio->esperando_intercambio = false;
 					}
 					else{
 						cambiar_estado(entrenador_intercambio,BLOCK);
+						entrenador_intercambio->esperando_intercambio = false;
 						log_info(log_team_oficial,"SE MOVIO AL ENTRENADOR %d A LA COLA DE LARGO PLAZO Y SE LO BLOQUEO A LA ESPERA DE UN INTERCAMBIO",entrenador_intercambio->id);
 					}
 
 					if(!entrenador_cumplio_objetivos(entrenador) || !entrenador_cumplio_objetivos(entrenador_intercambio) )
 						resolver_deadlock(TEAM,mutex_entrenadores_ready,semaforo_entrenadores_ready);
 
-
+					sem_post(semaforo_termino_rafaga_cpu);
 					break;
 				}
 			}
-			sem_post(semaforo_termino_rafaga_cpu);
+
 		}
 		else{
 			sleep(RETARDO_CICLO_CPU);
@@ -419,7 +400,7 @@ void* handler_entrenador(void* e){
 
 }
 
-//TODO REVISAR PROCESAR_CAUGHT LA PARTE DE INTERCAMBIO
+
 //------------------------------------------------------------------
 
 //RESUMEN SEMAFOROS-------------
@@ -623,6 +604,46 @@ void iniciar_estructuras_administrativas(){
 
 }
 
+void borrar_estructuras_administrativas(){
+	queue_destroy(cola_localized);
+	free(semaforo_contador_localized);
+	free(mutex_cola_localized);
+
+	queue_destroy(cola_appeared);
+	free(semaforo_contador_appeared);
+	free(mutex_cola_appeared);
+
+	queue_destroy(cola_caught);
+
+
+	free(semaforo_contador_caught);
+
+	free(mutex_cola_caught);
+
+	free(mutex_idsGet);
+
+	list_destroy(idsGet);
+
+	free(mutex_idsCatch);
+
+	list_destroy(idsCatch);
+
+	free(mutex_entrenadores_ready);
+
+	free(semaforo_entrenadores_ready);
+
+	list_destroy(especiesRecibidas);
+
+
+	free(mutex_especiesRecibidas);
+
+	free(semaforo_termino_rafaga_cpu);
+
+	free(mutex_planificar_entrenador);
+
+
+}
+
 //----------------------------------------------------------GUION/funcion principal:
 
 
@@ -752,6 +773,17 @@ void planificar_team(t_team*team) {
 		log_info(log_team_oficial,"No ocurrieron deadlocks");
 
 	mostrar_entrenadores(team->entrenadores);
+
+	free(appeared_thread);
+	free(localized_thread);
+	free(caught_thread);
+	free(appeared_gameboy_thread);
+	free(consumidor_cola_localized);
+	free(consumidor_cola_appeared);
+	free(consumidor_cola_caught);
+
+	//borrar_estructuras_administrativas();
+
 
 }
 

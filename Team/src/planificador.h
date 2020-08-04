@@ -101,7 +101,7 @@ void ordenar_t_distancia(t_list* distancias);
 
 
 
-
+void borrar_estructuras_administrativas();
 
 /*
 

@@ -242,8 +242,9 @@ void* handler_appeared(void* administracion){
 			flag = true;
 			break;
 		}
-		free_t_message(message);
+
 	}
+		free_t_message(message);
 		if(flag)
 			break;
 
@@ -373,30 +374,30 @@ void enviar_gets(t_list* objetivo_pokemones_restantes,t_list* idsGett,pthread_mu
 	while(i<size){
 		int socket_get = connect_to_server(IP_BROKER, PUERTO_BROKER, NULL);
 		if(socket_get != -errno){
-		char* especie = list_get(objetivos_pokemones_restantes_sin_repetidos,i);
-		get_pokemon mensaje;
-		mensaje.sizeNombre = strlen(especie)+1;
-		mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
-		strcpy(mensaje.nombrePokemon,especie);
-		void* content = serializarGet(mensaje);
-		free(mensaje.nombrePokemon);
+			char* especie = list_get(objetivos_pokemones_restantes_sin_repetidos,i);
+			get_pokemon mensaje;
+			mensaje.sizeNombre = strlen(especie)+1;
+			mensaje.nombrePokemon = malloc(mensaje.sizeNombre);
+			strcpy(mensaje.nombrePokemon,especie);
+			void* content = serializarGet(mensaje);
+			free(mensaje.nombrePokemon);
 
-		pthread_mutex_lock(mutex_idsGett);
-		send_message(socket_get, GET_POKEMON,content, sizeof(uint32_t)+mensaje.sizeNombre);
-		free(content);
+			pthread_mutex_lock(mutex_idsGett);
+			send_message(socket_get, GET_POKEMON,content, sizeof(uint32_t)+mensaje.sizeNombre);
+			free(content);
 
-		t_message* mensajeConfirmacionID =recv_message(socket_get);
-		uint32_t idConf;
-		memcpy(&idConf,mensajeConfirmacionID->content,sizeof(uint32_t));
+			t_message* mensajeConfirmacionID =recv_message(socket_get);
+			uint32_t idConf;
+			memcpy(&idConf,mensajeConfirmacionID->content,sizeof(uint32_t));
 
 
-		int* id_lista = malloc(sizeof(int));
-		*id_lista = idConf;
+			int* id_lista = malloc(sizeof(int));
+			*id_lista = idConf;
 
-		list_add(idsGett,id_lista);
-		pthread_mutex_unlock(mutex_idsGett);
-		free_t_message(mensajeConfirmacionID);
-		shutdown(socket_get,SHUT_RDWR);
+			list_add(idsGett,id_lista);
+			pthread_mutex_unlock(mutex_idsGett);
+			free_t_message(mensajeConfirmacionID);
+			shutdown(socket_get,SHUT_RDWR);
 		}
 		else{
 			log_info(log_team_oficial,"ERROR AL ENVIAR MENSAJE GET");

@@ -38,6 +38,12 @@ t_list * inicializar_entrenadores(t_team *team) {
 		posicion = leer_posicion(team, i); // coordenadas posicion, ejemplo  [1,2]
 		posicion_x = atoi(posicion[0]);
 		posicion_y = atoi(posicion[1]);
+		int contador = 0;
+		while(posicion[contador] != NULL){
+			free(posicion[contador]);
+			contador++;
+		}
+		free(posicion);
 		t_list* pokemones_capturados = get_pokemones(team, i, 0);
 		t_list* pokemones_objetivo = get_pokemones(team, i, 1);
 		t_entrenador *entrenador = iniciar_entrenador(id, posicion_x, posicion_y,pokemones_capturados , pokemones_objetivo); //el estado lo hago sin pasar parametro por ahora
@@ -180,18 +186,22 @@ void mover_entrenador(t_entrenador*entrenador, int pos_dest_x, int pos_dest_y) {
 }
 
 int calcular_rafagas_necesarias(t_entrenador* entrenador){
-	switch(entrenador->tarea->tipo_tarea){
+	if(entrenador->tarea != NULL){
+		switch(entrenador->tarea->tipo_tarea){
 
-	case ATRAPAR: {
-		return distancia_entrenador_pokemon(entrenador,entrenador->tarea->pokemon);
-	}
+		case ATRAPAR: {
+			return distancia_entrenador_pokemon(entrenador,entrenador->tarea->pokemon);
+		}
 
-	case INTERCAMBIO:{
-		return distancia_entrenador_entrenador(entrenador,entrenador->tarea->entrenador_intercambio) + 5 - entrenador->rafagas_intercambio_realizadas;
+		case INTERCAMBIO:{
+			return distancia_entrenador_entrenador(entrenador,entrenador->tarea->entrenador_intercambio) + 5 - entrenador->rafagas_intercambio_realizadas;
+		}
+		default:
+			return 0;
+		}
 	}
-	default:
+	else
 		return 0;
-	}
 }
 
 

@@ -23,8 +23,8 @@ int largo_array(char**array) {
 
 t_config * leer_config() {//saco el parametro team
 
-	t_config * config = config_create("./src/a.config");
-
+	t_config * config = config_create("./src/a.config"); //TODO CAMBIAR DE CARPETA EL CONFIG
+														//TODO CAMBIAR EL LOG DE CARPETA
 	if (config == NULL) {
 		printf("no se pudo leer el archivo de configuracion \n");
 		exit(1);
