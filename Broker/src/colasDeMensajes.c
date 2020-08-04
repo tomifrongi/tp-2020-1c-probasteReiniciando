@@ -118,6 +118,11 @@ void iniciarMutexs(){
 	mutexSuscriptoresCatch= malloc(sizeof(pthread_mutex_t));
 	mutexSuscriptoresCaught= malloc(sizeof(pthread_mutex_t));
 
+
+	mutexIDsCorrelativosAppeared = malloc(sizeof(pthread_mutex_t));
+	mutexIDsCorrelativosLocalized = malloc(sizeof(pthread_mutex_t));
+	mutexIDsCorrelativosCaught = malloc(sizeof(pthread_mutex_t));
+
 	pthread_mutex_init(mutexId,NULL);
 	pthread_mutex_init(mutexMemoria,NULL);
 
@@ -134,5 +139,9 @@ void iniciarMutexs(){
 	pthread_mutex_init(mutexSuscriptoresLocalized,NULL);
 	pthread_mutex_init(mutexSuscriptoresCatch,NULL);
 	pthread_mutex_init(mutexSuscriptoresCaught,NULL);
+
+	pthread_mutex_init(mutexIDsCorrelativosAppeared,NULL);
+	pthread_mutex_init(mutexIDsCorrelativosLocalized,NULL);
+	pthread_mutex_init(mutexIDsCorrelativosCaught,NULL);
 
 }

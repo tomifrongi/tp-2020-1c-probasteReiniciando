@@ -132,15 +132,12 @@ void* handler_clients(void* socket){
 					{
 						pthread_mutex_lock(mutexMemoria);
 						particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
-						pthread_mutex_lock(mutexQueueNew);
+						pthread_mutex_lock(mutexSuscriptoresNew);
 						suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
-//						suscriptor subAux;
-//						subAux.idSuscriptor = sub->idSuscriptor;
-//						subAux.socket = sub->socket;
-//						suscriptor* subAuxCreado = crearSuscriptor(subAux);
 						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-						pthread_mutex_unlock(mutexQueueNew);
 						pthread_mutex_unlock(mutexMemoria);
+						pthread_mutex_unlock(mutexSuscriptoresNew);
+
 
 					}
 
@@ -148,15 +145,16 @@ void* handler_clients(void* socket){
 					{
 						pthread_mutex_lock(mutexMemoria);
 						particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
-						pthread_mutex_lock(mutexQueueNew);
+						pthread_mutex_lock(mutexSuscriptoresNew);
 						suscriptor* sub = list_find(new_admin->suscriptores,mismoSocket);
 						suscriptor subAux;
 						subAux.idSuscriptor = sub->idSuscriptor;
 						subAux.socket = sub->socket;
 						suscriptor* subAuxCreado = crearSuscriptor(subAux);
 						list_add(particionMenEnv->suscriptoresMensajeEnviado,subAuxCreado);
-						pthread_mutex_unlock(mutexQueueNew);
 						pthread_mutex_unlock(mutexMemoria);
+						pthread_mutex_unlock(mutexSuscriptoresNew);
+
 					}
 
 					indice++;
@@ -199,13 +197,19 @@ void* handler_clients(void* socket){
 
 
 				//TODO podriamos cambiar este mutex de aca
-				pthread_mutex_lock(mutexQueueAppeared);
-				if(buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo)==NULL){
+				pthread_mutex_lock(mutexIDsCorrelativosAppeared);
+				uint32_t* busqueda_id_c = buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo);
+				pthread_mutex_unlock(mutexIDsCorrelativosAppeared);
 
+				if(busqueda_id_c==NULL){
 
 					uint32_t* idCorrelativoLista = malloc(sizeof(uint32_t));
 					*idCorrelativoLista = mensaje.idCorrelativo;
+
+					pthread_mutex_lock(mutexIDsCorrelativosAppeared);
 					list_add(idsCorrelativosAppeared,idCorrelativoLista);
+					pthread_mutex_unlock(mutexIDsCorrelativosAppeared);
+
 					if(string_equals_ignore_case(ALGORITMO_MEMORIA,"PARTICIONES"))
 					{
 						pthread_mutex_lock(mutexMemoria);
@@ -274,7 +278,7 @@ void* handler_clients(void* socket){
 					}
 
 				}
-				pthread_mutex_unlock(mutexQueueAppeared);
+				free(busqueda_id_c);
 
 
 
@@ -1668,7 +1672,11 @@ void* buscarIdCorrelativo(t_list* lista,uint32_t idCorrelativo){
 	bool compararMensajesPorId(int* idLista){
 		return *idLista == idCorrelativo;
 	}
-	return list_find(lista,(void*) compararMensajesPorId);
+
+	uint32_t* elemento_buscado = (uint32_t*) list_find(lista,(void*) compararMensajesPorId);
+	uint32_t* elemento_buscado_creado = malloc(sizeof(uint32_t));
+	*elemento_buscado_creado = *elemento_buscado;
+	return elemento_buscado_creado;
 }
 
 //Será requerimiento del motor de administración de memoria que éste pueda depositar en un archivo

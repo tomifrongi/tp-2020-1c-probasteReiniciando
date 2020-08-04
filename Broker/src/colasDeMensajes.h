@@ -49,7 +49,9 @@ pthread_mutex_t* mutexSuscriptoresLocalized;
 pthread_mutex_t* mutexSuscriptoresCatch;
 pthread_mutex_t* mutexSuscriptoresCaught;
 
-
+pthread_mutex_t* mutexIDsCorrelativosAppeared;
+pthread_mutex_t* mutexIDsCorrelativosLocalized;
+pthread_mutex_t* mutexIDsCorrelativosCaught;
 
 //------------
 
