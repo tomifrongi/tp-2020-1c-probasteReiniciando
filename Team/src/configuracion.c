@@ -21,10 +21,9 @@ int largo_array(char**array) {
 
 
 
-t_config * leer_config() {//saco el parametro team
+t_config * leer_config(char* path_config) {//saco el parametro team
 
-	t_config * config = config_create("./Debug/Team.config"); //TODO CAMBIAR DE CARPETA EL CONFIG
-														//TODO CAMBIAR EL LOG DE CARPETA
+	t_config * config = config_create(path_config);
 	if (config == NULL) {
 		printf("no se pudo leer el archivo de configuracion \n");
 		exit(1);
@@ -58,9 +57,9 @@ int cantidad_entrenadores(t_team*team) {
 	return largo_array(POSICIONES_ENTRENADORES);
 }
 
-void cargar_configuracion(){
+void cargar_configuracion(char* path_config){
 
-	config_team = leer_config();
+	config_team = leer_config(path_config);
 
 	POSICIONES_ENTRENADORES = config_get_array_value(config_team,"POSICIONES_ENTRENADORES");
 	POKEMON_ENTRENADORES = config_get_array_value(config_team,"POKEMON_ENTRENADORES");

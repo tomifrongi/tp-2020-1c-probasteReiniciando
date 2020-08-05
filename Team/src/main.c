@@ -1,8 +1,13 @@
 #include "main.h"
 
-int main(){
-	cargar_configuracion();
+int main(int argc, char *argv[]){
+	int size = strlen(argv[1]);
+	char* path_config = malloc(size+1);
+	strcpy(path_config,argv[1]);
+
+	cargar_configuracion(path_config);
 	inicializar_logger();
+	free(path_config);
 	t_team* team = malloc(sizeof(t_team));
 
 	team->cantidad_cambios_de_contexto = 0;

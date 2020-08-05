@@ -46,9 +46,9 @@ t_log* log_team_auxiliar; //Aca van toodos los logs que necesiten que no sean ob
 
 //FUNCIONES----------------------
 
-void cargar_configuracion();
+void cargar_configuracion(char* path_config);
 void inicializar_logger();
-t_config * leer_config();
+t_config * leer_config(char* path_config);
 void separa_valores(char*string_valores, t_list * ptr_valores) ;
 t_list*array_to_list(char**array);
 int largo_array(char**array);
