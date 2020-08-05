@@ -262,7 +262,7 @@ void asignar_tarea_atrapar(t_entrenador* entrenador,t_team* team,t_pokemon* poke
 	tarea->pokemon_a_pedir = NULL;
 	entrenador->tarea =tarea;
 	entrenador->estado = READY;
-	log_info(log_team_oficial,"EL ENTRENADOR %d SE MOVIO A LA COLA DE CORTO PLAZO PARA PODER IR A CAPTURAR AL POKEMON: %s",entrenador->id,entrenador->tarea->pokemon->especie);
+	log_info(log_team_oficial,"SE MOVIO AL ENTRENADOR %d A LA COLA DE CORTO PLAZO PARA PODER IR A CAPTURAR AL POKEMON: %s",entrenador->id,entrenador->tarea->pokemon->especie);
 	agregar_entrenador_a_cola_ready_entrenador_h(entrenador,team,mutex,semaforo_readys);
 }
 

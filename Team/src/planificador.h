@@ -55,7 +55,6 @@ sem_t* semaforo_termino_rafaga_cpu;
 pthread_mutex_t* mutex_planificar_entrenador;
 
 
-
 #ifndef SRC_PLANIFICADOR_H_
 #define SRC_PLANIFICADOR_H_
 
@@ -100,7 +99,7 @@ void borrar_t_distancia_pokemon_entrenador(t_list* distancias);
 void ordenar_t_distancia(t_list* distancias);
 
 
-
+void iniciar_estructuras_administrativas();
 void borrar_estructuras_administrativas();
 
 /*

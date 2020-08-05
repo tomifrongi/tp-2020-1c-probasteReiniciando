@@ -260,15 +260,17 @@ void* procesar_caught(void* t){
 					{
 						cambiar_estado(entrenador,EXIT);
 						entrenador->esta_en_entrada_salida =false;
-						free(entrenador->tarea);
 						entrenador->tarea = NULL;
+						if(!algunos_pueden_atrapar(team))
+							sem_post(semaforo_entrenadores_ready);
 					}
 					else
 					{
-						free(entrenador->tarea);
 						entrenador->tarea = NULL;
 						cambiar_estado(entrenador,BLOCK);
 						entrenador->esta_en_entrada_salida =false;
+						if(!algunos_pueden_atrapar(team))
+							sem_post(semaforo_entrenadores_ready); //si la lista esta vacia va a preguntar si pueden seguir atrapando los entrenadores
 					}
 
 
@@ -361,6 +363,7 @@ void* handler_entrenador(void* e){
 					log_info(log_team_oficial,"EL ENTRENADOR %d INTERCAMBIO SU POKEMON %s POR EL POKEMON %s AL ENTRENADOR %d",entrenador->id,entrenador->tarea->pokemon_a_otorgar->especie,entrenador->tarea->pokemon_a_pedir->especie,entrenador->tarea->entrenador_intercambio->id);
 					if(entrenador_cumplio_objetivos(entrenador)){
 						entrenador->esperando_intercambio = false;
+						entrenador->rafagas_intercambio_realizadas = 0;
 						cambiar_estado(entrenador,EXIT);
 						free(entrenador->tarea);
 						entrenador->tarea = NULL;
@@ -368,6 +371,7 @@ void* handler_entrenador(void* e){
 					else{
 						cambiar_estado(entrenador,BLOCK);
 						entrenador->esperando_intercambio = false;
+						entrenador->rafagas_intercambio_realizadas = 0;
 						log_info(log_team_oficial,"SE MOVIO AL ENTRENADOR %d A LA COLA DE LARGO PLAZO Y SE LO BLOQUEO A LA ESPERA DE UN INTERCAMBIO",entrenador->id);
 						free(entrenador->tarea);
 						entrenador->tarea = NULL;
@@ -376,17 +380,19 @@ void* handler_entrenador(void* e){
 					if(entrenador_cumplio_objetivos(entrenador_intercambio)){
 						cambiar_estado(entrenador_intercambio,EXIT);
 						entrenador_intercambio->esperando_intercambio = false;
+						entrenador_intercambio->rafagas_intercambio_realizadas = 0;
 					}
 					else{
 						cambiar_estado(entrenador_intercambio,BLOCK);
 						entrenador_intercambio->esperando_intercambio = false;
+						entrenador_intercambio->rafagas_intercambio_realizadas = 0;
 						log_info(log_team_oficial,"SE MOVIO AL ENTRENADOR %d A LA COLA DE LARGO PLAZO Y SE LO BLOQUEO A LA ESPERA DE UN INTERCAMBIO",entrenador_intercambio->id);
 					}
-
+					sem_post(semaforo_termino_rafaga_cpu);
 					if(!entrenador_cumplio_objetivos(entrenador) || !entrenador_cumplio_objetivos(entrenador_intercambio) )
 						resolver_deadlock(TEAM,mutex_entrenadores_ready,semaforo_entrenadores_ready);
 
-					sem_post(semaforo_termino_rafaga_cpu);
+					//sem_post(semaforo_termino_rafaga_cpu);
 					break;
 				}
 			}
@@ -718,37 +724,51 @@ void planificar_team(t_team*team) {
 	while (algunos_pueden_atrapar(team))
 	{
 		sem_wait(semaforo_entrenadores_ready);
-
 		pthread_mutex_lock(mutex_entrenadores_ready);
-		t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
+		int size_entrenadores_ready = list_size(team->entrenadores_ready);
 		pthread_mutex_unlock(mutex_entrenadores_ready);
+		if(size_entrenadores_ready>0)
+		{
+			pthread_mutex_lock(mutex_entrenadores_ready);
+			t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
+			pthread_mutex_unlock(mutex_entrenadores_ready);
 
-		if(ultimo_entrenador_en_ejecutar != entrenador)
-			TEAM->cantidad_cambios_de_contexto+=1;
-		ultimo_entrenador_en_ejecutar = entrenador;
+			if(ultimo_entrenador_en_ejecutar != entrenador)
+				TEAM->cantidad_cambios_de_contexto+=1;
+			ultimo_entrenador_en_ejecutar = entrenador;
 
-		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
-			agregar_entrenador_a_cola_ready(entrenador,team);
+			if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
+				agregar_entrenador_a_cola_ready(entrenador,team);
+		}
 	}
-
 	mostrar_entrenadores(team->entrenadores);
+
+	log_info(log_team_oficial,"VALOR SEMAFORO ENTRENADORES READY: %d",semaforo_entrenadores_ready->__align);
 
 	if(detectar_deadlock(TEAM))
 		resolver_deadlock(TEAM,mutex_entrenadores_ready,semaforo_entrenadores_ready);
 
 	while (!team_cumplio_objetivo_global(team))
 	{
+
 		sem_wait(semaforo_entrenadores_ready);
 		pthread_mutex_lock(mutex_entrenadores_ready);
-		t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
+		int size_entrenadores_ready = list_size(team->entrenadores_ready);
 		pthread_mutex_unlock(mutex_entrenadores_ready);
+		if(size_entrenadores_ready>0){
 
-		if(ultimo_entrenador_en_ejecutar != entrenador)
-			TEAM->cantidad_cambios_de_contexto+=1;
-		ultimo_entrenador_en_ejecutar = entrenador;
+			pthread_mutex_lock(mutex_entrenadores_ready);
+			t_entrenador* entrenador = list_remove(team->entrenadores_ready,0);
+			pthread_mutex_unlock(mutex_entrenadores_ready);
 
-		if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
-			agregar_entrenador_a_cola_ready(entrenador,team);
+			if(ultimo_entrenador_en_ejecutar != entrenador)
+				TEAM->cantidad_cambios_de_contexto+=1;
+			ultimo_entrenador_en_ejecutar = entrenador;
+
+			if(!sem_post_algoritmo(entrenador,team->entrenadores_ready))
+				agregar_entrenador_a_cola_ready(entrenador,team);
+		}
+
 	}
 
 	//finalizar todos los hilos

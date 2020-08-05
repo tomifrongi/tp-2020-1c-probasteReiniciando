@@ -426,18 +426,13 @@ int enviar_catch(char* especie,int posicion_x,int posicion_y,t_list* idsCatchh,p
 
 	int socket_catch = connect_to_server(IP_BROKER, PUERTO_BROKER, NULL);
 	if(socket_catch != -errno){
-		pthread_mutex_lock(mutex_idsCatchh);
 		send_message(socket_catch, CATCH_POKEMON,content, sizeof(uint32_t)*3 + mensaje.sizeNombre);
 		free(content);
 		t_message* mensajeConfirmacionID =recv_message(socket_catch);
 		uint32_t idConf;
 		memcpy(&idConf,mensajeConfirmacionID->content,sizeof(uint32_t));
 		log_info(log_team_oficial,"ID CATCH: %d",idConf);
-		int* id_lista = malloc(sizeof(int));
-		*id_lista = idConf;
-		id = *id_lista;
-		list_add(idsCatchh,id_lista);
-		pthread_mutex_unlock(mutex_idsCatchh);
+		id = idConf;
 		free_t_message(mensajeConfirmacionID);
 		shutdown(socket_catch,SHUT_RDWR);
 	}

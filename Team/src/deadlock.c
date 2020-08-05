@@ -79,26 +79,45 @@ bool hay_ciclo(t_entrenador* entrenador1,t_entrenador* entrenador2){
 	return quiere_algo_de(entrenador1,entrenador2) && quiere_algo_de(entrenador2,entrenador1);
 }
 
-t_list* obtener_pokemones_faltantes(t_entrenador* entrenador){
-	t_list* pokemones_faltantes = list_create();
-	list_add_all(pokemones_faltantes,entrenador->pokemones_buscados);
-	t_list* pokemones_capturados_aux = list_create();
-	list_add_all(pokemones_capturados_aux,entrenador->pokemones_capturados);
+bool list_contains(t_list* pokemones,t_pokemon* pokemon){
+	bool misma_especie_p(void* p){
+		t_pokemon* pok = p;
+		return(strcmp(pok->especie,pokemon->especie)==0);
+	}
+	t_pokemon* pokemon_encontrado = list_find(pokemones,misma_especie_p);
+	return (pokemon_encontrado != NULL);
+}
 
-	pokemones_faltantes= intersect_listas_pokemones(pokemones_faltantes,pokemones_capturados_aux);
-	list_destroy(pokemones_capturados_aux);
-	return pokemones_faltantes;
+void remover_pokemon_por_nombre(t_list* pokemones,t_pokemon* pokemon){
+	bool misma_especie_p(void* p){
+			t_pokemon* pok = p;
+			return(strcmp(pok->especie,pokemon->especie)==0);
+		}
+	list_remove_by_condition(pokemones,misma_especie_p);
+}
+
+t_list* obtener_pokemones_faltantes(t_entrenador* entrenador){
+    t_list* faltantes = list_duplicate(entrenador->pokemones_buscados);
+    int i = 0;
+    int size = list_size(entrenador->pokemones_capturados);
+    while(i<size){
+    if(list_contains(faltantes,list_get(entrenador->pokemones_capturados,i)))
+    	remover_pokemon_por_nombre(faltantes,list_get(entrenador->pokemones_capturados,i));
+    i++;
+    }
+    return faltantes;
 }
 
 t_list* obtener_pokemones_sobrantes(t_entrenador* entrenador){
-	t_list* pokemones_sobrantes = list_create();
-	list_add_all(pokemones_sobrantes,entrenador->pokemones_capturados);
-	t_list* pokemones_objetivos_aux = list_create();
-	list_add_all(pokemones_objetivos_aux,entrenador->pokemones_buscados);
-
-	pokemones_sobrantes = intersect_listas_pokemones(pokemones_sobrantes,pokemones_objetivos_aux);
-	list_destroy(pokemones_objetivos_aux);
-	return pokemones_sobrantes;
+    t_list* sobrantes = list_duplicate(entrenador->pokemones_capturados);
+    int i = 0;
+    int size = list_size(entrenador->pokemones_buscados);
+    while(i<size){
+    if(list_contains(sobrantes,list_get(entrenador->pokemones_buscados,i)))
+    	remover_pokemon_por_nombre(sobrantes,list_get(entrenador->pokemones_buscados,i));
+    i++;
+    }
+    return sobrantes;
 }
 
 bool quiere_algo_de(t_entrenador* entrenador1,t_entrenador* entrenador2){
@@ -180,7 +199,7 @@ void asignar_tarea_intercambio(t_entrenador* entrenador1, t_entrenador* entrenad
 
 	entrenador1->tarea = tarea;
 	entrenador1->estado = READY;
-	log_info(log_team_oficial,"EL ENTRENADOR %d SE MOVIO A LA COLA DE CORTO PLAZO PARA PODER IR A INTERCAMBIAR UN POKEMON CON EL ENTRENADOR %d",entrenador1->id,entrenador2->id);
+	log_info(log_team_oficial,"SE MOVIO AL ENTRENADOR %d A LA COLA DE CORTO PLAZO PARA PODER IR A INTERCAMBIAR UN POKEMON CON EL ENTRENADOR %d",entrenador1->id,entrenador2->id);
 	agregar_entrenador_a_cola_ready_deadlock_h(entrenador1,team,mutex,semaforo_cola_ready);
 }
 
@@ -249,7 +268,7 @@ void asignar_mejor_tarea_intercambio(t_entrenador* entrenador1, t_entrenador* en
 
 	entrenador1->tarea = tarea;
 	entrenador1->estado = READY;
-	log_info(log_team_oficial,"EL ENTRENADOR %d SE MOVIO A LA COLA DE CORTO PLAZO PARA PODER IR A INTERCAMBIAR UN POKEMON CON EL ENTRENADOR %d",entrenador1->id,entrenador2->id);
+	log_info(log_team_oficial,"SE MOVIO AL ENTRENADOR %d A LA COLA DE CORTO PLAZO PARA PODER IR A INTERCAMBIAR UN POKEMON CON EL ENTRENADOR %d",entrenador1->id,entrenador2->id);
 	agregar_entrenador_a_cola_ready_deadlock_h(entrenador1,team,mutex,semaforo_cola_ready);
 
 }
