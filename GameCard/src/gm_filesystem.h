@@ -25,7 +25,8 @@
 #include <commons/collections/dictionary.h>
 
 #include "ProtocoloDeMensajes.h"
-#include "Gamecard.h"
+#include "funcionesEnvio.h"
+//#include "Gamecard.h"
 
 /*
  * Estructuras
@@ -119,14 +120,14 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath);
 pokemon_open_tad* new_pokemon_open_tad();
 
 int es_char(char* str, char chr);
-int split_path(char* path, char** super_path, char** name);
+int split_path(const char* path, char** super_path, char** name);
 int _mkpath(char* file_path, mode_t mode);
 char* obtener_path_nro_bloque(int numeroDeBloque);
 t_pokemon_metadata leer_metadata_pokemon(char* pokemonPath);
 
 int blocks_ocupados(char* value); /*cuantos bloques ocupa*/
 int obtener_blocks(int tamanio); /*calcualar bloques*/
-blockLine* crear_block_line(int intPosX, int intPosY, int intCantidad);
+t_blockLine* crear_block_line(int intPosX, int intPosY, int intCantidad);
 char* block_lines_string(t_list* pokemonLines);
 t_list* string_blocks_list(char* blocks);
 blockLine* estructura_block_line(char* blockline);

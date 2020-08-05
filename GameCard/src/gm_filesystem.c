@@ -300,7 +300,7 @@ void createNewPokemon(new_pokemon* newPokemon)
 		{
 		  
 		  t_list* pokemonLines = list_create();
-		  blockLine* newNode = crear_block_line(newPokemon->posicionEjeX, newPokemon->posicionEjeY, newPokemon->cantidad);
+		  t_blockLine* newNode = crear_block_line(newPokemon->posicionEjeX, newPokemon->posicionEjeY, newPokemon->cantidad);
 		  list_add(pokemonLines, (void*) newNode);
 
 		  char* stringToWrite = block_lines_string(pokemonLines);
@@ -626,7 +626,7 @@ int es_char(char* str, char chr)
 	return 0;
 }
 
-int split_path(char* path, char** super_path, char** name)
+int split_path(const char* path, char** super_path, char** name)
 {
 	int aux;
 	strcpy(*super_path, path);
@@ -886,9 +886,9 @@ char* formatear_block_lines(int intPosX, int intPosY, int intCantidad)
 	return pokemonPerPosition;
 }
 
-blockLine* crear_block_line(int intPosX, int intPosY, int intCantidad)
+t_blockLine* crear_block_line(int intPosX, int intPosY, int intCantidad)
 {
-	blockLine* newLineBlock = malloc(sizeof(blockLine));
+	t_blockLine* newLineBlock = malloc(sizeof(blockLine));
 	newLineBlock->posX = intPosX;
 	newLineBlock->posY = intPosY;
 	newLineBlock->cantidad = intCantidad;

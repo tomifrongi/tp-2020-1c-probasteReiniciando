@@ -1205,3 +1205,562 @@
 [INFO] 01:04:39:967 GameCard/(19025:19067): POSICION EJE X: 1
 [INFO] 01:04:39:968 GameCard/(19025:19067): POSICION EJE Y: 9
 [INFO] 01:04:39:969 GameCard/(19025:19067): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 16:12:18:881 GameCard/(11133:11133): Creada carpeta Metadata/
+[INFO] 16:12:18:885 GameCard/(11133:11133): Creada carpeta Files/
+[INFO] 16:12:18:885 GameCard/(11133:11133): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 16:12:18:887 GameCard/(11133:11133): Creada carpeta Bloques/
+[INFO] 16:12:18:887 GameCard/(11133:11133): Creando Metadata.bin por primera vez...
+[INFO] 16:12:18:888 GameCard/(11133:11133): Leyendo Metadata.bin ...
+[INFO] 16:12:18:888 GameCard/(11133:11133): Creando el Bitmap.bin por primera vez...
+[INFO] 16:12:18:888 GameCard/(11133:11133): Leyendo Bitmap.bin ...
+[INFO] 16:12:18:892 GameCard/(11133:11133): Creando bloques en el path /Bloques
+[INFO] 16:12:18:947 GameCard/(11133:11133): Servidor levantado! Escuchando en 5011
+[INFO] 16:13:53:539 GameCard/(11206:11206): Creada carpeta Metadata/
+[INFO] 16:13:53:615 GameCard/(11206:11206): Creada carpeta Files/
+[INFO] 16:13:53:624 GameCard/(11206:11206): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 16:13:53:628 GameCard/(11206:11206): Creada carpeta Bloques/
+[INFO] 16:13:53:638 GameCard/(11206:11206): Creando Metadata.bin por primera vez...
+[INFO] 16:13:53:687 GameCard/(11206:11206): Leyendo Metadata.bin ...
+[INFO] 16:13:53:698 GameCard/(11206:11206): Creando el Bitmap.bin por primera vez...
+[INFO] 16:13:53:703 GameCard/(11206:11206): Leyendo Bitmap.bin ...
+[INFO] 16:13:53:751 GameCard/(11206:11206): Creando bloques en el path /Bloques
+[INFO] 16:13:53:987 GameCard/(11206:11206): Servidor levantado! Escuchando en 5011
+[INFO] 16:14:52:432 GameCard/(11206:11206): NUEVA CONEXIÓN
+[INFO] 16:14:52:455 GameCard/(11206:11341): ID MENSAJE: 9
+[INFO] 16:14:52:459 GameCard/(11206:11341): NOMBRE POKEMON: Pikachu
+[INFO] 16:14:52:462 GameCard/(11206:11341): CANTIDAD: 10
+[INFO] 16:14:52:464 GameCard/(11206:11341): POSICION EJE X: 2
+[INFO] 16:14:52:466 GameCard/(11206:11341): POSICION EJE Y: 5
+[INFO] 16:14:52:472 GameCard/(11206:11341): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 16:14:52:495 GameCard/(11206:11341): Se procede a setear el bloque 0 como Ocupado..
+[INFO] 16:14:52:516 GameCard/(11206:11341): Operacion NEW_POKEMON Pikachu, Coordenada: (2, 5, 10) terminada correctamente
+[INFO] 16:15:52:795 GameCard/(11206:11206): NUEVA CONEXIÓN
+[INFO] 16:15:52:805 GameCard/(11206:11206): NUEVA CONEXIÓN
+[INFO] 16:15:52:808 GameCard/(11206:11356): ID MENSAJE: 1
+[INFO] 16:15:52:812 GameCard/(11206:11356): NOMBRE POKEMON: Pikachu
+[INFO] 16:15:52:816 GameCard/(11206:11356): CANTIDAD: 3
+[INFO] 16:15:52:817 GameCard/(11206:11206): NUEVA CONEXIÓN
+[INFO] 16:15:52:821 GameCard/(11206:11356): POSICION EJE X: 1
+[INFO] 16:15:52:813 GameCard/(11206:11358): ID MENSAJE: 2
+[INFO] 16:15:52:823 GameCard/(11206:11356): POSICION EJE Y: 9
+[INFO] 16:15:52:826 GameCard/(11206:11356): Pokemon existe dentro del FileSystem!
+[INFO] 16:15:52:826 GameCard/(11206:11360): ID MENSAJE: 3
+[INFO] 16:15:52:828 GameCard/(11206:11206): NUEVA CONEXIÓN
+[INFO] 16:15:52:830 GameCard/(11206:11358): NOMBRE POKEMON: Charmander
+[INFO] 16:15:52:832 GameCard/(11206:11358): CANTIDAD: 101
+[INFO] 16:15:52:832 GameCard/(11206:11358): POSICION EJE X: 4
+[INFO] 16:15:52:832 GameCard/(11206:11358): POSICION EJE Y: 1
+[INFO] 16:15:52:835 GameCard/(11206:11360): NOMBRE POKEMON: Charmander
+[INFO] 16:15:52:835 GameCard/(11206:11360): CANTIDAD: 15
+[INFO] 16:15:52:836 GameCard/(11206:11360): POSICION EJE X: 517
+[INFO] 16:15:52:839 GameCard/(11206:11360): POSICION EJE Y: 2046
+[INFO] 16:15:52:840 GameCard/(11206:11360): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 16:15:52:842 GameCard/(11206:11358): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 16:15:52:842 GameCard/(11206:11363): ID MENSAJE: 4
+[INFO] 16:15:52:870 GameCard/(11206:11360): Se procede a setear el bloque 1 como Ocupado..
+[INFO] 16:15:52:866 GameCard/(11206:11206): NUEVA CONEXIÓN
+[INFO] 16:15:52:871 GameCard/(11206:11358): Existe el directory para ese pokemon /home/utnso/desktop/tall-grass/Files/Charmander
+[INFO] 16:15:52:872 GameCard/(11206:11358): Se procede a setear el bloque 2 como Ocupado..
+[INFO] 16:15:52:873 GameCard/(11206:11363): NOMBRE POKEMON: Charmander
+[INFO] 16:15:52:873 GameCard/(11206:11363): CANTIDAD: 1
+[INFO] 16:15:52:874 GameCard/(11206:11363): POSICION EJE X: 413
+[INFO] 16:15:52:874 GameCard/(11206:11363): POSICION EJE Y: 17
+[INFO] 16:15:52:875 GameCard/(11206:11363): Pokemon existe dentro del FileSystem!
+[INFO] 16:15:52:879 GameCard/(11206:11358): Operacion NEW_POKEMON Charmander, Coordenada: (4, 1, 101) terminada correctamente
+[INFO] 16:15:52:880 GameCard/(11206:11206): NUEVA CONEXIÓN
+[INFO] 16:15:52:882 GameCard/(11206:11360): Operacion NEW_POKEMON Charmander, Coordenada: (517, 2046, 15) terminada correctamente
+[INFO] 16:15:52:886 GameCard/(11206:11206): NUEVA CONEXIÓN
+[INFO] 16:15:52:891 GameCard/(11206:11367): ID MENSAJE: 5
+[INFO] 16:15:52:894 GameCard/(11206:11368): ID MENSAJE: 6
+[INFO] 16:15:52:894 GameCard/(11206:11370): ID MENSAJE: 7
+[INFO] 16:15:52:895 GameCard/(11206:11367): NOMBRE POKEMON: Charmander
+[INFO] 16:15:52:895 GameCard/(11206:11206): NUEVA CONEXIÓN
+[INFO] 16:15:52:900 GameCard/(11206:11367): CANTIDAD: 29
+[INFO] 16:15:52:900 GameCard/(11206:11367): POSICION EJE X: 723
+[INFO] 16:15:52:901 GameCard/(11206:11368): NOMBRE POKEMON: Charmander
+[INFO] 16:15:52:902 GameCard/(11206:11368): CANTIDAD: 3001
+[INFO] 16:15:52:903 GameCard/(11206:11368): POSICION EJE X: 65
+[INFO] 16:15:52:903 GameCard/(11206:11368): POSICION EJE Y: 93
+[INFO] 16:15:52:908 GameCard/(11206:11370): NOMBRE POKEMON: Charmander
+[INFO] 16:15:52:908 GameCard/(11206:11370): CANTIDAD: 34
+[INFO] 16:15:52:909 GameCard/(11206:11370): POSICION EJE X: 12
+[INFO] 16:15:52:910 GameCard/(11206:11368): Pokemon existe dentro del FileSystem!
+[INFO] 16:15:52:911 GameCard/(11206:11370): POSICION EJE Y: 17
+[INFO] 16:15:52:912 GameCard/(11206:11372): ID MENSAJE: 8
+[INFO] 16:15:52:922 GameCard/(11206:11370): Pokemon existe dentro del FileSystem!
+[INFO] 16:15:52:923 GameCard/(11206:11367): POSICION EJE Y: 97
+[INFO] 16:15:52:924 GameCard/(11206:11367): Pokemon existe dentro del FileSystem!
+[INFO] 16:15:52:926 GameCard/(11206:11372): NOMBRE POKEMON: Charmander
+[INFO] 16:15:52:927 GameCard/(11206:11372): CANTIDAD: 11
+[INFO] 16:15:52:927 GameCard/(11206:11372): POSICION EJE X: 129
+[INFO] 16:15:52:929 GameCard/(11206:11372): POSICION EJE Y: 547
+[INFO] 16:15:52:932 GameCard/(11206:11372): Pokemon existe dentro del FileSystem!
+[INFO] 16:16:02:882 GameCard/(11206:11356): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:16:02:886 GameCard/(11206:11363): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:16:02:938 GameCard/(11206:11372): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:16:02:938 GameCard/(11206:11370): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:16:02:939 GameCard/(11206:11368): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:16:02:941 GameCard/(11206:11367): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:16:02:953 GameCard/(11206:11367): Operacion NEW_POKEMON Charmander, Coordenada (723, 97, 29) terminada correctamente
+[INFO] 16:16:02:955 GameCard/(11206:11356): Operacion NEW_POKEMON Pikachu, Coordenada (1, 9, 3) terminada correctamente
+[INFO] 16:16:02:959 GameCard/(11206:11368): Operacion NEW_POKEMON Charmander, Coordenada (65, 93, 3001) terminada correctamente
+[INFO] 16:16:02:956 GameCard/(11206:11372): Operacion NEW_POKEMON Charmander, Coordenada (129, 547, 11) terminada correctamente
+[INFO] 16:16:02:965 GameCard/(11206:11370): Operacion NEW_POKEMON Charmander, Coordenada (12, 17, 34) terminada correctamente
+[INFO] 16:16:02:967 GameCard/(11206:11363): Operacion NEW_POKEMON Charmander, Coordenada (413, 17, 1) terminada correctamente
+[INFO] 16:16:34:431 GameCard/(11206:11206): NUEVA CONEXIÓN
+[INFO] 16:16:34:437 GameCard/(11206:11387): ID MENSAJE: 1
+[INFO] 16:16:34:453 GameCard/(11206:11387): NOMBRE POKEMON: Charmander
+[INFO] 16:16:34:458 GameCard/(11206:11387): Existe el pokemon, se leen las estructuras
+[INFO] 16:16:44:466 GameCard/(11206:11387): El archivo no esta abierto por ningun proceso, se procede a abrir el mismo..
+[INFO] 16:46:41:498 GameCard/(12269:12269): Creada carpeta Metadata/
+[INFO] 16:46:41:536 GameCard/(12269:12269): Creada carpeta Files/
+[INFO] 16:46:41:540 GameCard/(12269:12269): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 16:46:41:542 GameCard/(12269:12269): Creada carpeta Bloques/
+[INFO] 16:46:41:553 GameCard/(12269:12269): Creando Metadata.bin por primera vez...
+[INFO] 16:46:41:570 GameCard/(12269:12269): Leyendo Metadata.bin ...
+[INFO] 16:46:41:575 GameCard/(12269:12269): Creando el Bitmap.bin por primera vez...
+[INFO] 16:46:41:582 GameCard/(12269:12269): Leyendo Bitmap.bin ...
+[INFO] 16:46:41:609 GameCard/(12269:12269): Creando bloques en el path /Bloques
+[INFO] 16:46:41:735 GameCard/(12269:12269): Servidor levantado! Escuchando en 5011
+[INFO] 16:46:54:174 GameCard/(12269:12269): NUEVA CONEXIÓN
+[INFO] 16:46:54:199 GameCard/(12269:12283): ID MENSAJE: 9
+[INFO] 16:46:54:205 GameCard/(12269:12283): NOMBRE POKEMON: Pikachu
+[INFO] 16:46:54:206 GameCard/(12269:12283): CANTIDAD: 10
+[INFO] 16:46:54:208 GameCard/(12269:12283): POSICION EJE X: 2
+[INFO] 16:46:54:209 GameCard/(12269:12283): POSICION EJE Y: 5
+[INFO] 16:46:54:215 GameCard/(12269:12283): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 16:46:54:260 GameCard/(12269:12283): Se procede a setear el bloque 0 como Ocupado..
+[INFO] 16:46:54:287 GameCard/(12269:12283): Operacion NEW_POKEMON Pikachu, Coordenada: (2, 5, 10) terminada correctamente
+[INFO] 16:47:11:867 GameCard/(12269:12269): NUEVA CONEXIÓN
+[INFO] 16:47:11:877 GameCard/(12269:12269): NUEVA CONEXIÓN
+[INFO] 16:47:11:880 GameCard/(12269:12292): ID MENSAJE: 1
+[INFO] 16:47:11:882 GameCard/(12269:12292): NOMBRE POKEMON: Pikachu
+[INFO] 16:47:11:891 GameCard/(12269:12292): CANTIDAD: 3
+[INFO] 16:47:11:892 GameCard/(12269:12269): NUEVA CONEXIÓN
+[INFO] 16:47:11:895 GameCard/(12269:12292): POSICION EJE X: 1
+[INFO] 16:47:11:896 GameCard/(12269:12294): ID MENSAJE: 2
+[INFO] 16:47:11:898 GameCard/(12269:12292): POSICION EJE Y: 9
+[INFO] 16:47:11:901 GameCard/(12269:12292): Pokemon existe dentro del FileSystem!
+[INFO] 16:47:11:901 GameCard/(12269:12296): ID MENSAJE: 3
+[INFO] 16:47:11:902 GameCard/(12269:12269): NUEVA CONEXIÓN
+[INFO] 16:47:11:911 GameCard/(12269:12294): NOMBRE POKEMON: Charmander
+[INFO] 16:47:11:911 GameCard/(12269:12294): CANTIDAD: 101
+[INFO] 16:47:11:914 GameCard/(12269:12296): NOMBRE POKEMON: Charmander
+[INFO] 16:47:11:914 GameCard/(12269:12296): CANTIDAD: 15
+[INFO] 16:47:11:915 GameCard/(12269:12296): POSICION EJE X: 517
+[INFO] 16:47:11:915 GameCard/(12269:12296): POSICION EJE Y: 2046
+[INFO] 16:47:11:916 GameCard/(12269:12296): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 16:47:11:917 GameCard/(12269:12294): POSICION EJE X: 4
+[INFO] 16:47:11:947 GameCard/(12269:12299): ID MENSAJE: 4
+[INFO] 16:47:11:947 GameCard/(12269:12269): NUEVA CONEXIÓN
+[INFO] 16:47:11:948 GameCard/(12269:12294): POSICION EJE Y: 1
+[INFO] 16:47:11:950 GameCard/(12269:12296): Se procede a setear el bloque 1 como Ocupado..
+[INFO] 16:47:11:951 GameCard/(12269:12294): Pokemon existe dentro del FileSystem!
+[INFO] 16:47:11:952 GameCard/(12269:12299): NOMBRE POKEMON: Charmander
+[INFO] 16:47:11:953 GameCard/(12269:12299): CANTIDAD: 1
+[INFO] 16:47:11:953 GameCard/(12269:12299): POSICION EJE X: 413
+[INFO] 16:47:11:962 GameCard/(12269:12299): POSICION EJE Y: 17
+[INFO] 16:47:11:966 GameCard/(12269:12299): Pokemon existe dentro del FileSystem!
+[INFO] 16:47:11:967 GameCard/(12269:12269): NUEVA CONEXIÓN
+[INFO] 16:47:11:971 GameCard/(12269:12296): Operacion NEW_POKEMON Charmander, Coordenada: (517, 2046, 15) terminada correctamente
+[INFO] 16:47:11:975 GameCard/(12269:12304): ID MENSAJE: 6
+[INFO] 16:47:11:975 GameCard/(12269:12303): ID MENSAJE: 5
+[INFO] 16:47:11:978 GameCard/(12269:12269): NUEVA CONEXIÓN
+[INFO] 16:47:11:979 GameCard/(12269:12304): NOMBRE POKEMON: Charmander
+[INFO] 16:47:11:980 GameCard/(12269:12303): NOMBRE POKEMON: Charmander
+[INFO] 16:47:11:981 GameCard/(12269:12304): CANTIDAD: 3001
+[INFO] 16:47:11:981 GameCard/(12269:12303): CANTIDAD: 29
+[INFO] 16:47:11:982 GameCard/(12269:12303): POSICION EJE X: 723
+[INFO] 16:47:11:982 GameCard/(12269:12269): NUEVA CONEXIÓN
+[INFO] 16:47:11:982 GameCard/(12269:12303): POSICION EJE Y: 97
+[INFO] 16:47:11:986 GameCard/(12269:12304): POSICION EJE X: 65
+[INFO] 16:47:11:986 GameCard/(12269:12304): POSICION EJE Y: 93
+[INFO] 16:47:11:996 GameCard/(12269:12304): Pokemon existe dentro del FileSystem!
+[INFO] 16:47:11:997 GameCard/(12269:12306): ID MENSAJE: 7
+[INFO] 16:47:11:997 GameCard/(12269:12307): ID MENSAJE: 8
+[INFO] 16:47:12:5 GameCard/(12269:12306): NOMBRE POKEMON: Charmander
+[INFO] 16:47:12:11 GameCard/(12269:12303): Pokemon existe dentro del FileSystem!
+[INFO] 16:47:12:12 GameCard/(12269:12307): NOMBRE POKEMON: Charmander
+[INFO] 16:47:12:13 GameCard/(12269:12307): CANTIDAD: 11
+[INFO] 16:47:12:13 GameCard/(12269:12307): POSICION EJE X: 129
+[INFO] 16:47:12:14 GameCard/(12269:12307): POSICION EJE Y: 547
+[INFO] 16:47:12:15 GameCard/(12269:12307): Pokemon existe dentro del FileSystem!
+[INFO] 16:47:12:15 GameCard/(12269:12306): CANTIDAD: 34
+[INFO] 16:47:12:15 GameCard/(12269:12306): POSICION EJE X: 12
+[INFO] 16:47:12:16 GameCard/(12269:12306): POSICION EJE Y: 17
+[INFO] 16:47:12:17 GameCard/(12269:12306): Pokemon existe dentro del FileSystem!
+[INFO] 16:47:20:856 GameCard/(12269:12269): NUEVA CONEXIÓN
+[INFO] 16:47:20:873 GameCard/(12269:12312): ID MENSAJE: 1
+[INFO] 16:47:20:880 GameCard/(12269:12312): NOMBRE POKEMON: Charmander
+[INFO] 16:47:20:890 GameCard/(12269:12312): Existe el pokemon, se leen las estructuras
+[INFO] 16:47:21:968 GameCard/(12269:12294): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:47:21:968 GameCard/(12269:12299): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:47:21:980 GameCard/(12269:12292): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:47:21:995 GameCard/(12269:12294): Se procede a setear el bloque 2 como Ocupado..
+[INFO] 16:47:22:14 GameCard/(12269:12304): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:47:21:997 GameCard/(12269:12299): Se procede a setear el bloque 3 como Ocupado..
+[INFO] 16:47:22:27 GameCard/(12269:12307): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:47:22:28 GameCard/(12269:12306): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:47:22:13 GameCard/(12269:12303): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:47:22:49 GameCard/(12269:12292): Operacion NEW_POKEMON Pikachu, Coordenada (1, 9, 3) terminada correctamente
+[INFO] 16:47:22:61 GameCard/(12269:12299): Operacion NEW_POKEMON Charmander, Coordenada (413, 17, 1) terminada correctamente
+[INFO] 16:47:22:62 GameCard/(12269:12307): Operacion NEW_POKEMON Charmander, Coordenada (129, 547, 11) terminada correctamente
+[INFO] 16:47:22:63 GameCard/(12269:12303): Operacion NEW_POKEMON Charmander, Coordenada (723, 97, 29) terminada correctamente
+[INFO] 16:47:22:64 GameCard/(12269:12306): Operacion NEW_POKEMON Charmander, Coordenada (12, 17, 34) terminada correctamente
+[INFO] 16:47:22:65 GameCard/(12269:12294): Operacion NEW_POKEMON Charmander, Coordenada (4, 1, 101) terminada correctamente
+[INFO] 16:47:22:74 GameCard/(12269:12304): Operacion NEW_POKEMON Charmander, Coordenada (65, 93, 3001) terminada correctamente
+[INFO] 16:48:09:927 GameCard/(12765:12765): Creada carpeta Metadata/
+[INFO] 16:48:09:969 GameCard/(12765:12765): Creada carpeta Files/
+[INFO] 16:48:09:973 GameCard/(12765:12765): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 16:48:09:976 GameCard/(12765:12765): Creada carpeta Bloques/
+[INFO] 16:48:09:979 GameCard/(12765:12765): Creando Metadata.bin por primera vez...
+[INFO] 16:48:09:996 GameCard/(12765:12765): Leyendo Metadata.bin ...
+[INFO] 16:48:09:0 GameCard/(12765:12765): Creando el Bitmap.bin por primera vez...
+[INFO] 16:48:10:8 GameCard/(12765:12765): Leyendo Bitmap.bin ...
+[INFO] 16:48:10:37 GameCard/(12765:12765): Creando bloques en el path /Bloques
+[INFO] 16:48:10:165 GameCard/(12765:12765): Servidor levantado! Escuchando en 5011
+[INFO] 16:49:18:37 GameCard/(12765:12765): NUEVA CONEXIÓN
+[INFO] 16:49:18:74 GameCard/(12765:12789): ID MENSAJE: 9
+[INFO] 16:49:18:82 GameCard/(12765:12789): NOMBRE POKEMON: Pikachu
+[INFO] 16:49:18:93 GameCard/(12765:12789): CANTIDAD: 10
+[INFO] 16:49:18:94 GameCard/(12765:12789): POSICION EJE X: 2
+[INFO] 16:49:18:97 GameCard/(12765:12789): POSICION EJE Y: 5
+[INFO] 16:49:18:110 GameCard/(12765:12789): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 16:49:18:130 GameCard/(12765:12789): Se procede a setear el bloque 0 como Ocupado..
+[INFO] 16:49:18:142 GameCard/(12765:12789): Operacion NEW_POKEMON Pikachu, Coordenada: (2, 5, 10) terminada correctamente
+[INFO] 16:49:25:570 GameCard/(12765:12765): NUEVA CONEXIÓN
+[INFO] 16:49:25:581 GameCard/(12765:12796): ID MENSAJE: 1
+[INFO] 16:49:25:584 GameCard/(12765:12796): NOMBRE POKEMON: Pikachu
+[INFO] 16:49:25:587 GameCard/(12765:12765): NUEVA CONEXIÓN
+[INFO] 16:49:25:587 GameCard/(12765:12796): CANTIDAD: 3
+[INFO] 16:49:25:591 GameCard/(12765:12796): POSICION EJE X: 1
+[INFO] 16:49:25:591 GameCard/(12765:12765): NUEVA CONEXIÓN
+[INFO] 16:49:25:593 GameCard/(12765:12796): POSICION EJE Y: 9
+[INFO] 16:49:25:602 GameCard/(12765:12796): Pokemon existe dentro del FileSystem!
+[INFO] 16:49:25:603 GameCard/(12765:12799): ID MENSAJE: 2
+[INFO] 16:49:25:605 GameCard/(12765:12800): ID MENSAJE: 3
+[INFO] 16:49:25:610 GameCard/(12765:12765): NUEVA CONEXIÓN
+[INFO] 16:49:25:612 GameCard/(12765:12800): NOMBRE POKEMON: Charmander
+[INFO] 16:49:25:613 GameCard/(12765:12800): CANTIDAD: 15
+[INFO] 16:49:25:613 GameCard/(12765:12800): POSICION EJE X: 517
+[INFO] 16:49:25:613 GameCard/(12765:12800): POSICION EJE Y: 2046
+[INFO] 16:49:25:615 GameCard/(12765:12800): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 16:49:25:640 GameCard/(12765:12765): NUEVA CONEXIÓN
+[INFO] 16:49:25:641 GameCard/(12765:12803): ID MENSAJE: 4
+[INFO] 16:49:25:643 GameCard/(12765:12800): Se procede a setear el bloque 1 como Ocupado..
+[INFO] 16:49:25:643 GameCard/(12765:12799): NOMBRE POKEMON: Charmander
+[INFO] 16:49:25:644 GameCard/(12765:12799): CANTIDAD: 101
+[INFO] 16:49:25:644 GameCard/(12765:12799): POSICION EJE X: 4
+[INFO] 16:49:25:644 GameCard/(12765:12799): POSICION EJE Y: 1
+[INFO] 16:49:25:645 GameCard/(12765:12799): Pokemon existe dentro del FileSystem!
+[INFO] 16:49:25:647 GameCard/(12765:12803): NOMBRE POKEMON: Charmander
+[INFO] 16:49:25:648 GameCard/(12765:12803): CANTIDAD: 1
+[INFO] 16:49:25:649 GameCard/(12765:12803): POSICION EJE X: 413
+[INFO] 16:49:25:649 GameCard/(12765:12803): POSICION EJE Y: 17
+[INFO] 16:49:25:650 GameCard/(12765:12800): Operacion NEW_POKEMON Charmander, Coordenada: (517, 2046, 15) terminada correctamente
+[INFO] 16:49:25:651 GameCard/(12765:12803): Pokemon existe dentro del FileSystem!
+[INFO] 16:49:25:653 GameCard/(12765:12765): NUEVA CONEXIÓN
+[INFO] 16:49:25:657 GameCard/(12765:12806): ID MENSAJE: 5
+[INFO] 16:49:25:657 GameCard/(12765:12807): ID MENSAJE: 6
+[INFO] 16:49:25:659 GameCard/(12765:12806): NOMBRE POKEMON: Charmander
+[INFO] 16:49:25:666 GameCard/(12765:12806): CANTIDAD: 29
+[INFO] 16:49:25:668 GameCard/(12765:12806): POSICION EJE X: 723
+[INFO] 16:49:25:669 GameCard/(12765:12765): NUEVA CONEXIÓN
+[INFO] 16:49:25:672 GameCard/(12765:12807): NOMBRE POKEMON: Charmander
+[INFO] 16:49:25:675 GameCard/(12765:12807): CANTIDAD: 3001
+[INFO] 16:49:25:676 GameCard/(12765:12807): POSICION EJE X: 65
+[INFO] 16:49:25:676 GameCard/(12765:12807): POSICION EJE Y: 93
+[INFO] 16:49:25:677 GameCard/(12765:12809): ID MENSAJE: 7
+[INFO] 16:49:25:679 GameCard/(12765:12807): Pokemon existe dentro del FileSystem!
+[INFO] 16:49:25:680 GameCard/(12765:12765): NUEVA CONEXIÓN
+[INFO] 16:49:25:681 GameCard/(12765:12806): POSICION EJE Y: 97
+[INFO] 16:49:25:682 GameCard/(12765:12806): Pokemon existe dentro del FileSystem!
+[INFO] 16:49:25:683 GameCard/(12765:12809): NOMBRE POKEMON: Charmander
+[INFO] 16:49:25:683 GameCard/(12765:12809): CANTIDAD: 34
+[INFO] 16:49:25:683 GameCard/(12765:12809): POSICION EJE X: 12
+[INFO] 16:49:25:684 GameCard/(12765:12809): POSICION EJE Y: 17
+[INFO] 16:49:25:688 GameCard/(12765:12809): Pokemon existe dentro del FileSystem!
+[INFO] 16:49:25:690 GameCard/(12765:12811): ID MENSAJE: 8
+[INFO] 16:49:25:708 GameCard/(12765:12811): NOMBRE POKEMON: Charmander
+[INFO] 16:49:25:709 GameCard/(12765:12811): CANTIDAD: 11
+[INFO] 16:49:25:710 GameCard/(12765:12811): POSICION EJE X: 129
+[INFO] 16:49:25:711 GameCard/(12765:12811): POSICION EJE Y: 547
+[INFO] 16:49:25:712 GameCard/(12765:12811): Pokemon existe dentro del FileSystem!
+[INFO] 16:49:35:652 GameCard/(12765:12803): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:49:35:655 GameCard/(12765:12799): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:49:35:680 GameCard/(12765:12796): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:49:35:691 GameCard/(12765:12806): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:49:35:691 GameCard/(12765:12807): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:49:35:696 GameCard/(12765:12796): Operacion NEW_POKEMON Pikachu, Coordenada (1, 9, 3) terminada correctamente
+[INFO] 16:49:35:702 GameCard/(12765:12809): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:49:35:708 GameCard/(12765:12806): Operacion NEW_POKEMON Charmander, Coordenada (723, 97, 29) terminada correctamente
+[INFO] 16:49:35:709 GameCard/(12765:12807): Operacion NEW_POKEMON Charmander, Coordenada (65, 93, 3001) terminada correctamente
+[INFO] 16:49:35:710 GameCard/(12765:12803): Operacion NEW_POKEMON Charmander, Coordenada (413, 17, 1) terminada correctamente
+[INFO] 16:49:35:711 GameCard/(12765:12799): Operacion NEW_POKEMON Charmander, Coordenada (4, 1, 101) terminada correctamente
+[INFO] 16:49:35:717 GameCard/(12765:12809): Operacion NEW_POKEMON Charmander, Coordenada (12, 17, 34) terminada correctamente
+[INFO] 16:49:35:717 GameCard/(12765:12811): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 16:49:35:736 GameCard/(12765:12811): Operacion NEW_POKEMON Charmander, Coordenada (129, 547, 11) terminada correctamente
+[INFO] 16:50:21:527 GameCard/(12765:12765): NUEVA CONEXIÓN
+[INFO] 16:50:21:532 GameCard/(12765:12832): ID MENSAJE: 1
+[INFO] 16:50:21:535 GameCard/(12765:12832): NOMBRE POKEMON: Charmander
+[INFO] 16:50:21:550 GameCard/(12765:12832): Existe el pokemon, se leen las estructuras
+[INFO] 16:50:31:564 GameCard/(12765:12832): El archivo no esta abierto por ningun proceso, se procede a abrir el mismo..
+[INFO] 16:50:31:571 GameCard/(12765:12832): Operacion GET_POKEMON Charmander terminada correctamente!
+[INFO] 17:01:07:827 GameCard/(13360:13360): Creada carpeta Metadata/
+[INFO] 17:01:07:870 GameCard/(13360:13360): Creada carpeta Files/
+[INFO] 17:01:07:874 GameCard/(13360:13360): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 17:01:07:876 GameCard/(13360:13360): Creada carpeta Bloques/
+[INFO] 17:01:07:882 GameCard/(13360:13360): Creando Metadata.bin por primera vez...
+[INFO] 17:01:07:901 GameCard/(13360:13360): Leyendo Metadata.bin ...
+[INFO] 17:01:07:909 GameCard/(13360:13360): Creando el Bitmap.bin por primera vez...
+[INFO] 17:01:07:915 GameCard/(13360:13360): Leyendo Bitmap.bin ...
+[INFO] 17:01:07:939 GameCard/(13360:13360): Creando bloques en el path /Bloques
+[INFO] 17:01:08:71 GameCard/(13360:13360): Servidor levantado! Escuchando en 5011
+[INFO] 17:02:25:37 GameCard/(13458:13458): Creada carpeta Metadata/
+[INFO] 17:02:26:77 GameCard/(13458:13458): Creada carpeta Files/
+[INFO] 17:02:26:81 GameCard/(13458:13458): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 17:02:26:84 GameCard/(13458:13458): Creada carpeta Bloques/
+[INFO] 17:02:26:87 GameCard/(13458:13458): Creando Metadata.bin por primera vez...
+[INFO] 17:02:26:104 GameCard/(13458:13458): Leyendo Metadata.bin ...
+[INFO] 17:02:26:114 GameCard/(13458:13458): Creando el Bitmap.bin por primera vez...
+[INFO] 17:02:26:117 GameCard/(13458:13458): Leyendo Bitmap.bin ...
+[INFO] 17:02:26:142 GameCard/(13458:13458): Creando bloques en el path /Bloques
+[INFO] 17:02:26:264 GameCard/(13458:13458): Servidor levantado! Escuchando en 5011
+[INFO] 17:04:03:543 GameCard/(13515:13515): Creada carpeta Metadata/
+[INFO] 17:04:03:583 GameCard/(13515:13515): Creada carpeta Files/
+[INFO] 17:04:03:590 GameCard/(13515:13515): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 17:04:03:592 GameCard/(13515:13515): Creada carpeta Bloques/
+[INFO] 17:04:03:595 GameCard/(13515:13515): Creando Metadata.bin por primera vez...
+[INFO] 17:04:03:614 GameCard/(13515:13515): Leyendo Metadata.bin ...
+[INFO] 17:04:03:619 GameCard/(13515:13515): Creando el Bitmap.bin por primera vez...
+[INFO] 17:04:03:625 GameCard/(13515:13515): Leyendo Bitmap.bin ...
+[INFO] 17:04:03:653 GameCard/(13515:13515): Creando bloques en el path /Bloques
+[INFO] 17:04:03:789 GameCard/(13515:13522): CONEXION EXITOSA CON EL BROKER
+[INFO] 17:04:03:794 GameCard/(13515:13521): CONEXION EXITOSA CON EL BROKER
+[INFO] 17:04:03:793 GameCard/(13515:13515): Servidor levantado! Escuchando en 5011
+[INFO] 17:04:03:794 GameCard/(13515:13524): CONEXION EXITOSA CON EL BROKER
+[INFO] 17:05:31:72 GameCard/(13515:13521): ID MENSAJE: 0
+[INFO] 17:05:31:74 GameCard/(13515:13521): NOMBRE POKEMON: Pikachu
+[INFO] 17:05:31:79 GameCard/(13515:13521): CANTIDAD: 1
+[INFO] 17:05:31:82 GameCard/(13515:13521): POSICION EJE X: 9
+[INFO] 17:05:31:93 GameCard/(13515:13521): POSICION EJE Y: 9
+[INFO] 17:05:31:106 GameCard/(13515:13521): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:05:31:139 GameCard/(13515:13521): Se procede a setear el bloque 0 como Ocupado..
+[INFO] 17:05:31:160 GameCard/(13515:13521): Operacion NEW_POKEMON Pikachu, Coordenada: (9, 9, 1) terminada correctamente
+[INFO] 17:05:31:179 GameCard/(13515:13521): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:05:31:210 GameCard/(13515:13521): ID MENSAJE: 1
+[INFO] 17:05:31:211 GameCard/(13515:13521): NOMBRE POKEMON: Squirtle
+[INFO] 17:05:31:212 GameCard/(13515:13521): CANTIDAD: 1
+[INFO] 17:05:31:215 GameCard/(13515:13521): POSICION EJE X: 5
+[INFO] 17:05:31:224 GameCard/(13515:13521): POSICION EJE Y: 2
+[INFO] 17:05:31:225 GameCard/(13515:13521): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:05:31:232 GameCard/(13515:13521): Se procede a setear el bloque 1 como Ocupado..
+[INFO] 17:05:31:233 GameCard/(13515:13521): Operacion NEW_POKEMON Squirtle, Coordenada: (5, 2, 1) terminada correctamente
+[INFO] 17:05:31:245 GameCard/(13515:13521): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:05:31:258 GameCard/(13515:13521): ID MENSAJE: 2
+[INFO] 17:05:31:258 GameCard/(13515:13521): NOMBRE POKEMON: Jolteon
+[INFO] 17:05:31:259 GameCard/(13515:13521): CANTIDAD: 1
+[INFO] 17:05:31:259 GameCard/(13515:13521): POSICION EJE X: 2
+[INFO] 17:05:31:259 GameCard/(13515:13521): POSICION EJE Y: 2
+[INFO] 17:05:31:261 GameCard/(13515:13521): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:05:31:263 GameCard/(13515:13521): Se procede a setear el bloque 2 como Ocupado..
+[INFO] 17:05:31:270 GameCard/(13515:13521): Operacion NEW_POKEMON Jolteon, Coordenada: (2, 2, 1) terminada correctamente
+[INFO] 17:05:31:273 GameCard/(13515:13521): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:05:31:280 GameCard/(13515:13521): ID MENSAJE: 3
+[INFO] 17:05:31:281 GameCard/(13515:13521): NOMBRE POKEMON: Flareon
+[INFO] 17:05:31:281 GameCard/(13515:13521): CANTIDAD: 1
+[INFO] 17:05:31:281 GameCard/(13515:13521): POSICION EJE X: 4
+[INFO] 17:05:31:282 GameCard/(13515:13521): POSICION EJE Y: 6
+[INFO] 17:05:31:283 GameCard/(13515:13521): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:05:31:287 GameCard/(13515:13521): Se procede a setear el bloque 3 como Ocupado..
+[INFO] 17:05:31:289 GameCard/(13515:13521): Operacion NEW_POKEMON Flareon, Coordenada: (4, 6, 1) terminada correctamente
+[INFO] 17:05:31:297 GameCard/(13515:13521): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:06:55:174 GameCard/(13515:13521): ID MENSAJE: 8
+[INFO] 17:06:55:175 GameCard/(13515:13521): NOMBRE POKEMON: Onix
+[INFO] 17:06:55:175 GameCard/(13515:13521): CANTIDAD: 1
+[INFO] 17:06:55:176 GameCard/(13515:13521): POSICION EJE X: 2
+[INFO] 17:06:55:177 GameCard/(13515:13521): POSICION EJE Y: 8
+[INFO] 17:06:55:181 GameCard/(13515:13521): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:06:55:187 GameCard/(13515:13521): Se procede a setear el bloque 4 como Ocupado..
+[INFO] 17:06:55:189 GameCard/(13515:13521): Operacion NEW_POKEMON Onix, Coordenada: (2, 8, 1) terminada correctamente
+[INFO] 17:06:55:202 GameCard/(13515:13521): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:06:55:212 GameCard/(13515:13521): ID MENSAJE: 9
+[INFO] 17:06:55:212 GameCard/(13515:13521): NOMBRE POKEMON: Gengar
+[INFO] 17:06:55:213 GameCard/(13515:13521): CANTIDAD: 1
+[INFO] 17:06:55:215 GameCard/(13515:13521): POSICION EJE X: 6
+[INFO] 17:06:55:216 GameCard/(13515:13521): POSICION EJE Y: 6
+[INFO] 17:06:55:218 GameCard/(13515:13521): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:06:55:221 GameCard/(13515:13521): Se procede a setear el bloque 5 como Ocupado..
+[INFO] 17:06:55:226 GameCard/(13515:13521): Operacion NEW_POKEMON Gengar, Coordenada: (6, 6, 1) terminada correctamente
+[INFO] 17:06:55:230 GameCard/(13515:13521): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:06:55:249 GameCard/(13515:13521): ID MENSAJE: 11
+[INFO] 17:06:55:250 GameCard/(13515:13521): NOMBRE POKEMON: Squirtle
+[INFO] 17:06:55:251 GameCard/(13515:13521): CANTIDAD: 1
+[INFO] 17:06:55:255 GameCard/(13515:13521): POSICION EJE X: 5
+[INFO] 17:06:55:257 GameCard/(13515:13521): POSICION EJE Y: 5
+[INFO] 17:06:55:258 GameCard/(13515:13521): Pokemon existe dentro del FileSystem!
+[INFO] 17:07:05:311 GameCard/(13515:13521): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 17:07:05:349 GameCard/(13515:13521): Operacion NEW_POKEMON Squirtle, Coordenada (5, 5, 1) terminada correctamente
+[INFO] 17:07:05:357 GameCard/(13515:13521): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:07:05:360 GameCard/(13515:13521): ID MENSAJE: 12
+[INFO] 17:07:05:363 GameCard/(13515:13521): NOMBRE POKEMON: Umbreon
+[INFO] 17:07:05:363 GameCard/(13515:13521): CANTIDAD: 1
+[INFO] 17:07:05:364 GameCard/(13515:13521): POSICION EJE X: 10
+[INFO] 17:07:05:365 GameCard/(13515:13521): POSICION EJE Y: 6
+[INFO] 17:07:05:372 GameCard/(13515:13521): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:07:05:373 GameCard/(13515:13521): Se procede a setear el bloque 6 como Ocupado..
+[INFO] 17:07:05:377 GameCard/(13515:13521): Operacion NEW_POKEMON Umbreon, Coordenada: (10, 6, 1) terminada correctamente
+[INFO] 17:07:05:385 GameCard/(13515:13521): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:07:05:389 GameCard/(13515:13521): ID MENSAJE: 13
+[INFO] 17:07:05:390 GameCard/(13515:13521): NOMBRE POKEMON: Espeon
+[INFO] 17:07:05:390 GameCard/(13515:13521): CANTIDAD: 1
+[INFO] 17:07:05:390 GameCard/(13515:13521): POSICION EJE X: 7
+[INFO] 17:07:05:391 GameCard/(13515:13521): POSICION EJE Y: 1
+[INFO] 17:07:05:392 GameCard/(13515:13521): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:07:05:393 GameCard/(13515:13521): Se procede a setear el bloque 7 como Ocupado..
+[INFO] 17:07:05:399 GameCard/(13515:13521): Operacion NEW_POKEMON Espeon, Coordenada: (7, 1, 1) terminada correctamente
+[INFO] 17:07:05:402 GameCard/(13515:13521): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:07:05:405 GameCard/(13515:13521): ID MENSAJE: 14
+[INFO] 17:07:05:405 GameCard/(13515:13521): NOMBRE POKEMON: Vaporeon
+[INFO] 17:07:05:406 GameCard/(13515:13521): CANTIDAD: 1
+[INFO] 17:07:05:407 GameCard/(13515:13521): POSICION EJE X: 4
+[INFO] 17:07:05:408 GameCard/(13515:13521): POSICION EJE Y: 10
+[INFO] 17:07:05:409 GameCard/(13515:13521): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:07:05:411 GameCard/(13515:13521): Se procede a setear el bloque 8 como Ocupado..
+[INFO] 17:07:05:418 GameCard/(13515:13521): Operacion NEW_POKEMON Vaporeon, Coordenada: (4, 10, 1) terminada correctamente
+[INFO] 17:07:05:420 GameCard/(13515:13521): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:14:38:726 GameCard/(13934:13934): Creada carpeta Metadata/
+[INFO] 17:14:38:809 GameCard/(13934:13934): Creada carpeta Files/
+[INFO] 17:14:38:817 GameCard/(13934:13934): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 17:14:38:818 GameCard/(13934:13934): Creada carpeta Bloques/
+[INFO] 17:14:38:825 GameCard/(13934:13934): Creando Metadata.bin por primera vez...
+[INFO] 17:14:38:847 GameCard/(13934:13934): Leyendo Metadata.bin ...
+[INFO] 17:14:38:854 GameCard/(13934:13934): Creando el Bitmap.bin por primera vez...
+[INFO] 17:14:38:862 GameCard/(13934:13934): Leyendo Bitmap.bin ...
+[INFO] 17:14:38:884 GameCard/(13934:13934): Creando bloques en el path /Bloques
+[INFO] 17:14:39:73 GameCard/(13934:13941): CONEXION EXITOSA CON EL BROKER
+[INFO] 17:14:39:85 GameCard/(13934:13940): CONEXION EXITOSA CON EL BROKER
+[INFO] 17:14:39:86 GameCard/(13934:13942): CONEXION EXITOSA CON EL BROKER
+[INFO] 17:14:39:87 GameCard/(13934:13934): Servidor levantado! Escuchando en 5011
+[INFO] 17:15:34:205 GameCard/(13934:13940): ID MENSAJE: 0
+[INFO] 17:15:34:208 GameCard/(13934:13940): NOMBRE POKEMON: Onix
+[INFO] 17:15:34:212 GameCard/(13934:13940): CANTIDAD: 1
+[INFO] 17:15:34:215 GameCard/(13934:13940): POSICION EJE X: 2
+[INFO] 17:15:34:217 GameCard/(13934:13940): POSICION EJE Y: 8
+[INFO] 17:15:34:234 GameCard/(13934:13940): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:15:34:269 GameCard/(13934:13940): Se procede a setear el bloque 0 como Ocupado..
+[INFO] 17:15:34:291 GameCard/(13934:13940): Operacion NEW_POKEMON Onix, Coordenada: (2, 8, 1) terminada correctamente
+[INFO] 17:15:34:300 GameCard/(13934:13940): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:15:34:311 GameCard/(13934:13940): ID MENSAJE: 1
+[INFO] 17:15:34:313 GameCard/(13934:13940): NOMBRE POKEMON: Gengar
+[INFO] 17:15:34:316 GameCard/(13934:13940): CANTIDAD: 1
+[INFO] 17:15:34:317 GameCard/(13934:13940): POSICION EJE X: 6
+[INFO] 17:15:34:318 GameCard/(13934:13940): POSICION EJE Y: 6
+[INFO] 17:15:34:319 GameCard/(13934:13940): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:15:34:333 GameCard/(13934:13940): Se procede a setear el bloque 1 como Ocupado..
+[INFO] 17:15:34:336 GameCard/(13934:13940): Operacion NEW_POKEMON Gengar, Coordenada: (6, 6, 1) terminada correctamente
+[INFO] 17:15:34:351 GameCard/(13934:13940): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:15:34:362 GameCard/(13934:13940): ID MENSAJE: 2
+[INFO] 17:15:34:363 GameCard/(13934:13940): NOMBRE POKEMON: Squirtle
+[INFO] 17:15:34:363 GameCard/(13934:13940): CANTIDAD: 1
+[INFO] 17:15:34:363 GameCard/(13934:13940): POSICION EJE X: 5
+[INFO] 17:15:34:365 GameCard/(13934:13940): POSICION EJE Y: 5
+[INFO] 17:15:34:366 GameCard/(13934:13940): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:15:34:368 GameCard/(13934:13940): Se procede a setear el bloque 2 como Ocupado..
+[INFO] 17:15:34:374 GameCard/(13934:13940): Operacion NEW_POKEMON Squirtle, Coordenada: (5, 5, 1) terminada correctamente
+[INFO] 17:15:34:379 GameCard/(13934:13940): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:15:34:382 GameCard/(13934:13940): ID MENSAJE: 3
+[INFO] 17:15:34:383 GameCard/(13934:13940): NOMBRE POKEMON: Umbreon
+[INFO] 17:15:34:383 GameCard/(13934:13940): CANTIDAD: 1
+[INFO] 17:15:34:383 GameCard/(13934:13940): POSICION EJE X: 10
+[INFO] 17:15:34:384 GameCard/(13934:13940): POSICION EJE Y: 6
+[INFO] 17:15:34:385 GameCard/(13934:13940): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:15:34:393 GameCard/(13934:13940): Se procede a setear el bloque 3 como Ocupado..
+[INFO] 17:15:34:396 GameCard/(13934:13940): Operacion NEW_POKEMON Umbreon, Coordenada: (10, 6, 1) terminada correctamente
+[INFO] 17:15:34:401 GameCard/(13934:13940): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:15:34:402 GameCard/(13934:13940): ID MENSAJE: 4
+[INFO] 17:15:34:402 GameCard/(13934:13940): NOMBRE POKEMON: Espeon
+[INFO] 17:15:34:403 GameCard/(13934:13940): CANTIDAD: 1
+[INFO] 17:15:34:403 GameCard/(13934:13940): POSICION EJE X: 7
+[INFO] 17:15:34:403 GameCard/(13934:13940): POSICION EJE Y: 1
+[INFO] 17:15:34:404 GameCard/(13934:13940): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:15:34:407 GameCard/(13934:13940): Se procede a setear el bloque 4 como Ocupado..
+[INFO] 17:15:34:410 GameCard/(13934:13940): Operacion NEW_POKEMON Espeon, Coordenada: (7, 1, 1) terminada correctamente
+[INFO] 17:15:34:413 GameCard/(13934:13940): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:15:34:416 GameCard/(13934:13940): ID MENSAJE: 5
+[INFO] 17:15:34:417 GameCard/(13934:13940): NOMBRE POKEMON: Vaporeon
+[INFO] 17:15:34:417 GameCard/(13934:13940): CANTIDAD: 1
+[INFO] 17:15:34:418 GameCard/(13934:13940): POSICION EJE X: 4
+[INFO] 17:15:34:418 GameCard/(13934:13940): POSICION EJE Y: 10
+[INFO] 17:15:34:419 GameCard/(13934:13940): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:15:34:421 GameCard/(13934:13940): Se procede a setear el bloque 5 como Ocupado..
+[INFO] 17:15:34:426 GameCard/(13934:13940): Operacion NEW_POKEMON Vaporeon, Coordenada: (4, 10, 1) terminada correctamente
+[INFO] 17:15:34:430 GameCard/(13934:13940): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:16:57:180 GameCard/(13934:13940): ID MENSAJE: 12
+[INFO] 17:16:57:181 GameCard/(13934:13940): NOMBRE POKEMON: Pikachu
+[INFO] 17:16:57:182 GameCard/(13934:13940): CANTIDAD: 1
+[INFO] 17:16:57:183 GameCard/(13934:13940): POSICION EJE X: 9
+[INFO] 17:16:57:183 GameCard/(13934:13940): POSICION EJE Y: 9
+[INFO] 17:16:57:185 GameCard/(13934:13940): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:16:57:189 GameCard/(13934:13940): Se procede a setear el bloque 6 como Ocupado..
+[INFO] 17:16:57:194 GameCard/(13934:13940): Operacion NEW_POKEMON Pikachu, Coordenada: (9, 9, 1) terminada correctamente
+[INFO] 17:16:57:198 GameCard/(13934:13940): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:16:57:201 GameCard/(13934:13940): ID MENSAJE: 13
+[INFO] 17:16:57:202 GameCard/(13934:13940): NOMBRE POKEMON: Squirtle
+[INFO] 17:16:57:205 GameCard/(13934:13940): CANTIDAD: 1
+[INFO] 17:16:57:206 GameCard/(13934:13940): POSICION EJE X: 5
+[INFO] 17:16:57:207 GameCard/(13934:13940): POSICION EJE Y: 2
+[INFO] 17:16:57:210 GameCard/(13934:13940): Pokemon existe dentro del FileSystem!
+[INFO] 17:17:07:228 GameCard/(13934:13940): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 17:17:07:263 GameCard/(13934:13940): Operacion NEW_POKEMON Squirtle, Coordenada (5, 2, 1) terminada correctamente
+[INFO] 17:17:07:270 GameCard/(13934:13940): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:17:07:272 GameCard/(13934:13940): ID MENSAJE: 14
+[INFO] 17:17:07:275 GameCard/(13934:13940): NOMBRE POKEMON: Jolteon
+[INFO] 17:17:07:276 GameCard/(13934:13940): CANTIDAD: 1
+[INFO] 17:17:07:278 GameCard/(13934:13940): POSICION EJE X: 2
+[INFO] 17:17:07:278 GameCard/(13934:13940): POSICION EJE Y: 2
+[INFO] 17:17:07:279 GameCard/(13934:13940): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:17:07:283 GameCard/(13934:13940): Se procede a setear el bloque 7 como Ocupado..
+[INFO] 17:17:07:287 GameCard/(13934:13940): Operacion NEW_POKEMON Jolteon, Coordenada: (2, 2, 1) terminada correctamente
+[INFO] 17:17:07:293 GameCard/(13934:13940): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:17:07:298 GameCard/(13934:13940): ID MENSAJE: 16
+[INFO] 17:17:07:298 GameCard/(13934:13940): NOMBRE POKEMON: Flareon
+[INFO] 17:17:07:298 GameCard/(13934:13940): CANTIDAD: 1
+[INFO] 17:17:07:299 GameCard/(13934:13940): POSICION EJE X: 4
+[INFO] 17:17:07:299 GameCard/(13934:13940): POSICION EJE Y: 6
+[INFO] 17:17:07:300 GameCard/(13934:13940): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 17:17:07:303 GameCard/(13934:13940): Se procede a setear el bloque 8 como Ocupado..
+[INFO] 17:17:07:305 GameCard/(13934:13940): Operacion NEW_POKEMON Flareon, Coordenada: (4, 6, 1) terminada correctamente
+[INFO] 17:17:07:323 GameCard/(13934:13940): El mensaje APPEARED fué enviado al BROKER
+[INFO] 17:20:39:444 GameCard/(13934:13942): ID MENSAJE: 20
+[INFO] 17:20:39:460 GameCard/(13934:13942): NOMBRE POKEMON: Squirtle
+[INFO] 17:20:39:463 GameCard/(13934:13942): POSICION EJE X: 0
+[INFO] 17:20:39:466 GameCard/(13934:13942): POSICION EJE Y: 0
+[INFO] 17:20:39:479 GameCard/(13934:13942): Existe el pokemon, se leen las estructuras
+[INFO] 17:20:49:483 GameCard/(13934:13942): El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..
+[ERROR] 17:20:49:492 GameCard/(13934:13942): No existen las coordenadas para ese pokemon, no se puede completar la operacion..
+[INFO] 17:20:49:498 GameCard/(13934:13942): El mensaje CAUGHT fue enviado al BROKER
+[INFO] 17:20:49:502 GameCard/(13934:13942): ID MENSAJE: 21
+[INFO] 17:20:49:504 GameCard/(13934:13942): NOMBRE POKEMON: Pikachu
+[INFO] 17:20:49:508 GameCard/(13934:13942): POSICION EJE X: 0
+[INFO] 17:20:49:511 GameCard/(13934:13942): POSICION EJE Y: 0
+[INFO] 17:20:49:512 GameCard/(13934:13942): Existe el pokemon, se leen las estructuras
+[INFO] 17:20:59:515 GameCard/(13934:13942): El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..
+[ERROR] 17:20:59:517 GameCard/(13934:13942): No existen las coordenadas para ese pokemon, no se puede completar la operacion..
+[INFO] 17:20:59:519 GameCard/(13934:13942): El mensaje CAUGHT fue enviado al BROKER
+[INFO] 17:20:59:521 GameCard/(13934:13942): ID MENSAJE: 22
+[INFO] 17:20:59:522 GameCard/(13934:13942): NOMBRE POKEMON: Gengar
+[INFO] 17:20:59:522 GameCard/(13934:13942): POSICION EJE X: 0
+[INFO] 17:20:59:523 GameCard/(13934:13942): POSICION EJE Y: 0
+[INFO] 17:20:59:524 GameCard/(13934:13942): Existe el pokemon, se leen las estructuras
+[INFO] 17:21:09:525 GameCard/(13934:13942): El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..
+[ERROR] 17:21:09:528 GameCard/(13934:13942): No existen las coordenadas para ese pokemon, no se puede completar la operacion..
+[INFO] 17:21:09:534 GameCard/(13934:13942): El mensaje CAUGHT fue enviado al BROKER
+[INFO] 17:21:09:542 GameCard/(13934:13942): ID MENSAJE: 23
+[INFO] 17:21:09:542 GameCard/(13934:13942): NOMBRE POKEMON: Onix
+[INFO] 17:21:09:542 GameCard/(13934:13942): POSICION EJE X: 0
+[INFO] 17:21:09:543 GameCard/(13934:13942): POSICION EJE Y: 0
+[INFO] 17:21:09:543 GameCard/(13934:13942): Existe el pokemon, se leen las estructuras
+[INFO] 17:21:19:547 GameCard/(13934:13942): El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..
+[ERROR] 17:21:19:549 GameCard/(13934:13942): No existen las coordenadas para ese pokemon, no se puede completar la operacion..
+[INFO] 17:21:19:551 GameCard/(13934:13942): El mensaje CAUGHT fue enviado al BROKER

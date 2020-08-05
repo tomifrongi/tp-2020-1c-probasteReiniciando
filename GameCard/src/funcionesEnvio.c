@@ -159,3 +159,17 @@ int send_status(int sock,t_header head, int status){
 int get_status(t_message* message){
 	return *((int*)message->content);
 }
+
+
+void iniciar_config_logger() {
+	logger =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
+	t_config * config = config_create("./Debug/GameCard.config");
+
+	tiempoReintentoConexion = config_get_int_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
+	tiempoReintentoOperacion = config_get_int_value(config, "TIEMPO_DE_REINTENTO_OPERACION");
+	tiempoRetardoOperacion = config_get_int_value(config, "TIEMPO_RETARDO_OPERACION");
+	puntoMontaje = config_get_string_value(config, "PUNTO_MONTAJE_TALLGRASS");
+	ipBroker = config_get_string_value(config, "IP_BROKER");
+	puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
+	puertoGameCard = config_get_int_value(config, "PUERTO_GAME_CARD");
+}

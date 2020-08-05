@@ -53,13 +53,7 @@ typedef struct {
 
 
 //CONEXIONES//
-int tiempoReintentoConexion;
-int tiempoReintentoOperacion;
-int tiempoRetardoOperacion;
-char* puntoMontaje;
-char* ipBroker;
-int puertoBroker;
-int puertoGameCard;
+
 
 //SUSCRIPCION//
 typedef struct {
@@ -70,7 +64,7 @@ typedef struct {
 
 //-----------------------------------FUNCIONES DECLARADAS-------------------------------------------//
 
-void iniciar_config_logger();
+
 
 void* handler_broker(void *cola); //maneja todas las conexiones al broker
 int listener_socket;

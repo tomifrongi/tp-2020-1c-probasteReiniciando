@@ -54,6 +54,13 @@ typedef struct{
 
 
 t_log* logger;
+int tiempoReintentoConexion;
+int tiempoReintentoOperacion;
+int tiempoRetardoOperacion;
+char* puntoMontaje;
+char* ipBroker;
+int puertoBroker;
+int puertoGameCard;
 
 void inicializarLogger(char* path);
 
@@ -67,6 +74,6 @@ t_message* create_t_message(t_header head, size_t size,const void* content);
 t_message* error(int res);
 int send_status(int sock,t_header head, int status);
 int get_status(t_message* message);
-
+void iniciar_config_logger();
 
 #endif /* FUNCIONESENVIO_H_ */
