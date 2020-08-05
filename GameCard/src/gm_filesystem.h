@@ -48,7 +48,7 @@ typedef struct {
 } t_blockLine;
 
 typedef struct {
-	uint32_t blockSize;
+	int blockSize;
 	char* blocks;
 	char* isOpen;
 } t_pokemon_metadata;
