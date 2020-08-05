@@ -302,9 +302,9 @@ void procesar_get_enviar_localized(get_pokemon* arg, uint32_t idMensaje)
 		free(message);
 		//no se hace nada con la recepcion del ACK
 	}
-	close(client_fd);
 	free(localized_snd);
 	free(localized_snd->nombrePokemon);
+	close(client_fd);
 }
 
 /*
