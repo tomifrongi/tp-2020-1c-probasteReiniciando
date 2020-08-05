@@ -339,12 +339,17 @@ void procesar_catch_enviar_caught(catch_pokemon* arg, uint32_t idMensaje) {
  * Fin del programa
  * */
 void gm_exit() {
-	//Libero todo lo relacionado a File System
-	gcfsFreeBitmaps();
 
-	//Libero y destruyo logger
-	free(logger);
+	close(listener_socket);
+
 	log_destroy(logger);
+
+	free(puntoMontaje);
+	free(ipBroker);
+	free(tiempoReintentoConexion);
+	free(tiempoReintentoOperacion);
+	free(tiempoRetardoOperacion);
+	free(puertoBroker);
 
 	//Libero metadata
 	free(struct_paths[METADATA]);
