@@ -137,8 +137,6 @@ void* handler_clients(void* socket){
 						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 						pthread_mutex_unlock(mutexMemoria);
 						pthread_mutex_unlock(mutexSuscriptoresNew);
-
-
 					}
 
 					else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
@@ -196,7 +194,6 @@ void* handler_clients(void* socket){
 				pthread_mutex_unlock(mutexId);
 
 
-				//TODO podriamos cambiar este mutex de aca
 				pthread_mutex_lock(mutexIDsCorrelativosAppeared);
 				uint32_t* busqueda_id_c = buscarIdCorrelativo(idsCorrelativosAppeared,mensaje.idCorrelativo);
 				pthread_mutex_unlock(mutexIDsCorrelativosAppeared);
@@ -260,19 +257,25 @@ void* handler_clients(void* socket){
 						{
 							pthread_mutex_lock(mutexMemoria);
 							particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
+							pthread_mutex_lock(mutexSuscriptoresAppeared);
 							suscriptor* sub = list_find(appeared_admin->suscriptores,mismoSocket);
-							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
+							if(sub != NULL)
+								list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 							pthread_mutex_unlock(mutexMemoria);
+							pthread_mutex_unlock(mutexSuscriptoresAppeared);
 
 						}
 
 						else if(string_equals_ignore_case(ALGORITMO_MEMORIA,"BS"))
 						{
 							pthread_mutex_lock(mutexMemoria);
+							pthread_mutex_lock(mutexSuscriptoresAppeared);
 							particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
 							suscriptor* sub = list_find(appeared_admin->suscriptores,mismoSocket);
-							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
+							if(sub != NULL)
+								list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 							pthread_mutex_unlock(mutexMemoria);
+							pthread_mutex_unlock(mutexSuscriptoresAppeared);
 						}
 						indice++;
 					}
@@ -363,7 +366,8 @@ void* handler_clients(void* socket){
 						particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
 						pthread_mutex_lock(mutexSuscriptoresCatch);
 						suscriptor* sub = list_find(catch_admin->suscriptores,mismoSocket);
-						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
+						if(sub != NULL)
+							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 						pthread_mutex_unlock(mutexMemoria);
 						pthread_mutex_unlock(mutexSuscriptoresCatch);
 
@@ -472,12 +476,12 @@ void* handler_clients(void* socket){
 						{
 							pthread_mutex_lock(mutexMemoria);
 							particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
-
+							pthread_mutex_lock(mutexSuscriptoresCaught);
 							suscriptor* sub = list_find(caught_admin->suscriptores,mismoSocket);
 							if(sub != NULL)
 								list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-
 							pthread_mutex_unlock(mutexMemoria);
+							pthread_mutex_unlock(mutexSuscriptoresCaught);
 
 						}
 
@@ -485,12 +489,13 @@ void* handler_clients(void* socket){
 						{
 							pthread_mutex_lock(mutexMemoria);
 							particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
-
+							pthread_mutex_lock(mutexSuscriptoresCaught);
 							suscriptor* sub = list_find(caught_admin->suscriptores,mismoSocket);
 							if(sub != NULL)
 								list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 
 							pthread_mutex_unlock(mutexMemoria);
+							pthread_mutex_unlock(mutexSuscriptoresCaught);
 						}
 						indice++;
 					}
@@ -569,7 +574,8 @@ void* handler_clients(void* socket){
 						particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
 						pthread_mutex_lock(mutexSuscriptoresGet);
 						suscriptor* sub = list_find(get_admin->suscriptores,mismoSocket);
-						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
+						if(sub!=NULL)
+							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 						pthread_mutex_unlock(mutexMemoria);
 						pthread_mutex_unlock(mutexSuscriptoresGet);
 
@@ -581,7 +587,8 @@ void* handler_clients(void* socket){
 						particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
 						pthread_mutex_lock(mutexSuscriptoresGet);
 						suscriptor* sub = list_find(get_admin->suscriptores,mismoSocket);
-						list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
+						if(sub!=NULL)
+							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 						pthread_mutex_unlock(mutexMemoria);
 						pthread_mutex_unlock(mutexSuscriptoresGet);
 					}
@@ -686,10 +693,10 @@ void* handler_clients(void* socket){
 						{
 							pthread_mutex_lock(mutexMemoria);
 							particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
-
+							pthread_mutex_lock(mutexSuscriptoresLocalized);
 							suscriptor* sub = list_find(localized_admin->suscriptores,mismoSocket);
 							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-
+							pthread_mutex_unlock(mutexSuscriptoresLocalized);
 							pthread_mutex_unlock(mutexMemoria);
 
 						}
@@ -698,10 +705,10 @@ void* handler_clients(void* socket){
 						{
 							pthread_mutex_lock(mutexMemoria);
 							particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
-
+							pthread_mutex_lock(mutexSuscriptoresLocalized);
 							suscriptor* sub = list_find(localized_admin->suscriptores,mismoSocket);
 							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-
+							pthread_mutex_unlock(mutexSuscriptoresLocalized);
 							pthread_mutex_unlock(mutexMemoria);
 						}
 						indice++;
@@ -1684,7 +1691,10 @@ void* buscarIdCorrelativo(t_list* lista,uint32_t idCorrelativo){
 
 	uint32_t* elemento_buscado = (uint32_t*) list_find(lista,(void*) compararMensajesPorId);
 	uint32_t* elemento_buscado_creado = malloc(sizeof(uint32_t));
-	*elemento_buscado_creado = *elemento_buscado;
+	if(elemento_buscado != NULL)
+		*elemento_buscado_creado = *elemento_buscado;
+	else
+		elemento_buscado_creado = NULL;
 	return elemento_buscado_creado;
 }
 
