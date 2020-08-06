@@ -279,18 +279,15 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 
 		case LOCALIZED_POKEMON:{
 			localized_pokemon* mensaje = deserializarLocalized(message->content);
-			char* posiciones = malloc(6*(mensaje->cantidadPosiciones)+1);
-			strcpy(posiciones,"");
+			char* posiciones = string_new();
 			t_list* coordenadas = mensaje->posiciones;
 			int i = 0;
 			while(i< mensaje->cantidadPosiciones){
 				coordenada* p = list_get(coordenadas,i);
-				char xy[6];
-				sprintf(xy,"(%d,%d) ",p->posicionEjeX,p->posicionEjeY);
-				strcat(posiciones, xy);
+				string_append_with_format(&posiciones,"(%d,%d) ",p->posicionEjeX,p->posicionEjeY);
 				i++;
 			}
-			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \nNOMBRE: %s \nPOSICIONES %s \n",mensaje->id_mensaje,mensaje->idCorrelativo,mensaje->nombrePokemon,posiciones);
+			log_info(log_team_oficial,"MENSAJE LOCALIZED RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \nNOMBRE: %s \nPOSICIONES %s \n",mensaje->id_mensaje,mensaje->idCorrelativo,mensaje->nombrePokemon,posiciones);
 			free(posiciones);
 			suscripcion mensajeACK;
 			mensajeACK.idCola = LOCALIZED;
