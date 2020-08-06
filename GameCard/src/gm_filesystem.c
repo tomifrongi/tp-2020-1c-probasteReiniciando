@@ -6,11 +6,7 @@ void gm_structs_fs() //Estructuras del File System
 	conf_metadata();
 	init_semaphore();
 }
-void gcfsFreeBitmaps()
-{
-	free(bitmap->bitarray);
-	bitarray_destroy(bitmap);
-}
+
 void init_semaphore() //inicio semaforo
 {
 	pthread_mutex_init(&MUTEX_LISTA_ARCHIVO_ABIERTO, NULL);
@@ -985,17 +981,25 @@ void crear_root_files()
 
 	if(_mkpath(puntoMontaje, 0755) == -1)
 	{
-		log_error(logger, "_mkpath error");
+		log_error(logger, "Error al crear la Carpeta...");
 	}
 	else
 	{
 		// Creo carpetas
+		pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		mkdir(dir_metadata, 0777);
+		pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		log_info(logger, "Creada carpeta Metadata/");
+
+		pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		mkdir(archivos, 0777);
 		log_info(logger, "Creada carpeta Files/");
 		log_info(logger, "Creada carpeta Files/ %s", dir_bloques);//es la de pokemons
+		pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
+
+		pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		mkdir(dir_bloques, 0777);
+		pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		log_info(logger, "Creada carpeta Bloques/");
 	}
 

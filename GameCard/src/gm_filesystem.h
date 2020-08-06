@@ -106,7 +106,6 @@ void deletePokemonTotalIfCoordinateExist(catch_pokemon* catchPokemon, t_list* po
 t_list* requestFreeBlocks(int extraBlocksNeeded);
 char* formatToMetadataBlocks(t_list* blocks);
 
-void gcfsFreeBitmaps();
 void liberar_block_line(t_blockLine* newLineBlock);
 
 void createNewPokemon(new_pokemon* newPokemon);
