@@ -198,11 +198,13 @@ void deserializarLocalized(void* content){
 	memcpy(&mensaje.cantidadPosiciones,content+bytesLeidos,sizeof(mensaje.cantidadPosiciones));
 	bytesLeidos+=(sizeof(mensaje.cantidadPosiciones));
 	int longitudLista = mensaje.cantidadPosiciones *2;
-	uint32_t posiciones[longitudLista];
+	t_list* posiciones = list_create();
 	int index = 0;
 	while(index<longitudLista){
-		memcpy(&posiciones[index],content+bytesLeidos,sizeof(uint32_t));
+		int* posicion = malloc(sizeof(int));
+		memcpy(posicion,content+bytesLeidos,sizeof(uint32_t));
 		bytesLeidos+=(sizeof(uint32_t));
+		list_add(posiciones,posicion);
 		index++;
 	}
 
@@ -211,8 +213,11 @@ void deserializarLocalized(void* content){
 	log_info(logger,"NOMBRE POKEMON: %s",mensaje.nombrePokemon);
 	index = 0;
 	while(index<longitudLista){
-		log_info(logger,"POSICION: (%d,%d)",posiciones[index],posiciones[index+1]);
+		int* posicion1 = list_get(posiciones,index);
+		int* posicion2 = list_get(posiciones,index+1);
+		log_info(logger,"POSICION: (%d,%d)",*posicion1,*posicion2);
 		index+=2;
 	}
 	free(mensaje.nombrePokemon);
+	list_destroy_and_destroy_elements(posiciones,free);
 }
