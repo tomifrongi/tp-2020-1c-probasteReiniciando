@@ -13,7 +13,7 @@ void init_semaphore() //inicio semaforo
 	files_open = dictionary_create();
 }
 
-int directorio_recursivo(const char* path) //directorios
+int directorio_recursivo(char* path) //directorios
 {
 	char* completePath = string_new();
 	char* newDirectoryMetadata = string_new();

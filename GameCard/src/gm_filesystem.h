@@ -95,7 +95,7 @@ int g_blocks_usados;
 
 void gm_structs_fs();
 void init_semaphore();
-int directorio_recursivo(const char* path);
+int directorio_recursivo(char* path);
 int crear_archivo(char* fullPath);
 void actualizar_pokemon_metadata(char* fullPath, char* directory, char* size, char* blocks, char* open, char* op);
 void updateOpenFileState(char* fullPath, char* open, char* op);
