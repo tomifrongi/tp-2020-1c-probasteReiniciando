@@ -99,7 +99,7 @@ void mostrar_pokemon(void*p) { //closure
 	}
 	else
 	{
-		log_info(log_team_oficial,"EL POKEMON ES NUL");
+		log_info(log_team_oficial,"EL POKEMON ES NULL");
 	}
 }
 void mostrar_pokemones(t_list*pokemones) {

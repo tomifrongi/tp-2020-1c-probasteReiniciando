@@ -1,31 +1,8 @@
 #include "team.h"
 
-/*-----------------------------------------------------------CARGA E INICIALIZACION DE PROCESOS TEAM ----------------------*/
-
-//t_list * team_get_objetivo_global(t_team*team) {
-//	t_list *objetivo = list_create();
-//	void foo(t_entrenador*entrenador) {
-//		list_add_all(objetivo, objetivo_personal(entrenador));
-//	}
-//	list_iterate(team->entrenadores, foo);
-//	return objetivo;
-//}
-
-
-
-/*-----------------------------------------------------------VERIFICACION SI TEAM PUEDE PLANIFICAR ATRAPAR UN POKEMON  ----------------------*/
-
-
-/*------------------------------------------------BUSQUEDA DE ENTRENADOR QUE VA A ATRAPAR------------------------------------------------*/
-
-
-/*
-
-/*------------------------------------------------VERIFICACION DE OBJETIVO CUMPLIDO DE TEAM------------------------------------------------*/
 
 bool team_cumplio_objetivo_global(t_team*team) {
 
-	//return( pokemon_suelto(team->mapa)==false && list_is_empty(team_get_objetivo_global(team))==true);//me pa que no va, si cumplio objetivos estaria en exit
 	bool entrenador_finalizado(t_entrenador*entrenador) {
 		return entrenador->estado == EXIT;
 	}

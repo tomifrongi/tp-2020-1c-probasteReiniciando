@@ -218,7 +218,6 @@ void actualizar_estimados(t_entrenador* entrenador,int real_rafaga_anterior,int 
 	//Est(n+1) = 𝝰 R(n) + ( 1 - 𝝰 ) Est(n)
 	double estimado = ALPHA*real_rafaga_anterior + (1-ALPHA) * estimado_rafaga_anterior;
 	entrenador->estimado_rafaga_proxima = estimado;
-	log_info(log_team_oficial,"SE ACTUALIZO EL ESTIMADO DEL ENTRENADOR %d A %f",entrenador->id,entrenador->estimado_rafaga_proxima);
 }
 
 t_entrenador* buscar_entrenador_por_id_correlativo(t_list* entrenadores,int id_correlativo){
@@ -310,7 +309,6 @@ t_list* obtener_objetivo_pokemones_restantes(t_list* entrenadores){
 
 void mostrar_entrenador(void* e){
 	t_entrenador* entrenador = e;
-	log_info(log_team_oficial,"");//DESPUES BORRAAAAAAAAAAR AL FINAL
 	log_info(log_team_oficial,"ID: %d",entrenador->id);
 	log_info(log_team_oficial,"POSICION X: %d POSICION Y: %d",entrenador->posicion_x,entrenador->posicion_y);
 	log_info(log_team_oficial,"POKEMONES CAPTURADOS");

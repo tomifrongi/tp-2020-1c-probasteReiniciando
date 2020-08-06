@@ -206,7 +206,7 @@ void* escuchar_mensajes_gameboy(void* administracion){
 				pthread_detach(team_cli_thread);
 
 			} else {
-				log_error(log_team_oficial, "Error aceptando conexiones: %s", strerror(errno));
+				log_info(log_team_oficial, "Error aceptando conexiones: %s", strerror(errno));
 			}
 		} while (1);
 
@@ -431,7 +431,6 @@ int enviar_catch(char* especie,int posicion_x,int posicion_y,t_list* idsCatchh,p
 		t_message* mensajeConfirmacionID =recv_message(socket_catch);
 		uint32_t idConf;
 		memcpy(&idConf,mensajeConfirmacionID->content,sizeof(uint32_t));
-		log_info(log_team_oficial,"ID CATCH: %d",idConf);
 		id = idConf;
 		free_t_message(mensajeConfirmacionID);
 		shutdown(socket_catch,SHUT_RDWR);

@@ -23,7 +23,7 @@ void crear_hilos_entrenadores(t_team* team) {
 }
 
 
-void planificar_entrenador(t_team * team){
+void planificar_entrenador(t_team * team){ //planificador de largo plazo
 
 
 	t_list* posiciones_pokemon_mapa = buscar_especie_objetivo_en_mapa(team);
@@ -653,7 +653,6 @@ void borrar_estructuras_administrativas(){
 
 }
 
-//----------------------------------------------------------GUION/funcion principal:
 
 
 void planificar_team(t_team*team) {
@@ -741,9 +740,7 @@ void planificar_team(t_team*team) {
 				agregar_entrenador_a_cola_ready(entrenador,team);
 		}
 	}
-	mostrar_entrenadores(team->entrenadores);
 
-	log_info(log_team_oficial,"VALOR SEMAFORO ENTRENADORES READY: %d",semaforo_entrenadores_ready->__align);
 
 	if(detectar_deadlock(TEAM))
 		resolver_deadlock(TEAM,mutex_entrenadores_ready,semaforo_entrenadores_ready);
@@ -795,7 +792,6 @@ void planificar_team(t_team*team) {
 	else
 		log_info(log_team_oficial,"No ocurrieron deadlocks");
 
-	mostrar_entrenadores(team->entrenadores);
 
 	free(appeared_thread);
 	free(localized_thread);
