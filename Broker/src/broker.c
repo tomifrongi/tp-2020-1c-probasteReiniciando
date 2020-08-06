@@ -695,9 +695,11 @@ void* handler_clients(void* socket){
 							particion_dinamica_memoria* particionMenEnv = encontrarParticionDinamicaPorID(mensaje.id_mensaje);
 							pthread_mutex_lock(mutexSuscriptoresLocalized);
 							suscriptor* sub = list_find(localized_admin->suscriptores,mismoSocket);
-							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-							pthread_mutex_unlock(mutexSuscriptoresLocalized);
+							if(sub!=NULL)
+								list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 							pthread_mutex_unlock(mutexMemoria);
+							pthread_mutex_unlock(mutexSuscriptoresLocalized);
+
 
 						}
 
@@ -707,9 +709,11 @@ void* handler_clients(void* socket){
 							particion_buddy_memoria* particionMenEnv = encontrarParticionBuddyPorID(mensaje.id_mensaje);
 							pthread_mutex_lock(mutexSuscriptoresLocalized);
 							suscriptor* sub = list_find(localized_admin->suscriptores,mismoSocket);
-							list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
-							pthread_mutex_unlock(mutexSuscriptoresLocalized);
+							if(sub!=NULL)
+								list_add(particionMenEnv->suscriptoresMensajeEnviado,sub);
 							pthread_mutex_unlock(mutexMemoria);
+							pthread_mutex_unlock(mutexSuscriptoresLocalized);
+
 						}
 						indice++;
 					}
