@@ -133,7 +133,7 @@ void* procesar_localized(void* t){
 		strcpy(pokemon_a_capturar.especie,mensaje->nombrePokemon);
 		coordenada* posicion = list_get(mensaje->posiciones,0);
 		pokemon_a_capturar.posicion_x = posicion->posicionEjeX;
-		pokemon_a_capturar.posicion_x = posicion->posicionEjeY;
+		pokemon_a_capturar.posicion_y = posicion->posicionEjeY;
 		t_pokemon* pokemon_a_capturar_creado = crear_t_pokemon(pokemon_a_capturar);
 		free(pokemon_a_capturar.especie);
 		t_list* pokemones_localized = list_create();
@@ -143,7 +143,7 @@ void* procesar_localized(void* t){
 			pokemon_a_capturar_aux.especie = malloc(mensaje->sizeNombre);
 			strcpy(pokemon_a_capturar_aux.especie,mensaje->nombrePokemon);
 			pokemon_a_capturar_aux.posicion_x = posicionCasteada->posicionEjeX;
-			pokemon_a_capturar_aux.posicion_x = posicionCasteada->posicionEjeY;
+			pokemon_a_capturar_aux.posicion_y = posicionCasteada->posicionEjeY;
 			t_pokemon* pokemon_a_capturar_creado_aux = crear_t_pokemon(pokemon_a_capturar_aux);
 			list_add(pokemones_localized,pokemon_a_capturar_creado_aux);
 			free(pokemon_a_capturar_aux.especie);
