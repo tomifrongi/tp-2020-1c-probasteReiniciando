@@ -18,11 +18,9 @@ void init_semaphore()
  * */
 int directorio_recursivo(char* path)
 {
-	char* completePath = (char*) malloc(sizeof(path));
-	completePath = string_new();
+	char* completePath = string_new();
 
-	char* newDirectoryMetadata = (char*) malloc(sizeof(completePath));
-	newDirectoryMetadata = string_new();
+	char* newDirectoryMetadata = string_new();
 
 	char* super_path = (char*) malloc(strlen(path) +1);
 
@@ -69,8 +67,7 @@ int directorio_recursivo(char* path)
  * */
 int crear_archivo(char* fullPath)
 {
-	char* completePath = (char*) malloc(sizeof(fullPath));
-	completePath = string_new();
+	char* completePath = string_new();
 
 	string_append(&completePath, struct_paths[FILES]);
 	string_append(&completePath, fullPath);
@@ -95,11 +92,9 @@ int crear_archivo(char* fullPath)
  * */
 void actualizar_pokemon_metadata(char* fullPath, char* directory, char* size, char* blocks, char* open, char* op)
 {
-	char* completePath = (char*) malloc(sizeof(fullPath));
-	completePath = string_new();
+	char* completePath = string_new();
 
-	char* newDirectoryMetadata = (char*) malloc(sizeof(completePath));
-	newDirectoryMetadata = string_new();
+	char* newDirectoryMetadata = string_new();
 
 	string_append(&completePath, struct_paths[FILES]);
 	string_append(&completePath, fullPath);
@@ -127,15 +122,13 @@ void actualizar_pokemon_metadata(char* fullPath, char* directory, char* size, ch
  * */
 void updateOpenFileState(char* fullPath, char* open, char* op)
 {
-	char* completePath = (char*) malloc(sizeof(fullPath));
-	completePath = string_new();
+	char* completePath = string_new();
 
-	char* newDirectoryMetadata = (char*) malloc(sizeof(completePath));
-	newDirectoryMetadata = string_new();
+	char* newDirectoryMetadata = string_new();
 
-	char* blockSize = string_new();//falta malloc
+	char* blockSize;
 
-	char* blocks = string_new();//falta malloc
+	char* blocks;
 
 	string_append(&completePath, struct_paths[FILES]);
 	string_append(&completePath, fullPath);
@@ -160,7 +153,6 @@ void updateOpenFileState(char* fullPath, char* open, char* op)
 	
 	free(completePath);
 	free(newDirectoryMetadata);
-
 	free(blockSize);
 	free(blocks);
 }
@@ -763,8 +755,8 @@ t_pokemon_metadata leer_metadata_pokemon(char* pokemonPath)
 
 	t_pokemon_metadata metadata;
 
-	metadata.blocks = string_new();
-	metadata.isOpen = string_new();
+	metadata.blocks;
+	metadata.isOpen;
 
 	string_append(&existingPokemonMetadata, pokemonPath);
 	string_append(&existingPokemonMetadata, "/Metadata.bin");
@@ -881,6 +873,7 @@ t_list* leer_pokemons(t_list* blocks)
 				string_append(&previousLastLine, line);
 				blockLine = estructura_block_line(previousLastLine);
 				isBreakFile = 0;
+				free(previousLastLine);
 				previousLastLine = string_new();
 				list_add(retList, (void*)blockLine);
 			}

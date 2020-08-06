@@ -207,12 +207,7 @@ void* procesar_appeared(void* t){
 		if(flag){
 			pthread_mutex_lock(mutex_planificar_entrenador);
 			list_add(team->mapa_pokemones,pokemon_a_capturar_creado);
-
-			pthread_mutex_lock(mutex_cola_appeared);
-			bool flag2 = queue_is_empty(cola_appeared);
-			pthread_mutex_unlock(mutex_cola_appeared);
-			if(flag2)
-				planificar_entrenador(team);
+			planificar_entrenador(team);
 			pthread_mutex_unlock(mutex_planificar_entrenador);
 		}
 	}
