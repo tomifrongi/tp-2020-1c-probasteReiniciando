@@ -123,7 +123,7 @@ void* handler_suscripciones(void* socket)
 	while(executing){
 		t_message* message = recv_message(socketEnvio);
 		switch(message->head){
-			case NEW:{
+			case NEW_POKEMON:{
 				void*aux=message->content;
 				new_pokemon_suscripcion* mensaje = deserializarNew(aux);
 				uint32_t idMensaje = mensaje->id_mensaje;
@@ -150,7 +150,7 @@ void* handler_suscripciones(void* socket)
 				//free(new_pokemon);
 				break;
 			}
-			case CATCH:{
+			case CATCH_POKEMON:{
 				void*aux=message->content;
 				catch_pokemon_suscripcion* mensaje = deserializarCatch(aux);
 				uint32_t idMensaje = mensaje->id_mensaje;
@@ -178,7 +178,7 @@ void* handler_suscripciones(void* socket)
 				break;
 
 			}
-			case GET:{
+			case GET_POKEMON:{
 				void*aux=message->content;
 				get_pokemon_suscripcion* mensaje = deserializarGet(aux);
 				uint32_t idMensaje = mensaje->id_mensaje;

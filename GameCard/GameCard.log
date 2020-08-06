@@ -1764,3 +1764,138 @@
 [INFO] 17:21:19:547 GameCard/(13934:13942): El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..
 [ERROR] 17:21:19:549 GameCard/(13934:13942): No existen las coordenadas para ese pokemon, no se puede completar la operacion..
 [INFO] 17:21:19:551 GameCard/(13934:13942): El mensaje CAUGHT fue enviado al BROKER
+[INFO] 10:48:27:781 GameCard/(5887:5887): Creada carpeta Metadata/
+[INFO] 10:48:27:863 GameCard/(5887:5887): Creada carpeta Files/
+[INFO] 10:48:27:876 GameCard/(5887:5887): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 10:48:27:879 GameCard/(5887:5887): Creada carpeta Bloques/
+[INFO] 10:48:27:883 GameCard/(5887:5887): Creando Metadata.bin por primera vez...
+[INFO] 10:48:27:928 GameCard/(5887:5887): Leyendo Metadata.bin ...
+[INFO] 10:48:27:936 GameCard/(5887:5887): Creando el Bitmap.bin por primera vez...
+[INFO] 10:48:27:944 GameCard/(5887:5887): Leyendo Bitmap.bin ...
+[INFO] 10:48:27:975 GameCard/(5887:5887): Creando bloques en el path /Bloques
+[INFO] 10:48:28:192 GameCard/(5887:5899): CONEXION EXITOSA CON EL BROKER
+[INFO] 10:48:28:198 GameCard/(5887:5900): CONEXION EXITOSA CON EL BROKER
+[INFO] 10:48:28:203 GameCard/(5887:5887): Servidor levantado! Escuchando en 5011
+[INFO] 10:48:28:204 GameCard/(5887:5902): CONEXION EXITOSA CON EL BROKER
+[INFO] 10:50:40:801 GameCard/(5887:5899): ID MENSAJE: 0
+[INFO] 10:50:40:808 GameCard/(5887:5899): NOMBRE POKEMON: Pikachu
+[INFO] 10:50:40:812 GameCard/(5887:5899): CANTIDAD: 1
+[INFO] 10:50:40:813 GameCard/(5887:5899): POSICION EJE X: 9
+[INFO] 10:50:40:815 GameCard/(5887:5899): POSICION EJE Y: 9
+[INFO] 10:50:40:836 GameCard/(5887:5899): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 10:50:40:896 GameCard/(5887:5899): Se procede a setear el bloque 0 como Ocupado..
+[INFO] 10:50:40:927 GameCard/(5887:5899): Operacion NEW_POKEMON Pikachu, Coordenada: (9, 9, 1) terminada correctamente
+[INFO] 10:50:40:949 GameCard/(5887:5899): El mensaje APPEARED fué enviado al BROKER
+[INFO] 10:50:40:972 GameCard/(5887:5899): ID MENSAJE: 1
+[INFO] 10:50:40:985 GameCard/(5887:5899): NOMBRE POKEMON: Squirtle
+[INFO] 10:50:40:986 GameCard/(5887:5899): CANTIDAD: 1
+[INFO] 10:50:40:986 GameCard/(5887:5899): POSICION EJE X: 5
+[INFO] 10:50:40:987 GameCard/(5887:5899): POSICION EJE Y: 2
+[INFO] 10:50:40:988 GameCard/(5887:5899): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 10:50:40:992 GameCard/(5887:5899): Se procede a setear el bloque 1 como Ocupado..
+[INFO] 10:50:40:996 GameCard/(5887:5899): Operacion NEW_POKEMON Squirtle, Coordenada: (5, 2, 1) terminada correctamente
+[INFO] 10:50:40:999 GameCard/(5887:5899): El mensaje APPEARED fué enviado al BROKER
+[INFO] 10:50:41:11 GameCard/(5887:5899): ID MENSAJE: 2
+[INFO] 10:50:41:12 GameCard/(5887:5899): NOMBRE POKEMON: Jolteon
+[INFO] 10:50:41:12 GameCard/(5887:5899): CANTIDAD: 1
+[INFO] 10:50:41:12 GameCard/(5887:5899): POSICION EJE X: 2
+[INFO] 10:50:41:13 GameCard/(5887:5899): POSICION EJE Y: 2
+[INFO] 10:50:41:21 GameCard/(5887:5899): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 10:50:41:23 GameCard/(5887:5899): Se procede a setear el bloque 2 como Ocupado..
+[INFO] 10:50:41:24 GameCard/(5887:5899): Operacion NEW_POKEMON Jolteon, Coordenada: (2, 2, 1) terminada correctamente
+[INFO] 10:50:41:27 GameCard/(5887:5899): El mensaje APPEARED fué enviado al BROKER
+[INFO] 10:50:41:34 GameCard/(5887:5899): ID MENSAJE: 3
+[INFO] 10:50:41:34 GameCard/(5887:5899): NOMBRE POKEMON: Flareon
+[INFO] 10:50:41:35 GameCard/(5887:5899): CANTIDAD: 1
+[INFO] 10:50:41:38 GameCard/(5887:5899): POSICION EJE X: 4
+[INFO] 10:50:41:39 GameCard/(5887:5899): POSICION EJE Y: 6
+[INFO] 10:50:41:47 GameCard/(5887:5899): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 10:50:41:49 GameCard/(5887:5899): Se procede a setear el bloque 3 como Ocupado..
+[INFO] 10:50:41:51 GameCard/(5887:5899): Operacion NEW_POKEMON Flareon, Coordenada: (4, 6, 1) terminada correctamente
+[INFO] 10:50:41:58 GameCard/(5887:5899): El mensaje APPEARED fué enviado al BROKER
+[INFO] 10:51:17:669 GameCard/(5887:5899): ID MENSAJE: 8
+[INFO] 10:51:17:670 GameCard/(5887:5899): NOMBRE POKEMON: Onix
+[INFO] 10:51:17:671 GameCard/(5887:5899): CANTIDAD: 1
+[INFO] 10:51:17:671 GameCard/(5887:5899): POSICION EJE X: 2
+[INFO] 10:51:17:674 GameCard/(5887:5899): POSICION EJE Y: 8
+[INFO] 10:51:17:676 GameCard/(5887:5899): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 10:51:17:682 GameCard/(5887:5899): Se procede a setear el bloque 4 como Ocupado..
+[INFO] 10:51:17:685 GameCard/(5887:5899): Operacion NEW_POKEMON Onix, Coordenada: (2, 8, 1) terminada correctamente
+[INFO] 10:51:17:689 GameCard/(5887:5899): El mensaje APPEARED fué enviado al BROKER
+[INFO] 10:51:17:693 GameCard/(5887:5899): ID MENSAJE: 9
+[INFO] 10:51:17:698 GameCard/(5887:5899): NOMBRE POKEMON: Gengar
+[INFO] 10:51:17:699 GameCard/(5887:5899): CANTIDAD: 1
+[INFO] 10:51:17:700 GameCard/(5887:5899): POSICION EJE X: 6
+[INFO] 10:51:17:700 GameCard/(5887:5899): POSICION EJE Y: 6
+[INFO] 10:51:17:705 GameCard/(5887:5899): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 10:51:17:708 GameCard/(5887:5899): Se procede a setear el bloque 5 como Ocupado..
+[INFO] 10:51:17:713 GameCard/(5887:5899): Operacion NEW_POKEMON Gengar, Coordenada: (6, 6, 1) terminada correctamente
+[INFO] 10:51:17:716 GameCard/(5887:5899): El mensaje APPEARED fué enviado al BROKER
+[INFO] 10:51:17:734 GameCard/(5887:5899): ID MENSAJE: 11
+[INFO] 10:51:17:735 GameCard/(5887:5899): NOMBRE POKEMON: Squirtle
+[INFO] 10:51:17:735 GameCard/(5887:5899): CANTIDAD: 1
+[INFO] 10:51:17:737 GameCard/(5887:5899): POSICION EJE X: 5
+[INFO] 10:51:17:738 GameCard/(5887:5899): POSICION EJE Y: 5
+[INFO] 10:51:17:740 GameCard/(5887:5899): Pokemon existe dentro del FileSystem!
+[INFO] 10:51:27:766 GameCard/(5887:5899): El archivo no está abierto por ningun proceso, se procede a abrir el mismo...
+[INFO] 10:51:27:860 GameCard/(5887:5899): Operacion NEW_POKEMON Squirtle, Coordenada (5, 5, 1) terminada correctamente
+[INFO] 10:51:27:889 GameCard/(5887:5899): El mensaje APPEARED fué enviado al BROKER
+[INFO] 10:51:27:896 GameCard/(5887:5899): ID MENSAJE: 12
+[INFO] 10:51:27:898 GameCard/(5887:5899): NOMBRE POKEMON: Umbreon
+[INFO] 10:51:27:898 GameCard/(5887:5899): CANTIDAD: 1
+[INFO] 10:51:27:900 GameCard/(5887:5899): POSICION EJE X: 10
+[INFO] 10:51:27:901 GameCard/(5887:5899): POSICION EJE Y: 6
+[INFO] 10:51:27:902 GameCard/(5887:5899): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 10:51:27:909 GameCard/(5887:5899): Se procede a setear el bloque 6 como Ocupado..
+[INFO] 10:51:27:912 GameCard/(5887:5899): Operacion NEW_POKEMON Umbreon, Coordenada: (10, 6, 1) terminada correctamente
+[INFO] 10:51:27:916 GameCard/(5887:5899): El mensaje APPEARED fué enviado al BROKER
+[INFO] 10:51:27:919 GameCard/(5887:5899): ID MENSAJE: 13
+[INFO] 10:51:27:919 GameCard/(5887:5899): NOMBRE POKEMON: Espeon
+[INFO] 10:51:27:920 GameCard/(5887:5899): CANTIDAD: 1
+[INFO] 10:51:27:921 GameCard/(5887:5899): POSICION EJE X: 7
+[INFO] 10:51:27:925 GameCard/(5887:5899): POSICION EJE Y: 1
+[INFO] 10:51:27:927 GameCard/(5887:5899): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 10:51:27:933 GameCard/(5887:5899): Se procede a setear el bloque 7 como Ocupado..
+[INFO] 10:51:27:935 GameCard/(5887:5899): Operacion NEW_POKEMON Espeon, Coordenada: (7, 1, 1) terminada correctamente
+[INFO] 10:51:27:939 GameCard/(5887:5899): El mensaje APPEARED fué enviado al BROKER
+[INFO] 10:51:27:941 GameCard/(5887:5899): ID MENSAJE: 15
+[INFO] 10:51:27:942 GameCard/(5887:5899): NOMBRE POKEMON: Vaporeon
+[INFO] 10:51:27:943 GameCard/(5887:5899): CANTIDAD: 1
+[INFO] 10:51:27:943 GameCard/(5887:5899): POSICION EJE X: 4
+[INFO] 10:51:27:945 GameCard/(5887:5899): POSICION EJE Y: 10
+[INFO] 10:51:27:946 GameCard/(5887:5899): No existe ese Pokemon. Se crean y escriben las estructuras.
+[INFO] 10:51:27:949 GameCard/(5887:5899): Se procede a setear el bloque 8 como Ocupado..
+[INFO] 10:51:27:955 GameCard/(5887:5899): Operacion NEW_POKEMON Vaporeon, Coordenada: (4, 10, 1) terminada correctamente
+[INFO] 10:51:27:957 GameCard/(5887:5899): El mensaje APPEARED fué enviado al BROKER
+[INFO] 10:52:01:866 GameCard/(5887:5902): ID MENSAJE: 20
+[INFO] 10:52:01:876 GameCard/(5887:5902): NOMBRE POKEMON: Squirtle
+[INFO] 10:52:01:879 GameCard/(5887:5902): POSICION EJE X: 0
+[INFO] 10:52:01:883 GameCard/(5887:5902): POSICION EJE Y: 0
+[INFO] 10:52:01:893 GameCard/(5887:5902): Existe el pokemon, se leen las estructuras
+[INFO] 10:52:11:900 GameCard/(5887:5902): El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..
+[ERROR] 10:52:11:907 GameCard/(5887:5902): No existen las coordenadas para ese pokemon, no se puede completar la operacion..
+[INFO] 10:52:11:917 GameCard/(5887:5902): El mensaje CAUGHT fue enviado al BROKER
+[INFO] 10:52:11:922 GameCard/(5887:5902): ID MENSAJE: 21
+[INFO] 10:52:11:929 GameCard/(5887:5902): NOMBRE POKEMON: Pikachu
+[INFO] 10:52:11:934 GameCard/(5887:5902): POSICION EJE X: 0
+[INFO] 10:52:11:936 GameCard/(5887:5902): POSICION EJE Y: 0
+[INFO] 10:52:11:936 GameCard/(5887:5902): Existe el pokemon, se leen las estructuras
+[INFO] 10:52:21:940 GameCard/(5887:5902): El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..
+[ERROR] 10:52:21:942 GameCard/(5887:5902): No existen las coordenadas para ese pokemon, no se puede completar la operacion..
+[INFO] 10:52:21:945 GameCard/(5887:5902): El mensaje CAUGHT fue enviado al BROKER
+[INFO] 10:52:21:948 GameCard/(5887:5902): ID MENSAJE: 22
+[INFO] 10:52:21:948 GameCard/(5887:5902): NOMBRE POKEMON: Gengar
+[INFO] 10:52:21:949 GameCard/(5887:5902): POSICION EJE X: 0
+[INFO] 10:52:21:949 GameCard/(5887:5902): POSICION EJE Y: 0
+[INFO] 10:52:21:950 GameCard/(5887:5902): Existe el pokemon, se leen las estructuras
+[INFO] 10:52:31:952 GameCard/(5887:5902): El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..
+[ERROR] 10:52:31:954 GameCard/(5887:5902): No existen las coordenadas para ese pokemon, no se puede completar la operacion..
+[INFO] 10:52:31:957 GameCard/(5887:5902): El mensaje CAUGHT fue enviado al BROKER
+[INFO] 10:52:31:958 GameCard/(5887:5902): ID MENSAJE: 23
+[INFO] 10:52:31:959 GameCard/(5887:5902): NOMBRE POKEMON: Onix
+[INFO] 10:52:31:959 GameCard/(5887:5902): POSICION EJE X: 0
+[INFO] 10:52:31:960 GameCard/(5887:5902): POSICION EJE Y: 0
+[INFO] 10:52:31:961 GameCard/(5887:5902): Existe el pokemon, se leen las estructuras
+[INFO] 10:52:41:965 GameCard/(5887:5902): El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..
+[ERROR] 10:52:41:970 GameCard/(5887:5902): No existen las coordenadas para ese pokemon, no se puede completar la operacion..
+[INFO] 10:52:41:973 GameCard/(5887:5902): El mensaje CAUGHT fue enviado al BROKER

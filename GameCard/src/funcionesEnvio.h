@@ -21,6 +21,7 @@
 #include <commons/config.h>
 #include <commons/log.h>
 #include <commons/collections/list.h>
+#include <arpa/inet.h>
 
 //HEADERS--------------------------------------------------------------
 
