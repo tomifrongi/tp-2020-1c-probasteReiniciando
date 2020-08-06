@@ -7,17 +7,25 @@ void gm_structs_fs() //Estructuras del File System
 	init_semaphore();
 }
 
-void init_semaphore() //inicio semaforo
+void init_semaphore()
 {
 	pthread_mutex_init(&MUTEX_LISTA_ARCHIVO_ABIERTO, NULL);
 	files_open = dictionary_create();
 }
 
-int directorio_recursivo(char* path) //directorios
+/*
+ * Directorios, se chequean los path
+ * */
+int directorio_recursivo(char* path)
 {
-	char* completePath = string_new();
-	char* newDirectoryMetadata = string_new();
+	char* completePath = (char*) malloc(sizeof(path));
+	completePath = string_new();
+
+	char* newDirectoryMetadata = (char*) malloc(sizeof(completePath));
+	newDirectoryMetadata = string_new();
+
 	char* super_path = (char*) malloc(strlen(path) +1);
+
 	char* nombre = (char*) malloc(strlen(path)+1);
 
 	string_append(&completePath, struct_paths[TALL_GRASS]);
@@ -43,6 +51,7 @@ int directorio_recursivo(char* path) //directorios
 		config_metadata = config_create(newDirectoryMetadata);
 		config_set_value(config_metadata, "DIRECTORY", "Y");
 		config_save(config_metadata);
+
 		config_destroy(config_metadata);
 		fclose(metadata);
 		return 0;
@@ -55,15 +64,20 @@ int directorio_recursivo(char* path) //directorios
 	return 0;
 }
 
-int crear_archivo(char* fullPath)//Crear archivo
+/*
+ * Crear archivo para el pokemon
+ * */
+int crear_archivo(char* fullPath)
 {
-	char* completePath = string_new();
+	char* completePath = (char*) malloc(sizeof(fullPath));
+	completePath = string_new();
+
 	string_append(&completePath, struct_paths[FILES]);
 	string_append(&completePath, fullPath);
 
 	if(access(completePath, F_OK) != -1)
 	{
-        log_info(logger, "Existe el directory para ese pokemon %s", completePath);
+        log_info(logger, "Existe el directorio para el pokemon dado %s", completePath);
 		return -1;
     }
 	else
@@ -71,17 +85,22 @@ int crear_archivo(char* fullPath)//Crear archivo
 		mkdir(completePath, 0777);
 		actualizar_pokemon_metadata(fullPath, "N", "0", "[]", "N", "NEW_POKEMON");
 	}
+
 	free(completePath);
 	return 0;
 }
-//actualizar al pokemon dentro del metadata
+
+/*
+ * Actualizar en files/pokemon el metadata.bin que le corresponde a dicho pokemon
+ * */
 void actualizar_pokemon_metadata(char* fullPath, char* directory, char* size, char* blocks, char* open, char* op)
-{//op es operacion
-	/*log_info(logger, "PATH %s", fullPath)
-	 * log_info(logger, "OPERACION %s", op)
-	 * log_info(logger, "OPEN %s", open)*/
-	char* completePath = string_new();
-	char* newDirectoryMetadata = string_new();
+{
+	char* completePath = (char*) malloc(sizeof(fullPath));
+	completePath = string_new();
+
+	char* newDirectoryMetadata = (char*) malloc(sizeof(completePath));
+	newDirectoryMetadata = string_new();
+
 	string_append(&completePath, struct_paths[FILES]);
 	string_append(&completePath, fullPath);
 
@@ -98,25 +117,30 @@ void actualizar_pokemon_metadata(char* fullPath, char* directory, char* size, ch
 	
 	config_destroy(config_metadata);
 	fclose(metadata);
+
 	free(completePath);
 	free(newDirectoryMetadata);
 }
 
-void updateOpenFileState(char* fullPath, char* open, char* op)//actualizar el estado del archivo
-{//op es operacion
-	/*log_info(logger, "PATH %s", fullPath)
-	 * log_info(logger, "OPERACION %s", op)
-	 * log_info(logger, "OPEN %s", open)*/
-	char* completePath = string_new();
-	char* newDirectoryMetadata = string_new();
-	char* blockSize = string_new();
-	char* blocks = string_new();
+/*
+ * Se actualiza a la carpeta files el metadata.bin correspondiente
+ * */
+void updateOpenFileState(char* fullPath, char* open, char* op)
+{
+	char* completePath = (char*) malloc(sizeof(fullPath));
+	completePath = string_new();
+
+	char* newDirectoryMetadata = (char*) malloc(sizeof(completePath));
+	newDirectoryMetadata = string_new();
+
+	char* blockSize = string_new();//falta malloc
+
+	char* blocks = string_new();//falta malloc
 
 	string_append(&completePath, struct_paths[FILES]);
 	string_append(&completePath, fullPath);
 	string_append(&newDirectoryMetadata, completePath);
 	string_append(&newDirectoryMetadata, "/Metadata.bin");
-
 
 	t_config* readMetadataFile = config_create(newDirectoryMetadata);
 	blockSize = string_duplicate(config_get_string_value(readMetadataFile, "SIZE"));
@@ -136,11 +160,15 @@ void updateOpenFileState(char* fullPath, char* open, char* op)//actualizar el es
 	
 	free(completePath);
 	free(newDirectoryMetadata);
+
 	free(blockSize);
 	free(blocks);
 }
 
-int coordinateExists(unsigned int posX, unsigned int posY, t_list* pokemonLines)//ver si existen las coordenadas dadas
+/*
+ * Chequear coordenadas del pokemon dado
+ * */
+int coordinateExists(unsigned int posX, unsigned int posY, t_list* pokemonLines)
 {
 	int coordinateExist = 0;
 	for (int i=0; i<list_size(pokemonLines); i++)
@@ -155,7 +183,10 @@ int coordinateExists(unsigned int posX, unsigned int posY, t_list* pokemonLines)
 	return coordinateExist;
 }
 
-void addTotalPokemonIfCoordinateExist(new_pokemon* newPokemon, t_list* pokemonLines)//agregar pokemon en caso de que existan coordenadas
+/*
+ * Agregar pokemon en caso de que las coordenadas sean las correctas
+ * */
+void addTotalPokemonIfCoordinateExist(new_pokemon* newPokemon, t_list* pokemonLines)
 {
 	for (int i=0; i<list_size(pokemonLines); i++)
 	{
@@ -167,7 +198,10 @@ void addTotalPokemonIfCoordinateExist(new_pokemon* newPokemon, t_list* pokemonLi
 	}
 }
 
-void deletePokemonTotalIfCoordinateExist(catch_pokemon* catchPokemon, t_list* pokemonLines)//eliminar pokemon en caso de que existan coordenadas
+/*
+ * Eliminar pokemon en caso de que las coordenadas sean correctas
+ * */
+void deletePokemonTotalIfCoordinateExist(catch_pokemon* catchPokemon, t_list* pokemonLines)
 {
 	for (int i=0; i<list_size(pokemonLines); i++)
 	{
@@ -186,7 +220,10 @@ void deletePokemonTotalIfCoordinateExist(catch_pokemon* catchPokemon, t_list* po
 	}
 }
 
-t_list* requestFreeBlocks(int extraBlocksNeeded)//pedir bloques libres
+/*
+ * Pedir bloques libres
+ * */
+t_list* requestFreeBlocks(int extraBlocksNeeded)
 {
 	t_list* retList = list_create();
 	for (int i=0; i<extraBlocksNeeded; i++)
@@ -196,8 +233,9 @@ t_list* requestFreeBlocks(int extraBlocksNeeded)//pedir bloques libres
 	}
 	return retList;
 }
-
-// Formatea una lista de enteros a un string con formato [1, 2, 3] requerido por el Metadata
+/*
+ * Formatea una lista de enteros a un string con formato [1,2,3,4,5,6,...] requerido por el metadata
+ * */
 char* formatToMetadataBlocks(t_list* blocks)
 {
 	char* retBlocks = string_new();
@@ -221,11 +259,17 @@ char* formatToMetadataBlocks(t_list* blocks)
 	return retBlocks;
 }
 
+/*
+ * Liberamos el bloque
+ * */
 void liberar_block_line(t_blockLine* newLineBlock)
 {
 	free(newLineBlock);
 }
 
+/*
+ * Creamos un new_pokemon en caso de que no exista en el FS
+ * */
 void createNewPokemon(new_pokemon* newPokemon)
 {
 	char* completePath = string_new();
@@ -331,6 +375,9 @@ void createNewPokemon(new_pokemon* newPokemon)
 	free(completePath);
 }
 
+/*
+ * Se chequea que el pokemon exista para luego leer las estructuras
+ * */
 int catchAPokemon(catch_pokemon* catchPokemon)
 {
 	char* completePath = string_new();
@@ -353,6 +400,9 @@ int catchAPokemon(catch_pokemon* catchPokemon)
 	return res;
 }
 
+/*
+ * Si existe el pokemon dado, se leen las estructuras
+ * */
 t_list* getAPokemon(get_pokemon* getPokemon)
 {
 	char* completePath = string_new();
@@ -375,6 +425,9 @@ t_list* getAPokemon(get_pokemon* getPokemon)
 	return res;
 }
 
+/*
+ * Se opera el new_pokemon, es decir, abrir el archivo y ver el contenido del mismo
+ * */
 void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int freeBlocks)
 {
 	t_pokemon_metadata pokemonMetadata = leer_metadata_pokemon(completePath);
@@ -388,11 +441,13 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 		dictionary_put(files_open, completePath, pokemonOpenTad);
 	}
 	pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
+
 	while(true)
 	{
 		if(string_equals_ignore_case(pokemonMetadata.isOpen, "N")) {
 			sleep(10);
 			log_info(logger, "El archivo no está abierto por ningun proceso, se procede a abrir el mismo...");
+
 			pthread_mutex_lock(&pokemonOpenTad->mArchivo);
 			updateOpenFileState(newPokemon->nombrePokemon, "Y", "NEW_POKEMON");
 			pthread_mutex_unlock(&pokemonOpenTad->mArchivo);
@@ -435,9 +490,11 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 			}
 
 			char* metadataBlocks = formatToMetadataBlocks(listBlocks);
+
 			pthread_mutex_lock(&pokemonOpenTad->mArchivo);
 			actualizar_pokemon_metadata(newPokemon->nombrePokemon, "N", stringLength, metadataBlocks, "N", "NEW_POKEMON");
 			pthread_mutex_unlock(&pokemonOpenTad->mArchivo);
+
 			list_destroy_and_destroy_elements(pokemonLines, (void*) liberar_block_line);
 			free(stringToWrite);
 			free(stringLength);
@@ -455,7 +512,11 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 	free(pokemonMetadata.isOpen);
 }
 
-t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
+/*
+ * Se opera el get pokemon, es decir se abre el archivo en caso de ser necesario
+ * */
+t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath)
+{
 	t_pokemon_metadata pokemonMetadata = leer_metadata_pokemon(completePath);
 	t_list* res;
 
@@ -472,6 +533,7 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
 		if (string_equals_ignore_case(pokemonMetadata.isOpen, "N")) {
 			sleep(10);
 			log_info(logger, "El archivo no esta abierto por ningun proceso, se procede a abrir el mismo..");
+
 			pthread_mutex_lock(&pokemonOpenTad->mArchivo);
 			updateOpenFileState(getPokemon->nombrePokemon, "Y", "GET_POKEMON");
 			pthread_mutex_unlock(&pokemonOpenTad->mArchivo);
@@ -499,6 +561,9 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath) {
 	return res;
 }
 
+/*
+ * Operar catch pokemon, se abre archivo y demás
+ * */
 int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 {
 	t_pokemon_metadata pokemonMetadata = leer_metadata_pokemon(completePath);
@@ -517,6 +582,7 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 		if (string_equals_ignore_case(pokemonMetadata.isOpen, "N")) {
 			sleep(10);
 			log_info(logger, "El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..");
+
 			pthread_mutex_lock(&pokemonOpenTad->mArchivo);
 			updateOpenFileState(catchPokemon->nombrePokemon, "Y", "CATCH_POKEMON");
 			pthread_mutex_unlock(&pokemonOpenTad->mArchivo);
@@ -539,6 +605,7 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 						pthread_mutex_lock(&pokemonOpenTad->mArchivo);
 						actualizar_pokemon_metadata(catchPokemon->nombrePokemon, "N", stringLength, metadataBlocks, "N", "CATCH_POKEMON");
 						pthread_mutex_unlock(&pokemonOpenTad->mArchivo);
+
 						free(metadataBlocks);
 					}
 					
@@ -558,9 +625,7 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 						free(metadataBlocks);
 					}
 				}
-				//Edge case donde el pokemon tiene una sola linea, un solo
-				//bloque asignado y la unica coordenada es ==1
-
+				//si el pokemon tiene una sola linea, un solo bloque asignado y la unica coordenada es ==1
 				//asumo que el bloque se queda ocupado pero con size = 0
 				if (strlen(stringToWrite) == 0 && list_size(pokemonLines) == 0) {
 					int blockUsed = (int) list_get(listBlocks, 0);
@@ -586,6 +651,7 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 			}
 			else {
 				log_error(logger, "No existen las coordenadas para ese pokemon, no se puede completar la operacion..");
+
 				pthread_mutex_lock(&pokemonOpenTad->mArchivo);
 				updateOpenFileState(catchPokemon->nombrePokemon, "N", "CATCH_POKEMON");
 				pthread_mutex_unlock(&pokemonOpenTad->mArchivo);
@@ -607,6 +673,9 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 	return res;
 }
 
+/*
+ * Semaforo mutex para la sincronizacion de operacion de los distintos tipos de mensajes que llegan al gamecard
+ * */
 pokemon_open_tad* new_pokemon_open_tad() {
 	pokemon_open_tad* pokemonOpenTad = malloc(sizeof(pokemon_open_tad));
 	pthread_mutex_init(&pokemonOpenTad->mArchivo, NULL);
@@ -614,14 +683,18 @@ pokemon_open_tad* new_pokemon_open_tad() {
 }
 
 //----------------------------GM_HANDLER------------------------------//
-
-//Evalua si el ultimo caracter de string es char
+/*
+ * Evalua si el ultimo caracter de string es char
+ * */
 int es_char(char* str, char chr)
 {
 	if ( ( str[strlen(str)-1]  == chr) ) return 1;
 	return 0;
 }
 
+/*
+ * Acomoda el path
+ * */
 int split_path(const char* path, char** super_path, char** name)
 {
 	int aux;
@@ -646,6 +719,9 @@ int split_path(const char* path, char** super_path, char** name)
 	return 0;
 }
 
+/*
+ * Se chequea que el path tenga '/' correctamente
+ *  */
 int _mkpath(char* file_path, mode_t mode)
 {
 	assert(file_path && *file_path);
@@ -666,15 +742,20 @@ int _mkpath(char* file_path, mode_t mode)
 	return 0;
 }
 
-//Lo que hace es obtener el path que corresponde al bloque en el que estamos trabajando
+/*
+ * Obtiene el path que corresponde al bloque en el que se está trabajando
+ * */
 char* obtener_path_nro_bloque(int numeroDeBloque)
 {
 	char* path_del_bloque = malloc(strlen(puntoMontaje)+strlen("/Bloques")+20);
 	sprintf(path_del_bloque,"%sBloques/%d.bin",puntoMontaje, numeroDeBloque);
+	//free(path_del_bloque);
 	return path_del_bloque;
 }
 
-//Esta funcion es para leer el metadata del pokemon
+/*
+ * Se lee el metadata del pokemon y la info que contiene
+ * */
 t_pokemon_metadata leer_metadata_pokemon(char* pokemonPath)
 {
 	char* existingPokemonMetadata = string_new();
@@ -700,19 +781,28 @@ t_pokemon_metadata leer_metadata_pokemon(char* pokemonPath)
 }
 
 //---------------------BLOQUE_HANDLER----------------------//
-int blocks_ocupados(char* value) //cuantos bloques ocupados hay
+/*
+ * Devuelve cuantos bloques ocupados hay
+ * */
+int blocks_ocupados(char* value)
 {
     int tamanio = string_length(value);
     return obtener_blocks(tamanio);
 }
 
-int obtener_blocks(int tamanio) //calcula la cant de bloques que tiene..
+/*
+ * Se calcula la cantidad de bloques que tiene
+ * */
+int obtener_blocks(int tamanio)
 {
     // Redondea hacia arriba
     return 1 + ((tamanio - 1) / metadata.block_size);
 }
 
-void escribir_blocks(char* value, t_list* bloques) //escribir en bloques
+/*
+ * Escribir en bloques
+ * */
+void escribir_blocks(char* value, t_list* bloques)
 {
     int limite = string_length(value);
     char* valorAGuardar = string_duplicate(value);
@@ -751,12 +841,10 @@ void escribir_blocks(char* value, t_list* bloques) //escribir en bloques
     free(valorAGuardar);
 }
 
-// Dado una lista de bloques t_list 1,2,3 se leen los contenidos de dichos bloques
-// y se retorna una lista con los contenidos leidos
-// t_list(int) => t_list (blockLine)
-// is_break determina si el contenido fue partido en otro bloque (si es que al grabar no entro todo el contenido y el salto d linea esta en el bloque siguiente)
-
-t_list* leer_pokemons(t_list* blocks) //read pokemon lines (antes)
+/*
+ * Se leen los contenidos de los bloques y retorna una lista con los contenidos leidos
+ * */
+t_list* leer_pokemons(t_list* blocks)
 {
 	t_list* retList = list_create();
 	size_t len = 0;
@@ -812,7 +900,9 @@ t_list* leer_pokemons(t_list* blocks) //read pokemon lines (antes)
 	return retList;
 }
 
-// Dado un string con formato [1,2,3,...] se devuelve una lista con los enteros que simbolizan un numero de bloque
+/*
+ * Dada [1,2,3,...] retorna una lista con los enteros que simbolizan un numero de bloque
+ * */
 t_list* string_blocks_list(char* blocks)
 {
 	t_list* retList = list_create();
@@ -837,7 +927,9 @@ t_list* string_blocks_list(char* blocks)
 	return retList;
 }
 
-// Dado una linea con formato "1-1=100/n" se devuelve la estructura correspondiente para poder manipularla
+/*
+ * Dada una linea "1-1=100\n" se devuelve la estructura correspondienta para poder manipularla
+ * */
 blockLine* estructura_block_line(char* blockline)
 {
 	blockLine* newLineBlock = malloc(sizeof(blockLine));
@@ -849,7 +941,9 @@ blockLine* estructura_block_line(char* blockline)
 	return newLineBlock;
 }
 
-// Formatea una lista de blockLines al string final que se va escribir "1-3=10\n1-3=50\n"
+/*
+ * Formatea una lista de blockLines al string final que se va a escribir "1-3=10\n1-3=50\n"
+ * */
 char* block_lines_string(t_list* pokemonLines)
 {
 	char* retChar = string_new();
@@ -861,7 +955,9 @@ char* block_lines_string(t_list* pokemonLines)
 	return retChar;
 }
 
-// Formatea unas coordenadas y cantidad a "1-1=100" string
+/*
+ * Formatea unas coordenadas y la cantidad a "1-1=100" string
+ * */
 char* formatear_block_lines(int intPosX, int intPosY, int intCantidad)
 {
 	char* pokemonPerPosition = string_new();
@@ -882,6 +978,9 @@ char* formatear_block_lines(int intPosX, int intPosY, int intCantidad)
 	return pokemonPerPosition;
 }
 
+/*
+ * Se crea un nuevo bloque con las coordenadas y cantidad
+ * */
 t_blockLine* crear_block_line(int intPosX, int intPosY, int intCantidad)
 {
 	t_blockLine* newLineBlock = malloc(sizeof(blockLine));
@@ -891,6 +990,9 @@ t_blockLine* crear_block_line(int intPosX, int intPosY, int intCantidad)
 	return newLineBlock;
 }
 
+/*
+ * Muestra al pokemon con sus coordenadas y cantidad
+ * */
 void mostrar_lista_pokemons(t_list* pokemonLines)
 {
 	log_info(logger, "Size lista %d:", list_size(pokemonLines));
@@ -902,7 +1004,9 @@ void mostrar_lista_pokemons(t_list* pokemonLines)
 	}
 }
 
-//Chequea si el string a escribir entra en los bloques
+/*
+ * Chequea si el string a escribir entra en los bloques
+ * */
 bool entra_en_blocks(char* stringToWrite, t_list* listBlocks)
 {
 	int stringToWriteSize = strlen(stringToWrite);
@@ -911,28 +1015,42 @@ bool entra_en_blocks(char* stringToWrite, t_list* listBlocks)
 }
 
 //-----------------------------GM_BITMAP------------------------------//
+/*
+ * Muestra el bitarray en la posicion
+ * */
 void mostrar_bitarray(t_bitarray* bitmap)
 {
 	for(int k =0;k<(bitarray_get_max_bit(bitmap));k++)
 	printf("Test bit posicion, es  %d en posicion %d \n", bitarray_test_bit(bitmap,k),k);
 }
 
-void conf_bloq_in_pos(t_bitarray* bitmap, off_t pos)//setear bloque ocupado en posicion
+/*
+ * Setea el bloque ocupado en la posicion correspondiente
+ * */
+void conf_bloq_in_pos(t_bitarray* bitmap, off_t pos)
 {
 	bitarray_set_bit(bitmap, pos);
 }
 
-void conf_liberar_bloq_in_pos(t_bitarray* bitmap, off_t pos)//setear bloque libre en posicion
+/*
+ * Setea el bloque libre en posicion correspondiente
+ * */
+void conf_liberar_bloq_in_pos(t_bitarray* bitmap, off_t pos)
 {
 	bitarray_clean_bit(bitmap, pos);
 }
 
-bool testear_bloq_lib_in_pos(t_bitarray* bitmap, int pos)//testear bloque libre en posicion
+/*
+ * Testea en bloque libre en la posicion correspondiente
+ * */
+bool testear_bloq_lib_in_pos(t_bitarray* bitmap, int pos)
 {
 	return bitarray_test_bit(bitmap, (off_t)(pos));
 }
 
-// Obtiene y setea el proximo bloque libre
+/*
+ * Obtiene y setea el proximo bloque libre
+ * */
 int obtener_conf_free_block(t_bitarray* bitmap, unsigned int blocks)
 {
 	int j;
@@ -942,7 +1060,9 @@ int obtener_conf_free_block(t_bitarray* bitmap, unsigned int blocks)
 	return j;
 }
 
-// Retorna la cantidad de bloques libres
+/*
+ * Retorna la cantidad de bloques libres
+ * */
 int liberar_blocks(int metadataBlocks, t_bitarray* bitmap)
 {
     int bloques_libres = 0;
@@ -961,7 +1081,9 @@ int liberar_blocks(int metadataBlocks, t_bitarray* bitmap)
 
 //----------------------GM_METADATA SETUP--------------------------//
 
-//Creacion de tall grass
+/*
+ * Creacion de tall grass con las carpetas
+ * */
 void crear_root_files()
 {
 	char* dir_tallGrass = string_new();
@@ -1009,6 +1131,9 @@ void crear_root_files()
 	struct_paths[TALL_GRASS] = dir_tallGrass;
 }
 
+/*
+ * Creacion de metadata con archivos correspondientes, se crean bloques
+ * */
 void conf_metadata()
 {
 	char* metadataBin = string_new();
@@ -1046,7 +1171,10 @@ void conf_metadata()
 	free(bitmapBin);
 }
 
-void conf_files()//setup files del directorio
+/*
+ * Se crea path de files/pokemon, y en caso de no tener pokemon, su metadata
+ * */
+void conf_files()
 {
 	char* pokemonBasePath = string_new();
 	char* pokemonBaseBin = string_new();
@@ -1062,15 +1190,20 @@ void conf_files()//setup files del directorio
 
 	FILE* pokemonMetadata = fopen(pokemonBaseBin, "w+b");
 	t_config* pokemonConfigMetadata = config_create(pokemonBaseBin);
+
 	config_set_value(pokemonConfigMetadata, "DIRECTORY", "Y");
 	config_save(pokemonConfigMetadata);
 	log_info(logger, "Creado directorio base /Pokemon y su Metadata.bin");
+
 	fclose(pokemonMetadata);
 
 	free(pokemonBasePath);
 	free(pokemonBaseBin);
 }
 
+/*
+ * Se crean los bloques
+ * */
 void crear_blocks()
 {
 	log_info(logger, "Creando bloques en el path /Bloques");
@@ -1083,6 +1216,9 @@ void crear_blocks()
     }
 }
 
+/*
+ * Se crea bitmap
+ * */
 void crear_bitmap(char* bitmap_bin){
 	log_info(logger, "Creando el Bitmap.bin por primera vez...");
 	bitmap_file = fopen(bitmap_bin, "wb+");
@@ -1092,19 +1228,26 @@ void crear_bitmap(char* bitmap_bin){
 	free(bitarray);
 }
 
+/*
+ * Configuracion del sistema con los valores ya cargados
+ * */
 void crear_metadata_file(char* metadataBin)
 {
 	log_info(logger, "Creando Metadata.bin por primera vez...");
 	FILE* metadata = fopen(metadataBin, "w+b");
 	config_metadata = config_create(metadataBin);
 	config_set_value(config_metadata, "BLOCK_SIZE", "64");
-	config_set_value(config_metadata, "BLOCKS", "1024"); // asi no tengo 5492 bloques
+	config_set_value(config_metadata, "BLOCKS", "1024");
 	config_set_value(config_metadata, "MAGIC_NUMBER", "TALL_GRASS");
 	config_save(config_metadata);
+
 	config_destroy(config_metadata);
 	fclose(metadata);
 }
 
+/*
+ * Se lee metadata con su contenido
+ * */
 void leer_metadata(char* metadataPath)
 {
 	log_info(logger, "Leyendo Metadata.bin ...");
@@ -1112,9 +1255,13 @@ void leer_metadata(char* metadataPath)
 	metadata.blocks = config_get_int_value(metadataFile,"BLOCKS");
 	metadata.magic_number = string_duplicate(config_get_string_value(metadataFile,"MAGIC_NUMBER"));
 	metadata.block_size = config_get_int_value(metadataFile,"BLOCK_SIZE");
+
 	config_destroy(metadataFile);
 }
 
+/*
+ * se valida el bitmap
+ * */
 void leer_bitmap(char* bitmapBin)
 {
 	log_info(logger, "Leyendo Bitmap.bin ...");
@@ -1130,6 +1277,4 @@ void leer_bitmap(char* bitmapBin)
 	fread((void*) bitarray_str, sizeof(char), file_size, bitmap_file);
 	bitmap = bitarray_create_with_mode(bitarray_str, file_size, MSB_FIRST);
 }
-
-
 
