@@ -237,14 +237,16 @@ char* formatToMetadataBlocks(t_list* blocks)
 	{
 		for(int i=0; i<list_size(blocks); i++)
 		{
-			string_append(&retBlocks, string_itoa((int)list_get(blocks, i)));
+			char* aux1 = string_itoa((int)list_get(blocks, i));
+			string_append(&retBlocks, aux1);//CORREGIDO
 			if (i != (list_size(blocks) - 1)) string_append(&retBlocks, ",");
 		}
 	} 
 	
 	if (list_size(blocks) == 1)
 	{
-		string_append(&retBlocks, string_itoa((int)list_get(blocks, 0))); //TODO ERROR
+		char* aux2 = string_itoa((int)list_get(blocks, 0));
+		string_append(&retBlocks, aux2); //CORREGIDO
 
 	}
 
@@ -322,7 +324,7 @@ void createNewPokemon(new_pokemon* newPokemon)
 			
 			FILE* blockFile = fopen(pathBloque,"wr");
 			fwrite(pokemonPerPosition, 1 , pokemonPerPositionLength, blockFile);
-			actualizar_pokemon_metadata(newPokemon->nombrePokemon, "N", stringLength, metadataBlocks, "N", "NEW_POKEMON");//VER NEW_POKEMON EN PROTOCOLO DE MSJ
+			actualizar_pokemon_metadata(newPokemon->nombrePokemon, "N", stringLength, metadataBlocks, "N", "NEW_POKEMON");
 			log_info(logger, "Operacion NEW_POKEMON %s, Coordenada: (%d, %d, %d) terminada correctamente", newPokemon->nombrePokemon, newPokemon->posicionEjeX, newPokemon->posicionEjeY, newPokemon->cantidad);
 			
 			fclose(blockFile);
@@ -420,7 +422,8 @@ t_list* getAPokemon(get_pokemon* getPokemon)
 	else
 	{
 		log_error(logger, "No existe ese Pokemon en el FileSystem.");
-		res = list_create(); //TODO ERROR
+		t_list* listaAux = list_create();
+		res = listaAux; //TODO ERROR, se pierde info, CORREGIDO
 	}
 
 	free(completePath);
@@ -447,8 +450,8 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 
 	while(true)
 	{
-		if(string_equals_ignore_case(pokemonMetadata.isOpen, "N")) { //TODO ERROR INVALID READ OF SIZE 1
-			//sleep(10);
+		//CORREGIDO contenido del if
+		if(strcmp(pokemonMetadata.isOpen, "N")) { //TODO ERROR INVALID READ OF SIZE 1
 			log_info(logger, "El archivo no está abierto por ningun proceso, se procede a abrir el mismo...");
 
 			pthread_mutex_lock(&pokemonOpenTad->mArchivo);
@@ -470,10 +473,11 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 			char* stringLength = string_itoa(strlen(stringToWrite));
 			
 			if (freeBlocks > blocksRequired) {
-				//necesiito pedir bloques
+				//necesito pedir bloques
 				if (blocksRequired > list_size(listBlocks)) {
 					int extraBlocksNeeded = blocksRequired - list_size(listBlocks);
 					t_list* extraBlocks = requestFreeBlocks(extraBlocksNeeded);
+
 					//agrego los nuevos bloques en la lista original
 					list_add_all(listBlocks, (void*) extraBlocks);
 					list_destroy(extraBlocks);
@@ -511,8 +515,9 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 		}
 	}
 
-	free(pokemonMetadata.blocks); //TODO ERROR
-	free(pokemonMetadata.isOpen);//TODO ERROR
+	free(pokemonMetadata.blocks); //TODO ERROR, corregido
+	free(pokemonMetadata.isOpen);//TODO ERROR, corregido
+	//free(pokemonMetadata);//CORREGIDO,
 }
 
 /*
@@ -533,8 +538,7 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath)
 	pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 
 	while(true) {
-		if (string_equals_ignore_case(pokemonMetadata.isOpen, "N")) { //TODO ERROR
-			//sleep(10);
+		if (strcmp(pokemonMetadata.isOpen, "N")) {
 			log_info(logger, "El archivo no esta abierto por ningun proceso, se procede a abrir el mismo..");
 
 			pthread_mutex_lock(&pokemonOpenTad->mArchivo);
@@ -559,8 +563,8 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath)
 		}
 	}
 
-	free(pokemonMetadata.blocks); //TODO ERROR
-	free(pokemonMetadata.isOpen);//TODO ERROR
+	free(pokemonMetadata.blocks); //TODO ERROR, CORREGIDO
+	free(pokemonMetadata.isOpen);//TODO ERROR, CORREGIDO
 	return res;
 }
 
@@ -582,8 +586,7 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 	pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 
 	while(true) {
-		if (string_equals_ignore_case(pokemonMetadata.isOpen, "N")) { //TODO ERROR
-			//sleep(10);
+		if (strcmp(pokemonMetadata.isOpen, "N")) {
 			log_info(logger, "El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..");
 
 			pthread_mutex_lock(&pokemonOpenTad->mArchivo);
@@ -671,8 +674,8 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 		}
 	}
 
-	free(pokemonMetadata.blocks); //TODO ERROR
-	free(pokemonMetadata.isOpen); //TODO ERROR
+	free(pokemonMetadata.blocks); //TODO ERROR, CORREGIDO
+	free(pokemonMetadata.isOpen); //TODO ERROR, CORREGIDO
 	return res;
 }
 
@@ -861,7 +864,8 @@ t_list* leer_pokemons(t_list* blocks)
 	{
 		char* blockPath = string_new();
         string_append(&blockPath, struct_paths[BLOCKS]);
-        string_append(&blockPath, string_itoa((int)list_get(blocks, i))); //TODO BORRAR
+		char* aux3 = string_itoa((int)list_get(blocks, i));
+        string_append(&blockPath, aux3); //TODO BORRAR, CORREGIDO
 		string_append(&blockPath, ".bin");
 
 		blockFile = fopen(blockPath, "r");
@@ -885,7 +889,7 @@ t_list* leer_pokemons(t_list* blocks)
 				blockLine = estructura_block_line(previousLastLine);
 				isBreakFile = 0;
 				free(previousLastLine);
-				//previousLastLine = string_new();
+				previousLastLine = string_new();// -------------------------------------------------------------
 				list_add(retList, (void*)blockLine);
 			}
 			else
@@ -913,19 +917,32 @@ t_list* string_blocks_list(char* blocks)
 	// Solo esta usando un bloque
 	if (strlen(blocks) == 3)
 	{
-		char* blockStrWithoutBraces = string_substring(blocks, 1, 1); //TODO BORRAR
+		char* blockStrWithoutBraces = string_substring(blocks, 1, 1); //TODO BORRAR, CORREGIDO
 		list_add(retList, (void*)atoi(blockStrWithoutBraces));
+
+		free(blockStrWithoutBraces);
 	} // Mas de un bloque siendo usado
 	else
 	{
-		char* blocksStrWithoutBraces = string_substring(blocks, 1, strlen(blocks) - 2); //TODO BORRAR
-		char** blocksWithoutCommaSeparator = string_split(blocksStrWithoutBraces, ","); //TODO BORRAR
+		char* blocksStrWithoutBraces = string_substring(blocks, 1, strlen(blocks) - 2); //TODO BORRAR, corregido
+		char** blocksWithoutCommaSeparator = string_split(blocksStrWithoutBraces, ","); //TODO BORRAR, corregido
+
 		int i = 0;
 		while(blocksWithoutCommaSeparator[i] != NULL)
 		{
 			list_add(retList, (void*)atoi(blocksWithoutCommaSeparator[i]));
 			i++;
 		}
+
+		//para liberar char**
+		int cont = 0;
+		while(blocksWithoutCommaSeparator[cont] != NULL){
+			free(blocksWithoutCommaSeparator[cont]);
+			cont++;
+		}
+		free(blocksWithoutCommaSeparator);//LO AGREGUE YO
+
+		free(blocksStrWithoutBraces);//LO AGREGUE YO
 	}
 
 	return retList;
@@ -936,23 +953,28 @@ t_list* string_blocks_list(char* blocks)
  * */
 blockLine* estructura_block_line(char* blockline)
 {
-	blockLine* newLineBlock = malloc(sizeof(blockLine)); //TODO BORRAR
-	char** splittedLine = string_split(blockline, "="); //TODO BORRAR
-	char** coordinates = string_split(splittedLine[0], "-"); //TODO BORRAR
+	blockLine* newLineBlock = malloc(sizeof(blockLine)); //TODO BORRAR, corregido
+	char** splittedLine = string_split(blockline, "="); //TODO BORRAR, CORREGIDO
+	char** coordinates = string_split(splittedLine[0], "-"); //TODO BORRAR, CORREGIDO
 	newLineBlock->posX = atoi(coordinates[0]);
 	newLineBlock->posY = atoi(coordinates[1]);
 	newLineBlock->cantidad = atoi(splittedLine[1]);
 
-//	int contador = 0;
-//	while(posicion[contador] != NULL){
-//		free(posicion[contador]);
-//		contador++;
-//	}
-//	free(posicion);
-//TODO PARA LIBERAR UN CHAR**
-
+	int cont1 = 0;
+	while(splittedLine[cont1] != NULL){
+		free(splittedLine[cont1]);
+		cont1++;
+	}
 	free(splittedLine);
 
+	int cont2 = 0;
+	while(coordinates[cont2] != NULL){
+		free(coordinates[cont2]);
+		cont2++;
+	}
+	free(coordinates);
+
+	free(newLineBlock);
 	return newLineBlock;
 }
 
@@ -985,11 +1007,13 @@ char* formatear_block_lines(int intPosX, int intPosY, int intCantidad)
 	string_append(&pokemonPerPosition, posY);
 	string_append(&pokemonPerPosition, "=");
 	string_append(&pokemonPerPosition, cantidad);
-	string_append(&pokemonPerPosition, "\n"); //TODO CORREGIR
+	string_append(&pokemonPerPosition, "\n"); //TODO CORREGIR, corregido
 
 	free(posX);
 	free(posY);
 	free(cantidad);
+
+	free(pokemonPerPosition);
 	return pokemonPerPosition;
 }
 
@@ -1123,21 +1147,15 @@ void crear_root_files()
 	else
 	{
 		// Creo carpetas
-		//pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		mkdir(dir_metadata, 0777);
-		//pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		log_info(logger, "Creada carpeta Metadata/");
 
-		//pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		mkdir(archivos, 0777);
-		//pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		log_info(logger, "Creada carpeta Files/");
 		log_info(logger, "Creada carpeta Files/ %s", dir_bloques);//es la de pokemons
 
 
-		//pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		mkdir(dir_bloques, 0777);
-		//pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		log_info(logger, "Creada carpeta Bloques/");
 	}
 

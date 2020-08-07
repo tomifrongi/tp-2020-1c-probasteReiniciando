@@ -138,6 +138,9 @@ void* handler_suscripciones(void* socket)
 				new_pokemon_m->posicionEjeX = mensaje->posicionEjeX;
 				new_pokemon_m->posicionEjeY = mensaje->posicionEjeY;
 
+				//pthread_t hiloNew;
+				//pthread_create(&hiloNew, NULL, (void*) procesar_new_enviar_appeared, (void*) new_pokemon_m);
+				//pthread_detach(hiloNew);
 				procesar_new_enviar_appeared(new_pokemon_m,idMensaje);
 
 				pthread_t thread;
@@ -164,7 +167,9 @@ void* handler_suscripciones(void* socket)
 				catch_pokemon_m->posicionEjeX = mensaje->posicionEjeX;
 				catch_pokemon_m->posicionEjeY = mensaje->posicionEjeY;
 
-				//Esto capaz hay que pasarlo a un hilo para que no trabe la cola
+				//pthread_t hiloCatch;
+				//pthread_create(&hiloCatch, NULL, (void*) procesar_catch_enviar_caught, (void*) catch_pokemon_m);
+				//pthread_detach(hiloCatch);
 				procesar_catch_enviar_caught(catch_pokemon_m,idMensaje);
 
 				pthread_t thread;
@@ -190,7 +195,9 @@ void* handler_suscripciones(void* socket)
 				get_pokemon_m->sizeNombre = mensaje->sizeNombre;
 				strcpy(get_pokemon_m->nombrePokemon,mensaje->nombrePokemon);
 
-				//Esto capaz hay que pasarlo a un hilo para que no trabe la cola
+				//pthread_t hiloGet;
+				//pthread_create(&hiloGet, NULL, (void*) procesar_get_enviar_localized, (void*) get_pokemon_m);
+				//pthread_detach(hiloGet);
 				procesar_get_enviar_localized(get_pokemon_m,idMensaje);
 
 				pthread_t thread;
