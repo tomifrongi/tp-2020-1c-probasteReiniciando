@@ -211,13 +211,18 @@ void deserializarLocalized(void* content){
 	log_info(logger,"ID MENSAJE: %d",mensaje.id_mensaje);
 	log_info(logger,"ID CORRELATIVO: %d",mensaje.idCorrelativo);
 	log_info(logger,"NOMBRE POKEMON: %s",mensaje.nombrePokemon);
-	index = 0;
-	while(index<longitudLista){
-		int* posicion1 = list_get(posiciones,index);
-		int* posicion2 = list_get(posiciones,index+1);
-		log_info(logger,"POSICION: (%d,%d)",*posicion1,*posicion2);
-		index+=2;
+	if(mensaje.cantidadPosiciones>0)
+	{
+		index = 0;
+		while(index<longitudLista){
+			int* posicion1 = list_get(posiciones,index);
+			int* posicion2 = list_get(posiciones,index+1);
+			log_info(logger,"POSICION: (%d,%d)",*posicion1,*posicion2);
+			index+=2;
+		}
 	}
+	else
+		log_info(logger,"0 POSICIONES");
 	free(mensaje.nombrePokemon);
 	list_destroy_and_destroy_elements(posiciones,free);
 }
