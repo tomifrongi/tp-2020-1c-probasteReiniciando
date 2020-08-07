@@ -244,7 +244,8 @@ char* formatToMetadataBlocks(t_list* blocks)
 	
 	if (list_size(blocks) == 1)
 	{
-		string_append(&retBlocks, string_itoa((int)list_get(blocks, 0)));
+		string_append(&retBlocks, string_itoa((int)list_get(blocks, 0))); //TODO ERROR
+
 	}
 
 	string_append(&retBlocks, "]");
@@ -419,7 +420,7 @@ t_list* getAPokemon(get_pokemon* getPokemon)
 	else
 	{
 		log_error(logger, "No existe ese Pokemon en el FileSystem.");
-		res = list_create();
+		res = list_create(); //TODO ERROR
 	}
 
 	free(completePath);
@@ -446,7 +447,7 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 
 	while(true)
 	{
-		if(string_equals_ignore_case(pokemonMetadata.isOpen, "N")) {
+		if(string_equals_ignore_case(pokemonMetadata.isOpen, "N")) { //TODO ERROR INVALID READ OF SIZE 1
 			//sleep(10);
 			log_info(logger, "El archivo no está abierto por ningun proceso, se procede a abrir el mismo...");
 
@@ -510,8 +511,8 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 		}
 	}
 
-	free(pokemonMetadata.blocks);
-	free(pokemonMetadata.isOpen);
+	free(pokemonMetadata.blocks); //TODO ERROR
+	free(pokemonMetadata.isOpen);//TODO ERROR
 }
 
 /*
@@ -532,7 +533,7 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath)
 	pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 
 	while(true) {
-		if (string_equals_ignore_case(pokemonMetadata.isOpen, "N")) {
+		if (string_equals_ignore_case(pokemonMetadata.isOpen, "N")) { //TODO ERROR
 			//sleep(10);
 			log_info(logger, "El archivo no esta abierto por ningun proceso, se procede a abrir el mismo..");
 
@@ -558,8 +559,8 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath)
 		}
 	}
 
-	free(pokemonMetadata.blocks);
-	free(pokemonMetadata.isOpen);
+	free(pokemonMetadata.blocks); //TODO ERROR
+	free(pokemonMetadata.isOpen);//TODO ERROR
 	return res;
 }
 
@@ -581,7 +582,7 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 	pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 
 	while(true) {
-		if (string_equals_ignore_case(pokemonMetadata.isOpen, "N")) {
+		if (string_equals_ignore_case(pokemonMetadata.isOpen, "N")) { //TODO ERROR
 			//sleep(10);
 			log_info(logger, "El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..");
 
@@ -670,8 +671,8 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 		}
 	}
 
-	free(pokemonMetadata.blocks);
-	free(pokemonMetadata.isOpen);
+	free(pokemonMetadata.blocks); //TODO ERROR
+	free(pokemonMetadata.isOpen); //TODO ERROR
 	return res;
 }
 
@@ -749,7 +750,7 @@ int _mkpath(char* file_path, mode_t mode)
  * */
 char* obtener_path_nro_bloque(int numeroDeBloque)
 {
-	char* path_del_bloque = malloc(strlen(puntoMontaje)+strlen("/Bloques")+20);
+	char* path_del_bloque = malloc(strlen(puntoMontaje)+strlen("/Bloques")+20); //TODO ERROR
 	sprintf(path_del_bloque,"%sBloques/%d.bin",puntoMontaje, numeroDeBloque);
 	return path_del_bloque;
 }
@@ -763,9 +764,6 @@ t_pokemon_metadata leer_metadata_pokemon(char* pokemonPath)
 	char* existingPokemonBlocks = string_new();
 
 	t_pokemon_metadata metadata;
-
-	metadata.blocks = string_new();
-	metadata.isOpen = string_new();
 
 	string_append(&existingPokemonMetadata, pokemonPath);
 	string_append(&existingPokemonMetadata, "/Metadata.bin");
@@ -851,19 +849,19 @@ void escribir_blocks(char* value, t_list* bloques)
  * */
 t_list* leer_pokemons(t_list* blocks)
 {
-	t_list* retList = list_create();
+	t_list* retList = list_create(); //TODO BORRAR
 	size_t len = 0;
 	char* line = NULL;
 	ssize_t read;
 	FILE* blockFile;
 	int isBreakFile = 0;
-	char* previousLastLine = string_new();
+	char* previousLastLine = string_new(); //TODO BORRAR
 
 	for (int i = 0; i < list_size(blocks); i++)
 	{
 		char* blockPath = string_new();
         string_append(&blockPath, struct_paths[BLOCKS]);
-        string_append(&blockPath, string_itoa((int)list_get(blocks, i)));
+        string_append(&blockPath, string_itoa((int)list_get(blocks, i))); //TODO BORRAR
 		string_append(&blockPath, ".bin");
 
 		blockFile = fopen(blockPath, "r");
@@ -911,17 +909,17 @@ t_list* leer_pokemons(t_list* blocks)
  * */
 t_list* string_blocks_list(char* blocks)
 {
-	t_list* retList = list_create();
+	t_list* retList = list_create(); //TODO BORRAR
 	// Solo esta usando un bloque
 	if (strlen(blocks) == 3)
 	{
-		char* blockStrWithoutBraces = string_substring(blocks, 1, 1);
+		char* blockStrWithoutBraces = string_substring(blocks, 1, 1); //TODO BORRAR
 		list_add(retList, (void*)atoi(blockStrWithoutBraces));
 	} // Mas de un bloque siendo usado
 	else
 	{
-		char* blocksStrWithoutBraces = string_substring(blocks, 1, strlen(blocks) - 2);
-		char** blocksWithoutCommaSeparator = string_split(blocksStrWithoutBraces, ",");
+		char* blocksStrWithoutBraces = string_substring(blocks, 1, strlen(blocks) - 2); //TODO BORRAR
+		char** blocksWithoutCommaSeparator = string_split(blocksStrWithoutBraces, ","); //TODO BORRAR
 		int i = 0;
 		while(blocksWithoutCommaSeparator[i] != NULL)
 		{
@@ -938,12 +936,23 @@ t_list* string_blocks_list(char* blocks)
  * */
 blockLine* estructura_block_line(char* blockline)
 {
-	blockLine* newLineBlock = malloc(sizeof(blockLine));
-	char** splittedLine = string_split(blockline, "=");
-	char** coordinates = string_split(splittedLine[0], "-");
+	blockLine* newLineBlock = malloc(sizeof(blockLine)); //TODO BORRAR
+	char** splittedLine = string_split(blockline, "="); //TODO BORRAR
+	char** coordinates = string_split(splittedLine[0], "-"); //TODO BORRAR
 	newLineBlock->posX = atoi(coordinates[0]);
 	newLineBlock->posY = atoi(coordinates[1]);
 	newLineBlock->cantidad = atoi(splittedLine[1]);
+
+//	int contador = 0;
+//	while(posicion[contador] != NULL){
+//		free(posicion[contador]);
+//		contador++;
+//	}
+//	free(posicion);
+//TODO PARA LIBERAR UN CHAR**
+
+	free(splittedLine);
+
 	return newLineBlock;
 }
 
@@ -976,7 +985,7 @@ char* formatear_block_lines(int intPosX, int intPosY, int intCantidad)
 	string_append(&pokemonPerPosition, posY);
 	string_append(&pokemonPerPosition, "=");
 	string_append(&pokemonPerPosition, cantidad);
-	string_append(&pokemonPerPosition, "\n");
+	string_append(&pokemonPerPosition, "\n"); //TODO CORREGIR
 
 	free(posX);
 	free(posY);

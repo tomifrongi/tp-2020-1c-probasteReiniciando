@@ -97,7 +97,8 @@ void* handler_broker(void *cola) { //Inicia el gamecard conectandose al broker
 void enviar_ack(void* arg) {
 	uint32_t id = (uint32_t) arg; //creo que no se esta usando
 	pid_t processId = getpid();
-	int client_fd = connect_to_server(ipBroker, puertoBroker, NULL);
+	int client_fd = connect_to_server(ipBroker, puertoBroker, NULL); //TODO esto esta mal, tenes que usar el mismo socket
+																	//de la suscripcion
 	if (client_fd > 0)
 	{
 		void* content = malloc(sizeof(uint32_t) + sizeof(pid_t));
@@ -129,25 +130,25 @@ void* handler_suscripciones(void* socket)
 				uint32_t idMensaje = mensaje->id_mensaje;
 
 				//FILE SYSTEM
-				new_pokemon* new_pokemon = malloc(sizeof(new_pokemon));
-				new_pokemon->nombrePokemon = malloc(mensaje->sizeNombre);
-				new_pokemon->sizeNombre = mensaje->sizeNombre;
-				strcpy(new_pokemon->nombrePokemon,mensaje->nombrePokemon);
-				new_pokemon->cantidad = mensaje->cantidad;
-				new_pokemon->posicionEjeX = mensaje->posicionEjeX;
-				new_pokemon->posicionEjeY = mensaje->posicionEjeY;
+				new_pokemon* new_pokemon_m = malloc(sizeof(new_pokemon));
+				new_pokemon_m->nombrePokemon = malloc(mensaje->sizeNombre);
+				new_pokemon_m->sizeNombre = mensaje->sizeNombre;
+				strcpy(new_pokemon_m->nombrePokemon,mensaje->nombrePokemon);
+				new_pokemon_m->cantidad = mensaje->cantidad;
+				new_pokemon_m->posicionEjeX = mensaje->posicionEjeX;
+				new_pokemon_m->posicionEjeY = mensaje->posicionEjeY;
 
-				procesar_new_enviar_appeared(new_pokemon,idMensaje);
+				procesar_new_enviar_appeared(new_pokemon_m,idMensaje);
 
 				pthread_t thread;
 				pthread_create(&thread, NULL, (void*) enviar_ack, (void*) idMensaje);
 				pthread_detach(thread);
 
-				free_t_message(message);
+				free_t_message(message); //TODO yo lo pondria afuera del switch, si recibis un error_recv nunca lo borras
 				free(mensaje->nombrePokemon);
 				free(mensaje);
-				free(new_pokemon->nombrePokemon);
-				free(new_pokemon);
+				free(new_pokemon_m->nombrePokemon);
+				free(new_pokemon_m);
 				break;
 			}
 			case CATCH_POKEMON:{
@@ -156,15 +157,15 @@ void* handler_suscripciones(void* socket)
 				uint32_t idMensaje = mensaje->id_mensaje;
 
 				//FILE SYSTEM
-				catch_pokemon* catch_pokemon = malloc(sizeof(catch_pokemon));
-				catch_pokemon->nombrePokemon = malloc(mensaje->sizeNombre);
-				catch_pokemon->sizeNombre = mensaje->sizeNombre;
-				strcpy(catch_pokemon->nombrePokemon,mensaje->nombrePokemon);
-				catch_pokemon->posicionEjeX = mensaje->posicionEjeX;
-				catch_pokemon->posicionEjeY = mensaje->posicionEjeY;
+				catch_pokemon* catch_pokemon_m = malloc(sizeof(catch_pokemon));
+				catch_pokemon_m->nombrePokemon = malloc(mensaje->sizeNombre);
+				catch_pokemon_m->sizeNombre = mensaje->sizeNombre;
+				strcpy(catch_pokemon_m->nombrePokemon,mensaje->nombrePokemon);
+				catch_pokemon_m->posicionEjeX = mensaje->posicionEjeX;
+				catch_pokemon_m->posicionEjeY = mensaje->posicionEjeY;
 
 				//Esto capaz hay que pasarlo a un hilo para que no trabe la cola
-				procesar_catch_enviar_caught(catch_pokemon,idMensaje);
+				procesar_catch_enviar_caught(catch_pokemon_m,idMensaje);
 
 				pthread_t thread;
 				pthread_create(&thread, NULL, (void*) enviar_ack, (void*) idMensaje);
@@ -173,8 +174,8 @@ void* handler_suscripciones(void* socket)
 				free_t_message(message);
 				free(mensaje->nombrePokemon);
 				free(mensaje);
-				free(catch_pokemon->nombrePokemon);
-				free(catch_pokemon);
+				free(catch_pokemon_m->nombrePokemon);
+				free(catch_pokemon_m);
 				break;
 
 			}
@@ -184,13 +185,13 @@ void* handler_suscripciones(void* socket)
 				uint32_t idMensaje = mensaje->id_mensaje;
 
 				//FILE SYSTEM
-				get_pokemon* get_pokemon = malloc(sizeof(catch_pokemon));
-				get_pokemon->nombrePokemon = malloc(mensaje->sizeNombre);
-				get_pokemon->sizeNombre = mensaje->sizeNombre;
-				strcpy(get_pokemon->nombrePokemon,mensaje->nombrePokemon);
+				get_pokemon* get_pokemon_m = malloc(sizeof(get_pokemon));
+				get_pokemon_m->nombrePokemon = malloc(mensaje->sizeNombre);
+				get_pokemon_m->sizeNombre = mensaje->sizeNombre;
+				strcpy(get_pokemon_m->nombrePokemon,mensaje->nombrePokemon);
 
 				//Esto capaz hay que pasarlo a un hilo para que no trabe la cola
-				procesar_get_enviar_localized(get_pokemon,idMensaje);
+				procesar_get_enviar_localized(get_pokemon_m,idMensaje);
 
 				pthread_t thread;
 				pthread_create(&thread, NULL, (void*) enviar_ack, (void*) idMensaje);
@@ -199,8 +200,8 @@ void* handler_suscripciones(void* socket)
 				free_t_message(message);
 				free(mensaje->nombrePokemon);
 				free(mensaje);
-				free(get_pokemon->nombrePokemon);
-				free(get_pokemon);
+				free(get_pokemon_m->nombrePokemon);
+				free(get_pokemon_m);
 				break;
 
 			}
@@ -245,8 +246,9 @@ void procesar_new_enviar_appeared(new_pokemon* arg, uint32_t idMensaje)
 		free(message);
 		//no se hace nada con la recepcion del ACK
 	}
-	free(appeared_snd);
+
 	free(appeared_snd->nombrePokemon);
+	free(appeared_snd);
 	close(client_fd);
 }
 
@@ -291,8 +293,8 @@ void procesar_get_enviar_localized(get_pokemon* arg, uint32_t idMensaje)
 		free(message);
 		//no se hace nada con la recepcion del ACK
 	}
-	free(localized_snd);
 	free(localized_snd->nombrePokemon);
+	free(localized_snd);
 	close(client_fd);
 }
 
@@ -333,8 +335,8 @@ void gm_exit() {
 
 	log_destroy(logger);
 
-	free(puntoMontaje);
-	free(ipBroker);
+	//free(puntoMontaje);
+	//free(ipBroker);
 
 	//Libero metadata
 	free(struct_paths[METADATA]);
