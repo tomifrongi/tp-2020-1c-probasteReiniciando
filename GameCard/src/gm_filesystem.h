@@ -119,7 +119,7 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath);
 pokemon_open_tad* new_pokemon_open_tad();
 
 int es_char(char* str, char chr);
-int split_path(const char* path, char** super_path, char** name);
+int split_path(char* path, char** super_path, char** name);
 int _mkpath(char* file_path, mode_t mode);
 char* obtener_path_nro_bloque(int numeroDeBloque);
 t_pokemon_metadata leer_metadata_pokemon(char* pokemonPath);

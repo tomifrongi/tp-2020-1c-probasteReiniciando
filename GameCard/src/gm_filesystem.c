@@ -251,6 +251,10 @@ char* formatToMetadataBlocks(t_list* blocks)
 	return retBlocks;
 }
 
+void gcfsFreeBitmaps() {
+	free(bitmap->bitarray);
+	bitarray_destroy(bitmap);
+}
 /*
  * Liberamos el bloque
  * */
@@ -265,8 +269,10 @@ void liberar_block_line(t_blockLine* newLineBlock)
 void createNewPokemon(new_pokemon* newPokemon)
 {
 	char* completePath = string_new();
+
 	string_append(&completePath, struct_paths[FILES]);
 	string_append(&completePath, newPokemon->nombrePokemon);
+
 	int freeBlocks = liberar_blocks(metadata.blocks, bitmap);
 
 	// Existe Pokemon
@@ -306,11 +312,13 @@ void createNewPokemon(new_pokemon* newPokemon)
 		  {
 			int freeBlockPosition = obtener_conf_free_block(bitmap, metadata.blocks);
 			t_list* freeBlocks = list_create();
+
 			list_add(freeBlocks, (void*) freeBlockPosition);
+
 			char* metadataBlocks = formatToMetadataBlocks(freeBlocks);
 			char* stringLength = string_itoa(pokemonPerPositionLength);
-			
 			char* pathBloque = obtener_path_nro_bloque(freeBlockPosition);
+			
 			FILE* blockFile = fopen(pathBloque,"wr");
 			fwrite(pokemonPerPosition, 1 , pokemonPerPositionLength, blockFile);
 			actualizar_pokemon_metadata(newPokemon->nombrePokemon, "N", stringLength, metadataBlocks, "N", "NEW_POKEMON");//VER NEW_POKEMON EN PROTOCOLO DE MSJ
@@ -344,7 +352,7 @@ void createNewPokemon(new_pokemon* newPokemon)
 			t_list* listBlocks = requestFreeBlocks(blocksRequired);
 			escribir_blocks(stringToWrite, listBlocks);
 			char* metadataBlocks = formatToMetadataBlocks(listBlocks);
-			actualizar_pokemon_metadata(newPokemon->nombrePokemon, "N", stringLength, metadataBlocks, "N", "NEW_POKEMON");//ATENTI
+			actualizar_pokemon_metadata(newPokemon->nombrePokemon, "N", stringLength, metadataBlocks, "N", "NEW_POKEMON");
 			log_info(logger, "Operacion NEW_POKEMON %s, Coordenada: (%d, %d, %d) terminada correctamente", newPokemon->nombrePokemon, newPokemon->posicionEjeX, newPokemon->posicionEjeY, newPokemon->cantidad);
 
 			list_destroy(listBlocks);
@@ -374,6 +382,7 @@ int catchAPokemon(catch_pokemon* catchPokemon)
 {
 	char* completePath = string_new();
 	int res;
+
 	string_append(&completePath, struct_paths[FILES]);
 	string_append(&completePath, catchPokemon->nombrePokemon);
 
@@ -432,12 +441,13 @@ void operateNewPokemonFile(new_pokemon* newPokemon, char* completePath, int free
 		pokemonOpenTad = new_pokemon_open_tad();
 		dictionary_put(files_open, completePath, pokemonOpenTad);
 	}
+
 	pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 
 	while(true)
 	{
 		if(string_equals_ignore_case(pokemonMetadata.isOpen, "N")) {
-			sleep(10);
+			//sleep(10);
 			log_info(logger, "El archivo no está abierto por ningun proceso, se procede a abrir el mismo...");
 
 			pthread_mutex_lock(&pokemonOpenTad->mArchivo);
@@ -523,7 +533,7 @@ t_list* operateGetPokemonFile(get_pokemon* getPokemon, char* completePath)
 
 	while(true) {
 		if (string_equals_ignore_case(pokemonMetadata.isOpen, "N")) {
-			sleep(10);
+			//sleep(10);
 			log_info(logger, "El archivo no esta abierto por ningun proceso, se procede a abrir el mismo..");
 
 			pthread_mutex_lock(&pokemonOpenTad->mArchivo);
@@ -572,7 +582,7 @@ int operateCatchPokemonFile(catch_pokemon* catchPokemon, char* completePath)
 
 	while(true) {
 		if (string_equals_ignore_case(pokemonMetadata.isOpen, "N")) {
-			sleep(10);
+			//sleep(10);
 			log_info(logger, "El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..");
 
 			pthread_mutex_lock(&pokemonOpenTad->mArchivo);
@@ -687,7 +697,7 @@ int es_char(char* str, char chr)
 /*
  * Acomoda el path
  * */
-int split_path(const char* path, char** super_path, char** name)
+int split_path(char* path, char** super_path, char** name)
 {
 	int aux;
 	strcpy(*super_path, path);
@@ -741,7 +751,6 @@ char* obtener_path_nro_bloque(int numeroDeBloque)
 {
 	char* path_del_bloque = malloc(strlen(puntoMontaje)+strlen("/Bloques")+20);
 	sprintf(path_del_bloque,"%sBloques/%d.bin",puntoMontaje, numeroDeBloque);
-	//free(path_del_bloque);
 	return path_del_bloque;
 }
 
@@ -755,8 +764,8 @@ t_pokemon_metadata leer_metadata_pokemon(char* pokemonPath)
 
 	t_pokemon_metadata metadata;
 
-	metadata.blocks;
-	metadata.isOpen;
+	metadata.blocks = string_new();
+	metadata.isOpen = string_new();
 
 	string_append(&existingPokemonMetadata, pokemonPath);
 	string_append(&existingPokemonMetadata, "/Metadata.bin");
@@ -769,6 +778,10 @@ t_pokemon_metadata leer_metadata_pokemon(char* pokemonPath)
 
 	free(existingPokemonMetadata);
 	free(existingPokemonBlocks);
+
+	free(metadata.blocks);
+	free(metadata.isOpen);
+
 	return metadata;
 }
 
@@ -874,7 +887,7 @@ t_list* leer_pokemons(t_list* blocks)
 				blockLine = estructura_block_line(previousLastLine);
 				isBreakFile = 0;
 				free(previousLastLine);
-				previousLastLine = string_new();
+				//previousLastLine = string_new();
 				list_add(retList, (void*)blockLine);
 			}
 			else
@@ -1101,20 +1114,21 @@ void crear_root_files()
 	else
 	{
 		// Creo carpetas
-		pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
+		//pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		mkdir(dir_metadata, 0777);
-		pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
+		//pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		log_info(logger, "Creada carpeta Metadata/");
 
-		pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
+		//pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		mkdir(archivos, 0777);
+		//pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		log_info(logger, "Creada carpeta Files/");
 		log_info(logger, "Creada carpeta Files/ %s", dir_bloques);//es la de pokemons
-		pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 
-		pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
+
+		//pthread_mutex_lock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		mkdir(dir_bloques, 0777);
-		pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
+		//pthread_mutex_unlock(&MUTEX_LISTA_ARCHIVO_ABIERTO);
 		log_info(logger, "Creada carpeta Bloques/");
 	}
 
@@ -1171,6 +1185,7 @@ void conf_files()
 {
 	char* pokemonBasePath = string_new();
 	char* pokemonBaseBin = string_new();
+
 	string_append(&pokemonBasePath, struct_paths[FILES]);
 	string_append(&pokemonBasePath, "Pokemon/");
 

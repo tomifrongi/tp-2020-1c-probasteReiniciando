@@ -82,7 +82,7 @@ void* handler_broker(void *cola) { //Inicia el gamecard conectandose al broker
 			mensaje.size = sizeof(suscripcion);
 			send_message(socketGameCard, mensaje.head,mensaje.content, mensaje.size);
 			free(mensaje.content);
-			void* result = handler_suscripciones((void*) socketGameCard);
+			/*void* result = */handler_suscripciones((void*) socketGameCard);
 		}
 		sleep(tiempoReintentoConexion);
 	}
@@ -144,10 +144,10 @@ void* handler_suscripciones(void* socket)
 				pthread_detach(thread);
 
 				free_t_message(message);
-				//free(mensaje->nombrePokemon);
+				free(mensaje->nombrePokemon);
 				free(mensaje);
 				free(new_pokemon->nombrePokemon);
-				//free(new_pokemon);
+				free(new_pokemon);
 				break;
 			}
 			case CATCH_POKEMON:{
@@ -171,10 +171,10 @@ void* handler_suscripciones(void* socket)
 				pthread_detach(thread);
 
 				free_t_message(message);
-				//free(mensaje->nombrePokemon);
+				free(mensaje->nombrePokemon);
 				free(mensaje);
 				free(catch_pokemon->nombrePokemon);
-				//free(catch_pokemon);
+				free(catch_pokemon);
 				break;
 
 			}
@@ -197,14 +197,14 @@ void* handler_suscripciones(void* socket)
 				pthread_detach(thread);
 
 				free_t_message(message);
-				//free(mensaje->nombrePokemon);
+				free(mensaje->nombrePokemon);
 				free(mensaje);
 				free(get_pokemon->nombrePokemon);
-				//free(get_pokemon);
+				free(get_pokemon);
 				break;
 
 			}
-			case 100:{ //caso de error para el enumerado, se podria agregar en el idcola
+			default:{ //caso de error para el enumerado, se podria agregar en el idcola
 				free_t_message(message);
 				//pthread_exit(NULL);
 				return NULL;
@@ -335,10 +335,6 @@ void gm_exit() {
 
 	free(puntoMontaje);
 	free(ipBroker);
-	free(tiempoReintentoConexion);
-	free(tiempoReintentoOperacion);
-	free(tiempoRetardoOperacion);
-	free(puertoBroker);
 
 	//Libero metadata
 	free(struct_paths[METADATA]);
