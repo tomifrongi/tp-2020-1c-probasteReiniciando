@@ -104,19 +104,16 @@ bool verificar_nuevo_localized(t_team* team, t_pokemon* pokemon,uint32_t id_corr
 	bool respuesta_a_mensaje_get_propio = contain_id_get(idsGet,id_correlativo);
 	pthread_mutex_unlock(mutex_idsGet);
 
+	bool retorno = false;
 
-
-	if(respuesta_a_mensaje_get_propio && !contain_especie_recibida(especiesRecibidas,pokemon))
-		return false;
-	else{
+	if(respuesta_a_mensaje_get_propio && !contain_especie_recibida(especiesRecibidas,pokemon)){
 		char* especie_nueva_recibida = malloc(strlen(pokemon->especie)+1);
 		strcpy(especie_nueva_recibida,pokemon->especie);
 		list_add(especiesRecibidas,especie_nueva_recibida);
-		return true;
+		retorno = true;
 	}
-
-
 	pthread_mutex_unlock(mutex_especiesRecibidas);
+	return retorno;
 }
 
 void* procesar_localized(void* t){
@@ -128,37 +125,42 @@ void* procesar_localized(void* t){
 		localized_pokemon* mensaje = queue_pop(cola_localized);
 		pthread_mutex_unlock(mutex_cola_localized);
 
-		t_pokemon pokemon_a_capturar;
-		pokemon_a_capturar.especie = malloc(mensaje->sizeNombre);
-		strcpy(pokemon_a_capturar.especie,mensaje->nombrePokemon);
-		coordenada* posicion = list_get(mensaje->posiciones,0);
-		pokemon_a_capturar.posicion_x = posicion->posicionEjeX;
-		pokemon_a_capturar.posicion_y = posicion->posicionEjeY;
-		t_pokemon* pokemon_a_capturar_creado = crear_t_pokemon(pokemon_a_capturar);
-		free(pokemon_a_capturar.especie);
-		t_list* pokemones_localized = list_create();
-		void agregar_pokemon_suelto(void* posicion){
-			coordenada* posicionCasteada = posicion;
-			t_pokemon pokemon_a_capturar_aux;
-			pokemon_a_capturar_aux.especie = malloc(mensaje->sizeNombre);
-			strcpy(pokemon_a_capturar_aux.especie,mensaje->nombrePokemon);
-			pokemon_a_capturar_aux.posicion_x = posicionCasteada->posicionEjeX;
-			pokemon_a_capturar_aux.posicion_y = posicionCasteada->posicionEjeY;
-			t_pokemon* pokemon_a_capturar_creado_aux = crear_t_pokemon(pokemon_a_capturar_aux);
-			list_add(pokemones_localized,pokemon_a_capturar_creado_aux);
-			free(pokemon_a_capturar_aux.especie);
+		if((mensaje->cantidadPosiciones)>0)
+		{
+			t_pokemon pokemon_a_capturar;
+			pokemon_a_capturar.especie = malloc(mensaje->sizeNombre);
+			strcpy(pokemon_a_capturar.especie,mensaje->nombrePokemon);
+			coordenada* posicion = list_get(mensaje->posiciones,0);
+			pokemon_a_capturar.posicion_x = posicion->posicionEjeX;
+			pokemon_a_capturar.posicion_y = posicion->posicionEjeY;
+			t_pokemon* pokemon_a_capturar_creado = crear_t_pokemon(pokemon_a_capturar);
+			free(pokemon_a_capturar.especie);
+			t_list* pokemones_localized = list_create();
+			void agregar_pokemon_suelto(void* posicion){
+				coordenada* posicionCasteada = posicion;
+				t_pokemon pokemon_a_capturar_aux;
+				pokemon_a_capturar_aux.especie = malloc(mensaje->sizeNombre);
+				strcpy(pokemon_a_capturar_aux.especie,mensaje->nombrePokemon);
+				pokemon_a_capturar_aux.posicion_x = posicionCasteada->posicionEjeX;
+				pokemon_a_capturar_aux.posicion_y = posicionCasteada->posicionEjeY;
+				t_pokemon* pokemon_a_capturar_creado_aux = crear_t_pokemon(pokemon_a_capturar_aux);
+				list_add(pokemones_localized,pokemon_a_capturar_creado_aux);
+				free(pokemon_a_capturar_aux.especie);
+			}
+			bool b = verificar_nuevo_localized(team,pokemon_a_capturar_creado,mensaje->idCorrelativo);
+			borrar_t_pokemon(pokemon_a_capturar_creado);
+			if(b){
+				list_iterate(mensaje->posiciones,agregar_pokemon_suelto);
+				pthread_mutex_lock(mutex_planificar_entrenador);
+				list_add_all(team->mapa_pokemones,pokemones_localized);
+				planificar_entrenador(team);
+				pthread_mutex_unlock(mutex_planificar_entrenador);
+			}
+			borrar_localized_pokemon(mensaje);
+			list_destroy(pokemones_localized);
 		}
-		bool b = verificar_nuevo_localized(team,pokemon_a_capturar_creado,mensaje->idCorrelativo);
-		borrar_t_pokemon(pokemon_a_capturar_creado);
-		if(b){
-			list_iterate(mensaje->posiciones,agregar_pokemon_suelto);
-			pthread_mutex_lock(mutex_planificar_entrenador);
-			list_add_all(team->mapa_pokemones,pokemones_localized);
-			planificar_entrenador(team);
-			pthread_mutex_unlock(mutex_planificar_entrenador);
-		}
-		borrar_localized_pokemon(mensaje);
-		list_destroy(pokemones_localized);
+		else
+			borrar_localized_pokemon(mensaje);
 	}
 	return NULL;
 }
