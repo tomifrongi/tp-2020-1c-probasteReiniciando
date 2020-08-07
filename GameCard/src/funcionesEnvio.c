@@ -163,7 +163,7 @@ int get_status(t_message* message){
 
 void iniciar_config_logger() {
 	logger =  log_create("GameCard.log", "GameCard", 1, LOG_LEVEL_INFO);
-	t_config * config = config_create("./Debug/GameCard.config");
+	t_config * config = config_create("./GameCard.config");
 
 	tiempoReintentoConexion = config_get_int_value(config, "TIEMPO_DE_REINTENTO_CONEXION");
 	tiempoReintentoOperacion = config_get_int_value(config, "TIEMPO_DE_REINTENTO_OPERACION");
@@ -172,4 +172,6 @@ void iniciar_config_logger() {
 	ipBroker = config_get_string_value(config, "IP_BROKER");
 	puertoBroker = config_get_int_value(config, "PUERTO_BROKER");
 	puertoGameCard = config_get_int_value(config, "PUERTO_GAME_CARD");
+
+	//config_destroy(config);
 }

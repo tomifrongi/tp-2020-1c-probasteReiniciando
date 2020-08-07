@@ -147,7 +147,7 @@ void* handler_suscripciones(void* socket)
 				pthread_create(&thread, NULL, (void*) enviar_ack, (void*) idMensaje);
 				pthread_detach(thread);
 
-				free_t_message(message); //TODO yo lo pondria afuera del switch, si recibis un error_recv nunca lo borras
+				free_t_message(message);
 				free(mensaje->nombrePokemon);
 				free(mensaje);
 				free(new_pokemon_m->nombrePokemon);
@@ -300,6 +300,7 @@ void procesar_get_enviar_localized(get_pokemon* arg, uint32_t idMensaje)
 		free(message);
 		//no se hace nada con la recepcion del ACK
 	}
+
 	free(localized_snd->nombrePokemon);
 	free(localized_snd);
 	close(client_fd);
