@@ -151,3 +151,35 @@
 [INFO] 18:50:46:836 GameCard/(11984:11988): Se procede a setear el bloque 1 como Libre
 [INFO] 18:50:46:836 GameCard/(11984:11988): Operacion CATCH_POKEMON Squirtle en la posicion (5, 2) terminada correctamente
 [INFO] 18:50:46:837 GameCard/(11984:11988): El mensaje CAUGHT fue enviado al BROKER
+[INFO] 19:10:40:657 GameCard/(5447:5447): Creada carpeta Metadata/
+[INFO] 19:10:40:683 GameCard/(5447:5447): Creada carpeta Files/
+[INFO] 19:10:40:685 GameCard/(5447:5447): Creada carpeta Files/ /home/utnso/desktop/tall-grass/Bloques/
+[INFO] 19:10:40:687 GameCard/(5447:5447): Creada carpeta Bloques/
+[INFO] 19:10:40:688 GameCard/(5447:5447): Leyendo Metadata.bin ...
+[INFO] 19:10:40:695 GameCard/(5447:5447): Leyendo Bitmap.bin ...
+[INFO] 19:10:40:749 GameCard/(5447:5448): CONEXION EXITOSA CON EL BROKER
+[INFO] 19:10:40:752 GameCard/(5447:5449): CONEXION EXITOSA CON EL BROKER
+[INFO] 19:10:40:769 GameCard/(5447:5447): Servidor levantado! Escuchando en 5011
+[INFO] 19:10:40:795 GameCard/(5447:5449): ID MENSAJE: 25
+[INFO] 19:10:40:799 GameCard/(5447:5451): CONEXION EXITOSA CON EL BROKER
+[INFO] 19:10:40:809 GameCard/(5447:5449): NOMBRE POKEMON: Squirtle
+[INFO] 19:10:40:819 GameCard/(5447:5451): ID MENSAJE: 24
+[INFO] 19:10:40:820 GameCard/(5447:5449): POSICION EJE X: 5
+[INFO] 19:10:40:828 GameCard/(5447:5451): NOMBRE POKEMON: Onix
+[INFO] 19:10:40:830 GameCard/(5447:5451): Existe el pokemon, se leen las estructuras
+[INFO] 19:10:40:835 GameCard/(5447:5449): POSICION EJE Y: 2
+[INFO] 19:10:40:844 GameCard/(5447:5449): Existe el pokemon, se leen las estructuras
+[INFO] 19:10:40:857 GameCard/(5447:5451): El archivo no esta abierto por ningun proceso, se procede a abrir el mismo..
+[INFO] 19:10:40:861 GameCard/(5447:5449): El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..
+[INFO] 19:10:40:975 GameCard/(5447:5451): Operacion GET_POKEMON Onix terminada correctamente!
+[INFO] 19:10:41:12 GameCard/(5447:5451): El mensaje LOCALIZED fué enviado al BROKER
+[INFO] 19:10:41:55 GameCard/(5447:5449): Operacion CATCH_POKEMON Squirtle en la posicion (5, 2) terminada correctamente
+[INFO] 19:10:41:94 GameCard/(5447:5449): El mensaje CAUGHT fue enviado al BROKER
+[INFO] 19:10:41:133 GameCard/(5447:5449): ID MENSAJE: 26
+[INFO] 19:10:41:137 GameCard/(5447:5449): NOMBRE POKEMON: Squirtle
+[INFO] 19:10:41:140 GameCard/(5447:5449): POSICION EJE X: 5
+[INFO] 19:10:41:142 GameCard/(5447:5449): POSICION EJE Y: 5
+[INFO] 19:10:41:151 GameCard/(5447:5449): Existe el pokemon, se leen las estructuras
+[INFO] 19:10:41:154 GameCard/(5447:5449): El archivo no está abierto por ningun proceso, por lo tanto se procede a abrir el mismo..
+[INFO] 19:10:41:170 GameCard/(5447:5449): Operacion CATCH_POKEMON Squirtle en la posicion (5, 5) terminada correctamente
+[INFO] 19:10:41:178 GameCard/(5447:5449): El mensaje CAUGHT fue enviado al BROKER

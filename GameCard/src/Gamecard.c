@@ -207,7 +207,7 @@ void* handler_suscripciones(void* socket)
 				free_t_message(message);
 				free(mensaje->nombrePokemon);
 				free(mensaje);
-				free(get_pokemon_m->nombrePokemon);
+				//free(get_pokemon_m->nombrePokemon);
 				free(get_pokemon_m);
 				break;
 
@@ -264,14 +264,13 @@ void procesar_new_enviar_appeared(new_pokemon* arg, uint32_t idMensaje)
  * */
 void procesar_get_enviar_localized(get_pokemon* arg, uint32_t idMensaje)
 {
-	get_pokemon* get_rcv = arg;
-	t_list* response = getAPokemon(get_rcv);
+	t_list* response = getAPokemon(arg);
 
 	localized_pokemon* localized_snd = malloc(sizeof(localized_pokemon));
 	localized_snd->idCorrelativo = idMensaje;
-	localized_snd->nombrePokemon = malloc(get_rcv->sizeNombre);
-	localized_snd->nombrePokemon = get_rcv->nombrePokemon;
-	localized_snd->sizeNombre = get_rcv->sizeNombre;
+	localized_snd->nombrePokemon = malloc(arg->sizeNombre);
+	localized_snd->nombrePokemon = arg->nombrePokemon;
+	localized_snd->sizeNombre = arg->sizeNombre;
 
 	t_list* posiciones_list = list_create();
 

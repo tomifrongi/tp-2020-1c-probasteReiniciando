@@ -417,6 +417,7 @@ t_list* getAPokemon(get_pokemon* getPokemon)
 
 	if (access(completePath, F_OK) != -1)
 	{
+
 		log_info(logger, "Existe el pokemon, se leen las estructuras");
 		res = operateGetPokemonFile(getPokemon, completePath);
 	}

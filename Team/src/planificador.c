@@ -291,7 +291,7 @@ void* procesar_caught(void* t){
 				planificar_entrenador(TEAM);
 				pthread_mutex_unlock(mutex_planificar_entrenador);
 			}
-			free(id);
+			//free(id);
 
 		}
 		borrar_caught_pokemon(mensaje);
