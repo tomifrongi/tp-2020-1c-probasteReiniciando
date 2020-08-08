@@ -154,5 +154,6 @@ void borrar_appeared_pokemon(appeared_pokemon* ap);
 
 void borrar_localized_pokemon(localized_pokemon* lp);
 
+void* serializarACK(mensajeACK mensaje_confirmacion);
 //---------------------------------------------------------------------
 #endif /* SRC_PROTOCOLODEMENSAJES_H_ */

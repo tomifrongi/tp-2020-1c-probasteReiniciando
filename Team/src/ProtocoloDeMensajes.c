@@ -168,3 +168,16 @@ void borrar_localized_pokemon(localized_pokemon* lp){
 	list_destroy_and_destroy_elements(lp->posiciones,(void*)borrar_coordenada);
 	free(lp);
 }
+
+void* serializarACK(mensajeACK mensaje_confirmacion){
+	void* content = malloc(sizeof(mensajeACK));
+	int bytes_escritos = 0;
+
+	memcpy (content + bytes_escritos, &mensaje_confirmacion.id_mensaje, sizeof(uint32_t));
+	bytes_escritos += sizeof (uint32_t);
+	memcpy (content + bytes_escritos, &mensaje_confirmacion.idSuscriptor, sizeof(mensaje_confirmacion.idSuscriptor));
+	bytes_escritos +=  sizeof(mensaje_confirmacion.idSuscriptor);
+
+	return content;
+
+}

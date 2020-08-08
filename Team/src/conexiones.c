@@ -261,10 +261,10 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 		case APPEARED_POKEMON:{
 			appeared_pokemon* mensaje = deserializarAppeared(message->content);
 			log_info(log_team_oficial,"MENSAJE APPEARED RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \nNOMBRE: %s \nPOSICION (%d,%d) \n",mensaje->id_mensaje,mensaje->idCorrelativo,mensaje->nombrePokemon,mensaje->posicionEjeX,mensaje->posicionEjeY);
-			suscripcion mensajeACK;
-			mensajeACK.idCola = APPEARED;
-			mensajeACK.idSuscriptor = getpid();
-			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
+			mensajeACK mensaje_confirmacion;
+			mensaje_confirmacion.idSuscriptor = getpid();
+			mensaje_confirmacion.id_mensaje = mensaje->id_mensaje;
+			void* mensajeACKSerializado = serializarACK(mensaje_confirmacion);
 			int res = send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
 			free(mensajeACKSerializado);
 			pthread_mutex_lock(mutex_cola);
@@ -294,10 +294,10 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 			else
 				log_info(log_team_oficial,"MENSAJE LOCALIZED RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \nNOMBRE: %s \n 0 POSICIONES",mensaje->id_mensaje,mensaje->idCorrelativo,mensaje->nombrePokemon);
 
-			suscripcion mensajeACK;
-			mensajeACK.idCola = LOCALIZED;
-			mensajeACK.idSuscriptor = getpid();
-			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
+			mensajeACK mensaje_confirmacion;
+			mensaje_confirmacion.idSuscriptor = getpid();
+			mensaje_confirmacion.id_mensaje = mensaje->id_mensaje;
+			void* mensajeACKSerializado = serializarACK(mensaje_confirmacion);
 			int res = send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
 			free(mensajeACKSerializado);
 			pthread_mutex_lock(mutex_cola);
@@ -315,10 +315,10 @@ void handler_suscripciones(int socketTeam,t_queue*cola_mensajes,sem_t*semaforo_c
 				log_info(log_team_oficial,"MENSAJE CAUGHT RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \n EL POKEMON FUE ATRAPADO \n",mensaje->id_mensaje,mensaje->idCorrelativo);
 			else
 				log_info(log_team_oficial,"MENSAJE CAUGHT RECIBIDO \nID MENSAJE: %d \nID CORRELATIVO: %d \n EL POKEMON NO FUE ATRAPADO \n",mensaje->id_mensaje,mensaje->idCorrelativo);
-			suscripcion mensajeACK;
-			mensajeACK.idCola = CAUGHT;
-			mensajeACK.idSuscriptor = getpid();
-			void* mensajeACKSerializado = serializarSuscripcion(mensajeACK);
+			mensajeACK mensaje_confirmacion;
+			mensaje_confirmacion.idSuscriptor = getpid();
+			mensaje_confirmacion.id_mensaje = mensaje->id_mensaje;
+			void* mensajeACKSerializado = serializarACK(mensaje_confirmacion);
 			int res = send_message(socketTeam,CONFIRMACION,mensajeACKSerializado,sizeof(mensajeACK));
 			free(mensajeACKSerializado);
 			pthread_mutex_lock(mutex_cola);
@@ -439,6 +439,7 @@ int enviar_catch(char* especie,int posicion_x,int posicion_y,t_list* idsCatchh,p
 	}
 	return id;
 }
+
 
 
 
